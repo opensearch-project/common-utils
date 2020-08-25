@@ -32,6 +32,8 @@ import org.elasticsearch.common.util.concurrent.ThreadContext;
  * For background jobs usage only. User or Roles injection can be done using transport layer only.
  * You can't inject using REST api.
  *
+ * Roles injection is based this new feature in security plugin: https://github.com/opendistro-for-elasticsearch/security/pull/560
+ *
  * Java example Usage:
  *
  *      try (InjectSecurity injectSecurity = new InjectSecurity(id, settings, client.threadPool().getThreadContext())) {
