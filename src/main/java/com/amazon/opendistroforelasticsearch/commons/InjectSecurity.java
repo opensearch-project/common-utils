@@ -1,4 +1,26 @@
+/*
+ * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazon.opendistroforelasticsearch.commons;
+
+import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.INJECTED_USER;
+import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_INJECTED_ROLES;
+import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -6,17 +28,9 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.INJECTED_USER;
-import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_INJECTED_ROLES;
-import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USE_INJECTED_USER_DEFAULT;
-
-
 /**
- * For background jobs usage only. Roles injection can be done using transport layer only.
- * You can't inject roles using REST api.
+ * For background jobs usage only. User or Roles injection can be done using transport layer only.
+ * You can't inject using REST api.
  *
  * Java example Usage:
  *
@@ -69,6 +83,12 @@ public class InjectSecurity implements AutoCloseable {
     private Settings settings;
     private final Logger log = LogManager.getLogger(this.getClass());
 
+    /**
+     * Create InjectSecurity object. This is auto-closeable. Id is used only for logging purpose.
+     * @param id
+     * @param settings
+     * @param tc
+     */
     public InjectSecurity(String id, Settings settings, ThreadContext tc) {
         this.id = id;
         this.settings = settings;
@@ -78,20 +98,29 @@ public class InjectSecurity implements AutoCloseable {
         log.trace("{}, InjectSecurity constructor: {}", Thread.currentThread().getName(), id);
     }
 
+    /**
+     * Injects user or roles, based on opendistro_security_use_injected_user_for_plugins setting. By default injects roles.
+     * @param user
+     * @param roles
+     */
     public void inject(final String user, final List<String> roles) {
-        boolean injectUser = settings.getAsBoolean(OPENDISTRO_SECURITY_USE_INJECTED_USER_DEFAULT, false);
-        if( injectUser)
+        boolean injectUser = settings.getAsBoolean(OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS, false);
+        if (injectUser)
             injectUser(user);
         else
             injectRoles(roles);
     }
 
+    /**
+     * Injects user.
+     * @param user
+     */
     public void injectUser(final String user) {
-        if(Strings.isNullOrEmpty(user)) {
+        if (Strings.isNullOrEmpty(user)) {
             return;
         }
 
-        if(threadContext.getTransient(INJECTED_USER) == null) {
+        if (threadContext.getTransient(INJECTED_USER) == null) {
             threadContext.putTransient(INJECTED_USER, user);
             log.debug("{}, InjectSecurity - inject roles: {}", Thread.currentThread().getName(), id);
         } else {
@@ -99,14 +128,18 @@ public class InjectSecurity implements AutoCloseable {
         }
     }
 
+    /**
+     * Injects roles.
+     * @param roles
+     */
     public void injectRoles(final List<String> roles) {
-        if(roles == null || roles.size() == 0) {
+        if (roles == null || roles.size() == 0) {
             return;
         }
 
         String rolesStr = roles.stream().collect(Collectors.joining(","));
-        String injectStr = "plugin|"+rolesStr;
-        if(threadContext.getTransient(OPENDISTRO_SECURITY_INJECTED_ROLES) == null) {
+        String injectStr = "plugin|" + rolesStr;
+        if (threadContext.getTransient(OPENDISTRO_SECURITY_INJECTED_ROLES) == null) {
             threadContext.putTransient(OPENDISTRO_SECURITY_INJECTED_ROLES, injectStr);
             log.debug("{}, InjectSecurity - inject roles: {}", Thread.currentThread().getName(), id);
         } else {
@@ -116,7 +149,7 @@ public class InjectSecurity implements AutoCloseable {
 
     @Override
     public void close() {
-        if(ctx != null) {
+        if (ctx != null) {
             ctx.close();
             log.debug("{}, InjectSecurity close : {}", Thread.currentThread().getName(), id);
         }
