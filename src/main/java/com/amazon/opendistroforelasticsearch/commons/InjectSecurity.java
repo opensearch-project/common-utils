@@ -91,7 +91,7 @@ public class InjectSecurity implements AutoCloseable {
      * @param settings
      * @param tc
      */
-    public InjectSecurity(String id, Settings settings, ThreadContext tc) {
+    public InjectSecurity(final String id, final Settings settings, final ThreadContext tc) {
         this.id = id;
         this.settings = settings;
         this.threadContext = tc;
@@ -153,7 +153,7 @@ public class InjectSecurity implements AutoCloseable {
     public void close() {
         if (ctx != null) {
             ctx.close();
-            log.debug("{}, InjectSecurity close : {}", Thread.currentThread().getName(), id);
+            log.trace("{}, InjectSecurity close : {}", Thread.currentThread().getName(), id);
         }
     }
 }

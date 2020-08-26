@@ -56,9 +56,6 @@ import com.amazon.opendistroforelasticsearch.commons.ConfigConstants;
  * as trusted.
  *
  * If https is not enabled, creates a http based client.
-
- *      * todo: make the cert configurable, rather than hardcoded to self-signed.
- *      *
  */
 public class SecureRestClientBuilder {
 
@@ -70,16 +67,18 @@ public class SecureRestClientBuilder {
     private String user = null;
     private String passwd = null;
 
-    public SecureRestClientBuilder(Settings settings) {
-        host = ConfigConstants.HOST_DEFAULT;
-        port = settings.getAsInt(ConfigConstants.HTTP_PORT, ConfigConstants.HTTP_PORT_DEFAULT);
-        httpSSLEnabled = settings.getAsBoolean(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED, false);
-    }
-
     public SecureRestClientBuilder(final String host, final int port, final boolean httpSSLEnabled) {
         this.host = host;
         this.port = port;
         this.httpSSLEnabled = httpSSLEnabled;
+    }
+
+    public SecureRestClientBuilder(Settings settings) {
+        this(
+            ConfigConstants.HOST_DEFAULT,
+            settings.getAsInt(ConfigConstants.HTTP_PORT, ConfigConstants.HTTP_PORT_DEFAULT),
+            settings.getAsBoolean(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED, false)
+        );
     }
 
     /**
