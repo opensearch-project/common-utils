@@ -6,8 +6,6 @@ This library is composed of following parts:
 1. SecureRestClientBuilder - provides methods to create secure low-level and high-level REST client. This is 
    useful to make secure REST calls to Elasticsearch or other plugin api's. 
 2. InjectSecurity - provides methods to inject user or roles. This is useful for running background jobs securely.
-
-Next:
 3. IntegTestsWithSecurity - provides methods to create users, roles for running integ tests with security plugin.
 4. Shared Request/Response/Action classes used for plugin to plugin transport layer calls.
 5. Any common functionality across Elasticsearch plugins could be moved to this.
@@ -21,9 +19,6 @@ Next:
 
 
 ## Build
-[todo]: how to publish this project jar to maven/jcenter
-
-
 
 ### Building from the command line
 ```
@@ -40,6 +35,17 @@ To change loglevel, add below to `config/log4j2.properties` or use REST API to s
 logger.commons.name = com.amazon.opendistroforelasticsearch.commons
 logger.commons.level = debug
 ```
+
+
+## ToDo (feel free to pick these up)
+1. Publish jar to public maven.
+2. Add code coverage
+3. Add integration tests with security plugin.
+4. Make this plugin public.
+5. Add branches for all versions.
+6. github actions.
+
+
 
 ## Code of Conduct
 

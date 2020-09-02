@@ -19,9 +19,6 @@ import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.INJE
 import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_INJECTED_ROLES;
 import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.Strings;
@@ -105,7 +102,7 @@ public class InjectSecurity implements AutoCloseable {
      * @param user
      * @param roles
      */
-    public void inject(final String user, final List<String> roles) {
+    public void inject(final String user, final String roles) {
         boolean injectUser = settings.getAsBoolean(OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS, false);
         if (injectUser)
             injectUser(user);
@@ -131,15 +128,14 @@ public class InjectSecurity implements AutoCloseable {
     }
 
     /**
-     * Injects roles.
-     * @param roles
+     * Injects roles. Comma separated roles.
+     * @param rolesStr
      */
-    public void injectRoles(final List<String> roles) {
-        if (roles == null || roles.size() == 0) {
+    public void injectRoles(final String rolesStr) {
+        if (Strings.isNullOrEmpty(rolesStr)) {
             return;
         }
 
-        String rolesStr = roles.stream().collect(Collectors.joining(","));
         String injectStr = "plugin|" + rolesStr;
         if (threadContext.getTransient(OPENDISTRO_SECURITY_INJECTED_ROLES) == null) {
             threadContext.putTransient(OPENDISTRO_SECURITY_INJECTED_ROLES, injectStr);

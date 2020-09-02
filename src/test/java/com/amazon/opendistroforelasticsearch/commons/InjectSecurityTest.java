@@ -22,8 +22,6 @@ import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.junit.Assert;
@@ -53,7 +51,7 @@ public class InjectSecurityTest {
         assertEquals("plugin", threadContext.getTransient("ctx.name"));
 
         try (InjectSecurity helper = new InjectSecurity("test-name", settings, threadContext)) {
-            helper.inject("joe", Arrays.asList("ops-role", "logs-role"));
+            helper.inject("joe", "ops-role,logs-role");
             assertEquals("1", threadContext.getHeader("default"));
             assertEquals("opendistro", threadContext.getHeader("name"));
             assertEquals("plugin", threadContext.getTransient("ctx.name"));
@@ -79,7 +77,7 @@ public class InjectSecurityTest {
         assertEquals("plugin", threadContext.getTransient("ctx.name"));
 
         try (InjectSecurity helper = new InjectSecurity("test-name", settings, threadContext)) {
-            helper.inject("joe", Arrays.asList("ops-role", "logs-role"));
+            helper.inject("joe", "ops-role,logs-role");
             assertEquals("1", threadContext.getHeader("default"));
             assertEquals("opendistro", threadContext.getHeader("name"));
             assertEquals("plugin", threadContext.getTransient("ctx.name"));

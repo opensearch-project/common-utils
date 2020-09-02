@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -49,6 +51,8 @@ final public class AuthUser {
     private final RestClient restClient;
     private final List<String> authTokens;
 
+    private final Logger log = LogManager.getLogger(this.getClass());
+
     public AuthUser(final Settings settings, final RestClient restClient, final List<String> authTokens) {
         this.settings = checkNotNull(settings, "Cluster settings cannot be null");
         this.restClient = checkNotNull(restClient, "Rest client cannot be null");
@@ -61,12 +65,14 @@ final public class AuthUser {
      * @throws IOException
      */
     public final AuthUser get() throws IOException {
-
-        boolean isSecurityEnabled = settings.getAsBoolean(OPENDISTRO_SECURITY_DISABLED, false);
-        if (!isSecurityEnabled)
+        boolean isSecurityDisabled = settings.getAsBoolean(OPENDISTRO_SECURITY_DISABLED, true);
+        if (isSecurityDisabled) {
+            log.debug("Security is disabled.");
             return this;
+        }
 
         if (authTokens.size() == 0) {
+            log.debug("Auth token is not present.");
             return this;
         }
 

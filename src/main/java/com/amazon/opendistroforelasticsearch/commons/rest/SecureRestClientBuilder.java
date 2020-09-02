@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.commons.rest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
 
@@ -159,11 +158,7 @@ public class SecureRestClientBuilder {
             if (trustCerts == null) {
                 builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
             } else {
-                final String effectiveKeyAlias = "al";
-                X509Certificate[] trustCertificates;
-                KeyStore trustStore;
-                trustCertificates = PemReader.loadCertificatesFromFile(trustCerts);
-                trustStore = PemReader.toTruststore(effectiveKeyAlias, trustCertificates);
+                KeyStore trustStore = new TrustStore(trustCerts).create();
                 builder.loadTrustMaterial(trustStore, null);
             }
         }

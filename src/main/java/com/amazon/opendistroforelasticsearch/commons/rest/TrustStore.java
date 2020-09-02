@@ -27,12 +27,27 @@ import java.util.Collection;
 /**
  * Helper class to read raw pem files to keystore.
  */
-public class PemReader {
-    public static X509Certificate[] loadCertificatesFromFile(String file) throws IOException, GeneralSecurityException {
+public class TrustStore {
+
+    private final String effectiveKeyAlias = "al";
+    private final String storeType = "JKS";
+    private final String certType = "X.509";
+    private final String cert;
+
+    public TrustStore(final String file) {
+        cert = file;
+    }
+
+    public KeyStore create() throws IOException, GeneralSecurityException {
+        X509Certificate[] trustCerts = loadCertificatesFromFile(cert);
+        return toTruststore(effectiveKeyAlias, trustCerts);
+    }
+
+    private X509Certificate[] loadCertificatesFromFile(String file) throws IOException, GeneralSecurityException {
         if (file == null) {
             return null;
         }
-        CertificateFactory fact = CertificateFactory.getInstance("X.509");
+        CertificateFactory fact = CertificateFactory.getInstance(certType);
         try (FileInputStream is = new FileInputStream(file)) {
             Collection<? extends Certificate> certs = fact.generateCertificates(is);
             X509Certificate[] x509Certs = new X509Certificate[certs.size()];
@@ -44,13 +59,12 @@ public class PemReader {
         }
     }
 
-    public static KeyStore toTruststore(final String trustCertificatesAliasPrefix, final X509Certificate[] trustCertificates)
-        throws IOException,
+    private KeyStore toTruststore(final String trustCertificatesAliasPrefix, final X509Certificate[] trustCertificates) throws IOException,
         GeneralSecurityException {
         if (trustCertificates == null) {
             return null;
         }
-        KeyStore ks = KeyStore.getInstance("JKS");
+        KeyStore ks = KeyStore.getInstance(storeType);
         ks.load(null);
 
         if (trustCertificates != null && trustCertificates.length > 0) {
