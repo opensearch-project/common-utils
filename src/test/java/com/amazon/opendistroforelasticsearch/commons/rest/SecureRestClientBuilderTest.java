@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.commons.rest;
 
+import java.io.File;
+import java.nio.file.Paths;
+
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Assert;
@@ -25,7 +29,7 @@ public class SecureRestClientBuilderTest {
     @Test
     public void testHttpRestClient() throws Exception {
         Settings settings = Settings.builder().put("http.port", 9200).put("opendistro_security.ssl.http.enabled", false).build();
-        SecureRestClientBuilder builder = new SecureRestClientBuilder(settings);
+        SecureRestClientBuilder builder = new SecureRestClientBuilder(settings, null);
         RestClient restClient = builder.build();
         Assert.assertNotNull(restClient);
         restClient.close();
@@ -33,10 +37,38 @@ public class SecureRestClientBuilderTest {
 
     @Test
     public void testHttpsRestClient() throws Exception {
-        Settings settings = Settings.builder().put("http.port", 9200).put("opendistro_security.ssl.http.enabled", true).build();
-        SecureRestClientBuilder builder = new SecureRestClientBuilder(settings);
+        Settings settings = Settings
+            .builder()
+            .put("http.port", 9200)
+            .put("opendistro_security.ssl.http.enabled", true)
+            .put("opendistro_security.ssl.http.pemcert_filepath", "sample.pem")
+            .build();
+
+        String absolutePath = new File(getClass().getClassLoader().getResource("sample.pem").getFile()).getAbsolutePath();
+        String configFolder = absolutePath.replace("sample.pem", "");
+
+        SecureRestClientBuilder builder = new SecureRestClientBuilder(settings, Paths.get(configFolder));
         RestClient restClient = builder.build();
         Assert.assertNotNull(restClient);
         restClient.close();
+    }
+
+    @Test(expected = ElasticsearchException.class)
+    public void testMissingPem() throws Exception {
+        Settings settings = Settings.builder().put("http.port", 9200).put("opendistro_security.ssl.http.enabled", true).build();
+        String absolutePath = new File(getClass().getClassLoader().getResource("sample.pem").getFile()).getAbsolutePath();
+        String configFolder = absolutePath.replace("sample.pem", "");
+        new SecureRestClientBuilder(settings, Paths.get(configFolder)).build();
+    }
+
+    @Test(expected = ElasticsearchException.class)
+    public void testMissingConfigPath() throws Exception {
+        Settings settings = Settings
+            .builder()
+            .put("http.port", 9200)
+            .put("opendistro_security.ssl.http.enabled", true)
+            .put("opendistro_security.ssl.http.pemcert_filepath", "sample.pem")
+            .build();
+        new SecureRestClientBuilder(settings, Paths.get("sample.pem")).build();
     }
 }

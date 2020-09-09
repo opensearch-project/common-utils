@@ -27,7 +27,7 @@ public class ConfigConstants {
     public static final String AUTHORIZATION = "authorization";
 
     // These reside in security plugin.
-    public static final String OPENDISTRO_SECURITY_DISABLED = "opendistro_security.disabled";
+    public static final String OPENDISTRO_SECURITY_SSL_HTTP_PEMCERT_FILEPATH = "opendistro_security.ssl.http.pemcert_filepath";
     public static final String OPENDISTRO_SECURITY_INJECTED_ROLES = "opendistro_security_injected_roles";
     public static final String INJECTED_USER = "injected_user";
     public static final String OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS = "opendistro_security_use_injected_user_for_plugins";

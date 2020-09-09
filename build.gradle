@@ -50,14 +50,6 @@ sourceCompatibility = 1.8
 
 version = "${opendistroVersion}.0"
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-}
-
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'base'

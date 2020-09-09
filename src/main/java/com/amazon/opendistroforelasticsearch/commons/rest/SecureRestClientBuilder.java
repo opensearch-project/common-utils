@@ -16,6 +16,10 @@
 package com.amazon.opendistroforelasticsearch.commons.rest;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
@@ -25,10 +29,12 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -61,22 +67,35 @@ public class SecureRestClientBuilder {
     private final boolean httpSSLEnabled;
     private final int port;
     private final String host;
+    private final String trustCert;
+    private final Path configPath;
 
-    private String trustCerts = null;
     private String user = null;
     private String passwd = null;
 
-    public SecureRestClientBuilder(final String host, final int port, final boolean httpSSLEnabled) {
+    private static final Logger log = LogManager.getLogger(SecureRestClientBuilder.class);
+
+    public SecureRestClientBuilder(
+        final String host,
+        final int port,
+        final boolean httpSSLEnabled,
+        final String pemFile,
+        final Path configPath
+    ) {
         this.host = host;
         this.port = port;
         this.httpSSLEnabled = httpSSLEnabled;
+        this.trustCert = pemFile;
+        this.configPath = configPath;
     }
 
-    public SecureRestClientBuilder(Settings settings) {
+    public SecureRestClientBuilder(Settings settings, Path configPath) {
         this(
             ConfigConstants.HOST_DEFAULT,
             settings.getAsInt(ConfigConstants.HTTP_PORT, ConfigConstants.HTTP_PORT_DEFAULT),
-            settings.getAsBoolean(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED, false)
+            settings.getAsBoolean(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED, false),
+            settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_PEMCERT_FILEPATH, null),
+            configPath
         );
     }
 
@@ -99,25 +118,15 @@ public class SecureRestClientBuilder {
     }
 
     /**
-     * Pass pem cert. If null passed, uses TrustSelfSignedStrategy (trust strategy that accepts self-signed certificates as trusted).
-     * @param cert
-     * @return
-     */
-    public SecureRestClientBuilder setTrustCerts(final String cert) {
-        this.trustCerts = cert;
-        return this;
-    }
-
-    /**
      * User name and password for credentials. ONLY for integ tests.
      * @param user
      * @param passwd
      * @return
      * @throws IOException
      */
-    public SecureRestClientBuilder setUserPassword(final String user, final String passwd) throws IOException {
+    public SecureRestClientBuilder setUserPassword(final String user, final String passwd) {
         if (Strings.isNullOrEmpty(user) || Strings.isNullOrEmpty(passwd)) {
-            throw new IOException("Invalid user or password");
+            throw new IllegalArgumentException("Invalid user or password");
         }
         this.user = user;
         this.passwd = passwd;
@@ -155,12 +164,9 @@ public class SecureRestClientBuilder {
     private SSLContext createSSLContext() throws IOException, GeneralSecurityException {
         SSLContextBuilder builder = new SSLContextBuilder();
         if (httpSSLEnabled) {
-            if (trustCerts == null) {
-                builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-            } else {
-                KeyStore trustStore = new TrustStore(trustCerts).create();
-                builder.loadTrustMaterial(trustStore, null);
-            }
+            String pem = resolve(trustCert, configPath);
+            KeyStore trustStore = new TrustStore(pem).create();
+            builder.loadTrustMaterial(trustStore, null);
         }
         return builder.build();
     }
@@ -172,5 +178,36 @@ public class SecureRestClientBuilder {
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, passwd));
         return credentialsProvider;
+    }
+
+    private String resolve(final String originalFile, final Path configPath) {
+        String path = null;
+        if (originalFile != null && originalFile.length() > 0) {
+            path = configPath.resolve(originalFile).toAbsolutePath().toString();
+            log.debug("Resolved {} to {} against {}", originalFile, path, configPath.toAbsolutePath().toString());
+        }
+
+        if (path == null || path.length() == 0) {
+            throw new ElasticsearchException("Empty file path for " + originalFile);
+        }
+
+        if (Files.isDirectory(Paths.get(path), LinkOption.NOFOLLOW_LINKS)) {
+            throw new ElasticsearchException("Is a directory: " + path + " Expected a file for " + originalFile);
+        }
+
+        if (!Files.isReadable(Paths.get(path))) {
+            throw new ElasticsearchException(
+                "Unable to read "
+                    + path
+                    + " ("
+                    + Paths.get(path)
+                    + "). Please make sure this files exists and is readable regarding to permissions. Property: "
+                    + originalFile
+            );
+        }
+        if ("".equals(path)) {
+            path = null;
+        }
+        return path;
     }
 }

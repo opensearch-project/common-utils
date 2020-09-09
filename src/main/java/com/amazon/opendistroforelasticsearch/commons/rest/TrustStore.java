@@ -40,7 +40,7 @@ public class TrustStore {
 
     public KeyStore create() throws IOException, GeneralSecurityException {
         X509Certificate[] trustCerts = loadCertificatesFromFile(cert);
-        return toTruststore(effectiveKeyAlias, trustCerts);
+        return toTrustStore(effectiveKeyAlias, trustCerts);
     }
 
     private X509Certificate[] loadCertificatesFromFile(String file) throws IOException, GeneralSecurityException {
@@ -59,7 +59,7 @@ public class TrustStore {
         }
     }
 
-    private KeyStore toTruststore(final String trustCertificatesAliasPrefix, final X509Certificate[] trustCertificates) throws IOException,
+    private KeyStore toTrustStore(final String trustCertificatesAliasPrefix, final X509Certificate[] trustCertificates) throws IOException,
         GeneralSecurityException {
         if (trustCertificates == null) {
             return null;
@@ -67,7 +67,7 @@ public class TrustStore {
         KeyStore ks = KeyStore.getInstance(storeType);
         ks.load(null);
 
-        if (trustCertificates != null && trustCertificates.length > 0) {
+        if (trustCertificates != null) {
             for (int i = 0; i < trustCertificates.length; i++) {
                 X509Certificate x509Certificate = trustCertificates[i];
                 ks.setCertificateEntry(trustCertificatesAliasPrefix + "_" + i, x509Certificate);

@@ -36,17 +36,6 @@ logger.commons.name = com.amazon.opendistroforelasticsearch.commons
 logger.commons.level = debug
 ```
 
-
-## ToDo (feel free to pick these up)
-1. Publish jar to public maven.
-2. Add code coverage
-3. Add integration tests with security plugin.
-4. Make this plugin public.
-5. Add branches for all versions.
-6. github actions.
-
-
-
 ## Code of Conduct
 
 This project has adopted an [Open Source Code of Conduct](https://opendistro.github.io/for-elasticsearch/codeofconduct.html).

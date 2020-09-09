@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.commons.authuser;
 
-import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_DISABLED;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
@@ -65,12 +64,6 @@ final public class AuthUser {
      * @throws IOException
      */
     public final AuthUser get() throws IOException {
-        boolean isSecurityDisabled = settings.getAsBoolean(OPENDISTRO_SECURITY_DISABLED, true);
-        if (isSecurityDisabled) {
-            log.debug("Security is disabled.");
-            return this;
-        }
-
         if (authTokens.size() == 0) {
             log.debug("Auth token is not present.");
             return this;
