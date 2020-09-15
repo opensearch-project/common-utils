@@ -45,6 +45,7 @@ final public class AuthUser {
     private String remoteAddress = "";
     private ArrayList<String> backendRoles = new ArrayList<>();
     private ArrayList<String> roles = new ArrayList<>();
+    private ArrayList<String> customAttNames = new ArrayList<>();
 
     private final Settings settings;
     private final RestClient restClient;
@@ -91,6 +92,7 @@ final public class AuthUser {
         remoteAddress = (String) mapValue.get("remote_address");
         backendRoles = (ArrayList<String>) mapValue.get("backend_roles");
         roles = (ArrayList<String>) mapValue.get("roles");
+        customAttNames = (ArrayList<String>) mapValue.get("custom_attribute_names");
     }
 
     public String getUserName() {
@@ -116,4 +118,9 @@ final public class AuthUser {
     public List<String> getRoles() {
         return roles;
     }
+
+    public List<String> getCustomAttNames() {
+        return customAttNames;
+    }
+
 }
