@@ -16,12 +16,15 @@
 package com.amazon.opendistroforelasticsearch.commons.rest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
 
@@ -29,6 +32,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -65,38 +69,73 @@ import com.amazon.opendistroforelasticsearch.commons.ConfigConstants;
 public class SecureRestClientBuilder {
 
     private final boolean httpSSLEnabled;
-    private final int port;
-    private final String host;
-    private final String trustCert;
-    private final Path configPath;
+    private final String user;
+    private final String passwd;
+    private final ArrayList<HttpHost> hosts = new ArrayList<>();
 
-    private String user = null;
-    private String passwd = null;
+    private final Path configPath;
+    private final Settings settings;
 
     private static final Logger log = LogManager.getLogger(SecureRestClientBuilder.class);
 
+    /**
+     * ONLY for integration tests.
+     * @param host
+     * @param port
+     * @param httpSSLEnabled
+     * @param user
+     * @param passWord
+     */
     public SecureRestClientBuilder(
         final String host,
         final int port,
         final boolean httpSSLEnabled,
-        final String pemFile,
-        final Path configPath
+        final String user,
+        final String passWord
     ) {
-        this.host = host;
-        this.port = port;
+        if (Strings.isNullOrEmpty(user) || Strings.isNullOrEmpty(passWord)) {
+            throw new IllegalArgumentException("Invalid user or password");
+        }
+
         this.httpSSLEnabled = httpSSLEnabled;
-        this.trustCert = pemFile;
-        this.configPath = configPath;
+        this.user = user;
+        this.passwd = passWord;
+        this.settings = Settings.EMPTY;
+        this.configPath = null;
+        hosts.add(new HttpHost(host, port, httpSSLEnabled ? ConfigConstants.HTTPS : ConfigConstants.HTTP));
+    }
+
+    /**
+     * ONLY for integration tests.
+     * @param httpHosts
+     * @param httpSSLEnabled
+     * @param user
+     * @param passWord
+     */
+    public SecureRestClientBuilder(HttpHost[] httpHosts, final boolean httpSSLEnabled, final String user, final String passWord) {
+
+        if (Strings.isNullOrEmpty(user) || Strings.isNullOrEmpty(passWord)) {
+            throw new IllegalArgumentException("Invalid user or password");
+        }
+
+        this.httpSSLEnabled = httpSSLEnabled;
+        this.user = user;
+        this.passwd = passWord;
+        this.settings = Settings.EMPTY;
+        this.configPath = null;
+        hosts.addAll(Arrays.asList(httpHosts));
     }
 
     public SecureRestClientBuilder(Settings settings, Path configPath) {
-        this(
-            ConfigConstants.HOST_DEFAULT,
-            settings.getAsInt(ConfigConstants.HTTP_PORT, ConfigConstants.HTTP_PORT_DEFAULT),
-            settings.getAsBoolean(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED, false),
-            settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_PEMCERT_FILEPATH, null),
-            configPath
-        );
+
+        this.httpSSLEnabled = settings.getAsBoolean(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED, false);
+        this.settings = settings;
+        this.configPath = configPath;
+        this.user = null;
+        this.passwd = null;
+        String host = ConfigConstants.HOST_DEFAULT;
+        int port = settings.getAsInt(ConfigConstants.HTTP_PORT, ConfigConstants.HTTP_PORT_DEFAULT);
+        hosts.add(new HttpHost(host, port, httpSSLEnabled ? ConfigConstants.HTTPS : ConfigConstants.HTTP));
     }
 
     /**
@@ -117,24 +156,8 @@ public class SecureRestClientBuilder {
         return new RestHighLevelClient(createRestClientBuilder());
     }
 
-    /**
-     * User name and password for credentials. ONLY for integ tests.
-     * @param user
-     * @param passwd
-     * @return
-     * @throws IOException
-     */
-    public SecureRestClientBuilder setUserPassword(final String user, final String passwd) {
-        if (Strings.isNullOrEmpty(user) || Strings.isNullOrEmpty(passwd)) {
-            throw new IllegalArgumentException("Invalid user or password");
-        }
-        this.user = user;
-        this.passwd = passwd;
-        return this;
-    }
-
     private RestClientBuilder createRestClientBuilder() throws IOException {
-        RestClientBuilder builder = RestClient.builder(createHttpHost());
+        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[hosts.size()]));
         final SSLContext sslContext;
         try {
             sslContext = createSSLContext();
@@ -157,16 +180,25 @@ public class SecureRestClientBuilder {
         return builder;
     }
 
-    private HttpHost createHttpHost() {
-        return new HttpHost(host, port, httpSSLEnabled ? ConfigConstants.HTTPS : ConfigConstants.HTTP);
-    }
-
     private SSLContext createSSLContext() throws IOException, GeneralSecurityException {
         SSLContextBuilder builder = new SSLContextBuilder();
         if (httpSSLEnabled) {
-            String pem = resolve(trustCert, configPath);
-            KeyStore trustStore = new TrustStore(pem).create();
-            builder.loadTrustMaterial(trustStore, null);
+            // Handle trust store
+            String pemFile = getTrustPem();
+            if (Strings.isNullOrEmpty(pemFile)) {
+                builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+            } else {
+                String pem = resolve(pemFile, configPath);
+                KeyStore trustStore = new TrustStore(pem).create();
+                builder.loadTrustMaterial(trustStore, null);
+            }
+
+            // Handle key store.
+            KeyStore keyStore = getKeyStore();
+            if (keyStore != null) {
+                builder.loadKeyMaterial(keyStore, getKeystorePasswd().toCharArray());
+            }
+
         }
         return builder.build();
     }
@@ -209,5 +241,27 @@ public class SecureRestClientBuilder {
             path = null;
         }
         return path;
+    }
+
+    private String getTrustPem() {
+        return settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_PEMCERT_FILEPATH, null);
+    }
+
+    private String getKeystorePasswd() {
+        return settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD, null);
+    }
+
+    private KeyStore getKeyStore() throws IOException, GeneralSecurityException {
+        KeyStore keyStore = KeyStore.getInstance("jks");
+        String keyStoreFile = settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH, null);
+        String passwd = settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD, null);
+        if (Strings.isNullOrEmpty(keyStoreFile) || Strings.isNullOrEmpty(passwd)) {
+            return null;
+        }
+        String keyStorePath = resolve(keyStoreFile, configPath);
+        try (InputStream is = Files.newInputStream(Paths.get(keyStorePath))) {
+            keyStore.load(is, passwd.toCharArray());
+        }
+        return keyStore;
     }
 }
