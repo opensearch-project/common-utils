@@ -53,7 +53,7 @@ public class InjectSecurityTest {
         assertEquals("plugin", threadContext.getTransient("ctx.name"));
 
         try (InjectSecurity helper = new InjectSecurity("test-name", settings, threadContext)) {
-            helper.inject("joe", Arrays.asList("ops-role,logs-role"));
+            helper.inject("joe", Arrays.asList("ops-role", "logs-role"));
             assertEquals("1", threadContext.getHeader("default"));
             assertEquals("opendistro", threadContext.getHeader("name"));
             assertEquals("plugin", threadContext.getTransient("ctx.name"));
@@ -79,7 +79,7 @@ public class InjectSecurityTest {
         assertEquals("plugin", threadContext.getTransient("ctx.name"));
 
         try (InjectSecurity helper = new InjectSecurity("test-name", settings, threadContext)) {
-            helper.inject("joe", Arrays.asList("ops-role,logs-role"));
+            helper.inject("joe", Arrays.asList("ops-role", "logs-role"));
             assertEquals("1", threadContext.getHeader("default"));
             assertEquals("opendistro", threadContext.getHeader("name"));
             assertEquals("plugin", threadContext.getTransient("ctx.name"));

@@ -51,7 +51,6 @@ public class IntegrationTests {
         String responseBody = EntityUtils.toString(response.getEntity());
         assertEquals(200, response.getStatusLine().getStatusCode());
         assertTrue(responseBody.contains("user_name\":\"admin"));
-
         client.close();
     }
 
@@ -74,6 +73,7 @@ public class IntegrationTests {
         String responseBody = EntityUtils.toString(response.getEntity());
         assertEquals(200, response.getStatusLine().getStatusCode());
         assertTrue(responseBody.contains("user_name\":\"CN=kirk"));
+        client.close();
     }
 
     @Test
@@ -94,5 +94,6 @@ public class IntegrationTests {
         String responseBody = EntityUtils.toString(response.getEntity());
         assertEquals(200, response.getStatusLine().getStatusCode());
         assertTrue(responseBody.contains("user_name\":\"CN=kirk"));
+        client.close();
     }
 }

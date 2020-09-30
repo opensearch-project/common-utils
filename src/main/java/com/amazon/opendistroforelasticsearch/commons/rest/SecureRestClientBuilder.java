@@ -93,29 +93,36 @@ public class SecureRestClientBuilder {
         final String user,
         final String passWord
     ) {
+        if (Strings.isNullOrEmpty(user) || Strings.isNullOrEmpty(passWord)) {
+            throw new IllegalArgumentException("Invalid user or password");
+        }
+
         this.httpSSLEnabled = httpSSLEnabled;
         this.user = user;
         this.passwd = passWord;
         this.settings = Settings.EMPTY;
         this.configPath = null;
-
-        if (Strings.isNullOrEmpty(user) || Strings.isNullOrEmpty(passwd)) {
-            throw new IllegalArgumentException("Invalid user or password");
-        }
         hosts.add(new HttpHost(host, port, httpSSLEnabled ? ConfigConstants.HTTPS : ConfigConstants.HTTP));
     }
 
+    /**
+     * ONLY for integration tests.
+     * @param httpHosts
+     * @param httpSSLEnabled
+     * @param user
+     * @param passWord
+     */
     public SecureRestClientBuilder(HttpHost[] httpHosts, final boolean httpSSLEnabled, final String user, final String passWord) {
+
+        if (Strings.isNullOrEmpty(user) || Strings.isNullOrEmpty(passWord)) {
+            throw new IllegalArgumentException("Invalid user or password");
+        }
+
         this.httpSSLEnabled = httpSSLEnabled;
         this.user = user;
         this.passwd = passWord;
         this.settings = Settings.EMPTY;
         this.configPath = null;
-
-        if (Strings.isNullOrEmpty(user) || Strings.isNullOrEmpty(passwd)) {
-            throw new IllegalArgumentException("Invalid user or password");
-        }
-
         hosts.addAll(Arrays.asList(httpHosts));
     }
 
