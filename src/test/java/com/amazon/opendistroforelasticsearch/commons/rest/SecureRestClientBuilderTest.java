@@ -53,7 +53,6 @@ public class SecureRestClientBuilderTest {
         restClient.close();
     }
 
-    @Test(expected = ElasticsearchException.class)
     public void testMissingPem() throws Exception {
         Settings settings = Settings.builder().put("http.port", 9200).put("opendistro_security.ssl.http.enabled", true).build();
         String absolutePath = new File(getClass().getClassLoader().getResource("sample.pem").getFile()).getAbsolutePath();
