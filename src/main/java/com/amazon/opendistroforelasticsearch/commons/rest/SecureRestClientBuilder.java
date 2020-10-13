@@ -32,6 +32,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
@@ -75,6 +76,10 @@ public class SecureRestClientBuilder {
 
     private final Path configPath;
     private final Settings settings;
+
+    private int defaultConnectTimeOutMSecs = 5000;
+    private int defaultSoTimeoutMSecs = 10000;
+    private int defaultConnRequestTimeoutMSecs = 0;
 
     private static final Logger log = LogManager.getLogger(SecureRestClientBuilder.class);
 
@@ -156,8 +161,34 @@ public class SecureRestClientBuilder {
         return new RestHighLevelClient(createRestClientBuilder());
     }
 
+    public SecureRestClientBuilder setConnectTimeout(int timeout) {
+        this.defaultConnectTimeOutMSecs = timeout;
+        return this;
+    }
+
+    public SecureRestClientBuilder setSocketTimeout(int timeout) {
+        this.defaultSoTimeoutMSecs = timeout;
+        return this;
+    }
+
+    public SecureRestClientBuilder setConnectionRequestTimeout(int timeout) {
+        this.defaultConnRequestTimeoutMSecs = timeout;
+        return this;
+    }
+
     private RestClientBuilder createRestClientBuilder() throws IOException {
         RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[hosts.size()]));
+
+        builder.setRequestConfigCallback(new RestClientBuilder.RequestConfigCallback() {
+            @Override
+            public RequestConfig.Builder customizeRequestConfig(RequestConfig.Builder requestConfigBuilder) {
+                return requestConfigBuilder
+                    .setConnectTimeout(defaultConnectTimeOutMSecs)
+                    .setSocketTimeout(defaultSoTimeoutMSecs)
+                    .setConnectionRequestTimeout(defaultConnRequestTimeoutMSecs);
+            }
+        });
+
         final SSLContext sslContext;
         try {
             sslContext = createSSLContext();

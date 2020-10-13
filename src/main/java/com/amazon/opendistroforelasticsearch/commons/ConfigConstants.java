@@ -24,7 +24,7 @@ public class ConfigConstants {
     public static final int HTTP_PORT_DEFAULT = 9200;
     public static final String CONTENT_TYPE = "content-type";
     public static final String CONTENT_TYPE_DEFAULT = "application/json";
-    public static final String AUTHORIZATION = "authorization";
+    public static final String AUTHORIZATION = "Authorization";
 
     // These reside in security plugin.
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_PEMCERT_FILEPATH = "opendistro_security.ssl.http.pemcert_filepath";
