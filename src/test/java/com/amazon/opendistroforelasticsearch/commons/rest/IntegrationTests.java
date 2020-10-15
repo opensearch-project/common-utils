@@ -33,8 +33,10 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.settings.Settings;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("Enable this after integration with security plugin is done")
 public class IntegrationTests {
 
     private Request createSampleRequest() {

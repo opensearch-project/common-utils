@@ -15,10 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.commons.authuser;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.common.Strings;
 
 import com.amazon.opendistroforelasticsearch.commons.ConfigConstants;
 
@@ -26,7 +25,9 @@ public class AuthUserRequestBuilder {
     private final String auth;
 
     public AuthUserRequestBuilder(String auth) {
-        checkNotNull(auth, "Authorization token cannot be null");
+        if (Strings.isNullOrEmpty(auth)) {
+            throw new IllegalArgumentException("Authorization token cannot be null");
+        }
         this.auth = auth;
     }
 

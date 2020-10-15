@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.commons.authuser;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.elasticsearch.common.xcontent.XContentParserUtils.ensureExpectedToken;
 
 import java.io.IOException;
@@ -25,6 +24,7 @@ import java.util.Map;
 
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Response;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.inject.internal.ToStringBuilder;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
@@ -77,7 +77,10 @@ final public class User implements Writeable, ToXContent {
 
     @SuppressWarnings("unchecked")
     public User(String json) {
-        checkNotNull(json, "Response json cannot be null");
+        if (Strings.isNullOrEmpty(json)) {
+            throw new IllegalArgumentException("Response json cannot be null");
+        }
+
         Map<String, Object> mapValue = XContentHelper.convertToMap(JsonXContent.jsonXContent, json, false);
         name = (String) mapValue.get("user_name");
         backendRoles = (List<String>) mapValue.get("backend_roles");
