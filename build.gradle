@@ -51,8 +51,6 @@ sourceCompatibility = 1.8
 version = "${opendistroVersion}.0"
 
 apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'base'
 apply plugin: 'jacoco'
 apply plugin: 'signing'
 apply plugin: 'maven-publish'
@@ -74,6 +72,10 @@ spotless {
 
         eclipse().configFile rootProject.file('.eclipseformat.xml')
     }
+}
+
+shadowJar {
+    classifier = null
 }
 
 task sourcesJar(type: Jar) {
