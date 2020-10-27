@@ -19,6 +19,7 @@ import static org.elasticsearch.common.xcontent.XContentParserUtils.ensureExpect
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -132,6 +133,34 @@ final public class User implements Writeable, ToXContent {
             }
         }
         return new User(name, backendRoles, roles, customAttNames);
+    }
+
+    /**
+     * User String format must be pipe separated as : user_name|backendrole1,backendrole2|roles1,role2
+     * @param userString
+     * @return
+     */
+    public static User parse(final String userString) {
+        if (Strings.isNullOrEmpty(userString)) {
+            return null;
+        }
+
+        String[] strs = userString.split("\\|");
+        if ((strs.length == 0) || (Strings.isNullOrEmpty(strs[0]))) {
+            return null;
+        }
+
+        String userName = strs[0].trim();
+        List<String> backendRoles = new ArrayList<>();
+        List<String> roles = new ArrayList<>();
+
+        if ((strs.length > 1) && !Strings.isNullOrEmpty(strs[1])) {
+            backendRoles.addAll(Arrays.asList(strs[1].split(",")));
+        }
+        if ((strs.length > 2) && !Strings.isNullOrEmpty(strs[2])) {
+            roles.addAll(Arrays.asList(strs[2].split(",")));
+        }
+        return new User(userName, backendRoles, roles, Arrays.asList());
     }
 
     @Override
