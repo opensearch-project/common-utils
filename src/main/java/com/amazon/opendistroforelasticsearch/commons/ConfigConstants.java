@@ -35,4 +35,5 @@ public class ConfigConstants {
     public static final String INJECTED_USER = "injected_user";
     public static final String OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS = "opendistro_security_use_injected_user_for_plugins";
     public static final String OPENDISTRO_SECURITY_SSL_HTTP_ENABLED = "opendistro_security.ssl.http.enabled";
+    public static final String OPENDISTRO_SECURITY_USER_AND_ROLES = "_opendistro_security_user_and_roles";
 }

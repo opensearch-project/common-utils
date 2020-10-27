@@ -48,7 +48,7 @@ group 'com.amazon.opendistroforelasticsearch.commons'
 
 sourceCompatibility = 1.8
 
-version = "${opendistroVersion}.0"
+version = "${opendistroVersion}.1"
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
