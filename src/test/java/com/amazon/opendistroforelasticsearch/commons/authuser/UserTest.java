@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.commons.authuser;
 import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USER_AND_ROLES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -32,8 +33,12 @@ import org.junit.Test;
 
 public class UserTest {
 
-    User testUser() {
+    User testNoTenantUser() {
         return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1", "attr2"));
+    }
+
+    User testTenantUser() {
+        return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1", "attr2"), "__user__");
     }
 
     @Test
@@ -43,19 +48,31 @@ public class UserTest {
         assertEquals(0, user.getBackendRoles().size());
         assertEquals(0, user.getRoles().size());
         assertEquals(0, user.getCustomAttNames().size());
+        assertEquals(null, user.getRequestedTenant());
     }
 
     @Test
-    public void testParamsConst() {
-        User user = testUser();
+    public void testParamsConstForNoTenantUser() {
+        User user = testNoTenantUser();
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
         assertEquals(2, user.getCustomAttNames().size());
+        assertNull(user.getRequestedTenant());
     }
 
     @Test
-    public void testJsonConst() throws IOException {
+    public void testParamsConstForTenantUser() {
+        User user = testTenantUser();
+        assertFalse(Strings.isNullOrEmpty(user.getName()));
+        assertEquals(2, user.getBackendRoles().size());
+        assertEquals(1, user.getRoles().size());
+        assertEquals(2, user.getCustomAttNames().size());
+        assertFalse(Strings.isNullOrEmpty(user.getRequestedTenant()));
+    }
+
+    @Test
+    public void testNullTenantJsonConst() throws IOException {
         String json =
             "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=null]\",\"user_name\":\"chip\",\"user_requested_tenant\":null,\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
 
@@ -64,11 +81,36 @@ public class UserTest {
         assertEquals(1, user.getBackendRoles().size());
         assertEquals(3, user.getRoles().size());
         assertEquals(0, user.getCustomAttNames().size());
+        assertNull(user.getRequestedTenant());
     }
 
     @Test
-    public void testStreamConst() throws IOException {
-        User user = testUser();
+    public void testNonNullTenantJsonConst() throws IOException {
+        String json =
+            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
+
+        User user = new User(json);
+        assertEquals("chip", user.getName());
+        assertEquals(1, user.getBackendRoles().size());
+        assertEquals(3, user.getRoles().size());
+        assertEquals(0, user.getCustomAttNames().size());
+        assertEquals("__user__", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testStreamConstForNoTenantUser() throws IOException {
+        User user = testNoTenantUser();
+        BytesStreamOutput out = new BytesStreamOutput();
+        user.writeTo(out);
+        StreamInput in = StreamInput.wrap(out.bytes().toBytesRef().bytes);
+        User newUser = new User(in);
+        assertEquals("Round tripping User doesn't work", user.toString(), newUser.toString());
+        assertEquals("Round tripping User doesn't work", user, newUser);
+    }
+
+    @Test
+    public void testStreamConstForTenantUser() throws IOException {
+        User user = testTenantUser();
         BytesStreamOutput out = new BytesStreamOutput();
         user.writeTo(out);
         StreamInput in = StreamInput.wrap(out.bytes().toBytesRef().bytes);
@@ -80,7 +122,7 @@ public class UserTest {
     @Test
     public void testParseUserString() {
         ThreadContext tc = new ThreadContext(Settings.EMPTY);
-        tc.putTransient("user_roles_string", "myuser|bckrole1,bckrol2|role1,role2");
+        tc.putTransient("user_roles_string", "myuser|bckrole1,bckrol2|role1,role2|myTenant");
         String str = tc.getTransient("user_roles_string");
         User user = User.parse(str);
 
@@ -89,6 +131,7 @@ public class UserTest {
         assertEquals(2, user.getRoles().size());
         assertTrue(user.getRoles().contains("role1"));
         assertTrue(user.getRoles().contains("role2"));
+        assertEquals("myTenant", user.getRequestedTenant());
     }
 
     @Test
@@ -109,6 +152,19 @@ public class UserTest {
         assertEquals("myuser", user.getName());
         assertEquals(0, user.getBackendRoles().size());
         assertEquals(0, user.getRoles().size());
+    }
+
+    @Test
+    public void testParseUserStringNameWithTenant() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc.putTransient(OPENDISTRO_SECURITY_USER_AND_ROLES, "myuser|||myTenant");
+        String str = tc.getTransient(OPENDISTRO_SECURITY_USER_AND_ROLES);
+        User user = User.parse(str);
+
+        assertEquals("myuser", user.getName());
+        assertEquals(0, user.getBackendRoles().size());
+        assertEquals(0, user.getRoles().size());
+        assertEquals("myTenant", user.getRequestedTenant());
     }
 
     @Test
@@ -133,6 +189,19 @@ public class UserTest {
         assertEquals("myuser", user.getName());
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(0, user.getRoles().size());
+    }
+
+    @Test
+    public void testParseUserStringNoRolesWithTenant() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc.putTransient(OPENDISTRO_SECURITY_USER_AND_ROLES, "myuser|brole1,brole2||myTenant");
+        String str = tc.getTransient(OPENDISTRO_SECURITY_USER_AND_ROLES);
+        User user = User.parse(str);
+
+        assertEquals("myuser", user.getName());
+        assertEquals(2, user.getBackendRoles().size());
+        assertEquals(0, user.getRoles().size());
+        assertEquals("myTenant", user.getRequestedTenant());
     }
 
     @Test
