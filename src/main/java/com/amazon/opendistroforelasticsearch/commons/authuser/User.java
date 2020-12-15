@@ -126,7 +126,7 @@ final public class User implements Writeable, ToXContent {
         List<String> customAttNames = new ArrayList<>();
         String requestedTenant = null;
 
-        ensureExpectedToken(XContentParser.Token.START_OBJECT, parser.currentToken(), parser);
+        ensureExpectedToken(XContentParser.Token.START_OBJECT, parser.currentToken(), parser::getTokenLocation);
         while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
             String fieldName = parser.currentName();
             parser.nextToken();
@@ -135,19 +135,19 @@ final public class User implements Writeable, ToXContent {
                     name = parser.text();
                     break;
                 case BACKEND_ROLES_FIELD:
-                    ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
+                    ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser::getTokenLocation);
                     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
                         backendRoles.add(parser.text());
                     }
                     break;
                 case ROLES_FIELD:
-                    ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
+                    ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser::getTokenLocation);
                     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
                         roles.add(parser.text());
                     }
                     break;
                 case CUSTOM_ATTRIBUTE_NAMES_FIELD:
-                    ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
+                    ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser::getTokenLocation);
                     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
                         customAttNames.add(parser.text());
                     }
