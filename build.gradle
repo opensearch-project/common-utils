@@ -59,7 +59,6 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     compileOnly "org.elasticsearch.client:elasticsearch-rest-high-level-client:${es_version}"
-    compileOnly group: 'log4j', name: 'log4j', version: '1.2.12'
     testCompile "org.elasticsearch.test:framework:${es_version}"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
