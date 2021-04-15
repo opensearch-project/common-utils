@@ -28,13 +28,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.http.util.EntityUtils;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.opensearch.client.Request;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.Response;
 import org.opensearch.client.RestClient;
 import org.opensearch.common.settings.Settings;
-import org.junit.Ignore;
-import org.junit.Test;
 
 @Ignore("Enable this after integration with security plugin is done")
 public class IntegrationTests {

@@ -18,11 +18,11 @@ package com.amazon.opendistroforelasticsearch.commons.rest;
 import java.io.File;
 import java.nio.file.Paths;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.opensearch.OpenSearchException;
 import org.opensearch.client.RestClient;
 import org.opensearch.common.settings.Settings;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class SecureRestClientBuilderTest {
 
