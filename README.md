@@ -1,14 +1,14 @@
-# Open Distro for Elasticsearch Common-Utils 
+# OpenSearch Common-Utils 
 
-Open Distro for Elasticsearch Common-Utils is focused on providing reusable Java components for Elasticsearch plugins.
+OpenSearch Common-Utils is focused on providing reusable Java components for OpenSearch plugins.
 
 This library is composed of following parts:
 1. SecureRestClientBuilder - provides methods to create secure low-level and high-level REST client. This is 
-   useful to make secure REST calls to Elasticsearch or other plugin api's. 
+   useful to make secure REST calls to OpenSearch or other plugin api's. 
 2. InjectSecurity - provides methods to inject user or roles. This is useful for running background jobs securely.
 3. IntegTestsWithSecurity - provides methods to create users, roles for running integ tests with security plugin.
 4. Shared Request/Response/Action classes used for plugin to plugin transport layer calls.
-5. Any common functionality across Elasticsearch plugins could be moved to this.
+5. Any common functionality across OpenSearch plugins could be moved to this.
 
 
 ## Setup

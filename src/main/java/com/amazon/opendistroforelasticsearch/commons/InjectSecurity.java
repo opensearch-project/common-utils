@@ -23,9 +23,9 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.util.concurrent.ThreadContext;
+import org.opensearch.common.Strings;
+import org.opensearch.common.settings.Settings;
+import org.opensearch.common.util.concurrent.ThreadContext;
 
 /**
  * For background jobs usage only. User or Roles injection can be done using transport layer only.
@@ -40,13 +40,13 @@ import org.elasticsearch.common.util.concurrent.ThreadContext;
  *          //add roles to be injected from the configuration.
  *          injectSecurity.inject("user, Arrays.toList("role_1,role_2"));
  *
- *          //Elasticsearch calls that needs to executed in security context.
+ *          //OpenSearch calls that needs to executed in security context.
  *
  *          SearchRequestBuilder searchRequestBuilder = client.prepareSearch(monitor.indexpattern);
  *          SearchResponse searchResponse = searchRequestBuilder
  *                             .setFrom(0).setSize(100).setExplain(true).  execute().actionGet();
  *
- *      } catch (final ElasticsearchSecurityException ex){
+ *      } catch (final OpenSearchSecurityException ex){
  *            //handle the security exception
  *      }
  *
@@ -54,7 +54,7 @@ import org.elasticsearch.common.util.concurrent.ThreadContext;
  *
  *    //You can also use launch, based on usecase.
  *    runBlocking(RolesInjectorContextElement(monitor.id, settings, threadPool.threadContext, monitor.associatedRoles)) {
- *       //Elasticsearch calls that needs to executed in security context.
+ *       //OpenSearch calls that needs to executed in security context.
  *    }
  *
  *    class InjectContextElement(val id: String, val settings: Settings, val threadContext: ThreadContext, val roles: String)

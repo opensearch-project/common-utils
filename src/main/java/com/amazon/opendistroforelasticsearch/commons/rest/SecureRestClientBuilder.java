@@ -39,17 +39,17 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.settings.Settings;
+import org.opensearch.OpenSearchException;
+import org.opensearch.client.RestClient;
+import org.opensearch.client.RestClientBuilder;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.common.Strings;
+import org.opensearch.common.settings.Settings;
 
 import com.amazon.opendistroforelasticsearch.commons.ConfigConstants;
 
 /**
- * Provides builder to create low-level and high-level REST client to make calls to Elasticsearch.
+ * Provides builder to create low-level and high-level REST client to make calls to OpenSearch.
  *
  * Sample usage:
  *      SecureRestClientBuilder builder = new SecureRestClientBuilder(settings).build()
@@ -251,15 +251,15 @@ public class SecureRestClientBuilder {
         }
 
         if (path == null || path.length() == 0) {
-            throw new ElasticsearchException("Empty file path for " + originalFile);
+            throw new OpenSearchException("Empty file path for " + originalFile);
         }
 
         if (Files.isDirectory(Paths.get(path), LinkOption.NOFOLLOW_LINKS)) {
-            throw new ElasticsearchException("Is a directory: " + path + " Expected a file for " + originalFile);
+            throw new OpenSearchException("Is a directory: " + path + " Expected a file for " + originalFile);
         }
 
         if (!Files.isReadable(Paths.get(path))) {
-            throw new ElasticsearchException(
+            throw new OpenSearchException(
                 "Unable to read "
                     + path
                     + " ("
