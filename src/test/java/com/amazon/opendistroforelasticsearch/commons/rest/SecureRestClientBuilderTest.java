@@ -18,11 +18,11 @@ package com.amazon.opendistroforelasticsearch.commons.rest;
 import java.io.File;
 import java.nio.file.Paths;
 
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opensearch.OpenSearchException;
+import org.opensearch.client.RestClient;
+import org.opensearch.common.settings.Settings;
 
 public class SecureRestClientBuilderTest {
 
@@ -61,7 +61,7 @@ public class SecureRestClientBuilderTest {
         new SecureRestClientBuilder(settings, Paths.get(configFolder)).build();
     }
 
-    @Test(expected = ElasticsearchException.class)
+    @Test(expected = OpenSearchException.class)
     public void testMissingConfigPath() throws Exception {
         Settings settings = Settings
             .builder()

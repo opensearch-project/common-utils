@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.commons.authuser;
 
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.common.Strings;
+import org.opensearch.client.Request;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.common.Strings;
 
 import com.amazon.opendistroforelasticsearch.commons.ConfigConstants;
 

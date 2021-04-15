@@ -24,10 +24,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opensearch.common.settings.Settings;
+import org.opensearch.common.util.concurrent.ThreadContext;
 
 public class InjectSecurityTest {
 

@@ -15,19 +15,26 @@
 
 buildscript {
     ext {
-        es_group = "org.elasticsearch"
-        es_version = '7.10.2'
-        opendistroVersion = '1.13.0'
+        es_group = "org.opensearch"
+        es_version = '7.10.3'
+        opendistroVersion = '1.15.0'
     }
 
     repositories {
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
+        maven {
+            url = 's3://search-vemsarat/'
+            credentials(AwsCredentials) {
+                accessKey = System.env.AWS_ACCESS_KEY_ID ?: findProperty('aws_access_key_id')
+                secretKey = System.env.AWS_SECRET_ACCESS_KEY ?: findProperty('aws_secret_access_key')
+            }
+        }
         jcenter()
     }
 
     dependencies {
-        classpath "${es_group}.gradle:build-tools:${es_version}"
+        classpath "${es_group}.gradle:build-tools:${es_version}-SNAPSHOT"
     }
 }
 
@@ -56,10 +63,20 @@ apply plugin: 'signing'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
+repositories {
+    maven {
+        url = 's3://search-vemsarat/'
+        credentials(AwsCredentials) {
+            accessKey = System.env.AWS_ACCESS_KEY_ID ?: findProperty('aws_access_key_id')
+            secretKey = System.env.AWS_SECRET_ACCESS_KEY ?: findProperty('aws_secret_access_key')
+        }
+    }
+}
+
 
 dependencies {
-    compileOnly "org.elasticsearch.client:elasticsearch-rest-high-level-client:${es_version}"
-    testCompile "org.elasticsearch.test:framework:${es_version}"
+    compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${es_version}-SNAPSHOT"
+    testCompile "org.opensearch.test:framework:${es_version}-SNAPSHOT"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -98,10 +115,10 @@ publishing {
             artifact javadocJar
 
             pom {
-                name = "Open Distro for Elasticsearch Common Utils"
+                name = "Open Distro for OpenSearch Common Utils"
                 packaging = "jar"
                 url = "https://github.com/opendistro-for-elasticsearch/common-utils"
-                description = "Open Distro for Elasticsearch Common Utils"
+                description = "Open Distro for OpenSearch Common Utils"
                 scm {
                     connection = "scm:git@github.com:opendistro-for-elasticsearch/common-utils.git"
                     developerConnection = "scm:git@github.com:opendistro-for-elasticsearch/common-utils.git"
@@ -120,17 +137,6 @@ publishing {
                         organizationUrl = "https://aws.amazon.com"
                     }
                 }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "sonatype-staging"
-            url "https://aws.oss.sonatype.org/service/local/staging/deploy/maven2"
-            credentials {
-                username project.hasProperty('ossrhUsername') ? project.property('ossrhUsername') : ''
-                password project.hasProperty('ossrhPassword') ? project.property('ossrhPassword') : ''
             }
         }
     }
