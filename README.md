@@ -1,6 +1,6 @@
-# OpenSearch Common-Utils 
+# OpenSearch Common Utils 
 
-OpenSearch Common-Utils is focused on providing reusable Java components for OpenSearch plugins.
+OpenSearch Common Utils is focused on providing reusable Java components for OpenSearch plugins.
 
 This library is composed of following parts:
 1. SecureRestClientBuilder - provides methods to create secure low-level and high-level REST client. This is 
