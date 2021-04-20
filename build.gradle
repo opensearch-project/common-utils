@@ -12,20 +12,13 @@
 buildscript {
     ext {
         opensearch_group = "org.opensearch"
-        opensearch_version = '7.10.3'
-        opendistroVersion = '1.15.0'
+        opensearch_version = '1.0.0'
     }
 
     repositories {
+        mavenLocal()
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
-        maven {
-            url = 's3://search-vemsarat/'
-            credentials(AwsCredentials) {
-                accessKey = System.env.AWS_ACCESS_KEY_ID ?: findProperty('aws_access_key_id')
-                secretKey = System.env.AWS_SECRET_ACCESS_KEY ?: findProperty('aws_secret_access_key')
-            }
-        }
         jcenter()
     }
 
@@ -51,24 +44,11 @@ group 'com.amazon.opendistroforelasticsearch.commons'
 
 sourceCompatibility = 1.8
 
-version = "${opendistroVersion}.0"
-
 apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'signing'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
-
-repositories {
-    maven {
-        url = 's3://search-vemsarat/'
-        credentials(AwsCredentials) {
-            accessKey = System.env.AWS_ACCESS_KEY_ID ?: findProperty('aws_access_key_id')
-            secretKey = System.env.AWS_SECRET_ACCESS_KEY ?: findProperty('aws_secret_access_key')
-        }
-    }
-}
-
 
 dependencies {
     compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}-SNAPSHOT"
@@ -99,6 +79,8 @@ task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
+
+version '1.0.0.0'
 
 publishing {
     publications {
