@@ -11,26 +11,21 @@
 
 buildscript {
     ext {
-        opensearch_group = "org.opensearch"
-        opensearch_version = '7.10.3'
+        opensearch_group = "com.github.dblock.OpenSearch"
+        // https://jitpack.io/com/github/dblock/OpenSearch/6436867a003
+        opensearch_version = '6436867a003'
         opendistroVersion = '1.15.0'
     }
 
     repositories {
         mavenCentral()
+        maven { url 'https://jitpack.io' }
         maven { url "https://plugins.gradle.org/m2/" }
-        maven {
-            url = 's3://search-vemsarat/'
-            credentials(AwsCredentials) {
-                accessKey = System.env.AWS_ACCESS_KEY_ID ?: findProperty('aws_access_key_id')
-                secretKey = System.env.AWS_SECRET_ACCESS_KEY ?: findProperty('aws_secret_access_key')
-            }
-        }
         jcenter()
     }
 
     dependencies {
-        classpath "${opensearch_group}.gradle:build-tools:${opensearch_version}-SNAPSHOT"
+        classpath "${opensearch_group}:build-tools:${opensearch_version}"
     }
 }
 
@@ -41,15 +36,15 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
+    maven { url 'https://jitpack.io' }
     maven { url "https://plugins.gradle.org/m2/" }
     jcenter()
 }
 
 group 'com.amazon.opendistroforelasticsearch.commons'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 10
 
 version = "${opendistroVersion}.0"
 
@@ -59,21 +54,14 @@ apply plugin: 'signing'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-repositories {
-    maven {
-        url = 's3://search-vemsarat/'
-        credentials(AwsCredentials) {
-            accessKey = System.env.AWS_ACCESS_KEY_ID ?: findProperty('aws_access_key_id')
-            secretKey = System.env.AWS_SECRET_ACCESS_KEY ?: findProperty('aws_secret_access_key')
-        }
-    }
-}
-
-
 dependencies {
-    compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}-SNAPSHOT"
-    testCompile "org.opensearch.test:framework:${opensearch_version}-SNAPSHOT"
+    compileOnly "${opensearch_group}:opensearch:${opensearch_version}"
+    compileOnly "${opensearch_group}:opensearch-rest-high-level-client:${opensearch_version}"
+    compileOnly "${opensearch_group}:opensearch-x-content:${opensearch_version}"
+    testCompile "${opensearch_group}:framework:${opensearch_version}"
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
 }
 
 spotless {
