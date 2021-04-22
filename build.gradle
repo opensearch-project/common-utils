@@ -12,7 +12,7 @@
 buildscript {
     ext {
         opensearch_group = "org.opensearch"
-        opensearch_version = '1.0.0'
+        opensearch_version = System.getProperty("opensearch.version", "1.0.0-alpha1")
     }
 
     repositories {
@@ -23,7 +23,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "${opensearch_group}.gradle:build-tools:${opensearch_version}-SNAPSHOT"
+        classpath "${opensearch_group}.gradle:build-tools:${opensearch_version}"
     }
 }
 
@@ -51,8 +51,8 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-    compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}-SNAPSHOT"
-    testCompile "org.opensearch.test:framework:${opensearch_version}-SNAPSHOT"
+    compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}"
+    testCompile "org.opensearch.test:framework:${opensearch_version}"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
