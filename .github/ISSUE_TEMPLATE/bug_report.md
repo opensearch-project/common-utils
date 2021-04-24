@@ -1,17 +1,13 @@
 ---
-name: Bug report
+name: 🐛 Bug report
 about: Create a report to help us improve
 title: "[BUG]"
 labels: bug
-assignees: skkosuri-amzn
-
+assignees: ''
 ---
 
 **Describe the bug**
 A clear and concise description of what the bug is.
-
-**Other plugins installed**
-Please mention if you are using this plugin along side any other plugin. Security for example.
 
 **To Reproduce**
 Steps to reproduce the behavior:
@@ -23,12 +19,14 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**Plugins**
+Please list all plugins currently enabled.
+
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
+**Host/Environment (please complete the following information):**
  - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
  - Version [e.g. 22]
 
 **Additional context**
