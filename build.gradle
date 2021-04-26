@@ -80,7 +80,7 @@ task javadocJar(type: Jar) {
     from javadoc.destinationDir
 }
 
-version '1.0.0.0'
+version '1.0.0.0-beta1'
 
 publishing {
     publications {
