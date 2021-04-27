@@ -12,7 +12,7 @@
 buildscript {
     ext {
         opensearch_group = "org.opensearch"
-        opensearch_version = System.getProperty("opensearch.version", "1.0.0-alpha1")
+        opensearch_version = System.getProperty("opensearch.version", "1.0.0-beta1")
     }
 
     repositories {
@@ -80,7 +80,7 @@ task javadocJar(type: Jar) {
     from javadoc.destinationDir
 }
 
-version '1.0.0.0-alpha2'
+version '1.0.0.0-beta1'
 
 publishing {
     publications {

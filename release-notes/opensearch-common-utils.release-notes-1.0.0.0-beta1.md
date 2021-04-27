@@ -11,6 +11,8 @@ Compatible with OpenSearch 1.0.0
   * Update licenses ([#3](https://github.com/opensearch-project/common-utils/pull/3))
   * Add new license header ([#5](https://github.com/opensearch-project/common-utils/pull/5))
   * Update spotless license file ([#11](https://github.com/opensearch-project/common-utils/pull/11))
+  * Add release notes and script to generate release notes ([#16](https://github.com/opensearch-project/common-utils/pull/16))
 ### Refactoring
   * Renaming lingering strings to OpenSearch ([#2](https://github.com/opensearch-project/common-utils/pull/2))
   * Update version to 1.0.0.0-alpha2 ([#15](https://github.com/opensearch-project/common-utils/pull/15))
+  * Update version to 1.0.0.0-beta1 ([#17](https://github.com/opensearch-project/common-utils/pull/17))
