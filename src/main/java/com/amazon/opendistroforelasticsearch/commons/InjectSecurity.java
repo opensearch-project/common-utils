@@ -24,11 +24,11 @@
  * permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.commons;
+package org.opensearch.commons;
 
-import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.INJECTED_USER;
-import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_INJECTED_ROLES;
-import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
+import static org.opensearch.commons.ConfigConstants.INJECTED_USER;
+import static org.opensearch.commons.ConfigConstants.OPENDISTRO_SECURITY_INJECTED_ROLES;
+import static org.opensearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
 
 import java.util.List;
 

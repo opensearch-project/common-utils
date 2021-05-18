@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.commons.rest;
+package org.opensearch.commons.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,8 +56,7 @@ import org.opensearch.client.RestClientBuilder;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.Strings;
 import org.opensearch.common.settings.Settings;
-
-import com.amazon.opendistroforelasticsearch.commons.ConfigConstants;
+import org.opensearch.commons.ConfigConstants;
 
 /**
  * Provides builder to create low-level and high-level REST client to make calls to OpenSearch.

@@ -32,7 +32,7 @@ This library is composed of following parts:
 
 To change loglevel, add below to `config/log4j2.properties` or use REST API to set.
 ```
-logger.commons.name = com.amazon.opendistroforelasticsearch.commons
+logger.commons.name = org.opensearch.commons
 logger.commons.level = debug
 ```
 
