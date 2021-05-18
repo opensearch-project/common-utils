@@ -27,8 +27,8 @@
 package org.opensearch.commons;
 
 import static org.opensearch.commons.ConfigConstants.INJECTED_USER;
-import static org.opensearch.commons.ConfigConstants.OPENDISTRO_SECURITY_INJECTED_ROLES;
-import static org.opensearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
+import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTED_ROLES;
+import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
 
 import java.util.List;
 
@@ -116,7 +116,7 @@ public class InjectSecurity implements AutoCloseable {
      * @param roles
      */
     public void inject(final String user, final List<String> roles) {
-        boolean injectUser = settings.getAsBoolean(OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS, false);
+        boolean injectUser = settings.getAsBoolean(OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS, false);
         if (injectUser)
             injectUser(user);
         else
@@ -152,8 +152,8 @@ public class InjectSecurity implements AutoCloseable {
 
         final String rolesStr = String.join(",", roles);
         String injectStr = "plugin|" + rolesStr;
-        if (threadContext.getTransient(OPENDISTRO_SECURITY_INJECTED_ROLES) == null) {
-            threadContext.putTransient(OPENDISTRO_SECURITY_INJECTED_ROLES, injectStr);
+        if (threadContext.getTransient(OPENSEARCH_SECURITY_INJECTED_ROLES) == null) {
+            threadContext.putTransient(OPENSEARCH_SECURITY_INJECTED_ROLES, injectStr);
             log.debug("{}, InjectSecurity - inject roles: {}", Thread.currentThread().getName(), id);
         } else {
             log.error("{}, InjectSecurity- most likely thread context corruption : {}", Thread.currentThread().getName(), id);

@@ -30,8 +30,8 @@ import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.opensearch.commons.ConfigConstants.INJECTED_USER;
-import static org.opensearch.commons.ConfigConstants.OPENDISTRO_SECURITY_INJECTED_ROLES;
-import static org.opensearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
+import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTED_ROLES;
+import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
 
 import java.util.Arrays;
 
@@ -48,7 +48,7 @@ public class InjectSecurityTest {
         try (InjectSecurity helper = new InjectSecurity("test-name", Settings.EMPTY, tc)) {
             helper.inject("", null);
         }
-        Assert.assertNull(tc.getTransient(OPENDISTRO_SECURITY_INJECTED_ROLES));
+        Assert.assertNull(tc.getTransient(OPENSEARCH_SECURITY_INJECTED_ROLES));
     }
 
     @Test
@@ -68,18 +68,18 @@ public class InjectSecurityTest {
             assertEquals("1", threadContext.getHeader("default"));
             assertEquals("opendistro", threadContext.getHeader("name"));
             assertEquals("plugin", threadContext.getTransient("ctx.name"));
-            assertNotNull(threadContext.getTransient(OPENDISTRO_SECURITY_INJECTED_ROLES));
-            assertEquals("plugin|ops-role,logs-role", threadContext.getTransient(OPENDISTRO_SECURITY_INJECTED_ROLES));
+            assertNotNull(threadContext.getTransient(OPENSEARCH_SECURITY_INJECTED_ROLES));
+            assertEquals("plugin|ops-role,logs-role", threadContext.getTransient(OPENSEARCH_SECURITY_INJECTED_ROLES));
         }
         assertEquals("1", threadContext.getHeader("default"));
         assertEquals("opendistro", threadContext.getHeader("name"));
         assertEquals("plugin", threadContext.getTransient("ctx.name"));
-        assertNull(threadContext.getTransient(OPENDISTRO_SECURITY_INJECTED_ROLES));
+        assertNull(threadContext.getTransient(OPENSEARCH_SECURITY_INJECTED_ROLES));
     }
 
     @Test
     public void testInjectUser() {
-        Settings settings = Settings.builder().put(OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS, true).build();
+        Settings settings = Settings.builder().put(OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS, true).build();
         Settings headerSettings = Settings.builder().put("request.headers.default", "1").build();
         ThreadContext threadContext = new ThreadContext(headerSettings);
         threadContext.putHeader("name", "opendistro");
@@ -94,7 +94,7 @@ public class InjectSecurityTest {
             assertEquals("1", threadContext.getHeader("default"));
             assertEquals("opendistro", threadContext.getHeader("name"));
             assertEquals("plugin", threadContext.getTransient("ctx.name"));
-            assertNull(threadContext.getTransient(OPENDISTRO_SECURITY_INJECTED_ROLES));
+            assertNull(threadContext.getTransient(OPENSEARCH_SECURITY_INJECTED_ROLES));
             assertNotNull(threadContext.getTransient(INJECTED_USER));
             assertEquals("joe", threadContext.getTransient(INJECTED_USER));
         }

@@ -143,7 +143,7 @@ public class SecureRestClientBuilder {
 
     public SecureRestClientBuilder(Settings settings, Path configPath) {
 
-        this.httpSSLEnabled = settings.getAsBoolean(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_ENABLED, false);
+        this.httpSSLEnabled = settings.getAsBoolean(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_ENABLED, false);
         this.settings = settings;
         this.configPath = configPath;
         this.user = null;
@@ -285,17 +285,17 @@ public class SecureRestClientBuilder {
     }
 
     private String getTrustPem() {
-        return settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_PEMCERT_FILEPATH, null);
+        return settings.get(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_PEMCERT_FILEPATH, null);
     }
 
     private String getKeystorePasswd() {
-        return settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD, null);
+        return settings.get(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD, null);
     }
 
     private KeyStore getKeyStore() throws IOException, GeneralSecurityException {
         KeyStore keyStore = KeyStore.getInstance("jks");
-        String keyStoreFile = settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH, null);
-        String passwd = settings.get(ConfigConstants.OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD, null);
+        String keyStoreFile = settings.get(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH, null);
+        String passwd = settings.get(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD, null);
         if (Strings.isNullOrEmpty(keyStoreFile) || Strings.isNullOrEmpty(passwd)) {
             return null;
         }
