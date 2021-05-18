@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.commons.rest;
+package org.opensearch.commons.rest;
 
 import java.io.File;
 import java.nio.file.Paths;

@@ -40,7 +40,7 @@ repositories {
     jcenter()
 }
 
-group 'com.amazon.opendistroforelasticsearch.commons'
+group 'org.opensearch.commons'
 
 sourceCompatibility = 1.8
 
@@ -86,7 +86,7 @@ publishing {
     publications {
         shadow(MavenPublication) {
             project.shadow.component(it)
-            groupId = 'com.amazon.opendistroforelasticsearch'
+            groupId = 'org.opensearch'
             artifactId = 'common-utils'
 
             artifact sourcesJar

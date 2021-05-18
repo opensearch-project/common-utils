@@ -24,13 +24,13 @@
  * permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.commons.authuser;
+package org.opensearch.commons.authuser;
 
-import static com.amazon.opendistroforelasticsearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USER_INFO_THREAD_CONTEXT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.opensearch.commons.ConfigConstants.OPENDISTRO_SECURITY_USER_INFO_THREAD_CONTEXT;
 
 import java.io.IOException;
 import java.util.Arrays;

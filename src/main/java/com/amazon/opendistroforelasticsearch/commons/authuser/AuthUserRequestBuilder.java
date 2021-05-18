@@ -24,13 +24,12 @@
  * permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.commons.authuser;
+package org.opensearch.commons.authuser;
 
 import org.opensearch.client.Request;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.common.Strings;
-
-import com.amazon.opendistroforelasticsearch.commons.ConfigConstants;
+import org.opensearch.commons.ConfigConstants;
 
 public class AuthUserRequestBuilder {
     private final String auth;

@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.commons.authuser;
+package org.opensearch.commons.authuser;
 
 import static org.opensearch.common.xcontent.XContentParserUtils.ensureExpectedToken;
 

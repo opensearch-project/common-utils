@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.commons;
+package org.opensearch.commons;
 
 public class ConfigConstants {
 
