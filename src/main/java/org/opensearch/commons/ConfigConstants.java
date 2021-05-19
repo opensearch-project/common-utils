@@ -38,13 +38,13 @@ public class ConfigConstants {
     public static final String AUTHORIZATION = "Authorization";
 
     // These reside in security plugin.
-    public static final String OPENDISTRO_SECURITY_SSL_HTTP_PEMCERT_FILEPATH = "opendistro_security.ssl.http.pemcert_filepath";
-    public static final String OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH = "opendistro_security.ssl.http.keystore_filepath";
-    public static final String OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD = "opendistro_security.ssl.http.keystore_password";
-    public static final String OPENDISTRO_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD = "opendistro_security.ssl.http.keystore_keypassword";
-    public static final String OPENDISTRO_SECURITY_INJECTED_ROLES = "opendistro_security_injected_roles";
+    public static final String OPENSEARCH_SECURITY_SSL_HTTP_PEMCERT_FILEPATH = "opendistro_security.ssl.http.pemcert_filepath";
+    public static final String OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH = "opendistro_security.ssl.http.keystore_filepath";
+    public static final String OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD = "opendistro_security.ssl.http.keystore_password";
+    public static final String OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD = "opendistro_security.ssl.http.keystore_keypassword";
+    public static final String OPENSEARCH_SECURITY_INJECTED_ROLES = "opendistro_security_injected_roles";
     public static final String INJECTED_USER = "injected_user";
-    public static final String OPENDISTRO_SECURITY_USE_INJECTED_USER_FOR_PLUGINS = "opendistro_security_use_injected_user_for_plugins";
-    public static final String OPENDISTRO_SECURITY_SSL_HTTP_ENABLED = "opendistro_security.ssl.http.enabled";
-    public static final String OPENDISTRO_SECURITY_USER_INFO_THREAD_CONTEXT = "_opendistro_security_user_info";
+    public static final String OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS = "opendistro_security_use_injected_user_for_plugins";
+    public static final String OPENSEARCH_SECURITY_SSL_HTTP_ENABLED = "opendistro_security.ssl.http.enabled";
+    public static final String OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT = "_opendistro_security_user_info";
 }
