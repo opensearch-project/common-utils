@@ -93,14 +93,14 @@ publishing {
             artifact javadocJar
 
             pom {
-                name = "Open Distro for OpenSearch Common Utils"
+                name = "OpenSearch Common Utils"
                 packaging = "jar"
-                url = "https://github.com/opendistro-for-elasticsearch/common-utils"
-                description = "Open Distro for OpenSearch Common Utils"
+                url = "https://github.com/opensearch-project/common-utils"
+                description = "OpenSearch Common Utils"
                 scm {
-                    connection = "scm:git@github.com:opendistro-for-elasticsearch/common-utils.git"
-                    developerConnection = "scm:git@github.com:opendistro-for-elasticsearch/common-utils.git"
-                    url = "git@github.com:opendistro-for-elasticsearch/common-utils.git"
+                    connection = "scm:git@github.com:opensearch-project/common-utils.git"
+                    developerConnection = "scm:git@github.com:opensearch-project/common-utils.git"
+                    url = "git@github.com:opensearch-project/common-utils.git"
                 }
                 licenses {
                     license {
