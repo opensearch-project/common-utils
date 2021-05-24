@@ -39,7 +39,7 @@ public class SecureRestClientBuilderTest {
 
     @Test
     public void testHttpRestClient() throws Exception {
-        Settings settings = Settings.builder().put("http.port", 9200).put("opendistro_security.ssl.http.enabled", false).build();
+        Settings settings = Settings.builder().put("http.port", 9200).put("plugins.security.ssl.http.enabled", false).build();
         SecureRestClientBuilder builder = new SecureRestClientBuilder(settings, null);
         RestClient restClient = builder.build();
         Assert.assertNotNull(restClient);
@@ -51,8 +51,8 @@ public class SecureRestClientBuilderTest {
         Settings settings = Settings
             .builder()
             .put("http.port", 9200)
-            .put("opendistro_security.ssl.http.enabled", true)
-            .put("opendistro_security.ssl.http.pemcert_filepath", "sample.pem")
+            .put("plugins.security.ssl.http.enabled", true)
+            .put("plugins.security.ssl.http.pemcert_filepath", "sample.pem")
             .build();
 
         String absolutePath = new File(getClass().getClassLoader().getResource("sample.pem").getFile()).getAbsolutePath();
@@ -66,7 +66,7 @@ public class SecureRestClientBuilderTest {
 
     @Test
     public void testMissingPem() throws Exception {
-        Settings settings = Settings.builder().put("http.port", 9200).put("opendistro_security.ssl.http.enabled", true).build();
+        Settings settings = Settings.builder().put("http.port", 9200).put("plugins.security.ssl.http.enabled", true).build();
         String absolutePath = new File(getClass().getClassLoader().getResource("sample.pem").getFile()).getAbsolutePath();
         String configFolder = absolutePath.replace("sample.pem", "");
         new SecureRestClientBuilder(settings, Paths.get(configFolder)).build();
@@ -77,8 +77,8 @@ public class SecureRestClientBuilderTest {
         Settings settings = Settings
             .builder()
             .put("http.port", 9200)
-            .put("opendistro_security.ssl.http.enabled", true)
-            .put("opendistro_security.ssl.http.pemcert_filepath", "sample.pem")
+            .put("plugins.security.ssl.http.enabled", true)
+            .put("plugins.security.ssl.http.pemcert_filepath", "sample.pem")
             .build();
         new SecureRestClientBuilder(settings, Paths.get("sample.pem")).build();
     }
