@@ -31,22 +31,23 @@ jobs:
         with:
           repository: 'opensearch-project/OpenSearch'
           path: OpenSearch
-          ref: '1.0.0-beta1'
+          ref: '1.x'
       - name: Build OpenSearch
         working-directory: ./OpenSearch
-        run: ./gradlew publishToMavenLocal -Dbuild.version_qualifier=beta1 -Dbuild.snapshot=false
+        run: ./gradlew publishToMavenLocal -Dbuild.version_qualifier=rc1 -Dbuild.snapshot=false
         
       # common-utils
       - name: Build and Test
         run: |
-          ./gradlew build -Dopensearch.version=1.0.0-beta1
+          ./gradlew build -Dopensearch.version=1.0.0-rc1
 
       - name: Publish to Maven Local
         run: |
-          ./gradlew publishToMavenLocal -Dopensearch.version=1.0.0-beta1
+          ./gradlew publishToMavenLocal -Dopensearch.version=1.0.0-rc1
           
       - name: Upload Coverage Report
         uses: codecov/codecov-action@v1
         with:
           file: ./build/reports/jacoco/test/jacocoTestReport.xml
           flags: plugin
+
