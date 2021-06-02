@@ -26,11 +26,13 @@
 
 package org.opensearch.commons.rest;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.File;
 import java.nio.file.Paths;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.opensearch.OpenSearchException;
 import org.opensearch.client.RestClient;
 import org.opensearch.common.settings.Settings;
@@ -42,7 +44,7 @@ public class SecureRestClientBuilderTest {
         Settings settings = Settings.builder().put("http.port", 9200).put("plugins.security.ssl.http.enabled", false).build();
         SecureRestClientBuilder builder = new SecureRestClientBuilder(settings, null);
         RestClient restClient = builder.build();
-        Assert.assertNotNull(restClient);
+        Assertions.assertNotNull(restClient);
         restClient.close();
     }
 
@@ -60,7 +62,7 @@ public class SecureRestClientBuilderTest {
 
         SecureRestClientBuilder builder = new SecureRestClientBuilder(settings, Paths.get(configFolder));
         RestClient restClient = builder.build();
-        Assert.assertNotNull(restClient);
+        Assertions.assertNotNull(restClient);
         restClient.close();
     }
 
@@ -72,14 +74,16 @@ public class SecureRestClientBuilderTest {
         new SecureRestClientBuilder(settings, Paths.get(configFolder)).build();
     }
 
-    @Test(expected = OpenSearchException.class)
-    public void testMissingConfigPath() throws Exception {
-        Settings settings = Settings
-            .builder()
-            .put("http.port", 9200)
-            .put("plugins.security.ssl.http.enabled", true)
-            .put("plugins.security.ssl.http.pemcert_filepath", "sample.pem")
-            .build();
-        new SecureRestClientBuilder(settings, Paths.get("sample.pem")).build();
+    @Test
+    public void testMissingConfigPath() {
+        assertThrows(OpenSearchException.class, () -> {
+            Settings settings = Settings
+                .builder()
+                .put("http.port", 9200)
+                .put("plugins.security.ssl.http.enabled", true)
+                .put("plugins.security.ssl.http.pemcert_filepath", "sample.pem")
+                .build();
+            new SecureRestClientBuilder(settings, Paths.get("sample.pem")).build();
+        });
     }
 }
