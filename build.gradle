@@ -13,7 +13,7 @@ buildscript {
     ext {
         opensearch_group = "org.opensearch"
         opensearch_version = System.getProperty("opensearch.version", "1.0.0-rc1")
-        kotlin_version = System.getProperty("kotlin.version", "1.5.10")
+        kotlin_version = System.getProperty("kotlin.version", "1.4.32")
     }
 
     repositories {
@@ -63,9 +63,9 @@ configurations {
 
 dependencies {
     compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}"
-    compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0" // ${kotlin_version} may not work for some versions
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3" // ${kotlin_version} does not work for coroutines
     testCompile "org.opensearch.test:framework:${opensearch_version}"
     testCompile "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
     testCompile "org.mockito:mockito-core:3.10.0"
