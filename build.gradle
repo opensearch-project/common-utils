@@ -13,6 +13,7 @@ buildscript {
     ext {
         opensearch_group = "org.opensearch"
         opensearch_version = System.getProperty("opensearch.version", "1.0.0-rc1")
+        kotlin_version = System.getProperty("kotlin.version", "1.5.10")
     }
 
     repositories {
@@ -24,6 +25,9 @@ buildscript {
 
     dependencies {
         classpath "${opensearch_group}.gradle:build-tools:${opensearch_version}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:${kotlin_version}"
+        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.17.1"
     }
 }
 
@@ -49,11 +53,37 @@ apply plugin: 'jacoco'
 apply plugin: 'signing'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'io.gitlab.arturbosch.detekt'
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'org.jetbrains.kotlin.plugin.allopen'
+
+configurations {
+    ktlint
+}
 
 dependencies {
     compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0" // ${kotlin_version} may not work for some versions
     testCompile "org.opensearch.test:framework:${opensearch_version}"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
+    testCompile "org.mockito:mockito-core:3.10.0"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.10.0'
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+
+    ktlint "com.pinterest:ktlint:0.41.0"
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        exceptionFormat "full"
+        events "skipped", "passed", "failed" // "started"
+        showStandardStreams true
+    }
 }
 
 spotless {
@@ -63,6 +93,42 @@ spotless {
         licenseHeaderFile 'spotless.license.java'
 
         eclipse().configFile rootProject.file('.eclipseformat.xml')
+    }
+}
+detekt {
+    config = files("detekt.yml")
+    buildUponDefaultConfig = true
+}
+
+task ktlint(type: JavaExec, group: "verification") {
+    description = "Check Kotlin code style."
+    main = "com.pinterest.ktlint.Main"
+    classpath = configurations.ktlint
+    args "src/**/*.kt"
+    // to generate report in checkstyle format prepend following args:
+    // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
+    // see https://github.com/pinterest/ktlint#usage for more
+}
+
+check.dependsOn ktlint
+
+task ktlintFormat(type: JavaExec, group: "formatting") {
+    description = "Fix Kotlin code style deviations."
+    main = "com.pinterest.ktlint.Main"
+    classpath = configurations.ktlint
+    args "-F", "src/**/*.kt"
+}
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict']
+        jvmTarget = "1.8"
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 

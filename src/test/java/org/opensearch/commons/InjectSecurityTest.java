@@ -26,17 +26,16 @@
 
 package org.opensearch.commons;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.opensearch.commons.ConfigConstants.INJECTED_USER;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTED_ROLES;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
 
 import java.util.Arrays;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
 
@@ -48,7 +47,7 @@ public class InjectSecurityTest {
         try (InjectSecurity helper = new InjectSecurity("test-name", Settings.EMPTY, tc)) {
             helper.inject("", null);
         }
-        Assert.assertNull(tc.getTransient(OPENSEARCH_SECURITY_INJECTED_ROLES));
+        assertNull(tc.getTransient(OPENSEARCH_SECURITY_INJECTED_ROLES));
     }
 
     @Test
