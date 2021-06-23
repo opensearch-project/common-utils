@@ -1,58 +1,47 @@
-# OpenSearch Common Utils 
+<img src="https://opensearch.org/assets/brand/SVG/Logo/opensearch_logo_default.svg" height="64px"/>
 
-OpenSearch Common Utils is focused on providing reusable Java components for OpenSearch plugins.
+- [OpenSearch Common Utils](#opensearch-common-utils)
+- [Contributing](#contributing)
+- [Getting Help](#getting-help)
+- [Code of Conduct](#code-of-conduct)
+- [Security](#security)
+- [License](#license)
+- [Copyright](#copyright)
+
+## OpenSearch Common Utils 
+
+OpenSearch Common Utils is focused on providing reusable Java components for [OpenSearch](https://opensearch.org/) plugins.
 
 This library is composed of following parts:
-1. SecureRestClientBuilder - provides methods to create secure low-level and high-level REST client. This is 
-   useful to make secure REST calls to OpenSearch or other plugin api's. 
-2. InjectSecurity - provides methods to inject user or roles. This is useful for running background jobs securely.
-3. IntegTestsWithSecurity - provides methods to create users, roles for running integ tests with security plugin.
-4. Shared Request/Response/Action classes used for plugin to plugin transport layer calls.
+
+1. `SecureRestClientBuilder` - provides methods to create secure low-level and high-level REST client. This is useful to make secure REST calls to OpenSearch or other plugin APIs. 
+2. `InjectSecurity` - provides methods to inject user or roles. This is useful for running background jobs securely.
+3. `IntegTestsWithSecurity` - provides methods to create users, roles for running integration tests with security plugin.
+4. Shared request/response/action classes used for plugin to plugin transport layer calls.
 5. Any common functionality across OpenSearch plugins could be moved to this.
 
+## Contributing
 
-## Setup
+See [developer guide](DEVELOPER_GUIDE.md) and [how to contribute to this project](CONTRIBUTING.md). 
 
-1. Check out this package from version control.
-1. Launch Intellij IDEA, choose **Import Project**, and select the `settings.gradle` file in the root of this package. 
-1. To build from the command line, set `JAVA_HOME` to point to a JDK >= 14 before running `./gradlew`.
+## Getting Help
 
+If you find a bug, or have a feature request, please don't hesitate to open an issue in this repository.
 
-## Build
-
-### Building from the command line
-```
-./gradlew clean
-./gradlew build 
-
-./gradlew publishToMavenLocal
-```
-
-### Logging
-
-To change loglevel, add below to `config/log4j2.properties` or use REST API to set.
-```
-logger.commons.name = org.opensearch.commons
-logger.commons.level = debug
-```
+For more information, see [project website](https://opensearch.org/) and [documentation](https://docs-beta.opensearch.org/). If you need help and are unsure where to open an issue, try [forums](https://discuss.opendistrocommunity.dev/).
 
 ## Code of Conduct
 
-This project has adopted the [Amazon Open Source Code of Conduct](https://aws.github.io/code-of-conduct).
-For more information see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq) or contact
-opensource-codeofconduct@amazon.com with any additional questions or comments.
+This project has adopted the [Amazon Open Source Code of Conduct](CODE_OF_CONDUCT.md). For more information see the [Code of Conduct FAQ](https://aws.github.io/code-of-conduct-faq), or contact [opensource-codeofconduct@amazon.com](mailto:opensource-codeofconduct@amazon.com) with any additional questions or comments.
 
-
-## Security issue notifications
+## Security
 
 If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public GitHub issue.
 
+## License
 
-## Licensing
-
-See the [LICENSE](./LICENSE.txt) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
-
+This project is licensed under the [Apache v2.0 License](LICENSE.txt).
 
 ## Copyright
 
-Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
