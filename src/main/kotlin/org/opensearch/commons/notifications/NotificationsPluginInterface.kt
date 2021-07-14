@@ -232,8 +232,7 @@ object NotificationsPluginInterface {
      * the response object.
      */
     @Suppress("UNCHECKED_CAST")
-    private fun <Response : BaseResponse>
-            wrapActionListener(
+    private fun <Response : BaseResponse> wrapActionListener(
         listener: ActionListener<Response>,
         recreate: (Writeable) -> Response
     ): ActionListener<Response> {
