@@ -27,6 +27,7 @@
 package org.opensearch.commons.notifications
 
 import org.opensearch.action.ActionListener
+import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
@@ -56,6 +57,7 @@ import org.opensearch.commons.notifications.action.UpdateNotificationConfigRespo
 import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.EventSource
 import org.opensearch.commons.utils.SecureClientWrapper
+import org.opensearch.commons.utils.recreateObject
 
 /**
  * All the transport action plugin interfaces for the Notification plugin
@@ -68,6 +70,7 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
+    @Suppress("UNCHECKED_CAST")
     fun createNotificationConfig(
         client: NodeClient,
         request: CreateNotificationConfigRequest,
@@ -76,7 +79,16 @@ object NotificationsPluginInterface {
         client.execute(
             CREATE_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            listener
+            object : ActionListener<ActionResponse> {
+                override fun onResponse(response: ActionResponse) {
+                    val recreated = response as? CreateNotificationConfigResponse ?:
+                    recreateObject(response) { CreateNotificationConfigResponse(it) }
+                    listener.onResponse(recreated)
+                }
+                override fun onFailure(exception: java.lang.Exception) {
+                    listener.onFailure(exception)
+                }
+            } as ActionListener<CreateNotificationConfigResponse>
         )
     }
 
@@ -86,6 +98,7 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
+    @Suppress("UNCHECKED_CAST")
     fun updateNotificationConfig(
         client: NodeClient,
         request: UpdateNotificationConfigRequest,
@@ -94,7 +107,16 @@ object NotificationsPluginInterface {
         client.execute(
             UPDATE_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            listener
+            object : ActionListener<ActionResponse> {
+                override fun onResponse(response: ActionResponse) {
+                    val recreated = response as? UpdateNotificationConfigResponse ?:
+                    recreateObject(response) { UpdateNotificationConfigResponse(it) }
+                    listener.onResponse(recreated)
+                }
+                override fun onFailure(exception: java.lang.Exception) {
+                    listener.onFailure(exception)
+                }
+            } as ActionListener<UpdateNotificationConfigResponse>
         )
     }
 
@@ -104,6 +126,7 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
+    @Suppress("UNCHECKED_CAST")
     fun deleteNotificationConfig(
         client: NodeClient,
         request: DeleteNotificationConfigRequest,
@@ -112,7 +135,16 @@ object NotificationsPluginInterface {
         client.execute(
             DELETE_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            listener
+            object : ActionListener<ActionResponse> {
+                override fun onResponse(response: ActionResponse) {
+                    val recreated = response as? DeleteNotificationConfigResponse ?:
+                    recreateObject(response) { DeleteNotificationConfigResponse(it) }
+                    listener.onResponse(recreated)
+                }
+                override fun onFailure(exception: java.lang.Exception) {
+                    listener.onFailure(exception)
+                }
+            } as ActionListener<DeleteNotificationConfigResponse>
         )
     }
 
@@ -122,6 +154,7 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
+    @Suppress("UNCHECKED_CAST")
     fun getNotificationConfig(
         client: NodeClient,
         request: GetNotificationConfigRequest,
@@ -130,7 +163,16 @@ object NotificationsPluginInterface {
         client.execute(
             GET_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            listener
+            object : ActionListener<ActionResponse> {
+                override fun onResponse(response: ActionResponse) {
+                    val recreated = response as? GetNotificationConfigResponse ?:
+                    recreateObject(response) { GetNotificationConfigResponse(it) }
+                    listener.onResponse(recreated)
+                }
+                override fun onFailure(exception: java.lang.Exception) {
+                    listener.onFailure(exception)
+                }
+            } as ActionListener<GetNotificationConfigResponse>
         )
     }
 
@@ -140,6 +182,7 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
+    @Suppress("UNCHECKED_CAST")
     fun getNotificationEvent(
         client: NodeClient,
         request: GetNotificationEventRequest,
@@ -148,7 +191,16 @@ object NotificationsPluginInterface {
         client.execute(
             GET_NOTIFICATION_EVENT_ACTION_TYPE,
             request,
-            listener
+            object : ActionListener<ActionResponse> {
+                override fun onResponse(response: ActionResponse) {
+                    val recreated = response as? GetNotificationEventResponse ?:
+                    recreateObject(response) { GetNotificationEventResponse(it) }
+                    listener.onResponse(recreated)
+                }
+                override fun onFailure(exception: java.lang.Exception) {
+                    listener.onFailure(exception)
+                }
+            } as ActionListener<GetNotificationEventResponse>
         )
     }
 
@@ -158,6 +210,7 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
+    @Suppress("UNCHECKED_CAST")
     fun getPluginFeatures(
         client: NodeClient,
         request: GetPluginFeaturesRequest,
@@ -166,7 +219,16 @@ object NotificationsPluginInterface {
         client.execute(
             GET_PLUGIN_FEATURES_ACTION_TYPE,
             request,
-            listener
+            object : ActionListener<ActionResponse> {
+                override fun onResponse(response: ActionResponse) {
+                    val recreated = response as? GetPluginFeaturesResponse ?:
+                    recreateObject(response) { GetPluginFeaturesResponse(it) }
+                    listener.onResponse(recreated)
+                }
+                override fun onFailure(exception: java.lang.Exception) {
+                    listener.onFailure(exception)
+                }
+            } as ActionListener<GetPluginFeaturesResponse>
         )
     }
 
@@ -176,6 +238,7 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
+    @Suppress("UNCHECKED_CAST")
     fun getFeatureChannelList(
         client: NodeClient,
         request: GetFeatureChannelListRequest,
@@ -184,7 +247,16 @@ object NotificationsPluginInterface {
         client.execute(
             GET_FEATURE_CHANNEL_LIST_ACTION_TYPE,
             request,
-            listener
+            object : ActionListener<ActionResponse> {
+                override fun onResponse(response: ActionResponse) {
+                    val recreated = response as? GetFeatureChannelListResponse ?:
+                    recreateObject(response) { GetFeatureChannelListResponse(it) }
+                    listener.onResponse(recreated)
+                }
+                override fun onFailure(exception: java.lang.Exception) {
+                    listener.onFailure(exception)
+                }
+            } as ActionListener<GetFeatureChannelListResponse>
         )
     }
 
@@ -196,6 +268,7 @@ object NotificationsPluginInterface {
      * @param channelIds The list of channel ids to send message to.
      * @param listener The listener for getting response
      */
+    @Suppress("UNCHECKED_CAST")
     fun sendNotification(
         client: NodeClient,
         eventSource: EventSource,
@@ -209,7 +282,16 @@ object NotificationsPluginInterface {
         wrapper.execute(
             SEND_NOTIFICATION_ACTION_TYPE,
             SendNotificationRequest(eventSource, channelMessage, channelIds, threadContext),
-            listener
+            object : ActionListener<ActionResponse> {
+                override fun onResponse(response: ActionResponse) {
+                    val recreated = response as? SendNotificationResponse ?:
+                    recreateObject(response) { SendNotificationResponse(it) }
+                    listener.onResponse(recreated)
+                }
+                override fun onFailure(exception: java.lang.Exception) {
+                    listener.onFailure(exception)
+                }
+            } as ActionListener<SendNotificationResponse>
         )
     }
 }
