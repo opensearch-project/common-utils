@@ -72,7 +72,6 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
-    @Suppress("UNCHECKED_CAST")
     fun createNotificationConfig(
         client: NodeClient,
         request: CreateNotificationConfigRequest,
@@ -91,7 +90,6 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
-    @Suppress("UNCHECKED_CAST")
     fun updateNotificationConfig(
         client: NodeClient,
         request: UpdateNotificationConfigRequest,
@@ -110,7 +108,6 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
-    @Suppress("UNCHECKED_CAST")
     fun deleteNotificationConfig(
         client: NodeClient,
         request: DeleteNotificationConfigRequest,
@@ -129,7 +126,6 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
-    @Suppress("UNCHECKED_CAST")
     fun getNotificationConfig(
         client: NodeClient,
         request: GetNotificationConfigRequest,
@@ -148,7 +144,6 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
-    @Suppress("UNCHECKED_CAST")
     fun getNotificationEvent(
         client: NodeClient,
         request: GetNotificationEventRequest,
@@ -167,7 +162,6 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
-    @Suppress("UNCHECKED_CAST")
     fun getPluginFeatures(
         client: NodeClient,
         request: GetPluginFeaturesRequest,
@@ -186,7 +180,6 @@ object NotificationsPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
-    @Suppress("UNCHECKED_CAST")
     fun getFeatureChannelList(
         client: NodeClient,
         request: GetFeatureChannelListRequest,
@@ -207,7 +200,6 @@ object NotificationsPluginInterface {
      * @param channelIds The list of channel ids to send message to.
      * @param listener The listener for getting response
      */
-    @Suppress("UNCHECKED_CAST")
     fun sendNotification(
         client: NodeClient,
         eventSource: EventSource,
