@@ -81,10 +81,11 @@ object NotificationsPluginInterface {
             request,
             object : ActionListener<ActionResponse> {
                 override fun onResponse(response: ActionResponse) {
-                    val recreated = response as? CreateNotificationConfigResponse ?:
-                    recreateObject(response) { CreateNotificationConfigResponse(it) }
+                    val recreated = response as? CreateNotificationConfigResponse
+                        ?: recreateObject(response) { CreateNotificationConfigResponse(it) }
                     listener.onResponse(recreated)
                 }
+
                 override fun onFailure(exception: java.lang.Exception) {
                     listener.onFailure(exception)
                 }
@@ -109,10 +110,11 @@ object NotificationsPluginInterface {
             request,
             object : ActionListener<ActionResponse> {
                 override fun onResponse(response: ActionResponse) {
-                    val recreated = response as? UpdateNotificationConfigResponse ?:
-                    recreateObject(response) { UpdateNotificationConfigResponse(it) }
+                    val recreated = response as? UpdateNotificationConfigResponse
+                        ?: recreateObject(response) { UpdateNotificationConfigResponse(it) }
                     listener.onResponse(recreated)
                 }
+
                 override fun onFailure(exception: java.lang.Exception) {
                     listener.onFailure(exception)
                 }
@@ -137,10 +139,11 @@ object NotificationsPluginInterface {
             request,
             object : ActionListener<ActionResponse> {
                 override fun onResponse(response: ActionResponse) {
-                    val recreated = response as? DeleteNotificationConfigResponse ?:
-                    recreateObject(response) { DeleteNotificationConfigResponse(it) }
+                    val recreated = response as? DeleteNotificationConfigResponse
+                        ?: recreateObject(response) { DeleteNotificationConfigResponse(it) }
                     listener.onResponse(recreated)
                 }
+
                 override fun onFailure(exception: java.lang.Exception) {
                     listener.onFailure(exception)
                 }
@@ -165,10 +168,11 @@ object NotificationsPluginInterface {
             request,
             object : ActionListener<ActionResponse> {
                 override fun onResponse(response: ActionResponse) {
-                    val recreated = response as? GetNotificationConfigResponse ?:
-                    recreateObject(response) { GetNotificationConfigResponse(it) }
+                    val recreated = response as? GetNotificationConfigResponse
+                        ?: recreateObject(response) { GetNotificationConfigResponse(it) }
                     listener.onResponse(recreated)
                 }
+
                 override fun onFailure(exception: java.lang.Exception) {
                     listener.onFailure(exception)
                 }
@@ -193,10 +197,11 @@ object NotificationsPluginInterface {
             request,
             object : ActionListener<ActionResponse> {
                 override fun onResponse(response: ActionResponse) {
-                    val recreated = response as? GetNotificationEventResponse ?:
-                    recreateObject(response) { GetNotificationEventResponse(it) }
+                    val recreated = response as? GetNotificationEventResponse
+                        ?: recreateObject(response) { GetNotificationEventResponse(it) }
                     listener.onResponse(recreated)
                 }
+
                 override fun onFailure(exception: java.lang.Exception) {
                     listener.onFailure(exception)
                 }
@@ -221,10 +226,12 @@ object NotificationsPluginInterface {
             request,
             object : ActionListener<ActionResponse> {
                 override fun onResponse(response: ActionResponse) {
-                    val recreated = response as? GetPluginFeaturesResponse ?:
-                    recreateObject(response) { GetPluginFeaturesResponse(it) }
+                    val recreated = response as? GetPluginFeaturesResponse ?: recreateObject(response) {
+                        GetPluginFeaturesResponse(it)
+                    }
                     listener.onResponse(recreated)
                 }
+
                 override fun onFailure(exception: java.lang.Exception) {
                     listener.onFailure(exception)
                 }
@@ -249,10 +256,11 @@ object NotificationsPluginInterface {
             request,
             object : ActionListener<ActionResponse> {
                 override fun onResponse(response: ActionResponse) {
-                    val recreated = response as? GetFeatureChannelListResponse ?:
-                    recreateObject(response) { GetFeatureChannelListResponse(it) }
+                    val recreated = response as? GetFeatureChannelListResponse
+                        ?: recreateObject(response) { GetFeatureChannelListResponse(it) }
                     listener.onResponse(recreated)
                 }
+
                 override fun onFailure(exception: java.lang.Exception) {
                     listener.onFailure(exception)
                 }
@@ -284,10 +292,11 @@ object NotificationsPluginInterface {
             SendNotificationRequest(eventSource, channelMessage, channelIds, threadContext),
             object : ActionListener<ActionResponse> {
                 override fun onResponse(response: ActionResponse) {
-                    val recreated = response as? SendNotificationResponse ?:
-                    recreateObject(response) { SendNotificationResponse(it) }
+                    val recreated = response as? SendNotificationResponse
+                        ?: recreateObject(response) { SendNotificationResponse(it) }
                     listener.onResponse(recreated)
                 }
+
                 override fun onFailure(exception: java.lang.Exception) {
                     listener.onFailure(exception)
                 }
