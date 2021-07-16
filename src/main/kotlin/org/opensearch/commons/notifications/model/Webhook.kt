@@ -35,6 +35,7 @@ import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.HEADER_PARAMS_TAG
+import org.opensearch.commons.notifications.NotificationConstants.METHOD_TAG
 import org.opensearch.commons.notifications.NotificationConstants.URL_TAG
 import org.opensearch.commons.utils.STRING_READER
 import org.opensearch.commons.utils.STRING_WRITER
@@ -47,7 +48,8 @@ import java.io.IOException
  */
 data class Webhook(
     val url: String,
-    val headerParams: Map<String, String> = mapOf()
+    val headerParams: Map<String, String> = mapOf(),
+    val method: HttpMethodType = HttpMethodType.POST
 ) : BaseConfigData {
 
     init {
@@ -77,6 +79,7 @@ data class Webhook(
         fun parse(parser: XContentParser): Webhook {
             var url: String? = null
             var headerParams: Map<String, String> = mapOf()
+            var method = HttpMethodType.POST
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
@@ -89,6 +92,7 @@ data class Webhook(
                 when (fieldName) {
                     URL_TAG -> url = parser.text()
                     HEADER_PARAMS_TAG -> headerParams = parser.mapStrings()
+                    METHOD_TAG -> method = HttpMethodType.fromTagOrDefault(parser.text())
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing Webhook destination")
@@ -96,7 +100,7 @@ data class Webhook(
                 }
             }
             url ?: throw IllegalArgumentException("$URL_TAG field absent")
-            return Webhook(url, headerParams)
+            return Webhook(url, headerParams, method)
         }
     }
 
@@ -108,6 +112,7 @@ data class Webhook(
         return builder.startObject()
             .field(URL_TAG, url)
             .field(HEADER_PARAMS_TAG, headerParams)
+            .field(METHOD_TAG, method.tag)
             .endObject()
     }
 
@@ -117,7 +122,8 @@ data class Webhook(
      */
     constructor(input: StreamInput) : this(
         url = input.readString(),
-        headerParams = input.readMap(STRING_READER, STRING_READER)
+        headerParams = input.readMap(STRING_READER, STRING_READER),
+        method = input.readEnum(HttpMethodType::class.java)
     )
 
     /**
@@ -126,5 +132,6 @@ data class Webhook(
     override fun writeTo(output: StreamOutput) {
         output.writeString(url)
         output.writeMap(headerParams, STRING_WRITER, STRING_WRITER)
+        output.writeEnum(method)
     }
 }
