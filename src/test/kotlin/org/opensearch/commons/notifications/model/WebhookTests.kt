@@ -46,7 +46,11 @@ internal class WebhookTests {
 
     @Test
     fun `Webhook serialize and deserialize using json object should be equal`() {
-        val sampleWebhook = Webhook("https://domain.com/sample_url#1234567890", mapOf(Pair("key", "value")))
+        val sampleWebhook = Webhook(
+            "https://domain.com/sample_url#1234567890",
+            mapOf(Pair("key", "value")),
+            HttpMethodType.PUT
+        )
         val jsonString = getJsonString(sampleWebhook)
         val recreatedObject = createObjectFromJsonString(jsonString) { Webhook.parse(it) }
         assertEquals(sampleWebhook, recreatedObject)
@@ -54,13 +58,18 @@ internal class WebhookTests {
 
     @Test
     fun `Webhook should deserialize json object using parser`() {
-        val sampleWebhook = Webhook("https://domain.com/sample_url#1234567890", mapOf(Pair("key", "value")))
+        val sampleWebhook = Webhook(
+            "https://domain.com/sample_url#1234567890",
+            mapOf(Pair("key", "value")),
+            HttpMethodType.PATCH
+        )
         val jsonString = """
             {
                 "url":"${sampleWebhook.url}",
                 "header_params":{
                     "key":"value"
-                }
+                },
+                "method":"PATCH"
             }
         """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { Webhook.parse(it) }
