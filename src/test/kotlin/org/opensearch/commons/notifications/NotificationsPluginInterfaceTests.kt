@@ -192,7 +192,8 @@ internal class NotificationsPluginInterfaceTests {
                 Pair("FeatureKey1", "FeatureValue1"),
                 Pair("FeatureKey2", "FeatureValue2"),
                 Pair("FeatureKey3", "FeatureValue3")
-            ))
+            )
+        )
         val listener: ActionListener<GetPluginFeaturesResponse> =
             mock(ActionListener::class.java) as ActionListener<GetPluginFeaturesResponse>
 
@@ -253,8 +254,8 @@ internal class NotificationsPluginInterfaceTests {
         }.`when`(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.sendNotification(
-            client, notificationInfo, channelMessage, listOf("channelId1", "channelId2"), listener)
+            client, notificationInfo, channelMessage, listOf("channelId1", "channelId2"), listener
+        )
         verify(listener, times(1)).onResponse(eq(response))
     }
-
 }
