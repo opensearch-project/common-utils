@@ -1,14 +1,15 @@
 package org.opensearch.commons.notifications
 
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Answers
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
 import org.mockito.Mockito.any
+import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
@@ -25,8 +26,10 @@ import org.opensearch.commons.notifications.action.GetNotificationEventRequest
 import org.opensearch.commons.notifications.action.GetNotificationEventResponse
 import org.opensearch.commons.notifications.action.GetPluginFeaturesRequest
 import org.opensearch.commons.notifications.action.GetPluginFeaturesResponse
+import org.opensearch.commons.notifications.action.SendNotificationResponse
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigResponse
+import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.DeliveryStatus
 import org.opensearch.commons.notifications.model.EventSource
@@ -50,8 +53,8 @@ import java.util.EnumSet
 @ExtendWith(MockitoExtension::class)
 internal class NotificationsPluginInterfaceTests {
 
-    @Mock
-    private lateinit var nodeClient: NodeClient
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private lateinit var client: NodeClient
 
     @Test
     fun createNotificationConfig() {
@@ -63,9 +66,9 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<CreateNotificationConfigResponse>)
                 .onResponse(response)
-        }.`when`(nodeClient).execute(any(ActionType::class.java), any(), any())
+        }.`when`(client).execute(any(ActionType::class.java), any(), any())
 
-        NotificationsPluginInterface.createNotificationConfig(nodeClient, request, listener)
+        NotificationsPluginInterface.createNotificationConfig(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
     }
 
@@ -79,9 +82,9 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<UpdateNotificationConfigResponse>)
                 .onResponse(response)
-        }.`when`(nodeClient).execute(any(ActionType::class.java), any(), any())
+        }.`when`(client).execute(any(ActionType::class.java), any(), any())
 
-        NotificationsPluginInterface.updateNotificationConfig(nodeClient, request, listener)
+        NotificationsPluginInterface.updateNotificationConfig(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
     }
 
@@ -95,9 +98,9 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<DeleteNotificationConfigResponse>)
                 .onResponse(response)
-        }.`when`(nodeClient).execute(any(ActionType::class.java), any(), any())
+        }.`when`(client).execute(any(ActionType::class.java), any(), any())
 
-        NotificationsPluginInterface.deleteNotificationConfig(nodeClient, request, listener)
+        NotificationsPluginInterface.deleteNotificationConfig(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
     }
 
@@ -127,9 +130,9 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<GetNotificationConfigResponse>)
                 .onResponse(response)
-        }.`when`(nodeClient).execute(any(ActionType::class.java), any(), any())
+        }.`when`(client).execute(any(ActionType::class.java), any(), any())
 
-        NotificationsPluginInterface.getNotificationConfig(nodeClient, request, listener)
+        NotificationsPluginInterface.getNotificationConfig(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
     }
 
@@ -164,9 +167,9 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<GetNotificationEventResponse>)
                 .onResponse(response)
-        }.`when`(nodeClient).execute(any(ActionType::class.java), any(), any())
+        }.`when`(client).execute(any(ActionType::class.java), any(), any())
 
-        NotificationsPluginInterface.getNotificationEvent(nodeClient, request, listener)
+        NotificationsPluginInterface.getNotificationEvent(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
     }
 
@@ -186,9 +189,9 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<GetPluginFeaturesResponse>)
                 .onResponse(response)
-        }.`when`(nodeClient).execute(any(ActionType::class.java), any(), any())
+        }.`when`(client).execute(any(ActionType::class.java), any(), any())
 
-        NotificationsPluginInterface.getPluginFeatures(nodeClient, request, listener)
+        NotificationsPluginInterface.getPluginFeatures(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
     }
 
@@ -209,14 +212,39 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<GetFeatureChannelListResponse>)
                 .onResponse(response)
-        }.`when`(nodeClient).execute(any(ActionType::class.java), any(), any())
+        }.`when`(client).execute(any(ActionType::class.java), any(), any())
 
-        NotificationsPluginInterface.getFeatureChannelList(nodeClient, request, listener)
+        NotificationsPluginInterface.getFeatureChannelList(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
     }
 
     @Test
     fun sendNotification() {
+        val notificationInfo = EventSource(
+            "title",
+            "reference_id",
+            Feature.REPORTS,
+            SeverityType.HIGH,
+            listOf("tag1", "tag2")
+        )
+        val channelMessage = ChannelMessage(
+            "text_description",
+            "<b>htmlDescription</b>",
+            null
+        )
+
+        val response = SendNotificationResponse("configId")
+        val listener: ActionListener<SendNotificationResponse> =
+            mock(ActionListener::class.java) as ActionListener<SendNotificationResponse>
+
+        doAnswer {
+            (it.getArgument(2) as ActionListener<SendNotificationResponse>)
+                .onResponse(response)
+        }.`when`(client).execute(any(ActionType::class.java), any(), any())
+
+        NotificationsPluginInterface.sendNotification(
+            client, notificationInfo, channelMessage, listOf("channelId1", "channelId2"), listener)
+        verify(listener, times(1)).onResponse(eq(response))
     }
 
 }
