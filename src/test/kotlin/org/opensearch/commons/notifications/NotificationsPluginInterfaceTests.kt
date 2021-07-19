@@ -10,6 +10,7 @@
  */
 package org.opensearch.commons.notifications
 
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Answers
@@ -76,7 +77,7 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<CreateNotificationConfigResponse>)
                 .onResponse(response)
-        }.`when`(client).execute(any(ActionType::class.java), any(), any())
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.createNotificationConfig(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
@@ -92,7 +93,7 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<UpdateNotificationConfigResponse>)
                 .onResponse(response)
-        }.`when`(client).execute(any(ActionType::class.java), any(), any())
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.updateNotificationConfig(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
@@ -108,7 +109,7 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<DeleteNotificationConfigResponse>)
                 .onResponse(response)
-        }.`when`(client).execute(any(ActionType::class.java), any(), any())
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.deleteNotificationConfig(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
@@ -116,31 +117,15 @@ internal class NotificationsPluginInterfaceTests {
 
     @Test
     fun getNotificationConfig() {
-        val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            "description",
-            ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
-            configData = sampleSlack
-        )
-        val configInfo = NotificationConfigInfo(
-            "config_id",
-            Instant.now(),
-            Instant.now(),
-            "tenant",
-            sampleConfig
-        )
-
         val request = mock(GetNotificationConfigRequest::class.java)
-        val response = GetNotificationConfigResponse(NotificationConfigSearchResult(configInfo))
+        val response = mockGetNotificationConfigResponse()
         val listener: ActionListener<GetNotificationConfigResponse> =
             mock(ActionListener::class.java) as ActionListener<GetNotificationConfigResponse>
 
         doAnswer {
             (it.getArgument(2) as ActionListener<GetNotificationConfigResponse>)
                 .onResponse(response)
-        }.`when`(client).execute(any(ActionType::class.java), any(), any())
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.getNotificationConfig(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
@@ -148,36 +133,15 @@ internal class NotificationsPluginInterfaceTests {
 
     @Test
     fun getNotificationEvent() {
-        val sampleEventSource = EventSource(
-            "title",
-            "reference_id",
-            Feature.ALERTING,
-            severity = SeverityType.INFO
-        )
-        val sampleStatus = EventStatus(
-            "config_id",
-            "name",
-            ConfigType.SLACK,
-            deliveryStatus = DeliveryStatus("404", "invalid recipient")
-        )
-        val sampleEvent = NotificationEvent(sampleEventSource, listOf(sampleStatus))
-        val eventInfo = NotificationEventInfo(
-            "event_id",
-            Instant.now(),
-            Instant.now(),
-            "tenant",
-            sampleEvent
-        )
-
         val request = mock(GetNotificationEventRequest::class.java)
-        val response = GetNotificationEventResponse(NotificationEventSearchResult(eventInfo))
+        val response = mockGetNotificationEventResponse()
         val listener: ActionListener<GetNotificationEventResponse> =
             mock(ActionListener::class.java) as ActionListener<GetNotificationEventResponse>
 
         doAnswer {
             (it.getArgument(2) as ActionListener<GetNotificationEventResponse>)
                 .onResponse(response)
-        }.`when`(client).execute(any(ActionType::class.java), any(), any())
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.getNotificationEvent(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
@@ -200,7 +164,7 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<GetPluginFeaturesResponse>)
                 .onResponse(response)
-        }.`when`(client).execute(any(ActionType::class.java), any(), any())
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.getPluginFeatures(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
@@ -223,7 +187,7 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<GetFeatureChannelListResponse>)
                 .onResponse(response)
-        }.`when`(client).execute(any(ActionType::class.java), any(), any())
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.getFeatureChannelList(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
@@ -251,11 +215,54 @@ internal class NotificationsPluginInterfaceTests {
         doAnswer {
             (it.getArgument(2) as ActionListener<SendNotificationResponse>)
                 .onResponse(response)
-        }.`when`(client).execute(any(ActionType::class.java), any(), any())
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.sendNotification(
             client, notificationInfo, channelMessage, listOf("channelId1", "channelId2"), listener
         )
         verify(listener, times(1)).onResponse(eq(response))
+    }
+
+    private fun mockGetNotificationConfigResponse(): GetNotificationConfigResponse {
+        val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
+        val sampleConfig = NotificationConfig(
+            "name",
+            "description",
+            ConfigType.SLACK,
+            EnumSet.of(Feature.REPORTS),
+            configData = sampleSlack
+        )
+        val configInfo = NotificationConfigInfo(
+            "config_id",
+            Instant.now(),
+            Instant.now(),
+            "tenant",
+            sampleConfig
+        )
+        return GetNotificationConfigResponse(NotificationConfigSearchResult(configInfo))
+    }
+
+    private fun mockGetNotificationEventResponse(): GetNotificationEventResponse {
+        val sampleEventSource = EventSource(
+            "title",
+            "reference_id",
+            Feature.ALERTING,
+            severity = SeverityType.INFO
+        )
+        val sampleStatus = EventStatus(
+            "config_id",
+            "name",
+            ConfigType.SLACK,
+            deliveryStatus = DeliveryStatus("404", "invalid recipient")
+        )
+        val sampleEvent = NotificationEvent(sampleEventSource, listOf(sampleStatus))
+        val eventInfo = NotificationEventInfo(
+            "event_id",
+            Instant.now(),
+            Instant.now(),
+            "tenant",
+            sampleEvent
+        )
+        return GetNotificationEventResponse(NotificationEventSearchResult(eventInfo))
     }
 }
