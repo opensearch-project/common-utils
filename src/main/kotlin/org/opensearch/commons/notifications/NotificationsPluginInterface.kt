@@ -218,7 +218,7 @@ object NotificationsPluginInterface {
     }
 
     /**
-     * Wrap action listener on concrete response class by another another on ActionResponse.
+     * Wrap action listener on concrete response class by a new created one on ActionResponse.
      * This is required because the response may be loaded by different classloader across plugins.
      * The onResponse(ActionResponse) avoids type cast exception and give a chance to recreate
      * the response object.
