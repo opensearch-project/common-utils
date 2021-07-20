@@ -27,8 +27,11 @@
 package org.opensearch.commons.notifications
 
 import org.opensearch.action.ActionListener
+import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
+import org.opensearch.common.io.stream.Writeable
 import org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT
+import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigRequest
@@ -56,6 +59,7 @@ import org.opensearch.commons.notifications.action.UpdateNotificationConfigRespo
 import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.EventSource
 import org.opensearch.commons.utils.SecureClientWrapper
+import org.opensearch.commons.utils.recreateObject
 
 /**
  * All the transport action plugin interfaces for the Notification plugin
@@ -76,7 +80,7 @@ object NotificationsPluginInterface {
         client.execute(
             CREATE_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            listener
+            wrapActionListener(listener) { response -> recreateObject(response) { CreateNotificationConfigResponse(it) } }
         )
     }
 
@@ -94,7 +98,7 @@ object NotificationsPluginInterface {
         client.execute(
             UPDATE_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            listener
+            wrapActionListener(listener) { response -> recreateObject(response) { UpdateNotificationConfigResponse(it) } }
         )
     }
 
@@ -112,7 +116,7 @@ object NotificationsPluginInterface {
         client.execute(
             DELETE_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            listener
+            wrapActionListener(listener) { response -> recreateObject(response) { DeleteNotificationConfigResponse(it) } }
         )
     }
 
@@ -130,7 +134,7 @@ object NotificationsPluginInterface {
         client.execute(
             GET_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            listener
+            wrapActionListener(listener) { response -> recreateObject(response) { GetNotificationConfigResponse(it) } }
         )
     }
 
@@ -148,7 +152,7 @@ object NotificationsPluginInterface {
         client.execute(
             GET_NOTIFICATION_EVENT_ACTION_TYPE,
             request,
-            listener
+            wrapActionListener(listener) { response -> recreateObject(response) { GetNotificationEventResponse(it) } }
         )
     }
 
@@ -166,7 +170,7 @@ object NotificationsPluginInterface {
         client.execute(
             GET_PLUGIN_FEATURES_ACTION_TYPE,
             request,
-            listener
+            wrapActionListener(listener) { response -> recreateObject(response) { GetPluginFeaturesResponse(it) } }
         )
     }
 
@@ -184,7 +188,7 @@ object NotificationsPluginInterface {
         client.execute(
             GET_FEATURE_CHANNEL_LIST_ACTION_TYPE,
             request,
-            listener
+            wrapActionListener(listener) { response -> recreateObject(response) { GetFeatureChannelListResponse(it) } }
         )
     }
 
@@ -209,7 +213,30 @@ object NotificationsPluginInterface {
         wrapper.execute(
             SEND_NOTIFICATION_ACTION_TYPE,
             SendNotificationRequest(eventSource, channelMessage, channelIds, threadContext),
-            listener
+            wrapActionListener(listener) { response -> recreateObject(response) { SendNotificationResponse(it) } }
         )
+    }
+
+    /**
+     * Wrap action listener on concrete response class by a new created one on ActionResponse.
+     * This is required because the response may be loaded by different classloader across plugins.
+     * The onResponse(ActionResponse) avoids type cast exception and give a chance to recreate
+     * the response object.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun <Response : BaseResponse> wrapActionListener(
+        listener: ActionListener<Response>,
+        recreate: (Writeable) -> Response
+    ): ActionListener<Response> {
+        return object : ActionListener<ActionResponse> {
+            override fun onResponse(response: ActionResponse) {
+                val recreated = response as? Response ?: recreate(response)
+                listener.onResponse(recreated)
+            }
+
+            override fun onFailure(exception: java.lang.Exception) {
+                listener.onFailure(exception)
+            }
+        } as ActionListener<Response>
     }
 }
