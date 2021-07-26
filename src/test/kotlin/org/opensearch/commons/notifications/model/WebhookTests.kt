@@ -47,7 +47,7 @@ internal class WebhookTests {
     @Test
     fun `Webhook serialize and deserialize using json object should be equal`() {
         val sampleWebhook = Webhook(
-            "http://domain.com/sample_url#1234567890",
+            "https://domain.com/sample_url#1234567890",
             mapOf(Pair("key", "value")),
             HttpMethodType.PUT
         )
