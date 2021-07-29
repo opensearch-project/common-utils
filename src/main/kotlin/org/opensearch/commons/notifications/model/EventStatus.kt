@@ -64,6 +64,7 @@ data class EventStatus(
             ConfigType.WEBHOOK -> requireNotNull(deliveryStatus)
             ConfigType.SLACK -> requireNotNull(deliveryStatus)
             ConfigType.EMAIL -> require(emailRecipientStatus.isNotEmpty())
+            ConfigType.SNS -> requireNotNull(deliveryStatus)
             ConfigType.NONE -> log.info("Some config field not recognized")
             else -> {
                 log.info("non-allowed config type for Status")

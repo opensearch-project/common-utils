@@ -17,6 +17,7 @@ import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.commons.utils.fieldIfNotNull
 import java.io.IOException
 import java.util.regex.Pattern
 
@@ -33,9 +34,9 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject(SNS_TYPE)
+        return builder.startObject()
             .field(TOPIC_ARN_FIELD, topicARN)
-            .field(ROLE_ARN_FIELD, roleARN) // TODO: optional?
+            .fieldIfNotNull(ROLE_ARN_FIELD, roleARN)
             .endObject()
     }
 
