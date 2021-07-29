@@ -33,6 +33,7 @@ import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.Email
 import org.opensearch.commons.notifications.model.EmailGroup
+import org.opensearch.commons.notifications.model.SNS
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.commons.notifications.model.SmtpAccount
 import org.opensearch.commons.notifications.model.Webhook
@@ -53,6 +54,7 @@ internal object ConfigDataProperties {
         Pair(ConfigType.CHIME, ConfigProperty(Chime.reader, Chime.xParser)),
         Pair(ConfigType.WEBHOOK, ConfigProperty(Webhook.reader, Webhook.xParser)),
         Pair(ConfigType.EMAIL, ConfigProperty(Email.reader, Email.xParser)),
+        Pair(ConfigType.SNS, ConfigProperty(SNS.reader, SNS.xParser)),
         Pair(ConfigType.EMAIL_GROUP, ConfigProperty(EmailGroup.reader, EmailGroup.xParser)),
         Pair(ConfigType.SMTP_ACCOUNT, ConfigProperty(SmtpAccount.reader, SmtpAccount.xParser))
     )
@@ -78,6 +80,7 @@ internal object ConfigDataProperties {
             ConfigType.EMAIL_GROUP -> configData is EmailGroup
             ConfigType.SMTP_ACCOUNT -> configData is SmtpAccount
             ConfigType.CHIME -> configData is Chime
+            ConfigType.SNS -> configData is SNS
             ConfigType.NONE -> true
         }
     }
