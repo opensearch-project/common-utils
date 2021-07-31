@@ -34,9 +34,6 @@ private val VALID_ID_CHARS: Set<Char> = (('a'..'z') + ('A'..'Z') + ('0'..'9') + 
 
 fun validateUrl(urlString: String) {
     require(isValidUrl(urlString)) { "Invalid URL or unsupported" }
-    val url = URL(urlString)
-    require("https" == url.protocol) // Support only HTTPS. HTTP and other protocols not supported
-    // TODO : Add hosts deny list
 }
 
 fun validateEmail(email: String) {
@@ -49,8 +46,7 @@ fun validateId(idString: String) {
 
 fun isValidUrl(urlString: String): Boolean {
     val url = URL(urlString) // throws MalformedURLException if URL is invalid
-    // TODO : Add hosts deny list
-    return ("https" == url.protocol) // Support only HTTPS. HTTP and other protocols not supported
+    return ("https" == url.protocol || "http" == url.protocol) // Support only http/https, other protocols not supported
 }
 
 /**

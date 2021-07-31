@@ -89,11 +89,11 @@ internal class ChimeTests {
     }
 
     @Test
-    fun `Chime should throw exception when url protocol is not https`() {
+    fun `Chime should throw exception when url protocol is not https or http`() {
         assertThrows<IllegalArgumentException> {
-            Chime("http://domain.com/sample_url#1234567890")
+            Chime("ftp://domain.com/sample_url#1234567890")
         }
-        val jsonString = "{\"url\":\"http://domain.com/sample_url\"}"
+        val jsonString = "{\"url\":\"ftp://domain.com/sample_url\"}"
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { Chime.parse(it) }
         }
