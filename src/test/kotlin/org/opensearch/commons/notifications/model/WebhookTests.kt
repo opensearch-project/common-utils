@@ -47,7 +47,7 @@ internal class WebhookTests {
     @Test
     fun `Webhook serialize and deserialize using json object should be equal`() {
         val sampleWebhook = Webhook(
-            "https://domain.com/sample_url#1234567890",
+            "http://domain.com/sample_url#1234567890",
             mapOf(Pair("key", "value")),
             HttpMethodType.PUT
         )
@@ -105,11 +105,11 @@ internal class WebhookTests {
     }
 
     @Test
-    fun `Webhook should throw exception when url protocol is not https`() {
+    fun `Webhook should throw exception when url protocol is not https or http`() {
         assertThrows<IllegalArgumentException> {
-            Webhook("http://domain.com/sample_url#1234567890")
+            Webhook("ftp://domain.com/sample_url#1234567890")
         }
-        val jsonString = "{\"url\":\"http://domain.com/sample_url\"}"
+        val jsonString = "{\"url\":\"ftp://domain.com/sample_url\"}"
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { Webhook.parse(it) }
         }

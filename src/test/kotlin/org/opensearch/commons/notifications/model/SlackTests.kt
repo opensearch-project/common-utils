@@ -89,11 +89,11 @@ internal class SlackTests {
     }
 
     @Test
-    fun `Slack should throw exception when url protocol is not https`() {
+    fun `Slack should throw exception when url protocol is not https or http`() {
         assertThrows<IllegalArgumentException> {
-            Slack("http://domain.com/sample_url#1234567890")
+            Slack("ftp://domain.com/sample_url#1234567890")
         }
-        val jsonString = "{\"url\":\"http://domain.com/sample_url\"}"
+        val jsonString = "{\"url\":\"ftp://domain.com/sample_url\"}"
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { Slack.parse(it) }
         }
