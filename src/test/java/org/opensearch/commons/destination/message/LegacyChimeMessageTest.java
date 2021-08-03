@@ -9,6 +9,21 @@
  * GitHub history for details.
  */
 
+/*
+ * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package org.opensearch.commons.destination.message;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +40,9 @@ public class LegacyChimeMessageTest {
     @Test
     public void testBuildingLegacyChimeMessage() {
         LegacyChimeMessage message = new LegacyChimeMessage.Builder("custom_webhook")
-                .withMessage("Hello world").withUrl("https://amazon.com").build();
+            .withMessage("Hello world")
+            .withUrl("https://amazon.com")
+            .build();
 
         assertEquals("custom_webhook", message.destinationName);
         assertEquals(LegacyDestinationType.CHIME, message.destinationType);
@@ -36,7 +53,9 @@ public class LegacyChimeMessageTest {
     @Test
     public void testRoundTrippingLegacyChimeMessage() throws IOException {
         LegacyChimeMessage message = new LegacyChimeMessage.Builder("custom_webhook")
-                .withMessage("Hello world").withUrl("https://amazon.com").build();
+            .withMessage("Hello world")
+            .withUrl("https://amazon.com")
+            .build();
         BytesStreamOutput out = new BytesStreamOutput();
         message.writeTo(out);
 
@@ -52,8 +71,7 @@ public class LegacyChimeMessageTest {
     @Test
     public void testContentMissingMessage() {
         try {
-            new LegacyChimeMessage.Builder("custom_webhook")
-                    .withUrl("https://amazon.com").build();
+            new LegacyChimeMessage.Builder("custom_webhook").withUrl("https://amazon.com").build();
             fail("Building legacy chime message without message should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Message content is missing", e.getMessage());
@@ -63,8 +81,7 @@ public class LegacyChimeMessageTest {
     @Test
     public void testUrlMissingMessage() {
         try {
-            new LegacyChimeMessage.Builder("custom_webhook")
-                    .withMessage("Hello world").build();
+            new LegacyChimeMessage.Builder("custom_webhook").withMessage("Hello world").build();
             fail("Building legacy chime message without url should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("url is invalid or empty", e.getMessage());
@@ -74,8 +91,7 @@ public class LegacyChimeMessageTest {
     @Test
     public void testMissingDestinationName() {
         try {
-            new LegacyChimeMessage.Builder(null)
-                    .withMessage("Hello world").withUrl("https://amazon.com").build();
+            new LegacyChimeMessage.Builder(null).withMessage("Hello world").withUrl("https://amazon.com").build();
             fail("Building legacy chime message with null destination name should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Channel name must be defined", e.getMessage());

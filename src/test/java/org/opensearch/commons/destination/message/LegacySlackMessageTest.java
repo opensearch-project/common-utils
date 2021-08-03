@@ -9,6 +9,21 @@
  * GitHub history for details.
  */
 
+/*
+ * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package org.opensearch.commons.destination.message;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +40,9 @@ public class LegacySlackMessageTest {
     @Test
     public void testBuildingLegacySlackMessage() {
         LegacySlackMessage message = new LegacySlackMessage.Builder("custom_webhook")
-                .withMessage("Hello world").withUrl("https://amazon.com").build();
+            .withMessage("Hello world")
+            .withUrl("https://amazon.com")
+            .build();
 
         assertEquals("custom_webhook", message.destinationName);
         assertEquals(LegacyDestinationType.SLACK, message.destinationType);
@@ -36,7 +53,9 @@ public class LegacySlackMessageTest {
     @Test
     public void testRoundTrippingLegacySlackMessage() throws IOException {
         LegacySlackMessage message = new LegacySlackMessage.Builder("custom_webhook")
-                .withMessage("Hello world").withUrl("https://amazon.com").build();
+            .withMessage("Hello world")
+            .withUrl("https://amazon.com")
+            .build();
         BytesStreamOutput out = new BytesStreamOutput();
         message.writeTo(out);
 
@@ -52,8 +71,7 @@ public class LegacySlackMessageTest {
     @Test
     public void testContentMissingMessage() {
         try {
-            new LegacySlackMessage.Builder("custom_webhook")
-                    .withUrl("https://amazon.com").build();
+            new LegacySlackMessage.Builder("custom_webhook").withUrl("https://amazon.com").build();
             fail("Building legacy slack message without message should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Message content is missing", e.getMessage());
@@ -63,8 +81,7 @@ public class LegacySlackMessageTest {
     @Test
     public void testUrlMissingMessage() {
         try {
-            new LegacySlackMessage.Builder("custom_webhook")
-                    .withMessage("Hello world").build();
+            new LegacySlackMessage.Builder("custom_webhook").withMessage("Hello world").build();
             fail("Building legacy slack message without url should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("url is invalid or empty", e.getMessage());
@@ -74,8 +91,7 @@ public class LegacySlackMessageTest {
     @Test
     public void testMissingDestinationName() {
         try {
-            new LegacySlackMessage.Builder(null)
-                    .withMessage("Hello world").withUrl("https://amazon.com").build();
+            new LegacySlackMessage.Builder(null).withMessage("Hello world").withUrl("https://amazon.com").build();
             fail("Building legacy slack message with null destination name should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Channel name must be defined", e.getMessage());
@@ -85,8 +101,7 @@ public class LegacySlackMessageTest {
     @Test
     public void testUrlEmptyMessage() {
         try {
-            new LegacySlackMessage.Builder("custom_webhook")
-                    .withMessage("Hello world").withUrl("").build();
+            new LegacySlackMessage.Builder("custom_webhook").withMessage("Hello world").withUrl("").build();
             fail("Building legacy slack message with empty url should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Fully qualified URL is missing/invalid: ", e.getMessage());

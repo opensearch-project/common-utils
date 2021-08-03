@@ -10,18 +10,18 @@
  */
 
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
- *   Licensed under the Apache License, Version 2.0 (the "License").
- *   You may not use this file except in compliance with the License.
- *   A copy of the License is located at
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *   or in the "license" file accompanying this file. This file is distributed
- *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- *   express or implied. See the License for the specific language governing
- *   permissions and limitations under the License.
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package org.opensearch.commons.destination.message;
@@ -59,8 +59,7 @@ public abstract class LegacyBaseMessage implements Writeable {
         this.content = content;
     }
 
-    LegacyBaseMessage(final LegacyDestinationType destinationType, final String destinationName,
-                final String content, final String url) {
+    LegacyBaseMessage(final LegacyDestinationType destinationType, final String destinationName, final String content, final String url) {
         this(destinationType, destinationName, content);
         if (url == null) {
             throw new IllegalArgumentException("url is invalid or empty");
@@ -78,6 +77,7 @@ public abstract class LegacyBaseMessage implements Writeable {
     public void setUrl(String url) {
         this.url = url;
     }
+
     public LegacyDestinationType getChannelType() {
         return destinationType;
     }
@@ -98,15 +98,14 @@ public abstract class LegacyBaseMessage implements Writeable {
         return buildUri(getUrl().trim(), null, null, -1, null, null);
     }
 
-    protected URI buildUri(String endpoint, String scheme, String host,
-                           int port, String path, Map<String, String> queryParams) {
+    protected URI buildUri(String endpoint, String scheme, String host, int port, String path, Map<String, String> queryParams) {
         try {
-            if(Strings.isNullOrEmpty(endpoint)) {
+            if (Strings.isNullOrEmpty(endpoint)) {
                 if (Strings.isNullOrEmpty(scheme)) {
                     scheme = "https";
                 }
                 URIBuilder uriBuilder = new URIBuilder();
-                if(queryParams != null) {
+                if (queryParams != null) {
                     for (Map.Entry<String, String> e : queryParams.entrySet())
                         uriBuilder.addParameter(e.getKey(), e.getValue());
                 }

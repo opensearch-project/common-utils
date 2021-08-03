@@ -9,6 +9,21 @@
  * GitHub history for details.
  */
 
+/*
+ * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package org.opensearch.commons.destination.message;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +44,9 @@ public class LegacyCustomWebhookMessageTest {
     @Test
     public void testBuildingLegacyCustomWebhookMessage() {
         LegacyCustomWebhookMessage message = new LegacyCustomWebhookMessage.Builder("custom_webhook")
-                .withMessage("Hello world").withUrl("https://amazon.com").build();
+            .withMessage("Hello world")
+            .withUrl("https://amazon.com")
+            .build();
 
         assertEquals("custom_webhook", message.destinationName);
         assertEquals(LegacyDestinationType.CUSTOMWEBHOOK, message.destinationType);
@@ -40,7 +57,9 @@ public class LegacyCustomWebhookMessageTest {
     @Test
     public void testRoundTrippingLegacyCustomWebhookMessageWithUrl() throws IOException {
         LegacyCustomWebhookMessage message = new LegacyCustomWebhookMessage.Builder("custom_webhook")
-                .withMessage("Hello world").withUrl("https://amazon.com").build();
+            .withMessage("Hello world")
+            .withUrl("https://amazon.com")
+            .build();
         BytesStreamOutput out = new BytesStreamOutput();
         message.writeTo(out);
 
@@ -60,9 +79,15 @@ public class LegacyCustomWebhookMessageTest {
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("x-token", "sometoken");
         LegacyCustomWebhookMessage message = new LegacyCustomWebhookMessage.Builder("custom_webhook")
-                .withMessage("Hello world").withHost("hooks.chime.aws").withPath("incomingwebhooks/abc")
-                .withMethod(HttpPost.METHOD_NAME).withQueryParams(queryParams).withHeaderParams(headers)
-                .withPort(8000).withScheme("https").build();
+            .withMessage("Hello world")
+            .withHost("hooks.chime.aws")
+            .withPath("incomingwebhooks/abc")
+            .withMethod(HttpPost.METHOD_NAME)
+            .withQueryParams(queryParams)
+            .withHeaderParams(headers)
+            .withPort(8000)
+            .withScheme("https")
+            .build();
         BytesStreamOutput out = new BytesStreamOutput();
         message.writeTo(out);
 
@@ -84,8 +109,7 @@ public class LegacyCustomWebhookMessageTest {
     @Test
     public void testContentMissingMessage() {
         try {
-            new LegacyCustomWebhookMessage.Builder("custom_webhook")
-                    .withUrl("https://amazon.com").build();
+            new LegacyCustomWebhookMessage.Builder("custom_webhook").withUrl("https://amazon.com").build();
             fail("Building legacy custom webhook message without message should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Message content is missing", e.getMessage());
@@ -95,8 +119,7 @@ public class LegacyCustomWebhookMessageTest {
     @Test
     public void testMissingDestinationName() {
         try {
-            new LegacyCustomWebhookMessage.Builder(null)
-                    .withMessage("Hello world").withUrl("https://amazon.com").build();
+            new LegacyCustomWebhookMessage.Builder(null).withMessage("Hello world").withUrl("https://amazon.com").build();
             fail("Building legacy custom webhook message with null destination name should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Channel name must be defined", e.getMessage());
@@ -107,7 +130,10 @@ public class LegacyCustomWebhookMessageTest {
     public void testUnsupportedHttpMethods() {
         try {
             new LegacyCustomWebhookMessage.Builder("custom_webhook")
-                    .withMessage("Hello world").withUrl("https://amazon.com").withMethod(HttpGet.METHOD_NAME).build();
+                .withMessage("Hello world")
+                .withUrl("https://amazon.com")
+                .withMethod(HttpGet.METHOD_NAME)
+                .build();
             fail("Building legacy custom webhook message with unsupported http methods should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Invalid method supplied. Only POST, PUT and PATCH are allowed", e.getMessage());
@@ -117,8 +143,7 @@ public class LegacyCustomWebhookMessageTest {
     @Test
     public void testURLandHostNameMissingOrEmpty() {
         try {
-            new LegacyCustomWebhookMessage.Builder("custom_webhook")
-                    .withMessage("Hello world").withMethod(HttpGet.METHOD_NAME).build();
+            new LegacyCustomWebhookMessage.Builder("custom_webhook").withMessage("Hello world").withMethod(HttpGet.METHOD_NAME).build();
             fail("Building legacy custom webhook message missing or empty url and host name should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Either fully qualified URL or host name should be provided", e.getMessage());
@@ -126,7 +151,10 @@ public class LegacyCustomWebhookMessageTest {
 
         try {
             new LegacyCustomWebhookMessage.Builder("custom_webhook")
-                    .withMessage("Hello world").withUrl("").withMethod(HttpGet.METHOD_NAME).build();
+                .withMessage("Hello world")
+                .withUrl("")
+                .withMethod(HttpGet.METHOD_NAME)
+                .build();
             fail("Building legacy custom webhook message with missing or empty url and host name should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Either fully qualified URL or host name should be provided", e.getMessage());
@@ -134,7 +162,10 @@ public class LegacyCustomWebhookMessageTest {
 
         try {
             new LegacyCustomWebhookMessage.Builder("custom_webhook")
-                    .withMessage("Hello world").withHost("").withMethod(HttpGet.METHOD_NAME).build();
+                .withMessage("Hello world")
+                .withHost("")
+                .withMethod(HttpGet.METHOD_NAME)
+                .build();
             fail("Building legacy custom webhook message with missing or empty url and host name should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Either fully qualified URL or host name should be provided", e.getMessage());
@@ -142,7 +173,11 @@ public class LegacyCustomWebhookMessageTest {
 
         try {
             new LegacyCustomWebhookMessage.Builder("custom_webhook")
-                    .withMessage("Hello world").withUrl("").withHost("").withMethod(HttpGet.METHOD_NAME).build();
+                .withMessage("Hello world")
+                .withUrl("")
+                .withHost("")
+                .withMethod(HttpGet.METHOD_NAME)
+                .build();
             fail("Building legacy custom webhook message with missing or empty url and host name should fail");
         } catch (IllegalArgumentException e) {
             assertEquals("Either fully qualified URL or host name should be provided", e.getMessage());

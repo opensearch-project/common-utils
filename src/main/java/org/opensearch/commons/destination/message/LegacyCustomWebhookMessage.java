@@ -10,21 +10,25 @@
  */
 
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
- *   Licensed under the Apache License, Version 2.0 (the "License").
- *   You may not use this file except in compliance with the License.
- *   A copy of the License is located at
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *   or in the "license" file accompanying this file. This file is distributed
- *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- *   express or implied. See the License for the specific language governing
- *   permissions and limitations under the License.
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package org.opensearch.commons.destination.message;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
 
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
@@ -32,10 +36,6 @@ import org.apache.http.client.methods.HttpPut;
 import org.opensearch.common.Strings;
 import org.opensearch.common.io.stream.StreamInput;
 import org.opensearch.common.io.stream.StreamOutput;
-
-import java.net.URI;
-import java.util.Map;
-import java.io.IOException;
 
 /**
  * This class holds the content of an CustomWebhook message
@@ -54,19 +54,21 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
     private final String userName;
     private final String password;
 
-    private LegacyCustomWebhookMessage(final LegacyDestinationType destinationType,
-                                 final String destinationName,
-                                 final String url,
-                                 final String scheme,
-                                 final String host,
-                                 final Integer port,
-                                 final String path,
-                                 final String method,
-                                 final Map<String, String> queryParams,
-                                 final Map<String, String> headerParams,
-                                 final String userName,
-                                 final String password,
-                                 final String message) {
+    private LegacyCustomWebhookMessage(
+        final LegacyDestinationType destinationType,
+        final String destinationName,
+        final String url,
+        final String scheme,
+        final String host,
+        final Integer port,
+        final String path,
+        final String method,
+        final Map<String, String> queryParams,
+        final Map<String, String> headerParams,
+        final String userName,
+        final String password,
+        final String message
+    ) {
 
         super(destinationType, destinationName, message);
 
@@ -91,20 +93,18 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
             }
         }
 
-        if(Strings.isNullOrEmpty(url) && Strings.isNullOrEmpty(host)) {
+        if (Strings.isNullOrEmpty(url) && Strings.isNullOrEmpty(host)) {
             throw new IllegalArgumentException("Either fully qualified URL or host name should be provided");
         }
 
-        if (Strings.isNullOrEmpty(method)){
+        if (Strings.isNullOrEmpty(method)) {
             // Default to POST for backwards compatibility
             this.method = "POST";
-        } else if (!HttpPost.METHOD_NAME.equals(method) && !HttpPut.METHOD_NAME.equals(method)
-                && !HttpPatch.METHOD_NAME.equals(method)) {
+        } else if (!HttpPost.METHOD_NAME.equals(method) && !HttpPut.METHOD_NAME.equals(method) && !HttpPatch.METHOD_NAME.equals(method)) {
             throw new IllegalArgumentException("Invalid method supplied. Only POST, PUT and PATCH are allowed");
         } else {
             this.method = method;
         }
-
 
         this.message = message;
         this.url = url;
@@ -126,12 +126,12 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
         this.path = streamInput.readOptionalString();
         if (streamInput.readBoolean()) {
             @SuppressWarnings("unchecked")
-            Map<String, String> queryParams = (Map<String, String>)(Map)streamInput.readMap();
+            Map<String, String> queryParams = (Map<String, String>) (Map) streamInput.readMap();
             this.queryParams = queryParams;
         }
         if (streamInput.readBoolean()) {
             @SuppressWarnings("unchecked")
-            Map<String, String> headerParams = (Map<String, String>)(Map)streamInput.readMap();
+            Map<String, String> headerParams = (Map<String, String>) (Map) streamInput.readMap();
             this.headerParams = headerParams;
         }
         this.userName = streamInput.readOptionalString();
@@ -140,9 +140,24 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
 
     @Override
     public String toString() {
-        return "DestinationType: " + destinationType + ", DestinationName:" +  destinationName +
-                ", Url: " + url + ", scheme: " + scheme + ", Host: " + host + ", Port: " +
-                port + ", Path: " + path + ", Method: " + method + ", Message: " + message;
+        return "DestinationType: "
+            + destinationType
+            + ", DestinationName:"
+            + destinationName
+            + ", Url: "
+            + url
+            + ", scheme: "
+            + scheme
+            + ", Host: "
+            + host
+            + ", Port: "
+            + port
+            + ", Path: "
+            + path
+            + ", Method: "
+            + method
+            + ", Message: "
+            + message;
     }
 
     public static class Builder {
@@ -222,9 +237,20 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
 
         public LegacyCustomWebhookMessage build() {
             return new LegacyCustomWebhookMessage(
-                    this.destinationType, this.destinationName, this.url,
-                    this.scheme, this.host, this.port, this.path, this.method, this.queryParams,
-                    this.headerParams, this.userName, this.password, this.message);
+                this.destinationType,
+                this.destinationName,
+                this.url,
+                this.scheme,
+                this.host,
+                this.port,
+                this.path,
+                this.method,
+                this.queryParams,
+                this.headerParams,
+                this.userName,
+                this.password,
+                this.message
+            );
         }
     }
 
@@ -244,7 +270,9 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
         return path;
     }
 
-    public String getMethod() { return method; }
+    public String getMethod() {
+        return method;
+    }
 
     public Map<String, String> getQueryParams() {
         return queryParams;

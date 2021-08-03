@@ -10,18 +10,18 @@
  */
 
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
- *   Licensed under the Apache License, Version 2.0 (the "License").
- *   You may not use this file except in compliance with the License.
- *   A copy of the License is located at
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *   or in the "license" file accompanying this file. This file is distributed
- *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- *   express or implied. See the License for the specific language governing
- *   permissions and limitations under the License.
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package org.opensearch.commons.destination.message;
@@ -36,10 +36,13 @@ import org.opensearch.common.io.stream.StreamInput;
  */
 public class LegacySlackMessage extends LegacyBaseMessage {
     private String message;
-    private LegacySlackMessage(final LegacyDestinationType destinationType,
-                         final String destinationName,
-                         final String url,
-                         final String message) {
+
+    private LegacySlackMessage(
+        final LegacyDestinationType destinationType,
+        final String destinationName,
+        final String url,
+        final String message
+    ) {
 
         super(destinationType, destinationName, message, url);
 
@@ -65,8 +68,7 @@ public class LegacySlackMessage extends LegacyBaseMessage {
 
     @Override
     public String toString() {
-        return "DestinationType: " + destinationType + ", DestinationName:" +  destinationName +
-                ", Url: " + url + ", Message: " + message;
+        return "DestinationType: " + destinationType + ", DestinationName:" + destinationName + ", Url: " + url + ", Message: " + message;
     }
 
     public static class Builder {
@@ -91,10 +93,7 @@ public class LegacySlackMessage extends LegacyBaseMessage {
         }
 
         public LegacySlackMessage build() {
-            return new LegacySlackMessage(this.destinationType,
-                    this.destinationName,
-                    this.url,
-                    this.message);
+            return new LegacySlackMessage(this.destinationType, this.destinationName, this.url, this.message);
         }
     }
 

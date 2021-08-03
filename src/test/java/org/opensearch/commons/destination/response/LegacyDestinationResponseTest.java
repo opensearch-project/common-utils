@@ -9,6 +9,21 @@
  * GitHub history for details.
  */
 
+/*
+ * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package org.opensearch.commons.destination.response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +40,9 @@ public class LegacyDestinationResponseTest {
     @Test
     public void testBuildingLegacyDestinationResponse() {
         LegacyDestinationResponse res = new LegacyDestinationResponse.Builder()
-                .withStatusCode(200).withResponseContent("Hello world").build();
+            .withStatusCode(200)
+            .withResponseContent("Hello world")
+            .build();
 
         assertEquals(200, res.statusCode);
         assertEquals("Hello world", res.getResponseContent());
@@ -34,7 +51,9 @@ public class LegacyDestinationResponseTest {
     @Test
     public void testRoundTrippingLegacyDestinationResponse() throws IOException {
         LegacyDestinationResponse res = new LegacyDestinationResponse.Builder()
-                .withStatusCode(200).withResponseContent("Hello world").build();
+            .withStatusCode(200)
+            .withResponseContent("Hello world")
+            .build();
         BytesStreamOutput out = new BytesStreamOutput();
         res.writeTo(out);
 
@@ -50,8 +69,7 @@ public class LegacyDestinationResponseTest {
         try {
             new LegacyDestinationResponse.Builder().withStatusCode(200).build();
             fail("Creating LegacyDestinationResponse without response content should fail");
-        } catch (IllegalArgumentException ignored) {
-        }
+        } catch (IllegalArgumentException ignored) {}
     }
 
     @Test
@@ -59,7 +77,6 @@ public class LegacyDestinationResponseTest {
         try {
             new LegacyDestinationResponse.Builder().withResponseContent("Hello world").build();
             fail("Creating LegacyDestinationResponse without status code should fail");
-        } catch (IllegalArgumentException ignored) {
-        }
+        } catch (IllegalArgumentException ignored) {}
     }
 }
