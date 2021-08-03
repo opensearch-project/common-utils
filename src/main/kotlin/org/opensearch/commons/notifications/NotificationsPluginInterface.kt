@@ -44,12 +44,15 @@ import org.opensearch.commons.notifications.action.GetNotificationEventRequest
 import org.opensearch.commons.notifications.action.GetNotificationEventResponse
 import org.opensearch.commons.notifications.action.GetPluginFeaturesRequest
 import org.opensearch.commons.notifications.action.GetPluginFeaturesResponse
+import org.opensearch.commons.notifications.action.LegacyPublishNotificationRequest
+import org.opensearch.commons.notifications.action.LegacyPublishNotificationResponse
 import org.opensearch.commons.notifications.action.NotificationsActions.CREATE_NOTIFICATION_CONFIG_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.DELETE_NOTIFICATION_CONFIG_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_FEATURE_CHANNEL_LIST_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_NOTIFICATION_CONFIG_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_NOTIFICATION_EVENT_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_PLUGIN_FEATURES_ACTION_TYPE
+import org.opensearch.commons.notifications.action.NotificationsActions.LEGACY_PUBLISH_NOTIFICATION_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.SEND_NOTIFICATION_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.UPDATE_NOTIFICATION_CONFIG_ACTION_TYPE
 import org.opensearch.commons.notifications.action.SendNotificationRequest
@@ -58,6 +61,7 @@ import org.opensearch.commons.notifications.action.UpdateNotificationConfigReque
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigResponse
 import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.EventSource
+import org.opensearch.commons.notifications.model.Feature
 import org.opensearch.commons.utils.SecureClientWrapper
 import org.opensearch.commons.utils.recreateObject
 
@@ -214,6 +218,30 @@ object NotificationsPluginInterface {
             SEND_NOTIFICATION_ACTION_TYPE,
             SendNotificationRequest(eventSource, channelMessage, channelIds, threadContext),
             wrapActionListener(listener) { response -> recreateObject(response) { SendNotificationResponse(it) } }
+        )
+    }
+
+    /**
+     * Publishes a notification API using the legacy notification implementation. No REST API.
+     * Internal API only for the Index Management plugin.
+     * @param client Node client for making transport action
+     * @param request The legacy publish notification request
+     * @param listener The listener for getting response
+     */
+    fun publishLegacyNotification(
+        client: NodeClient,
+        request: LegacyPublishNotificationRequest,
+        listener: ActionListener<LegacyPublishNotificationResponse>
+    ) {
+        if (request.feature != Feature.INDEX_MANAGEMENT) {
+            // Do not change this; do not pass in Feature.INDEX_MANAGEMENT if you are not the Index Management plugin.
+            throw IllegalArgumentException("The publish notification method only supports the Index Management feature.")
+        }
+
+        client.execute(
+            LEGACY_PUBLISH_NOTIFICATION_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response -> recreateObject(response) { LegacyPublishNotificationResponse(it) } }
         )
     }
 
