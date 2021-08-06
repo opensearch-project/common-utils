@@ -48,7 +48,8 @@ internal class SNSTests {
         assertThrows(IllegalArgumentException::class.java) {
             SNS("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam:us-east-1:0123456789:role-test")
         }
-        val jsonString = "{\"topic_arn\":\"arn:aws:sns:us-east-1:012345678912:topic-test\",\"role_arn\":\"arn:aws:iam:us-east-1:0123456789:role-test\"}"
+        val jsonString =
+            "{\"topic_arn\":\"arn:aws:sns:us-east-1:012345678912:topic-test\",\"role_arn\":\"arn:aws:iam:us-east-1:0123456789:role-test\"}"
         assertThrows(IllegalArgumentException::class.java) {
             createObjectFromJsonString(jsonString) { SNS.parse(it) }
         }
