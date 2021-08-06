@@ -18,6 +18,7 @@ import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.utils.fieldIfNotNull
+import org.opensearch.commons.utils.logger
 import java.io.IOException
 import java.util.regex.Pattern
 
@@ -46,7 +47,7 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
      */
     constructor(input: StreamInput) : this(
         topicARN = input.readString(),
-        roleARN = input.readString()
+        roleARN = input.readOptionalString()
     )
 
     @Throws(IOException::class)
@@ -56,6 +57,7 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
     }
 
     companion object {
+        private val log by logger(SNS::class.java)
 
         private val SNS_ARN_REGEX =
             Pattern.compile("^arn:aws(-[^:]+)?:sns:([a-zA-Z0-9-]+):([0-9]{12}):([a-zA-Z0-9-_]+)$")
@@ -78,7 +80,7 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
         @JvmStatic
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): SNS {
-            lateinit var topicARN: String
+            var topicARN: String? = null
             var roleARN: String? = null
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -89,14 +91,13 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
                     TOPIC_ARN_FIELD -> topicARN = xcp.textOrNull()
                     ROLE_ARN_FIELD -> roleARN = xcp.textOrNull()
                     else -> {
-                        throw IllegalStateException("Unexpected field: $fieldName, while parsing SNS destination")
+                        xcp.skipChildren()
+                        log.info("Unexpected field: $fieldName, while parsing SNS destination")
                     }
                 }
             }
-            // if (DestinationType.snsUseIamRole) {
-            //     requireNotNull(roleARN) { "SNS Action role_arn is null" }
-            // }
-            return SNS(requireNotNull(topicARN) { "SNS Action topic_arn is null" }, roleARN)
+            topicARN ?: throw IllegalArgumentException("$TOPIC_ARN_FIELD field absent")
+            return SNS(topicARN, roleARN)
         }
 
         @JvmStatic
