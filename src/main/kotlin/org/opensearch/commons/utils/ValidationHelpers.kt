@@ -28,6 +28,7 @@
 package org.opensearch.commons.utils
 
 import java.net.URL
+import java.util.regex.Pattern
 
 // Valid ID characters = (All Base64 chars + "_-") to support UUID format and Base64 encoded IDs
 private val VALID_ID_CHARS: Set<Char> = (('a'..'z') + ('A'..'Z') + ('0'..'9') + '+' + '/' + '_' + '-').toSet()
@@ -68,4 +69,9 @@ fun isValidEmail(email: String): Boolean {
 
 fun isValidId(idString: String): Boolean {
     return idString.isNotBlank() && idString.all { VALID_ID_CHARS.contains(it) }
+}
+
+fun validateIAMRoleArn(roleARN: String) {
+    val roleArnRegex = Pattern.compile("^arn:aws(-[^:]+)?:iam::([0-9]{12}):([a-zA-Z_0-9+=,.@\\-_/]+)$")
+    require(roleArnRegex.matcher(roleARN).find()) { "Invalid AWS role ARN: $roleARN " }
 }

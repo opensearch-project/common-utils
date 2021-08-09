@@ -42,6 +42,8 @@ object NotificationConstants {
     const val TAGS_TAG = "tags"
     const val URL_TAG = "url"
     const val HEADER_PARAMS_TAG = "header_params"
+    const val TOPIC_ARN_FIELD = "topic_arn"
+    const val ROLE_ARN_FIELD = "role_arn"
     const val HOST_TAG = "host"
     const val PORT_TAG = "port"
     const val METHOD_TAG = "method"
