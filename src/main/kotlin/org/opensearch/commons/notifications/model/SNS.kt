@@ -17,6 +17,8 @@ import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.commons.notifications.NotificationConstants.ROLE_ARN_FIELD
+import org.opensearch.commons.notifications.NotificationConstants.TOPIC_ARN_FIELD
 import org.opensearch.commons.utils.fieldIfNotNull
 import org.opensearch.commons.utils.logger
 import java.io.IOException
@@ -62,10 +64,6 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
         private val SNS_ARN_REGEX =
             Pattern.compile("^arn:aws(-[^:]+)?:sns:([a-zA-Z0-9-]+):([0-9]{12}):([a-zA-Z0-9-_]+)$")
         private val IAM_ARN_REGEX = Pattern.compile("^arn:aws(-[^:]+)?:iam::([0-9]{12}):([a-zA-Z_0-9+=,.@\\-_/]+)$")
-
-        const val TOPIC_ARN_FIELD = "topic_arn"
-        const val ROLE_ARN_FIELD = "role_arn"
-        const val SNS_TYPE = "sns"
 
         /**
          * reader to create instance of class from writable.
