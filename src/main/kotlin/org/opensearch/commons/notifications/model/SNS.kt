@@ -21,6 +21,7 @@ import org.opensearch.commons.notifications.NotificationConstants.ROLE_ARN_FIELD
 import org.opensearch.commons.notifications.NotificationConstants.TOPIC_ARN_FIELD
 import org.opensearch.commons.utils.fieldIfNotNull
 import org.opensearch.commons.utils.logger
+import org.opensearch.commons.utils.validateIAMRoleArn
 import java.io.IOException
 import java.util.regex.Pattern
 
@@ -32,7 +33,7 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
     init {
         require(SNS_ARN_REGEX.matcher(topicARN).find()) { "Invalid AWS SNS topic ARN: $topicARN" }
         if (roleARN != null) {
-            require(IAM_ARN_REGEX.matcher(roleARN).find()) { "Invalid AWS role ARN: $roleARN " }
+            validateIAMRoleArn(roleARN)
         }
     }
 
@@ -63,7 +64,6 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
 
         private val SNS_ARN_REGEX =
             Pattern.compile("^arn:aws(-[^:]+)?:sns:([a-zA-Z0-9-]+):([0-9]{12}):([a-zA-Z0-9-_]+)$")
-        private val IAM_ARN_REGEX = Pattern.compile("^arn:aws(-[^:]+)?:iam::([0-9]{12}):([a-zA-Z_0-9+=,.@\\-_/]+)$")
 
         /**
          * reader to create instance of class from writable.
