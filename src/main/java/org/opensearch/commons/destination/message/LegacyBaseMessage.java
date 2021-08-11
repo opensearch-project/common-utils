@@ -33,6 +33,7 @@ import java.util.Map;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.opensearch.common.Strings;
+import org.opensearch.common.io.stream.StreamInput;
 import org.opensearch.common.io.stream.StreamOutput;
 import org.opensearch.common.io.stream.Writeable;
 
@@ -67,7 +68,7 @@ public abstract class LegacyBaseMessage implements Writeable {
         this.url = url;
     }
 
-    LegacyBaseMessage(org.opensearch.common.io.stream.StreamInput streamInput) throws IOException {
+    LegacyBaseMessage(StreamInput streamInput) throws IOException {
         this.destinationType = streamInput.readEnum(LegacyDestinationType.class);
         this.destinationName = streamInput.readString();
         this.url = streamInput.readOptionalString();

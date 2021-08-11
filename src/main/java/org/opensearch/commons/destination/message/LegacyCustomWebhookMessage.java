@@ -51,8 +51,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
     private String path;
     private Map<String, String> queryParams;
     private Map<String, String> headerParams;
-    private final String userName;
-    private final String password;
 
     private LegacyCustomWebhookMessage(
         final LegacyDestinationType destinationType,
@@ -65,8 +63,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
         final String method,
         final Map<String, String> queryParams,
         final Map<String, String> headerParams,
-        final String userName,
-        final String password,
         final String message
     ) {
 
@@ -111,8 +107,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
         this.host = host;
         this.queryParams = queryParams;
         this.headerParams = headerParams;
-        this.userName = userName;
-        this.password = password;
     }
 
     public LegacyCustomWebhookMessage(StreamInput streamInput) throws IOException {
@@ -134,8 +128,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
             Map<String, String> headerParams = (Map<String, String>) (Map) streamInput.readMap();
             this.headerParams = headerParams;
         }
-        this.userName = streamInput.readOptionalString();
-        this.password = streamInput.readOptionalString();
     }
 
     @Override
@@ -172,8 +164,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
         private String method;
         private Map<String, String> queryParams;
         private Map<String, String> headerParams;
-        private String userName;
-        private String password;
 
         public Builder(String destinationName) {
             this.destinationName = destinationName;
@@ -225,16 +215,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
             return this;
         }
 
-        public LegacyCustomWebhookMessage.Builder withUserName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public LegacyCustomWebhookMessage.Builder withPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
         public LegacyCustomWebhookMessage build() {
             return new LegacyCustomWebhookMessage(
                 this.destinationType,
@@ -247,8 +227,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
                 this.method,
                 this.queryParams,
                 this.headerParams,
-                this.userName,
-                this.password,
                 this.message
             );
         }
@@ -307,7 +285,5 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
             Map<String, Object> headerParams = (Map<String, Object>) (Map) this.headerParams;
             streamOutput.writeMap(headerParams);
         }
-        streamOutput.writeOptionalString(userName);
-        streamOutput.writeOptionalString(password);
     }
 }
