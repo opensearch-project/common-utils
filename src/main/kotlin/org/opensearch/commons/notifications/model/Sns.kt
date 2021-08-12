@@ -17,30 +17,30 @@ import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
-import org.opensearch.commons.notifications.NotificationConstants.ROLE_ARN_FIELD
-import org.opensearch.commons.notifications.NotificationConstants.TOPIC_ARN_FIELD
+import org.opensearch.commons.notifications.NotificationConstants.ROLE_ARN_TAG
+import org.opensearch.commons.notifications.NotificationConstants.TOPIC_ARN_TAG
 import org.opensearch.commons.utils.fieldIfNotNull
 import org.opensearch.commons.utils.logger
-import org.opensearch.commons.utils.validateIAMRoleArn
+import org.opensearch.commons.utils.validateIamRoleArn
 import java.io.IOException
 import java.util.regex.Pattern
 
 /**
  * SNS notification data model
  */
-data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
+data class Sns(val topicArn: String, val roleArn: String?) : BaseConfigData {
 
     init {
-        require(SNS_ARN_REGEX.matcher(topicARN).find()) { "Invalid AWS SNS topic ARN: $topicARN" }
-        if (roleARN != null) {
-            validateIAMRoleArn(roleARN)
+        require(SNS_ARN_REGEX.matcher(topicArn).find()) { "Invalid AWS SNS topic ARN: $topicArn" }
+        if (roleArn != null) {
+            validateIamRoleArn(roleArn)
         }
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         return builder.startObject()
-            .field(TOPIC_ARN_FIELD, topicARN)
-            .fieldIfNotNull(ROLE_ARN_FIELD, roleARN)
+            .field(TOPIC_ARN_TAG, topicArn)
+            .fieldIfNotNull(ROLE_ARN_TAG, roleArn)
             .endObject()
     }
 
@@ -49,18 +49,18 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        topicARN = input.readString(),
-        roleARN = input.readOptionalString()
+        topicArn = input.readString(),
+        roleArn = input.readOptionalString()
     )
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
-        out.writeString(topicARN)
-        out.writeOptionalString(roleARN)
+        out.writeString(topicArn)
+        out.writeOptionalString(roleArn)
     }
 
     companion object {
-        private val log by logger(SNS::class.java)
+        private val log by logger(Sns::class.java)
 
         private val SNS_ARN_REGEX =
             Pattern.compile("^arn:aws(-[^:]+)?:sns:([a-zA-Z0-9-]+):([0-9]{12}):([a-zA-Z0-9-_]+)$")
@@ -68,7 +68,7 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { SNS(it) }
+        val reader = Writeable.Reader { Sns(it) }
 
         /**
          * Parser to parse xContent
@@ -77,36 +77,25 @@ data class SNS(val topicARN: String, val roleARN: String?) : BaseConfigData {
 
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser): SNS {
-            var topicARN: String? = null
-            var roleARN: String? = null
+        fun parse(xcp: XContentParser): Sns {
+            var topicArn: String? = null
+            var roleArn: String? = null
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
                 when (fieldName) {
-                    TOPIC_ARN_FIELD -> topicARN = xcp.textOrNull()
-                    ROLE_ARN_FIELD -> roleARN = xcp.textOrNull()
+                    TOPIC_ARN_TAG -> topicArn = xcp.textOrNull()
+                    ROLE_ARN_TAG -> roleArn = xcp.textOrNull()
                     else -> {
                         xcp.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing SNS destination")
                     }
                 }
             }
-            topicARN ?: throw IllegalArgumentException("$TOPIC_ARN_FIELD field absent")
-            return SNS(topicARN, roleARN)
-        }
-
-        @JvmStatic
-        @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): SNS? {
-            return if (sin.readBoolean()) {
-                SNS(
-                    topicARN = sin.readString(),
-                    roleARN = sin.readOptionalString()
-                )
-            } else null
+            topicArn ?: throw IllegalArgumentException("$TOPIC_ARN_TAG field absent")
+            return Sns(topicArn, roleArn)
         }
     }
 }

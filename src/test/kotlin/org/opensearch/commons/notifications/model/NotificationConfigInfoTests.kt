@@ -29,11 +29,12 @@ package org.opensearch.commons.notifications.model
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 import java.time.Instant
-import java.util.EnumSet
 
 internal class NotificationConfigInfoTests {
 
@@ -44,7 +45,7 @@ internal class NotificationConfigInfoTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -67,7 +68,7 @@ internal class NotificationConfigInfoTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -91,7 +92,7 @@ internal class NotificationConfigInfoTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSlack
         )
@@ -130,7 +131,7 @@ internal class NotificationConfigInfoTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSlack
         )
@@ -171,7 +172,7 @@ internal class NotificationConfigInfoTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         Assertions.assertThrows(IllegalArgumentException::class.java) {

@@ -30,11 +30,12 @@ import org.apache.lucene.search.TotalHits
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 import java.time.Instant
-import java.util.EnumSet
 
 internal class NotificationConfigSearchResultsTests {
 
@@ -56,7 +57,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -77,7 +78,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = Slack("https://domain.com/sample_url#1234567890")
         )
         val configInfo1 = NotificationConfigInfo(
@@ -91,7 +92,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.CHIME,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = Chime("https://domain.com/sample_url#1234567890")
         )
         val configInfo2 = NotificationConfigInfo(
@@ -118,7 +119,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = Slack("https://domain.com/sample_url#1234567890")
         )
         val configInfo1 = NotificationConfigInfo(
@@ -132,7 +133,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.CHIME,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = Chime("https://domain.com/sample_url#1234567890")
         )
         val configInfo2 = NotificationConfigInfo(
@@ -161,7 +162,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -185,7 +186,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = Slack("https://domain.com/sample_url#1234567890")
         )
         val configInfo1 = NotificationConfigInfo(
@@ -199,7 +200,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.CHIME,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = Chime("https://domain.com/sample_url#1234567890")
         )
         val configInfo2 = NotificationConfigInfo(
@@ -229,7 +230,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSlack
         )
@@ -280,7 +281,7 @@ internal class NotificationConfigSearchResultsTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSlack
         )

@@ -42,8 +42,9 @@ object NotificationConstants {
     const val TAGS_TAG = "tags"
     const val URL_TAG = "url"
     const val HEADER_PARAMS_TAG = "header_params"
-    const val TOPIC_ARN_FIELD = "topic_arn"
-    const val ROLE_ARN_FIELD = "role_arn"
+    const val TOPIC_ARN_TAG = "topic_arn"
+    const val ROLE_ARN_TAG = "role_arn"
+    const val REGION_TAG = "region"
     const val HOST_TAG = "host"
     const val PORT_TAG = "port"
     const val METHOD_TAG = "method"
@@ -68,6 +69,10 @@ object NotificationConstants {
     const val COMPACT_TAG = "compact"
     const val CONFIG_TYPE_LIST_TAG = "config_type_list"
     const val PLUGIN_FEATURES_TAG = "plugin_features"
+
+    const val FEATURE_ALERTING = "alerting"
+    const val FEATURE_INDEX_MANAGEMENT = "index_management"
+    const val FEATURE_REPORTS = "reports"
 
     const val DEFAULT_MAX_ITEMS = 1000
 }

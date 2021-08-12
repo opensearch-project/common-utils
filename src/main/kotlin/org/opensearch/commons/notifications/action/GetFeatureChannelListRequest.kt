@@ -37,7 +37,6 @@ import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.FEATURE_TAG
-import org.opensearch.commons.notifications.model.Feature
 import org.opensearch.commons.utils.logger
 import java.io.IOException
 
@@ -48,7 +47,7 @@ import java.io.IOException
  * Hence the request also contains tenant info for space isolation.
  */
 class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
-    val feature: Feature
+    val feature: String
 
     companion object {
         private val log by logger(GetFeatureChannelListRequest::class.java)
@@ -65,7 +64,7 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
         @JvmStatic
         @Throws(IOException::class)
         fun parse(parser: XContentParser): GetFeatureChannelListRequest {
-            var feature: Feature? = null
+            var feature: String? = null
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
@@ -76,7 +75,7 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    FEATURE_TAG -> feature = Feature.fromTagOrDefault(parser.text())
+                    FEATURE_TAG -> feature = parser.text()
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing GetFeatureChannelListRequest")
@@ -92,7 +91,7 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
      * constructor for creating the class
      * @param feature the caller plugin feature
      */
-    constructor(feature: Feature) {
+    constructor(feature: String) {
         this.feature = feature
     }
 
@@ -101,7 +100,7 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
      */
     @Throws(IOException::class)
     constructor(input: StreamInput) : super(input) {
-        feature = input.readEnum(Feature::class.java)
+        feature = input.readString()
     }
 
     /**
@@ -110,7 +109,7 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
     @Throws(IOException::class)
     override fun writeTo(output: StreamOutput) {
         super.writeTo(output)
-        output.writeEnum(feature)
+        output.writeString(feature)
     }
 
     /**
