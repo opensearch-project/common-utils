@@ -37,18 +37,8 @@ import org.opensearch.common.io.stream.StreamInput;
 public class LegacyChimeMessage extends LegacyBaseMessage {
     private final String message;
 
-    private LegacyChimeMessage(
-        final LegacyDestinationType destinationType,
-        final String destinationName,
-        final String url,
-        final String message
-    ) {
-
-        super(destinationType, destinationName, message, url);
-
-        if (LegacyDestinationType.LEGACY_CHIME != destinationType) {
-            throw new IllegalArgumentException("Channel Type does not match CHIME");
-        }
+    private LegacyChimeMessage(final String destinationName, final String url, final String message) {
+        super(LegacyDestinationType.LEGACY_CHIME, destinationName, message, url);
 
         if (Strings.isNullOrEmpty(message)) {
             throw new IllegalArgumentException("Message content is missing");
@@ -69,13 +59,11 @@ public class LegacyChimeMessage extends LegacyBaseMessage {
 
     public static class Builder {
         private String message;
-        private final LegacyDestinationType destinationType;
         private final String destinationName;
         private String url;
 
         public Builder(String destinationName) {
             this.destinationName = destinationName;
-            this.destinationType = LegacyDestinationType.LEGACY_CHIME;
         }
 
         public LegacyChimeMessage.Builder withMessage(String message) {
@@ -89,8 +77,12 @@ public class LegacyChimeMessage extends LegacyBaseMessage {
         }
 
         public LegacyChimeMessage build() {
-            return new LegacyChimeMessage(this.destinationType, this.destinationName, this.url, this.message);
+            return new LegacyChimeMessage(this.destinationName, this.url, this.message);
         }
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public String getUrl() {

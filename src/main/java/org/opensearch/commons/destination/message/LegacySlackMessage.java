@@ -35,20 +35,10 @@ import org.opensearch.common.io.stream.StreamInput;
  * This class holds the content of an Slack message
  */
 public class LegacySlackMessage extends LegacyBaseMessage {
-    private String message;
+    private final String message;
 
-    private LegacySlackMessage(
-        final LegacyDestinationType destinationType,
-        final String destinationName,
-        final String url,
-        final String message
-    ) {
-
-        super(destinationType, destinationName, message, url);
-
-        if (LegacyDestinationType.LEGACY_SLACK != destinationType) {
-            throw new IllegalArgumentException("Channel Type does not match Slack");
-        }
+    private LegacySlackMessage(final String destinationName, final String url, final String message) {
+        super(LegacyDestinationType.LEGACY_SLACK, destinationName, message, url);
 
         if (Strings.isNullOrEmpty(url)) { // add URL validation
             throw new IllegalArgumentException("Fully qualified URL is missing/invalid: " + url);
@@ -73,13 +63,11 @@ public class LegacySlackMessage extends LegacyBaseMessage {
 
     public static class Builder {
         private String message;
-        private LegacyDestinationType destinationType;
         private String destinationName;
         private String url;
 
         public Builder(String channelName) {
             this.destinationName = channelName;
-            this.destinationType = LegacyDestinationType.LEGACY_SLACK;
         }
 
         public LegacySlackMessage.Builder withMessage(String message) {
@@ -93,7 +81,7 @@ public class LegacySlackMessage extends LegacyBaseMessage {
         }
 
         public LegacySlackMessage build() {
-            return new LegacySlackMessage(this.destinationType, this.destinationName, this.url, this.message);
+            return new LegacySlackMessage(this.destinationName, this.url, this.message);
         }
     }
 

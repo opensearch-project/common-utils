@@ -53,7 +53,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
     private Map<String, String> headerParams;
 
     private LegacyCustomWebhookMessage(
-        final LegacyDestinationType destinationType,
         final String destinationName,
         final String url,
         final String scheme,
@@ -65,12 +64,7 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
         final Map<String, String> headerParams,
         final String message
     ) {
-
-        super(destinationType, destinationName, message);
-
-        if (LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK != destinationType) {
-            throw new IllegalArgumentException("Channel Type does not match CustomWebhook");
-        }
+        super(LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK, destinationName, message);
 
         if (!Strings.isNullOrEmpty(url)) {
             setUrl(url.trim());
@@ -153,7 +147,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
 
     public static class Builder {
         private String message;
-        private final LegacyDestinationType destinationType;
         private final String destinationName;
         private String url;
         private String scheme;
@@ -166,7 +159,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
 
         public Builder(String destinationName) {
             this.destinationName = destinationName;
-            this.destinationType = LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK;
         }
 
         public LegacyCustomWebhookMessage.Builder withScheme(String scheme) {
@@ -216,7 +208,6 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
 
         public LegacyCustomWebhookMessage build() {
             return new LegacyCustomWebhookMessage(
-                this.destinationType,
                 this.destinationName,
                 this.url,
                 this.scheme,
@@ -261,6 +252,10 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
 
     public URI getUri() {
         return buildUri(getUrl(), getScheme(), getHost(), getPort(), getPath(), getQueryParams());
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     @Override
