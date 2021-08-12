@@ -43,7 +43,7 @@ import org.opensearch.common.io.stream.Writeable;
  */
 public abstract class LegacyBaseMessage implements Writeable {
 
-    protected LegacyDestinationType destinationType;
+    private final LegacyDestinationType destinationType;
     protected String destinationName;
     protected String url;
     private String content;

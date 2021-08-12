@@ -68,7 +68,7 @@ public class LegacySlackMessage extends LegacyBaseMessage {
 
     @Override
     public String toString() {
-        return "DestinationType: " + destinationType + ", DestinationName:" + destinationName + ", Url: " + url + ", Message: <...>";
+        return "DestinationType: " + getChannelType() + ", DestinationName:" + destinationName + ", Url: " + url + ", Message: <...>";
     }
 
     public static class Builder {

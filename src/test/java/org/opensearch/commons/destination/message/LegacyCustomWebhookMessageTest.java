@@ -49,7 +49,7 @@ public class LegacyCustomWebhookMessageTest {
             .build();
 
         assertEquals("custom_webhook", message.destinationName);
-        assertEquals(LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK, message.destinationType);
+        assertEquals(LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK, message.getChannelType());
         assertEquals("Hello world", message.getMessageContent());
         assertEquals("https://amazon.com", message.getUrl());
     }
@@ -67,7 +67,7 @@ public class LegacyCustomWebhookMessageTest {
         LegacyCustomWebhookMessage newMessage = new LegacyCustomWebhookMessage(in);
 
         assertEquals(newMessage.destinationName, message.destinationName);
-        assertEquals(newMessage.destinationType, message.destinationType);
+        assertEquals(newMessage.getChannelType(), message.getChannelType());
         assertEquals(newMessage.getMessageContent(), message.getMessageContent());
         assertEquals(newMessage.getUrl(), message.getUrl());
     }
@@ -95,7 +95,7 @@ public class LegacyCustomWebhookMessageTest {
         LegacyCustomWebhookMessage newMessage = new LegacyCustomWebhookMessage(in);
 
         assertEquals(newMessage.destinationName, message.destinationName);
-        assertEquals(newMessage.destinationType, message.destinationType);
+        assertEquals(newMessage.getChannelType(), message.getChannelType());
         assertEquals(newMessage.getMessageContent(), message.getMessageContent());
         assertEquals(newMessage.getHost(), message.getHost());
         assertEquals(newMessage.getMethod(), message.getMethod());

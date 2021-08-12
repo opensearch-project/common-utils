@@ -45,7 +45,7 @@ public class LegacySlackMessageTest {
             .build();
 
         assertEquals("custom_webhook", message.destinationName);
-        assertEquals(LegacyDestinationType.LEGACY_SLACK, message.destinationType);
+        assertEquals(LegacyDestinationType.LEGACY_SLACK, message.getChannelType());
         assertEquals("Hello world", message.getMessageContent());
         assertEquals("https://amazon.com", message.url);
     }
@@ -63,7 +63,7 @@ public class LegacySlackMessageTest {
         LegacySlackMessage newMessage = new LegacySlackMessage(in);
 
         assertEquals(newMessage.destinationName, message.destinationName);
-        assertEquals(newMessage.destinationType, message.destinationType);
+        assertEquals(newMessage.getChannelType(), message.getChannelType());
         assertEquals(newMessage.getMessageContent(), message.getMessageContent());
         assertEquals(newMessage.url, message.url);
     }

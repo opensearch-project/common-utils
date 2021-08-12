@@ -133,7 +133,7 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
     @Override
     public String toString() {
         return "DestinationType: "
-            + destinationType
+            + getChannelType()
             + ", DestinationName:"
             + destinationName
             + ", Url: "

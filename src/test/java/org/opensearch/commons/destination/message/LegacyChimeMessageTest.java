@@ -45,7 +45,7 @@ public class LegacyChimeMessageTest {
             .build();
 
         assertEquals("custom_webhook", message.destinationName);
-        assertEquals(LegacyDestinationType.LEGACY_CHIME, message.destinationType);
+        assertEquals(LegacyDestinationType.LEGACY_CHIME, message.getChannelType());
         assertEquals("Hello world", message.getMessageContent());
         assertEquals("https://amazon.com", message.url);
     }
@@ -63,7 +63,7 @@ public class LegacyChimeMessageTest {
         LegacyChimeMessage newMessage = new LegacyChimeMessage(in);
 
         assertEquals(newMessage.destinationName, message.destinationName);
-        assertEquals(newMessage.destinationType, message.destinationType);
+        assertEquals(newMessage.getChannelType(), message.getChannelType());
         assertEquals(newMessage.getMessageContent(), message.getMessageContent());
         assertEquals(newMessage.url, message.url);
     }
