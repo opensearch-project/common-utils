@@ -46,7 +46,7 @@ public abstract class LegacyBaseMessage implements Writeable {
     private final LegacyDestinationType destinationType;
     protected String destinationName;
     protected String url;
-    private String content;
+    private final String content;
 
     LegacyBaseMessage(final LegacyDestinationType destinationType, final String destinationName, final String content) {
         if (destinationType == null) {
