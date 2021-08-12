@@ -49,7 +49,7 @@ public class LegacyCustomWebhookMessageTest {
             .build();
 
         assertEquals("custom_webhook", message.destinationName);
-        assertEquals(LegacyDestinationType.CUSTOMWEBHOOK, message.destinationType);
+        assertEquals(LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK, message.destinationType);
         assertEquals("Hello world", message.getMessageContent());
         assertEquals("https://amazon.com", message.getUrl());
     }

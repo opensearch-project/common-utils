@@ -30,7 +30,7 @@ package org.opensearch.commons.destination.message;
  * Supported legacy notification destinations for Index Management
  */
 public enum LegacyDestinationType {
-    CHIME,
-    SLACK,
-    CUSTOMWEBHOOK
+    LEGACY_CHIME,
+    LEGACY_SLACK,
+    LEGACY_CUSTOM_WEBHOOK
 }

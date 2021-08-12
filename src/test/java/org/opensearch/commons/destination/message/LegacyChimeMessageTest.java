@@ -45,7 +45,7 @@ public class LegacyChimeMessageTest {
             .build();
 
         assertEquals("custom_webhook", message.destinationName);
-        assertEquals(LegacyDestinationType.CHIME, message.destinationType);
+        assertEquals(LegacyDestinationType.LEGACY_CHIME, message.destinationType);
         assertEquals("Hello world", message.getMessageContent());
         assertEquals("https://amazon.com", message.url);
     }

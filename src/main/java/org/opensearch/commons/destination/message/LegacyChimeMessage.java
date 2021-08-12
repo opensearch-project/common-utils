@@ -46,7 +46,7 @@ public class LegacyChimeMessage extends LegacyBaseMessage {
 
         super(destinationType, destinationName, message, url);
 
-        if (LegacyDestinationType.CHIME != destinationType) {
+        if (LegacyDestinationType.LEGACY_CHIME != destinationType) {
             throw new IllegalArgumentException("Channel Type does not match CHIME");
         }
 
@@ -75,7 +75,7 @@ public class LegacyChimeMessage extends LegacyBaseMessage {
 
         public Builder(String destinationName) {
             this.destinationName = destinationName;
-            this.destinationType = LegacyDestinationType.CHIME;
+            this.destinationType = LegacyDestinationType.LEGACY_CHIME;
         }
 
         public LegacyChimeMessage.Builder withMessage(String message) {

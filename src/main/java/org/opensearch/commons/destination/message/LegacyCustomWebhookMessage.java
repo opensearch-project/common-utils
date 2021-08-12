@@ -68,7 +68,7 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
 
         super(destinationType, destinationName, message);
 
-        if (LegacyDestinationType.CUSTOMWEBHOOK != destinationType) {
+        if (LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK != destinationType) {
             throw new IllegalArgumentException("Channel Type does not match CustomWebhook");
         }
 
@@ -167,7 +167,7 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
 
         public Builder(String destinationName) {
             this.destinationName = destinationName;
-            this.destinationType = LegacyDestinationType.CUSTOMWEBHOOK;
+            this.destinationType = LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK;
         }
 
         public LegacyCustomWebhookMessage.Builder withScheme(String scheme) {

@@ -46,7 +46,7 @@ public class LegacySlackMessage extends LegacyBaseMessage {
 
         super(destinationType, destinationName, message, url);
 
-        if (LegacyDestinationType.SLACK != destinationType) {
+        if (LegacyDestinationType.LEGACY_SLACK != destinationType) {
             throw new IllegalArgumentException("Channel Type does not match Slack");
         }
 
@@ -79,7 +79,7 @@ public class LegacySlackMessage extends LegacyBaseMessage {
 
         public Builder(String channelName) {
             this.destinationName = channelName;
-            this.destinationType = LegacyDestinationType.SLACK;
+            this.destinationType = LegacyDestinationType.LEGACY_SLACK;
         }
 
         public LegacySlackMessage.Builder withMessage(String message) {
