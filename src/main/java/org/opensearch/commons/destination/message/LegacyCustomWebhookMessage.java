@@ -148,8 +148,7 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
             + path
             + ", Method: "
             + method
-            + ", Message: "
-            + message;
+            + ", Message: <...>";
     }
 
     public static class Builder {
