@@ -49,7 +49,7 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
     private final String method;
     private final int port;
     private String path;
-    private Map<String, String> queryParams;
+    private final Map<String, String> queryParams;
     private Map<String, String> headerParams;
 
     private LegacyCustomWebhookMessage(
@@ -107,16 +107,12 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
         super(streamInput);
         this.message = super.getMessageContent();
         this.url = streamInput.readOptionalString();
-        this.scheme = streamInput.readOptionalString();
-        this.host = streamInput.readOptionalString();
+        this.scheme = null;
+        this.host = null;
         this.method = streamInput.readOptionalString();
-        this.port = streamInput.readOptionalInt();
-        this.path = streamInput.readOptionalString();
-        if (streamInput.readBoolean()) {
-            @SuppressWarnings("unchecked")
-            Map<String, String> queryParams = (Map<String, String>) (Map) streamInput.readMap();
-            this.queryParams = queryParams;
-        }
+        this.port = -1;
+        this.path = null;
+        this.queryParams = null;
         if (streamInput.readBoolean()) {
             @SuppressWarnings("unchecked")
             Map<String, String> headerParams = (Map<String, String>) (Map) streamInput.readMap();
@@ -261,18 +257,13 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
     @Override
     public void writeTo(StreamOutput streamOutput) throws IOException {
         super.writeTo(streamOutput);
-        streamOutput.writeOptionalString(url);
-        streamOutput.writeOptionalString(scheme);
-        streamOutput.writeOptionalString(host);
-        streamOutput.writeOptionalString(method);
-        streamOutput.writeOptionalInt(port);
-        streamOutput.writeOptionalString(path);
-        streamOutput.writeBoolean(queryParams != null);
-        if (queryParams != null) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> queryParams = (Map<String, Object>) (Map) this.queryParams;
-            streamOutput.writeMap(queryParams);
+        // Making LegacyCustomWebhookMessage streamable is purely to support the new pass through API from ISM -> Notification plugin
+        // and it only supports LegacyCustomWebhookMessage when the url is already constructed by ISM.
+        if (Strings.isNullOrEmpty(getUrl())) {
+            throw new IllegalStateException("Cannot use LegacyCustomWebhookMessage across transport wire without defining full url.");
         }
+        streamOutput.writeOptionalString(url);
+        streamOutput.writeOptionalString(method);
         streamOutput.writeBoolean(headerParams != null);
         if (headerParams != null) {
             @SuppressWarnings("unchecked")

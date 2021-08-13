@@ -73,7 +73,7 @@ public class LegacyCustomWebhookMessageTest {
     }
 
     @Test
-    public void testRoundTrippingLegacyCustomWebhookMessageWithHost() throws IOException {
+    public void testRoundTrippingLegacyCustomWebhookMessageWithHostFails() throws IOException {
         Map<String, String> queryParams = new HashMap<String, String>();
         queryParams.put("token", "sometoken");
         Map<String, String> headers = new HashMap<String, String>();
@@ -89,21 +89,12 @@ public class LegacyCustomWebhookMessageTest {
             .withScheme("https")
             .build();
         BytesStreamOutput out = new BytesStreamOutput();
-        message.writeTo(out);
-
-        StreamInput in = StreamInput.wrap(out.bytes().toBytesRef().bytes);
-        LegacyCustomWebhookMessage newMessage = new LegacyCustomWebhookMessage(in);
-
-        assertEquals(newMessage.destinationName, message.destinationName);
-        assertEquals(newMessage.getChannelType(), message.getChannelType());
-        assertEquals(newMessage.getMessageContent(), message.getMessageContent());
-        assertEquals(newMessage.getHost(), message.getHost());
-        assertEquals(newMessage.getMethod(), message.getMethod());
-        assertEquals(newMessage.getPath(), message.getPath());
-        assertEquals(newMessage.getQueryParams(), message.getQueryParams());
-        assertEquals(newMessage.getHeaderParams(), message.getHeaderParams());
-        assertEquals(newMessage.getPort(), message.getPort());
-        assertEquals(newMessage.getScheme(), message.getScheme());
+        try {
+            message.writeTo(out);
+            fail("Writing LegacyCustomWebhookMessage with host instead of url to stream output should fail");
+        } catch (IllegalStateException e) {
+            assertEquals("Cannot use LegacyCustomWebhookMessage across transport wire without defining full url.", e.getMessage());
+        }
     }
 
     @Test
