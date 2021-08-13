@@ -30,7 +30,9 @@ import com.fasterxml.jackson.core.JsonParseException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.opensearch.commons.notifications.model.Feature
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
@@ -46,14 +48,14 @@ internal class GetFeatureChannelListRequestTests {
 
     @Test
     fun `Get request serialize and deserialize transport object should be equal`() {
-        val configRequest = GetFeatureChannelListRequest(Feature.REPORTS)
+        val configRequest = GetFeatureChannelListRequest(FEATURE_REPORTS)
         val recreatedObject = recreateObject(configRequest) { GetFeatureChannelListRequest(it) }
         assertGetRequestEquals(configRequest, recreatedObject)
     }
 
     @Test
     fun `Get request serialize and deserialize using json object should be equal`() {
-        val configRequest = GetFeatureChannelListRequest(Feature.INDEX_MANAGEMENT)
+        val configRequest = GetFeatureChannelListRequest(FEATURE_INDEX_MANAGEMENT)
         val jsonString = getJsonString(configRequest)
         val recreatedObject = createObjectFromJsonString(jsonString) { GetFeatureChannelListRequest.parse(it) }
         assertGetRequestEquals(configRequest, recreatedObject)
@@ -69,7 +71,7 @@ internal class GetFeatureChannelListRequestTests {
 
     @Test
     fun `Get request should safely ignore extra field in json object`() {
-        val configRequest = GetFeatureChannelListRequest(Feature.ALERTING)
+        val configRequest = GetFeatureChannelListRequest(FEATURE_ALERTING)
         val jsonString = """
         {
             "feature":"${configRequest.feature}",

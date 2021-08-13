@@ -25,6 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
+import org.opensearch.commons.destination.response.LegacyDestinationResponse
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigRequest
@@ -37,6 +41,8 @@ import org.opensearch.commons.notifications.action.GetNotificationEventRequest
 import org.opensearch.commons.notifications.action.GetNotificationEventResponse
 import org.opensearch.commons.notifications.action.GetPluginFeaturesRequest
 import org.opensearch.commons.notifications.action.GetPluginFeaturesResponse
+import org.opensearch.commons.notifications.action.LegacyPublishNotificationRequest
+import org.opensearch.commons.notifications.action.LegacyPublishNotificationResponse
 import org.opensearch.commons.notifications.action.SendNotificationResponse
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigResponse
@@ -45,7 +51,6 @@ import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.DeliveryStatus
 import org.opensearch.commons.notifications.model.EventSource
 import org.opensearch.commons.notifications.model.EventStatus
-import org.opensearch.commons.notifications.model.Feature
 import org.opensearch.commons.notifications.model.FeatureChannel
 import org.opensearch.commons.notifications.model.FeatureChannelList
 import org.opensearch.commons.notifications.model.NotificationConfig
@@ -58,7 +63,6 @@ import org.opensearch.commons.notifications.model.SeverityType
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.rest.RestStatus
 import java.time.Instant
-import java.util.EnumSet
 
 @Suppress("UNCHECKED_CAST")
 @ExtendWith(MockitoExtension::class)
@@ -198,7 +202,7 @@ internal class NotificationsPluginInterfaceTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            Feature.REPORTS,
+            FEATURE_REPORTS,
             SeverityType.HIGH,
             listOf("tag1", "tag2")
         )
@@ -223,13 +227,33 @@ internal class NotificationsPluginInterfaceTests {
         verify(listener, times(1)).onResponse(eq(response))
     }
 
+    @Test
+    fun publishLegacyNotification() {
+        val request = mock(LegacyPublishNotificationRequest::class.java)
+        val res = LegacyPublishNotificationResponse(LegacyDestinationResponse.Builder().withStatusCode(200).withResponseContent("Nice!").build())
+        val l: ActionListener<LegacyPublishNotificationResponse> =
+            mock(ActionListener::class.java) as ActionListener<LegacyPublishNotificationResponse>
+
+        doAnswer {
+            (it.getArgument(2) as ActionListener<LegacyPublishNotificationResponse>)
+                .onResponse(res)
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
+
+        doAnswer {
+            FEATURE_INDEX_MANAGEMENT
+        }.whenever(request).feature
+
+        NotificationsPluginInterface.publishLegacyNotification(client, request, l)
+        verify(l, times(1)).onResponse(eq(res))
+    }
+
     private fun mockGetNotificationConfigResponse(): GetNotificationConfigResponse {
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
         val sampleConfig = NotificationConfig(
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -246,7 +270,7 @@ internal class NotificationsPluginInterfaceTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            Feature.ALERTING,
+            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(
