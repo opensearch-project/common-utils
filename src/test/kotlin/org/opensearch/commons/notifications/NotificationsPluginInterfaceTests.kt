@@ -25,7 +25,9 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
+import org.opensearch.commons.destination.response.LegacyDestinationResponse
 import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
 import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
@@ -39,6 +41,8 @@ import org.opensearch.commons.notifications.action.GetNotificationEventRequest
 import org.opensearch.commons.notifications.action.GetNotificationEventResponse
 import org.opensearch.commons.notifications.action.GetPluginFeaturesRequest
 import org.opensearch.commons.notifications.action.GetPluginFeaturesResponse
+import org.opensearch.commons.notifications.action.LegacyPublishNotificationRequest
+import org.opensearch.commons.notifications.action.LegacyPublishNotificationResponse
 import org.opensearch.commons.notifications.action.SendNotificationResponse
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigResponse
@@ -221,6 +225,26 @@ internal class NotificationsPluginInterfaceTests {
             client, notificationInfo, channelMessage, listOf("channelId1", "channelId2"), listener
         )
         verify(listener, times(1)).onResponse(eq(response))
+    }
+
+    @Test
+    fun publishLegacyNotification() {
+        val request = mock(LegacyPublishNotificationRequest::class.java)
+        val res = LegacyPublishNotificationResponse(LegacyDestinationResponse.Builder().withStatusCode(200).withResponseContent("Nice!").build())
+        val l: ActionListener<LegacyPublishNotificationResponse> =
+            mock(ActionListener::class.java) as ActionListener<LegacyPublishNotificationResponse>
+
+        doAnswer {
+            (it.getArgument(2) as ActionListener<LegacyPublishNotificationResponse>)
+                .onResponse(res)
+        }.whenever(client).execute(any(ActionType::class.java), any(), any())
+
+        doAnswer {
+            FEATURE_INDEX_MANAGEMENT
+        }.whenever(request).feature
+
+        NotificationsPluginInterface.publishLegacyNotification(client, request, l)
+        verify(l, times(1)).onResponse(eq(res))
     }
 
     private fun mockGetNotificationConfigResponse(): GetNotificationConfigResponse {
