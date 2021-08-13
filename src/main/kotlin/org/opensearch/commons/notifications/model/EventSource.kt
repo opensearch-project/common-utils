@@ -49,7 +49,7 @@ import java.io.IOException
 data class EventSource(
     val title: String,
     val referenceId: String,
-    val feature: Feature,
+    val feature: String,
     val severity: SeverityType = SeverityType.INFO,
     val tags: List<String> = listOf()
 ) : BaseModel {
@@ -75,7 +75,7 @@ data class EventSource(
         fun parse(parser: XContentParser): EventSource {
             var title: String? = null
             var referenceId: String? = null
-            var feature: Feature? = null
+            var feature: String? = null
             var severity: SeverityType = SeverityType.INFO
             var tags: List<String> = emptyList()
 
@@ -90,7 +90,7 @@ data class EventSource(
                 when (fieldName) {
                     TITLE_TAG -> title = parser.text()
                     REFERENCE_ID_TAG -> referenceId = parser.text()
-                    FEATURE_TAG -> feature = Feature.fromTagOrDefault(parser.text())
+                    FEATURE_TAG -> feature = parser.text()
                     SEVERITY_TAG -> severity = SeverityType.fromTagOrDefault(parser.text())
                     TAGS_TAG -> tags = parser.stringList()
                     else -> {
@@ -121,7 +121,7 @@ data class EventSource(
         return builder.startObject()
             .field(TITLE_TAG, title)
             .field(REFERENCE_ID_TAG, referenceId)
-            .field(FEATURE_TAG, feature.tag)
+            .field(FEATURE_TAG, feature)
             .field(SEVERITY_TAG, severity.tag)
             .field(TAGS_TAG, tags)
             .endObject()
@@ -134,7 +134,7 @@ data class EventSource(
     constructor(input: StreamInput) : this(
         title = input.readString(),
         referenceId = input.readString(),
-        feature = input.readEnum(Feature::class.java),
+        feature = input.readString(),
         severity = input.readEnum(SeverityType::class.java),
         tags = input.readStringList()
     )
@@ -145,7 +145,7 @@ data class EventSource(
     override fun writeTo(output: StreamOutput) {
         output.writeString(title)
         output.writeString(referenceId)
-        output.writeEnum(feature)
+        output.writeString(feature)
         output.writeEnum(severity)
         output.writeStringCollection(tags)
     }

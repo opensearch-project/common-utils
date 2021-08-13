@@ -28,10 +28,12 @@ package org.opensearch.commons.notifications.model
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
-import java.util.EnumSet
 
 internal class NotificationConfigTests {
 
@@ -42,7 +44,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
@@ -56,7 +58,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val jsonString = getJsonString(sampleConfig)
@@ -71,7 +73,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.CHIME,
-            EnumSet.of(Feature.ALERTING),
+            setOf(FEATURE_ALERTING),
             configData = sampleChime
         )
         val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
@@ -85,7 +87,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.CHIME,
-            EnumSet.of(Feature.ALERTING),
+            setOf(FEATURE_ALERTING),
             configData = sampleChime
         )
         val jsonString = getJsonString(sampleConfig)
@@ -100,7 +102,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.WEBHOOK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = sampleWebhook
         )
         val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
@@ -114,7 +116,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.WEBHOOK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = sampleWebhook
         )
         val jsonString = getJsonString(sampleConfig)
@@ -129,7 +131,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.EMAIL,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = sampleEmail
         )
         val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
@@ -143,7 +145,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.EMAIL,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = sampleEmail
         )
         val jsonString = getJsonString(sampleConfig)
@@ -158,7 +160,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.SMTP_ACCOUNT,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = smtpAccount
         )
         val jsonString = getJsonString(sampleConfig)
@@ -173,7 +175,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.SMTP_ACCOUNT,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = sampleSmtpAccount
         )
         val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
@@ -187,7 +189,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.EMAIL_GROUP,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = sampleEmailGroup
         )
         val jsonString = getJsonString(sampleConfig)
@@ -202,7 +204,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.EMAIL_GROUP,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = sampleEmailGroup
         )
         val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
@@ -217,7 +219,7 @@ internal class NotificationConfigTests {
             "name",
             "description",
             ConfigType.NONE,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSlack
         )
@@ -240,13 +242,13 @@ internal class NotificationConfigTests {
     }
 
     @Test
-    fun `Config should safely ignore unknown feature type in json object`() {
+    fun `Config should safely accepts unknown feature type in json object`() {
         val sampleWebhook = Webhook("https://domain.com/sample_webhook_url#1234567890")
         val sampleConfig = NotificationConfig(
             "name",
             "description",
             ConfigType.WEBHOOK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT, Feature.NONE),
+            setOf(FEATURE_INDEX_MANAGEMENT, "NewFeature1", "NewFeature2"),
             isEnabled = true,
             configData = sampleWebhook
         )
