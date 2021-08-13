@@ -32,9 +32,11 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.EventSource
-import org.opensearch.commons.notifications.model.Feature
 import org.opensearch.commons.notifications.model.SeverityType
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
@@ -58,7 +60,7 @@ internal class SendNotificationRequestTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            Feature.REPORTS,
+            FEATURE_REPORTS,
             SeverityType.HIGH,
             listOf("tag1", "tag2")
         )
@@ -82,7 +84,7 @@ internal class SendNotificationRequestTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            Feature.INDEX_MANAGEMENT,
+            FEATURE_INDEX_MANAGEMENT,
             SeverityType.CRITICAL,
             listOf("tag1", "tag2")
         )
@@ -115,7 +117,7 @@ internal class SendNotificationRequestTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            Feature.ALERTING,
+            FEATURE_ALERTING,
             SeverityType.HIGH,
             listOf("tag1", "tag2")
         )
@@ -159,7 +161,7 @@ internal class SendNotificationRequestTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            Feature.REPORTS,
+            FEATURE_REPORTS,
             SeverityType.INFO,
             listOf("tag1", "tag2")
         )

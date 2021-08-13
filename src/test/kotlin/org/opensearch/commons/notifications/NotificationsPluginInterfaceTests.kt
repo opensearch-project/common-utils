@@ -25,6 +25,8 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigRequest
@@ -45,7 +47,6 @@ import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.DeliveryStatus
 import org.opensearch.commons.notifications.model.EventSource
 import org.opensearch.commons.notifications.model.EventStatus
-import org.opensearch.commons.notifications.model.Feature
 import org.opensearch.commons.notifications.model.FeatureChannel
 import org.opensearch.commons.notifications.model.FeatureChannelList
 import org.opensearch.commons.notifications.model.NotificationConfig
@@ -58,7 +59,6 @@ import org.opensearch.commons.notifications.model.SeverityType
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.rest.RestStatus
 import java.time.Instant
-import java.util.EnumSet
 
 @Suppress("UNCHECKED_CAST")
 @ExtendWith(MockitoExtension::class)
@@ -198,7 +198,7 @@ internal class NotificationsPluginInterfaceTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            Feature.REPORTS,
+            FEATURE_REPORTS,
             SeverityType.HIGH,
             listOf("tag1", "tag2")
         )
@@ -229,7 +229,7 @@ internal class NotificationsPluginInterfaceTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.REPORTS),
+            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -246,7 +246,7 @@ internal class NotificationsPluginInterfaceTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            Feature.ALERTING,
+            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(

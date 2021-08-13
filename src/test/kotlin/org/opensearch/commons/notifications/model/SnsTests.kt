@@ -19,87 +19,87 @@ import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
-internal class SNSTests {
+internal class SnsTests {
 
     @Test
     fun `SNS should throw exception if empty topic`() {
         assertThrows(IllegalArgumentException::class.java) {
-            SNS("", null)
+            Sns("", null)
         }
         val jsonString = "{\"topic_arn\":\"\"}"
         assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { SNS.parse(it) }
+            createObjectFromJsonString(jsonString) { Sns.parse(it) }
         }
     }
 
     @Test
     fun `SNS should throw exception if invalid topic ARN`() {
         assertThrows(IllegalArgumentException::class.java) {
-            SNS("arn:aws:es:us-east-1:012345678989:test", null)
+            Sns("arn:aws:es:us-east-1:012345678989:test", null)
         }
         val jsonString = "{\"topic_arn\":\"arn:aws:es:us-east-1:012345678989:test\"}"
         assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { SNS.parse(it) }
+            createObjectFromJsonString(jsonString) { Sns.parse(it) }
         }
     }
 
     @Test
     fun `SNS should throw exception if invalid role ARN`() {
         assertThrows(IllegalArgumentException::class.java) {
-            SNS("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam:us-east-1:0123456789:role-test")
+            Sns("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam:us-east-1:0123456789:role-test")
         }
         val jsonString =
             "{\"topic_arn\":\"arn:aws:sns:us-east-1:012345678912:topic-test\",\"role_arn\":\"arn:aws:iam:us-east-1:0123456789:role-test\"}"
         assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { SNS.parse(it) }
+            createObjectFromJsonString(jsonString) { Sns.parse(it) }
         }
     }
 
     @Test
     fun `SNS serialize and deserialize transport object should be equal`() {
-        val sampleSNS = SNS("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam::012345678912:role/iam-test")
-        val recreatedObject = recreateObject(sampleSNS) { SNS(it) }
-        Assertions.assertEquals(sampleSNS, recreatedObject)
+        val sampleSns = Sns("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam::012345678912:role/iam-test")
+        val recreatedObject = recreateObject(sampleSns) { Sns(it) }
+        Assertions.assertEquals(sampleSns, recreatedObject)
     }
 
     @Test
     fun `SNS serialize and deserialize using json object should be equal`() {
-        val sampleSNS = SNS("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam::012345678912:role/iam-test")
-        val jsonString = getJsonString(sampleSNS)
-        val recreatedObject = createObjectFromJsonString(jsonString) { SNS.parse(it) }
-        Assertions.assertEquals(sampleSNS, recreatedObject)
+        val sampleSns = Sns("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam::012345678912:role/iam-test")
+        val jsonString = getJsonString(sampleSns)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Sns.parse(it) }
+        Assertions.assertEquals(sampleSns, recreatedObject)
     }
 
     @Test
     fun `SNS should deserialize json object using parser`() {
-        val sampleSNS = SNS("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam::012345678912:role/iam-test")
-        val jsonString = "{\"topic_arn\":\"${sampleSNS.topicARN}\",\"role_arn\":\"${sampleSNS.roleARN}\"}"
-        val recreatedObject = createObjectFromJsonString(jsonString) { SNS.parse(it) }
-        Assertions.assertEquals(sampleSNS, recreatedObject)
+        val sampleSns = Sns("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam::012345678912:role/iam-test")
+        val jsonString = "{\"topic_arn\":\"${sampleSns.topicArn}\",\"role_arn\":\"${sampleSns.roleArn}\"}"
+        val recreatedObject = createObjectFromJsonString(jsonString) { Sns.parse(it) }
+        Assertions.assertEquals(sampleSns, recreatedObject)
     }
 
     @Test
     fun `SNS should throw exception when invalid json object is passed`() {
         val jsonString = "sample message"
         assertThrows(JsonParseException::class.java) {
-            createObjectFromJsonString(jsonString) { SNS.parse(it) }
+            createObjectFromJsonString(jsonString) { Sns.parse(it) }
         }
     }
 
     @Test
     fun `SNS should throw exception when arn is replace with arn2 in json object`() {
-        val sampleSNS = SNS("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam::012345678912:role/iam-test")
-        val jsonString = "{\"topic_arn2\":\"${sampleSNS.topicARN}\",\"role_arn\":\"${sampleSNS.roleARN}\"}"
+        val sampleSns = Sns("arn:aws:sns:us-east-1:012345678912:topic-test", "arn:aws:iam::012345678912:role/iam-test")
+        val jsonString = "{\"topic_arn2\":\"${sampleSns.topicArn}\",\"role_arn\":\"${sampleSns.roleArn}\"}"
         assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { SNS.parse(it) }
+            createObjectFromJsonString(jsonString) { Sns.parse(it) }
         }
     }
 
     @Test
     fun `SNS should safely ignore extra field in json object`() {
-        val sampleSNS = SNS("arn:aws:sns:us-east-1:012345678912:topic-test", null)
-        val jsonString = "{\"topic_arn\":\"${sampleSNS.topicARN}\", \"another\":\"field\"}"
-        val recreatedObject = createObjectFromJsonString(jsonString) { SNS.parse(it) }
-        Assertions.assertEquals(sampleSNS, recreatedObject)
+        val sampleSns = Sns("arn:aws:sns:us-east-1:012345678912:topic-test", null)
+        val jsonString = "{\"topic_arn\":\"${sampleSns.topicArn}\", \"another\":\"field\"}"
+        val recreatedObject = createObjectFromJsonString(jsonString) { Sns.parse(it) }
+        Assertions.assertEquals(sampleSns, recreatedObject)
     }
 }

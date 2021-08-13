@@ -31,11 +31,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
 import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.Email
 import org.opensearch.commons.notifications.model.EmailGroup
-import org.opensearch.commons.notifications.model.Feature
 import org.opensearch.commons.notifications.model.MethodType
 import org.opensearch.commons.notifications.model.NotificationConfig
 import org.opensearch.commons.notifications.model.Slack
@@ -44,7 +44,6 @@ import org.opensearch.commons.notifications.model.Webhook
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
-import java.util.EnumSet
 
 internal class CreateNotificationConfigRequestTests {
 
@@ -54,7 +53,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.WEBHOOK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleWebhook
         )
@@ -66,7 +65,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSlack
         )
@@ -78,7 +77,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.CHIME,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleChime
         )
@@ -90,7 +89,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL_GROUP,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleEmailGroup
         )
@@ -106,7 +105,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleEmail
         )
@@ -123,7 +122,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SMTP_ACCOUNT,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSmtpAccount
         )
@@ -286,7 +285,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSlack
         )
@@ -314,7 +313,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.WEBHOOK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleWebhook
         )
@@ -342,7 +341,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.CHIME,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleChime
         )
@@ -371,7 +370,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL_GROUP,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleEmailGroup
         )
@@ -404,7 +403,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleEmail
         )
@@ -439,7 +438,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SMTP_ACCOUNT,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSmtpAccount
         )
@@ -507,7 +506,7 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SLACK,
-            EnumSet.of(Feature.INDEX_MANAGEMENT),
+            setOf(FEATURE_INDEX_MANAGEMENT),
             isEnabled = true,
             configData = sampleSlack
         )

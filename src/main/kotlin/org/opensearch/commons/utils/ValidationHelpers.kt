@@ -71,7 +71,7 @@ fun isValidId(idString: String): Boolean {
     return idString.isNotBlank() && idString.all { VALID_ID_CHARS.contains(it) }
 }
 
-fun validateIAMRoleArn(roleARN: String) {
+fun validateIamRoleArn(roleArn: String) {
     val roleArnRegex = Pattern.compile("^arn:aws(-[^:]+)?:iam::([0-9]{12}):([a-zA-Z_0-9+=,.@\\-_/]+)$")
-    require(roleArnRegex.matcher(roleARN).find()) { "Invalid AWS role ARN: $roleARN " }
+    require(roleArnRegex.matcher(roleArn).find()) { "Invalid AWS role ARN: $roleArn " }
 }
