@@ -31,7 +31,11 @@ jobs:
         with:
           repository: 'opensearch-project/OpenSearch'
           path: OpenSearch
+<<<<<<< HEAD
           ref: '1.0'
+=======
+          ref: '1.x'
+>>>>>>> cc02f23... Build snapshot build by default with the same version as OpenSearch. (#58)
       - name: Build OpenSearch
         working-directory: ./OpenSearch
         run: ./gradlew publishToMavenLocal
