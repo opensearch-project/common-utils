@@ -22,6 +22,7 @@ import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.FROM_ADDRESS_TAG
 import org.opensearch.commons.notifications.NotificationConstants.REGION_TAG
 import org.opensearch.commons.notifications.NotificationConstants.ROLE_ARN_TAG
+import org.opensearch.commons.utils.fieldIfNotNull
 import org.opensearch.commons.utils.logger
 import org.opensearch.commons.utils.validateEmail
 import org.opensearch.commons.utils.validateIamRoleArn
@@ -74,7 +75,7 @@ data class SesAccount(
                 parser.nextToken()
                 when (fieldName) {
                     REGION_TAG -> awsRegion = parser.text()
-                    ROLE_ARN_TAG -> roleArn = parser.text()
+                    ROLE_ARN_TAG -> roleArn = parser.textOrNull()
                     FROM_ADDRESS_TAG -> fromAddress = parser.text()
                     else -> {
                         parser.skipChildren()
@@ -98,7 +99,7 @@ data class SesAccount(
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         return builder!!.startObject()
             .field(REGION_TAG, awsRegion)
-            .field(ROLE_ARN_TAG, roleArn)
+            .fieldIfNotNull(ROLE_ARN_TAG, roleArn)
             .field(FROM_ADDRESS_TAG, fromAddress)
             .endObject()
     }

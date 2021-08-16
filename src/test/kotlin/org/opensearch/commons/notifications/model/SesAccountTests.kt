@@ -83,12 +83,47 @@ internal class SesAccountTests {
     }
 
     @Test
+    fun `SES serialize and deserialize using json object should be equal with null roleArn`() {
+        val sesAccount = SesAccount("us-east-1", null, "from@domain.com")
+        val jsonString = getJsonString(sesAccount)
+        val recreatedObject = createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
+        assertEquals(sesAccount, recreatedObject)
+    }
+
+    @Test
     fun `SES should deserialize json object using parser`() {
         val sesAccount = SesAccount("us-east-1", "arn:aws:iam::012345678912:role/iam-test", "from@domain.com")
         val jsonString = """
         {
             "region":"${sesAccount.awsRegion}",
             "role_arn":"${sesAccount.roleArn}",
+            "from_address":"${sesAccount.fromAddress}"
+        }
+        """.trimIndent()
+        val recreatedObject = createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
+        assertEquals(sesAccount, recreatedObject)
+    }
+
+    @Test
+    fun `SES should deserialize json object will null role_arn using parser`() {
+        val sesAccount = SesAccount("us-east-1", null, "from@domain.com")
+        val jsonString = """
+        {
+            "region":"${sesAccount.awsRegion}",
+            "role_arn":null,
+            "from_address":"${sesAccount.fromAddress}"
+        }
+        """.trimIndent()
+        val recreatedObject = createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
+        assertEquals(sesAccount, recreatedObject)
+    }
+
+    @Test
+    fun `SES should deserialize json object will missing role_arn using parser`() {
+        val sesAccount = SesAccount("us-east-1", null, "from@domain.com")
+        val jsonString = """
+        {
+            "region":"${sesAccount.awsRegion}",
             "from_address":"${sesAccount.fromAddress}"
         }
         """.trimIndent()
