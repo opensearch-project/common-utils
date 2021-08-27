@@ -30,7 +30,6 @@ import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.common.io.stream.Writeable
-import org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT
 import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
@@ -62,7 +61,6 @@ import org.opensearch.commons.notifications.action.UpdateNotificationConfigReque
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigResponse
 import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.EventSource
-import org.opensearch.commons.utils.SecureClientWrapper
 import org.opensearch.commons.utils.recreateObject
 
 /**
@@ -211,12 +209,9 @@ object NotificationsPluginInterface {
         channelIds: List<String>,
         listener: ActionListener<SendNotificationResponse>
     ) {
-        val threadContext: String? =
-            client.threadPool().threadContext.getTransient<String>(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
-        val wrapper = SecureClientWrapper(client) // Executing request in privileged mode
-        wrapper.execute(
+        client.execute(
             SEND_NOTIFICATION_ACTION_TYPE,
-            SendNotificationRequest(eventSource, channelMessage, channelIds, threadContext),
+            SendNotificationRequest(eventSource, channelMessage, channelIds),
             wrapActionListener(listener) { response -> recreateObject(response) { SendNotificationResponse(it) } }
         )
     }
@@ -262,7 +257,7 @@ object NotificationsPluginInterface {
                 listener.onResponse(recreated)
             }
 
-            override fun onFailure(exception: java.lang.Exception) {
+            override fun onFailure(exception: Exception) {
                 listener.onFailure(exception)
             }
         } as ActionListener<Response>

@@ -51,7 +51,6 @@ internal class SendNotificationRequestTests {
         assertEquals(expected.eventSource, actual.eventSource)
         assertEquals(expected.channelMessage, actual.channelMessage)
         assertEquals(expected.channelIds, actual.channelIds)
-        assertEquals(expected.threadContext, actual.threadContext)
         assertNull(actual.validate())
     }
 
@@ -72,8 +71,7 @@ internal class SendNotificationRequestTests {
         val request = SendNotificationRequest(
             notificationInfo,
             channelMessage,
-            listOf("channelId1", "channelId2"),
-            "sample-thread-context"
+            listOf("channelId1", "channelId2")
         )
         val recreatedObject = recreateObject(request) { SendNotificationRequest(it) }
         assertGetRequestEquals(request, recreatedObject)
@@ -96,8 +94,7 @@ internal class SendNotificationRequestTests {
         val request = SendNotificationRequest(
             notificationInfo,
             channelMessage,
-            listOf("channelId1", "channelId2"),
-            "sample-thread-context"
+            listOf("channelId1", "channelId2")
         )
         val jsonString = getJsonString(request)
         val recreatedObject = createObjectFromJsonString(jsonString) { SendNotificationRequest.parse(it) }
@@ -129,8 +126,7 @@ internal class SendNotificationRequestTests {
         val request = SendNotificationRequest(
             notificationInfo,
             channelMessage,
-            listOf("channelId1", "channelId2"),
-            "sample-thread-context"
+            listOf("channelId1", "channelId2")
         )
         val jsonString = """
         {
@@ -146,50 +142,9 @@ internal class SendNotificationRequestTests {
                 "html_description":"${channelMessage.htmlDescription}"
             },
             "channel_id_list":["channelId1", "channelId2"],
-            "context":"${request.threadContext}",
             "extra_field_1":["extra", "value"],
             "extra_field_2":{"extra":"value"},
             "extra_field_3":"extra value 3"
-        }
-        """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { SendNotificationRequest.parse(it) }
-        assertGetRequestEquals(request, recreatedObject)
-    }
-
-    @Test
-    fun `Send request should safely ignore thread context is absent in json object`() {
-        val notificationInfo = EventSource(
-            "title",
-            "reference_id",
-            FEATURE_REPORTS,
-            SeverityType.INFO,
-            listOf("tag1", "tag2")
-        )
-        val channelMessage = ChannelMessage(
-            "text_description",
-            "<b>htmlDescription</b>",
-            null
-        )
-        val request = SendNotificationRequest(
-            notificationInfo,
-            channelMessage,
-            listOf("channelId1", "channelId2"),
-            null
-        )
-        val jsonString = """
-        {
-            "event_source":{
-                "title":"${notificationInfo.title}",
-                "reference_id":"${notificationInfo.referenceId}",
-                "feature":"${notificationInfo.feature}",
-                "severity":"${notificationInfo.severity}",
-                "tags":["tag1", "tag2"]
-            },
-            "channel_message":{
-                "text_description":"${channelMessage.textDescription}",
-                "html_description":"${channelMessage.htmlDescription}"
-            },
-            "channel_id_list":["channelId1", "channelId2"]
         }
         """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { SendNotificationRequest.parse(it) }

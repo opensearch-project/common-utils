@@ -17,7 +17,6 @@ object NotificationConstants {
     const val EVENT_TAG = "event"
     const val EVENT_SOURCE_TAG = "event_source"
     const val FEATURE_TAG = "feature"
-    const val THREAD_CONTEXT_TAG = "context"
     const val CHANNEL_MESSAGE_TAG = "channel_message"
     const val TEXT_DESCRIPTION_TAG = "text_description"
     const val HTML_DESCRIPTION_TAG = "html_description"
