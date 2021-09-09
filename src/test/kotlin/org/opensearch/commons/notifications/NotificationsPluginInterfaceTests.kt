@@ -51,7 +51,6 @@ import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.DeliveryStatus
 import org.opensearch.commons.notifications.model.EventSource
 import org.opensearch.commons.notifications.model.EventStatus
-import org.opensearch.commons.notifications.model.Feature
 import org.opensearch.commons.notifications.model.FeatureChannel
 import org.opensearch.commons.notifications.model.FeatureChannelList
 import org.opensearch.commons.notifications.model.NotificationConfig
