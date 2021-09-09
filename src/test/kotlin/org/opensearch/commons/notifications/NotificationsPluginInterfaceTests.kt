@@ -63,7 +63,6 @@ import org.opensearch.commons.notifications.model.SeverityType
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.rest.RestStatus
 import java.time.Instant
-import java.util.EnumSet
 
 @Suppress("UNCHECKED_CAST")
 @ExtendWith(MockitoExtension::class)
