@@ -12,7 +12,7 @@
 buildscript {
     ext {
         opensearch_group = "org.opensearch"
-        opensearch_version = System.getProperty("opensearch.version", "1.1.0")
+        opensearch_version = System.getProperty("opensearch.version", "1.1.0-SNAPSHOT")
         kotlin_version = System.getProperty("kotlin.version", "1.4.32")
     }
 
@@ -44,7 +44,17 @@ repositories {
     jcenter()
 }
 
-group 'org.opensearch.commons'
+ext {
+    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
+}
+
+allprojects {
+    group 'org.opensearch.commons'
+    version = opensearch_version - '-SNAPSHOT' + '.0'
+    if (isSnapshot) {
+        version += "-SNAPSHOT"
+    }
+}
 
 sourceCompatibility = 1.8
 
@@ -145,8 +155,6 @@ task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
-
-version '1.1.0.0'
 
 publishing {
     publications {

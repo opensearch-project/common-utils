@@ -160,6 +160,23 @@ public class InjectSecurity implements AutoCloseable {
         }
     }
 
+    /**
+     * Allows one to set the property in threadContext if possible to the value provided. If not possible returns false.
+     * @param property
+     * @param value
+     * @return boolean
+     */
+    public boolean injectProperty(final String property, final Object value) {
+        if (Strings.isNullOrEmpty(property) || value == null || threadContext.getTransient(property) != null) {
+            log.debug("{}, InjectSecurity - cannot inject property: {}", Thread.currentThread().getName(), id);
+            return false;
+        } else {
+            threadContext.putTransient(property, value);
+            log.debug("{}, InjectSecurity - inject property: {}", Thread.currentThread().getName(), id);
+            return true;
+        }
+    }
+
     @Override
     public void close() {
         if (ctx != null) {
