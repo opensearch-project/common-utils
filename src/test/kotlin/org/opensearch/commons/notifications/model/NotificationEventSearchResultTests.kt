@@ -69,7 +69,6 @@ internal class NotificationEventSearchResultTests {
             "event_id",
             Instant.now(),
             Instant.now(),
-            "tenant",
             sampleEvent
         )
         val searchResult = NotificationEventSearchResult(eventInfo)
@@ -107,28 +106,24 @@ internal class NotificationEventSearchResultTests {
             "event_id1",
             Instant.now(),
             Instant.now(),
-            "tenant",
             NotificationEvent(eventSource1, listOf(status1))
         )
         val eventInfo2 = NotificationEventInfo(
             "event_id2",
             Instant.now(),
             Instant.now(),
-            "tenant",
             NotificationEvent(eventSource2, listOf(status2))
         )
         val eventInfo3 = NotificationEventInfo(
             "event_id3",
             Instant.now(),
             Instant.now(),
-            "tenant",
             NotificationEvent(eventSource1, listOf(status1, status2))
         )
         val eventInfo4 = NotificationEventInfo(
             "event_id4",
             Instant.now(),
             Instant.now(),
-            "tenant",
             NotificationEvent(eventSource2, listOf(status1, status2))
         )
         val searchResult = NotificationEventSearchResult(
@@ -174,28 +169,24 @@ internal class NotificationEventSearchResultTests {
             "event_id1",
             Instant.now(),
             Instant.now(),
-            "tenant",
             NotificationEvent(eventSource1, listOf(status1))
         )
         val eventInfo2 = NotificationEventInfo(
             "event_id2",
             Instant.now(),
             Instant.now(),
-            "tenant",
             NotificationEvent(eventSource2, listOf(status2))
         )
         val eventInfo3 = NotificationEventInfo(
             "event_id3",
             Instant.now(),
             Instant.now(),
-            "tenant",
             NotificationEvent(eventSource1, listOf(status1, status2))
         )
         val eventInfo4 = NotificationEventInfo(
             "event_id4",
             Instant.now(),
             Instant.now(),
-            "tenant",
             NotificationEvent(eventSource2, listOf(status1, status2))
         )
         val searchResult = NotificationEventSearchResult(
@@ -229,7 +220,6 @@ internal class NotificationEventSearchResultTests {
             "event_id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "tenant",
             sampleEvent
         )
         val searchResult = NotificationEventSearchResult(eventInfo)
@@ -270,14 +260,12 @@ internal class NotificationEventSearchResultTests {
             "event_id1",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "tenant",
             NotificationEvent(eventSource1, listOf(status1))
         )
         val eventInfo2 = NotificationEventInfo(
             "event_id2",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "tenant",
             NotificationEvent(eventSource2, listOf(status2))
         )
         val searchResult = NotificationEventSearchResult(
@@ -312,7 +300,6 @@ internal class NotificationEventSearchResultTests {
             "event_id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "selectedTenant",
             sampleEvent
         )
         val searchResult = NotificationEventSearchResult(eventInfo)
@@ -326,7 +313,6 @@ internal class NotificationEventSearchResultTests {
                     "event_id":"event_id",
                     "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
                     "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-                    "tenant":"selectedTenant",
                     "event":{
                         "event_source":{
                             "title":"title",
@@ -380,7 +366,6 @@ internal class NotificationEventSearchResultTests {
             "event_id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "selectedTenant",
             sampleEvent
         )
         val searchResult = NotificationEventSearchResult(eventInfo)
@@ -391,7 +376,6 @@ internal class NotificationEventSearchResultTests {
                     "event_id":"event_id",
                     "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
                     "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-                    "tenant":"selectedTenant",
                     "event":{
                         "event_source":{
                             "title":"title",
@@ -434,8 +418,7 @@ internal class NotificationEventSearchResultTests {
                 {
                     "event_id":"event_id",
                     "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-                    "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-                    "tenant":"selectedTenant"
+                    "created_time_ms":"${createdTimeMs.toEpochMilli()}"
                 }
             ]
         }

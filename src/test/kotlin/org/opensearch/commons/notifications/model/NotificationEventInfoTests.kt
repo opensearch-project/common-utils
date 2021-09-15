@@ -56,7 +56,6 @@ internal class NotificationEventInfoTests {
             "event_id",
             Instant.now(),
             Instant.now(),
-            "tenant",
             sampleEvent
         )
         val recreatedObject = recreateObject(eventInfo) { NotificationEventInfo(it) }
@@ -84,67 +83,9 @@ internal class NotificationEventInfoTests {
             "event_id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "tenant",
             sampleEvent
         )
         val jsonString = getJsonString(eventInfo)
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationEventInfo.parse(it) }
-        assertEquals(eventInfo, recreatedObject)
-    }
-
-    @Test
-    fun `Event info should take default tenant when field is absent in json object`() {
-        val lastUpdatedTimeMs = Instant.ofEpochMilli(Instant.now().toEpochMilli())
-        val createdTimeMs = lastUpdatedTimeMs.minusSeconds(1000)
-        val sampleEventSource = EventSource(
-            "title",
-            "reference_id",
-            FEATURE_ALERTING,
-            severity = SeverityType.INFO
-        )
-        val sampleStatus = EventStatus(
-            "config_id",
-            "name",
-            ConfigType.SLACK,
-            deliveryStatus = DeliveryStatus("200", "success")
-        )
-        val sampleEvent = NotificationEvent(sampleEventSource, listOf(sampleStatus))
-        val eventInfo = NotificationEventInfo(
-            "event_id",
-            lastUpdatedTimeMs,
-            createdTimeMs,
-            "tenant",
-            sampleEvent
-        )
-        val jsonString = """
-        {
-            "event_id":"event_id",
-            "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "tenant":"tenant",
-            "event":{
-                "event_source":{
-                    "title":"title",
-                    "reference_id":"reference_id",
-                    "feature":"alerting",
-                    "severity":"info",
-                    "tags":[]
-                },
-                "status_list":[
-                    {
-                       "config_id":"config_id",
-                       "config_type":"slack",
-                       "config_name":"name",
-                       "delivery_status":
-                       {
-                            "status_code":"200",
-                            "status_text":"success"
-                       }
-                    }
-                ]
-            }
-        }
-        """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { NotificationEventInfo.parse(it) }
         assertEquals(eventInfo, recreatedObject)
     }
@@ -170,7 +111,6 @@ internal class NotificationEventInfoTests {
             "event_id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "tenant",
             sampleEvent
         )
         val jsonString = """
@@ -178,7 +118,6 @@ internal class NotificationEventInfoTests {
             "event_id":"event_id",
             "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
             "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "tenant":"tenant",
             "event":{
                 "event_source":{
                     "title":"title",
@@ -231,7 +170,6 @@ internal class NotificationEventInfoTests {
                 "",
                 lastUpdatedTimeMs,
                 createdTimeMs,
-                "tenant",
                 sampleEvent
             )
         }
@@ -281,7 +219,6 @@ internal class NotificationEventInfoTests {
         {
             "event_id":"event_id",
             "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "tenant":"selectedTenant",
             "event":{
                 "event_source":{
                     "title":"title",
@@ -317,7 +254,6 @@ internal class NotificationEventInfoTests {
         {
             "event_id":"event_id",
             "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "tenant":"selectedTenant",
             "event":{
                 "event_source":{
                     "title":"title",
@@ -354,8 +290,7 @@ internal class NotificationEventInfoTests {
         {
             "event_id":"event_id",
             "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "tenant":"selectedTenant"
+            "created_time_ms":"${createdTimeMs.toEpochMilli()}"
         }
         """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {

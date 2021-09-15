@@ -52,7 +52,6 @@ internal class NotificationConfigInfoTests {
             "config_id",
             Instant.now(),
             Instant.now(),
-            "tenant",
             sampleConfig
         )
         val recreatedObject = recreateObject(configInfo) { NotificationConfigInfo(it) }
@@ -75,49 +74,9 @@ internal class NotificationConfigInfoTests {
             "config_id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "tenant",
             sampleConfig
         )
         val jsonString = getJsonString(configInfo)
-        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfigInfo.parse(it) }
-        assertEquals(configInfo, recreatedObject)
-    }
-
-    @Test
-    fun `Config info should take default tenant when field is absent in json object`() {
-        val lastUpdatedTimeMs = Instant.ofEpochMilli(Instant.now().toEpochMilli())
-        val createdTimeMs = lastUpdatedTimeMs.minusSeconds(1000)
-        val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            "description",
-            ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
-        )
-        val configInfo = NotificationConfigInfo(
-            "config-Id",
-            lastUpdatedTimeMs,
-            createdTimeMs,
-            "", // Default tenant
-            sampleConfig
-        )
-        val jsonString = """
-        {
-            "config_id":"config-Id",
-            "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "config":{
-                "name":"name",
-                "description":"description",
-                "config_type":"slack",
-                "feature_list":["index_management"],
-                "is_enabled":true,
-                "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
-            }
-        }
-        """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfigInfo.parse(it) }
         assertEquals(configInfo, recreatedObject)
     }
@@ -139,7 +98,6 @@ internal class NotificationConfigInfoTests {
             "config-Id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "selectedTenant",
             sampleConfig
         )
         val jsonString = """
@@ -147,7 +105,6 @@ internal class NotificationConfigInfoTests {
             "config_id":"config-Id",
             "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
             "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "tenant":"selectedTenant",
             "config":{
                 "name":"name",
                 "description":"description",
@@ -180,7 +137,6 @@ internal class NotificationConfigInfoTests {
                 "",
                 Instant.now(),
                 Instant.now(),
-                "tenant",
                 sampleConfig
             )
         }
@@ -194,7 +150,6 @@ internal class NotificationConfigInfoTests {
         {
             "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
             "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "tenant":"selectedTenant",
             "config":{
                 "name":"name",
                 "description":"description",
@@ -218,7 +173,6 @@ internal class NotificationConfigInfoTests {
         {
             "config_id":"config-Id",
             "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "tenant":"selectedTenant",
             "config":{
                 "name":"name",
                 "description":"description",
@@ -241,7 +195,6 @@ internal class NotificationConfigInfoTests {
         {
             "config_id":"config-Id",
             "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "tenant":"selectedTenant",
             "config":{
                 "name":"name",
                 "description":"description",
@@ -265,8 +218,7 @@ internal class NotificationConfigInfoTests {
         {
             "config_id":"config-Id",
             "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "tenant":"selectedTenant"
+            "created_time_ms":"${createdTimeMs.toEpochMilli()}"
         }
         """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {

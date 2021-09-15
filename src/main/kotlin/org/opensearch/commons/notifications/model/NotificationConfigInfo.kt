@@ -37,7 +37,6 @@ import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_ID_TAG
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_TAG
 import org.opensearch.commons.notifications.NotificationConstants.CREATED_TIME_TAG
-import org.opensearch.commons.notifications.NotificationConstants.TENANT_TAG
 import org.opensearch.commons.notifications.NotificationConstants.UPDATED_TIME_TAG
 import org.opensearch.commons.utils.logger
 import java.io.IOException
@@ -50,7 +49,6 @@ data class NotificationConfigInfo(
     val configId: String,
     val lastUpdatedTime: Instant,
     val createdTime: Instant,
-    val tenant: String,
     val notificationConfig: NotificationConfig
 ) : BaseModel {
 
@@ -76,7 +74,6 @@ data class NotificationConfigInfo(
             var configId: String? = null
             var lastUpdatedTime: Instant? = null
             var createdTime: Instant? = null
-            var tenant: String? = null
             var notificationConfig: NotificationConfig? = null
 
             XContentParserUtils.ensureExpectedToken(
@@ -91,7 +88,6 @@ data class NotificationConfigInfo(
                     CONFIG_ID_TAG -> configId = parser.text()
                     UPDATED_TIME_TAG -> lastUpdatedTime = Instant.ofEpochMilli(parser.longValue())
                     CREATED_TIME_TAG -> createdTime = Instant.ofEpochMilli(parser.longValue())
-                    TENANT_TAG -> tenant = parser.text()
                     CONFIG_TAG -> notificationConfig = NotificationConfig.parse(parser)
                     else -> {
                         parser.skipChildren()
@@ -102,13 +98,11 @@ data class NotificationConfigInfo(
             configId ?: throw IllegalArgumentException("$CONFIG_ID_TAG field absent")
             lastUpdatedTime ?: throw IllegalArgumentException("$UPDATED_TIME_TAG field absent")
             createdTime ?: throw IllegalArgumentException("$CREATED_TIME_TAG field absent")
-            tenant = tenant ?: ""
             notificationConfig ?: throw IllegalArgumentException("$CONFIG_TAG field absent")
             return NotificationConfigInfo(
                 configId,
                 lastUpdatedTime,
                 createdTime,
-                tenant,
                 notificationConfig
             )
         }
@@ -122,7 +116,6 @@ data class NotificationConfigInfo(
         configId = input.readString(),
         lastUpdatedTime = input.readInstant(),
         createdTime = input.readInstant(),
-        tenant = input.readString(),
         notificationConfig = NotificationConfig.reader.read(input)
     )
 
@@ -133,7 +126,6 @@ data class NotificationConfigInfo(
         output.writeString(configId)
         output.writeInstant(lastUpdatedTime)
         output.writeInstant(createdTime)
-        output.writeString(tenant)
         notificationConfig.writeTo(output)
     }
 
@@ -146,7 +138,6 @@ data class NotificationConfigInfo(
             .field(CONFIG_ID_TAG, configId)
             .field(UPDATED_TIME_TAG, lastUpdatedTime.toEpochMilli())
             .field(CREATED_TIME_TAG, createdTime.toEpochMilli())
-            .field(TENANT_TAG, tenant)
             .field(CONFIG_TAG, notificationConfig)
             .endObject()
     }
