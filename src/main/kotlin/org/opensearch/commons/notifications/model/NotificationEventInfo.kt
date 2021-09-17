@@ -37,7 +37,6 @@ import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.CREATED_TIME_TAG
 import org.opensearch.commons.notifications.NotificationConstants.EVENT_ID_TAG
 import org.opensearch.commons.notifications.NotificationConstants.EVENT_TAG
-import org.opensearch.commons.notifications.NotificationConstants.TENANT_TAG
 import org.opensearch.commons.notifications.NotificationConstants.UPDATED_TIME_TAG
 import org.opensearch.commons.utils.logger
 import java.io.IOException
@@ -50,7 +49,6 @@ data class NotificationEventInfo(
     val eventId: String,
     val lastUpdatedTime: Instant,
     val createdTime: Instant,
-    val tenant: String,
     val notificationEvent: NotificationEvent
 ) : BaseModel {
 
@@ -76,7 +74,6 @@ data class NotificationEventInfo(
             var eventId: String? = null
             var lastUpdatedTime: Instant? = null
             var createdTime: Instant? = null
-            var tenant: String? = null
             var notificationEvent: NotificationEvent? = null
 
             XContentParserUtils.ensureExpectedToken(
@@ -91,7 +88,6 @@ data class NotificationEventInfo(
                     EVENT_ID_TAG -> eventId = parser.text()
                     UPDATED_TIME_TAG -> lastUpdatedTime = Instant.ofEpochMilli(parser.longValue())
                     CREATED_TIME_TAG -> createdTime = Instant.ofEpochMilli(parser.longValue())
-                    TENANT_TAG -> tenant = parser.text()
                     EVENT_TAG -> notificationEvent = NotificationEvent.parse(parser)
                     else -> {
                         parser.skipChildren()
@@ -102,13 +98,11 @@ data class NotificationEventInfo(
             eventId ?: throw IllegalArgumentException("$EVENT_ID_TAG field absent")
             lastUpdatedTime ?: throw IllegalArgumentException("$UPDATED_TIME_TAG field absent")
             createdTime ?: throw IllegalArgumentException("$CREATED_TIME_TAG field absent")
-            tenant = tenant ?: ""
             notificationEvent ?: throw IllegalArgumentException("$EVENT_TAG field absent")
             return NotificationEventInfo(
                 eventId,
                 lastUpdatedTime,
                 createdTime,
-                tenant,
                 notificationEvent
             )
         }
@@ -123,7 +117,6 @@ data class NotificationEventInfo(
             .field(EVENT_ID_TAG, eventId)
             .field(UPDATED_TIME_TAG, lastUpdatedTime.toEpochMilli())
             .field(CREATED_TIME_TAG, createdTime.toEpochMilli())
-            .field(TENANT_TAG, tenant)
             .field(EVENT_TAG, notificationEvent)
             .endObject()
     }
@@ -136,7 +129,6 @@ data class NotificationEventInfo(
         eventId = input.readString(),
         lastUpdatedTime = input.readInstant(),
         createdTime = input.readInstant(),
-        tenant = input.readString(),
         notificationEvent = NotificationEvent.reader.read(input)
     )
 
@@ -147,7 +139,6 @@ data class NotificationEventInfo(
         output.writeString(eventId)
         output.writeInstant(lastUpdatedTime)
         output.writeInstant(createdTime)
-        output.writeString(tenant)
         notificationEvent.writeTo(output)
     }
 }

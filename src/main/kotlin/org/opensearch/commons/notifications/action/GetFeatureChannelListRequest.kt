@@ -42,9 +42,6 @@ import java.io.IOException
 
 /**
  * This request is plugin-only call. i.e. REST interface is not exposed.
- * Also the library will remove the user context while making this call
- * so that user making this call need not have to set permission to this API.
- * Hence the request also contains tenant info for space isolation.
  */
 class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
     val feature: String

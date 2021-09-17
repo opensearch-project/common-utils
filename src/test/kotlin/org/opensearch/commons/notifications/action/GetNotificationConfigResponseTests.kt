@@ -70,7 +70,6 @@ internal class GetNotificationConfigResponseTests {
             "config_id",
             Instant.now(),
             Instant.now(),
-            "tenant",
             sampleConfig
         )
         val searchResult = NotificationConfigSearchResult(configInfo)
@@ -92,7 +91,6 @@ internal class GetNotificationConfigResponseTests {
             "config_id1",
             Instant.now(),
             Instant.now(),
-            "tenant",
             sampleConfig1
         )
         val sampleConfig2 = NotificationConfig(
@@ -106,7 +104,6 @@ internal class GetNotificationConfigResponseTests {
             "config_id2",
             Instant.now(),
             Instant.now(),
-            "tenant",
             sampleConfig2
         )
         val searchResult = NotificationConfigSearchResult(
@@ -136,7 +133,6 @@ internal class GetNotificationConfigResponseTests {
             "config_id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "tenant",
             sampleConfig
         )
         val searchResult = NotificationConfigSearchResult(configInfo)
@@ -161,7 +157,6 @@ internal class GetNotificationConfigResponseTests {
             "config_id1",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "tenant",
             sampleConfig1
         )
         val sampleConfig2 = NotificationConfig(
@@ -175,7 +170,6 @@ internal class GetNotificationConfigResponseTests {
             "config_id2",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "tenant",
             sampleConfig2
         )
         val searchResult = NotificationConfigSearchResult(
@@ -207,7 +201,6 @@ internal class GetNotificationConfigResponseTests {
             "config-Id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "selectedTenant",
             sampleConfig
         )
         val searchResult = NotificationConfigSearchResult(configInfo)
@@ -221,7 +214,6 @@ internal class GetNotificationConfigResponseTests {
                     "config_id":"config-Id",
                     "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
                     "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-                    "tenant":"selectedTenant",
                     "config":{
                         "name":"name",
                         "description":"description",
@@ -258,7 +250,6 @@ internal class GetNotificationConfigResponseTests {
             "config-Id",
             lastUpdatedTimeMs,
             createdTimeMs,
-            "selectedTenant",
             sampleConfig
         )
         val searchResult = NotificationConfigSearchResult(configInfo)
@@ -269,7 +260,6 @@ internal class GetNotificationConfigResponseTests {
                     "config_id":"config-Id",
                     "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
                     "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-                    "tenant":"selectedTenant",
                     "config":{
                         "name":"name",
                         "description":"description",
@@ -299,8 +289,7 @@ internal class GetNotificationConfigResponseTests {
                 {
                     "config_id":"config-Id",
                     "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-                    "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-                    "tenant":"selectedTenant"
+                    "created_time_ms":"${createdTimeMs.toEpochMilli()}"
                 }
             ]
         }

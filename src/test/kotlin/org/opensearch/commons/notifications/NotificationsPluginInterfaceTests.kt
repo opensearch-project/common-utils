@@ -260,7 +260,6 @@ internal class NotificationsPluginInterfaceTests {
             "config_id",
             Instant.now(),
             Instant.now(),
-            "tenant",
             sampleConfig
         )
         return GetNotificationConfigResponse(NotificationConfigSearchResult(configInfo))
@@ -284,7 +283,6 @@ internal class NotificationsPluginInterfaceTests {
             "event_id",
             Instant.now(),
             Instant.now(),
-            "tenant",
             sampleEvent
         )
         return GetNotificationEventResponse(NotificationEventSearchResult(eventInfo))
