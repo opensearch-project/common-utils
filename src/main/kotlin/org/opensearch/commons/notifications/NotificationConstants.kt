@@ -51,7 +51,6 @@ object NotificationConstants {
     const val FROM_ADDRESS_TAG = "from_address"
     const val UPDATED_TIME_TAG = "last_updated_time_ms"
     const val CREATED_TIME_TAG = "created_time_ms"
-    const val TENANT_TAG = "tenant"
     const val CONFIG_LIST_TAG = "config_list"
     const val EVENT_LIST_TAG = "event_list"
     const val FEATURE_CONFIG_LIST_TAG = "feature_channel_list"
