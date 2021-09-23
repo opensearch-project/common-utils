@@ -39,7 +39,7 @@ internal class GetPluginFeaturesResponseTests {
         expected: GetPluginFeaturesResponse,
         actual: GetPluginFeaturesResponse
     ) {
-        assertEquals(expected.configTypeList, actual.configTypeList)
+        assertEquals(expected.allowedConfigTypeList, actual.allowedConfigTypeList)
         assertEquals(expected.pluginFeatures, actual.pluginFeatures)
     }
 
@@ -47,6 +47,7 @@ internal class GetPluginFeaturesResponseTests {
     fun `Get Response serialize and deserialize transport object should be equal`() {
         val response = GetPluginFeaturesResponse(
             listOf("config_type_1", "config_type_2", "config_type_3"),
+            listOf("config_feature_1", "config_feature_2", "config_feature_3"),
             mapOf(
                 Pair("FeatureKey1", "FeatureValue1"),
                 Pair("FeatureKey2", "FeatureValue2"),
@@ -61,6 +62,7 @@ internal class GetPluginFeaturesResponseTests {
     fun `Get Response serialize and deserialize using json config object should be equal`() {
         val response = GetPluginFeaturesResponse(
             listOf("config_type_1", "config_type_2", "config_type_3"),
+            listOf("config_feature_1", "config_feature_2", "config_feature_3"),
             mapOf(
                 Pair("FeatureKey1", "FeatureValue1"),
                 Pair("FeatureKey2", "FeatureValue2"),
@@ -76,6 +78,7 @@ internal class GetPluginFeaturesResponseTests {
     fun `Get Response should safely ignore extra field in json object`() {
         val response = GetPluginFeaturesResponse(
             listOf("config_type_1", "config_type_2", "config_type_3"),
+            listOf("config_feature_1", "config_feature_2", "config_feature_3"),
             mapOf(
                 Pair("FeatureKey1", "FeatureValue1"),
                 Pair("FeatureKey2", "FeatureValue2"),
@@ -84,7 +87,8 @@ internal class GetPluginFeaturesResponseTests {
         )
         val jsonString = """
         {
-            "config_type_list":["config_type_1", "config_type_2", "config_type_3"],
+            "allowed_config_type_list":["config_type_1", "config_type_2", "config_type_3"],
+            "allowed_config_feature_list":["config_feature_1", "config_feature_2", "config_feature_3"],
             "plugin_features":{
                 "FeatureKey1":"FeatureValue1",
                 "FeatureKey2":"FeatureValue2",
@@ -100,9 +104,27 @@ internal class GetPluginFeaturesResponseTests {
     }
 
     @Test
-    fun `Get Response should throw exception if config_type_list is absent in json`() {
+    fun `Get Response should throw exception if allowed_config_type_list is absent in json`() {
         val jsonString = """
         {
+            "allowed_config_feature_list":["config_feature_1", "config_feature_2", "config_feature_3"],
+            "plugin_features":{
+                "FeatureKey1":"FeatureValue1",
+                "FeatureKey2":"FeatureValue2",
+                "FeatureKey3":"FeatureValue3"
+            }
+        }
+        """.trimIndent()
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            createObjectFromJsonString(jsonString) { GetPluginFeaturesResponse.parse(it) }
+        }
+    }
+
+    @Test
+    fun `Get Response should throw exception if allowed_config_feature_list is absent in json`() {
+        val jsonString = """
+        {
+            "allowed_config_type_list":["config_type_1", "config_type_2", "config_type_3"],
             "plugin_features":{
                 "FeatureKey1":"FeatureValue1",
                 "FeatureKey2":"FeatureValue2",
@@ -119,7 +141,8 @@ internal class GetPluginFeaturesResponseTests {
     fun `Get Response should throw exception if plugin_features is absent in json`() {
         val jsonString = """
         {
-            "config_type_list":["config_type_1", "config_type_2", "config_type_3"]
+            "config_type_list":["config_type_1", "config_type_2", "config_type_3"],
+            "allowed_config_feature_list":["config_feature_1", "config_feature_2", "config_feature_3"]
         }
         """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {

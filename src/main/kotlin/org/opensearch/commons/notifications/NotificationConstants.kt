@@ -66,7 +66,8 @@ object NotificationConstants {
     const val TOTAL_HIT_RELATION_TAG = "total_hit_relation"
     const val QUERY_TAG = "query"
     const val COMPACT_TAG = "compact"
-    const val CONFIG_TYPE_LIST_TAG = "config_type_list"
+    const val ALLOWED_CONFIG_TYPE_LIST_TAG = "allowed_config_type_list"
+    const val ALLOWED_CONFIG_FEATURE_LIST_TAG = "allowed_config_feature_list"
     const val PLUGIN_FEATURES_TAG = "plugin_features"
 
     const val FEATURE_ALERTING = "alerting"

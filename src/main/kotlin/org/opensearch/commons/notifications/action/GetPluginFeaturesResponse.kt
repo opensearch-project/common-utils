@@ -33,7 +33,8 @@ import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
-import org.opensearch.commons.notifications.NotificationConstants.CONFIG_TYPE_LIST_TAG
+import org.opensearch.commons.notifications.NotificationConstants.ALLOWED_CONFIG_FEATURE_LIST_TAG
+import org.opensearch.commons.notifications.NotificationConstants.ALLOWED_CONFIG_TYPE_LIST_TAG
 import org.opensearch.commons.notifications.NotificationConstants.PLUGIN_FEATURES_TAG
 import org.opensearch.commons.utils.STRING_READER
 import org.opensearch.commons.utils.STRING_WRITER
@@ -45,7 +46,8 @@ import java.io.IOException
  * Action Response for getting notification plugin features.
  */
 class GetPluginFeaturesResponse : BaseResponse {
-    val configTypeList: List<String>
+    val allowedConfigTypeList: List<String>
+    val allowedConfigFeatureList: List<String>
     val pluginFeatures: Map<String, String>
 
     companion object {
@@ -63,7 +65,8 @@ class GetPluginFeaturesResponse : BaseResponse {
         @JvmStatic
         @Throws(IOException::class)
         fun parse(parser: XContentParser): GetPluginFeaturesResponse {
-            var configTypeList: List<String>? = null
+            var allowedConfigTypeList: List<String>? = null
+            var allowedConfigFeatureList: List<String>? = null
             var pluginFeatures: Map<String, String>? = null
 
             XContentParserUtils.ensureExpectedToken(
@@ -75,7 +78,8 @@ class GetPluginFeaturesResponse : BaseResponse {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    CONFIG_TYPE_LIST_TAG -> configTypeList = parser.stringList()
+                    ALLOWED_CONFIG_TYPE_LIST_TAG -> allowedConfigTypeList = parser.stringList()
+                    ALLOWED_CONFIG_FEATURE_LIST_TAG -> allowedConfigFeatureList = parser.stringList()
                     PLUGIN_FEATURES_TAG -> pluginFeatures = parser.mapStrings()
                     else -> {
                         parser.skipChildren()
@@ -83,9 +87,10 @@ class GetPluginFeaturesResponse : BaseResponse {
                     }
                 }
             }
-            configTypeList ?: throw IllegalArgumentException("$CONFIG_TYPE_LIST_TAG field absent")
+            allowedConfigTypeList ?: throw IllegalArgumentException("$ALLOWED_CONFIG_TYPE_LIST_TAG field absent")
+            allowedConfigFeatureList ?: throw IllegalArgumentException("$ALLOWED_CONFIG_TYPE_LIST_TAG field absent")
             pluginFeatures ?: throw IllegalArgumentException("$PLUGIN_FEATURES_TAG field absent")
-            return GetPluginFeaturesResponse(configTypeList, pluginFeatures)
+            return GetPluginFeaturesResponse(allowedConfigTypeList, allowedConfigFeatureList, pluginFeatures)
         }
     }
 
@@ -94,18 +99,25 @@ class GetPluginFeaturesResponse : BaseResponse {
      */
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         return builder!!.startObject()
-            .field(CONFIG_TYPE_LIST_TAG, configTypeList)
+            .field(ALLOWED_CONFIG_TYPE_LIST_TAG, allowedConfigTypeList)
+            .field(ALLOWED_CONFIG_FEATURE_LIST_TAG, allowedConfigFeatureList)
             .field(PLUGIN_FEATURES_TAG, pluginFeatures)
             .endObject()
     }
 
     /**
      * constructor for creating the class
-     * @param configTypeList the list of config types supported by plugin
+     * @param allowedConfigTypeList the list of config types supported by plugin
+     * @param allowedConfigFeatureList the list of config features supported by plugin
      * @param pluginFeatures the map of plugin features supported to its value
      */
-    constructor(configTypeList: List<String>, pluginFeatures: Map<String, String>) {
-        this.configTypeList = configTypeList
+    constructor(
+        allowedConfigTypeList: List<String>,
+        allowedConfigFeatureList: List<String>,
+        pluginFeatures: Map<String, String>
+    ) {
+        this.allowedConfigTypeList = allowedConfigTypeList
+        this.allowedConfigFeatureList = allowedConfigFeatureList
         this.pluginFeatures = pluginFeatures
     }
 
@@ -114,7 +126,8 @@ class GetPluginFeaturesResponse : BaseResponse {
      */
     @Throws(IOException::class)
     constructor(input: StreamInput) : super(input) {
-        configTypeList = input.readStringList()
+        allowedConfigTypeList = input.readStringList()
+        allowedConfigFeatureList = input.readStringList()
         pluginFeatures = input.readMap(STRING_READER, STRING_READER)
     }
 
@@ -123,7 +136,8 @@ class GetPluginFeaturesResponse : BaseResponse {
      */
     @Throws(IOException::class)
     override fun writeTo(output: StreamOutput) {
-        output.writeStringCollection(configTypeList)
+        output.writeStringCollection(allowedConfigTypeList)
+        output.writeStringCollection(allowedConfigFeatureList)
         output.writeMap(pluginFeatures, STRING_WRITER, STRING_WRITER)
     }
 }
