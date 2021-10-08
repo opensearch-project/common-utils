@@ -38,8 +38,8 @@ import org.opensearch.commons.notifications.NotificationConstants.EMAIL_ACCOUNT_
 import org.opensearch.commons.notifications.NotificationConstants.EMAIL_GROUP_ID_LIST_TAG
 import org.opensearch.commons.notifications.NotificationConstants.RECIPIENT_LIST_TAG
 import org.opensearch.commons.utils.logger
+import org.opensearch.commons.utils.objectList
 import org.opensearch.commons.utils.stringList
-import org.opensearch.commons.utils.validateEmail
 import java.io.IOException
 
 /**
@@ -47,15 +47,12 @@ import java.io.IOException
  */
 data class Email(
     val emailAccountID: String,
-    val recipients: List<String>,
+    val recipients: List<EmailRecipient>,
     val emailGroupIds: List<String>
 ) : BaseConfigData {
 
     init {
         require(!Strings.isNullOrEmpty(emailAccountID)) { "emailAccountID is null or empty" }
-        recipients.forEach {
-            validateEmail(it)
-        }
     }
 
     companion object {
@@ -79,7 +76,7 @@ data class Email(
         @Throws(IOException::class)
         fun parse(parser: XContentParser): Email {
             var emailAccountID: String? = null
-            var recipients: List<String> = listOf()
+            var recipients: List<EmailRecipient> = listOf()
             var emailGroupIds: List<String> = listOf()
 
             XContentParserUtils.ensureExpectedToken(
@@ -92,7 +89,7 @@ data class Email(
                 parser.nextToken()
                 when (fieldName) {
                     EMAIL_ACCOUNT_ID_TAG -> emailAccountID = parser.text()
-                    RECIPIENT_LIST_TAG -> recipients = parser.stringList()
+                    RECIPIENT_LIST_TAG -> recipients = parser.objectList { EmailRecipient.parse(it) }
                     EMAIL_GROUP_ID_LIST_TAG -> emailGroupIds = parser.stringList()
                     else -> {
                         parser.skipChildren()
@@ -111,7 +108,7 @@ data class Email(
      */
     constructor(input: StreamInput) : this(
         emailAccountID = input.readString(),
-        recipients = input.readStringList(),
+        recipients = input.readList(EmailRecipient.reader),
         emailGroupIds = input.readStringList()
     )
 
@@ -120,7 +117,7 @@ data class Email(
      */
     override fun writeTo(output: StreamOutput) {
         output.writeString(emailAccountID)
-        output.writeStringCollection(recipients)
+        output.writeList(recipients)
         output.writeStringCollection(emailGroupIds)
     }
 

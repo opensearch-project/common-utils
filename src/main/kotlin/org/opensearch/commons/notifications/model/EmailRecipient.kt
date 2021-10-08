@@ -33,25 +33,29 @@ import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
-import org.opensearch.commons.notifications.NotificationConstants.RECIPIENT_LIST_TAG
+import org.opensearch.commons.notifications.NotificationConstants.RECIPIENT_TAG
 import org.opensearch.commons.utils.logger
-import org.opensearch.commons.utils.objectList
+import org.opensearch.commons.utils.validateEmail
 import java.io.IOException
 
 /**
- * Data class representing Email group.
+ * Data class representing Email recipient.
  */
-data class EmailGroup(
-    val recipients: List<EmailRecipient>
+data class EmailRecipient(
+    val recipient: String
 ) : BaseConfigData {
 
+    init {
+        validateEmail(recipient)
+    }
+
     companion object {
-        private val log by logger(EmailGroup::class.java)
+        private val log by logger(EmailRecipient::class.java)
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { EmailGroup(it) }
+        val reader = Writeable.Reader { EmailRecipient(it) }
 
         /**
          * Parser to parse xContent
@@ -64,8 +68,8 @@ data class EmailGroup(
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): EmailGroup {
-            var recipients: List<EmailRecipient>? = null
+        fun parse(parser: XContentParser): EmailRecipient {
+            var recipient: String? = null
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
@@ -76,15 +80,15 @@ data class EmailGroup(
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    RECIPIENT_LIST_TAG -> recipients = parser.objectList { EmailRecipient.parse(it) }
+                    RECIPIENT_TAG -> recipient = parser.text()
                     else -> {
                         parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing EmailGroup")
+                        log.info("Unexpected field: $fieldName, while parsing EmailRecipient")
                     }
                 }
             }
-            recipients ?: throw IllegalArgumentException("$RECIPIENT_LIST_TAG field absent")
-            return EmailGroup(recipients)
+            recipient ?: throw IllegalArgumentException("$RECIPIENT_TAG field absent")
+            return EmailRecipient(recipient)
         }
     }
 
@@ -93,14 +97,14 @@ data class EmailGroup(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        recipients = input.readList(EmailRecipient.reader)
+        recipient = input.readString()
     )
 
     /**
      * {@inheritDoc}
      */
     override fun writeTo(output: StreamOutput) {
-        output.writeList(recipients)
+        output.writeString(recipient)
     }
 
     /**
@@ -109,7 +113,7 @@ data class EmailGroup(
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
         builder!!
         return builder.startObject()
-            .field(RECIPIENT_LIST_TAG, recipients)
+            .field(RECIPIENT_TAG, recipient)
             .endObject()
     }
 }

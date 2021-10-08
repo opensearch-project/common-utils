@@ -40,6 +40,7 @@ internal class GetPluginFeaturesResponseTests {
         actual: GetPluginFeaturesResponse
     ) {
         assertEquals(expected.allowedConfigTypeList, actual.allowedConfigTypeList)
+        assertEquals(expected.allowedConfigFeatureList, actual.allowedConfigFeatureList)
         assertEquals(expected.pluginFeatures, actual.pluginFeatures)
     }
 
