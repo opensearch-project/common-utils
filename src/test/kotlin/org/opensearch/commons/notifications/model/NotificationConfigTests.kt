@@ -126,7 +126,7 @@ internal class NotificationConfigTests {
 
     @Test
     fun `Config serialize and deserialize with email object should be equal`() {
-        val sampleEmail = Email("id_1234567890", listOf("email@domain.com"), listOf("groupId"))
+        val sampleEmail = Email("id_1234567890", listOf(EmailRecipient("email@domain.com")), listOf("groupId"))
         val sampleConfig = NotificationConfig(
             "name",
             "description",
@@ -140,7 +140,7 @@ internal class NotificationConfigTests {
 
     @Test
     fun `Config serialize and deserialize with json email object should be equal`() {
-        val sampleEmail = Email("id_1234567890", listOf("email@domain.com"), listOf("groupId"))
+        val sampleEmail = Email("id_1234567890", listOf(EmailRecipient("email@domain.com")), listOf("groupId"))
         val sampleConfig = NotificationConfig(
             "name",
             "description",
@@ -184,7 +184,7 @@ internal class NotificationConfigTests {
 
     @Test
     fun `Config serialize and deserialize with json emailGroup object should be equal`() {
-        val sampleEmailGroup = EmailGroup(listOf("email@domain.com"))
+        val sampleEmailGroup = EmailGroup(listOf(EmailRecipient("email@domain.com")))
         val sampleConfig = NotificationConfig(
             "name",
             "description",
@@ -199,7 +199,7 @@ internal class NotificationConfigTests {
 
     @Test
     fun `Config serialize and deserialize with emailGroup object should be equal`() {
-        val sampleEmailGroup = EmailGroup(listOf("email@domain.com"))
+        val sampleEmailGroup = EmailGroup(listOf(EmailRecipient("email@domain.com")))
         val sampleConfig = NotificationConfig(
             "name",
             "description",

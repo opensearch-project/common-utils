@@ -5,6 +5,7 @@ import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.Email
 import org.opensearch.commons.notifications.model.EmailGroup
+import org.opensearch.commons.notifications.model.EmailRecipient
 import org.opensearch.commons.notifications.model.MethodType
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.commons.notifications.model.SmtpAccount
@@ -72,7 +73,7 @@ internal class ConfigPropertiesTests {
 
     @Test
     fun `Validate config data parse EmailGroup`() {
-        val sampleEmailGroup = EmailGroup(listOf("email1@email.com", "email2@email.com"))
+        val sampleEmailGroup = EmailGroup(listOf(EmailRecipient("email1@email.com"), EmailRecipient("email2@email.com")))
         val jsonString = getJsonString(sampleEmailGroup)
         val recreatedObject = createObjectFromJsonString(jsonString) { createConfigData(ConfigType.EMAIL_GROUP, it) }
         assertEquals(sampleEmailGroup, recreatedObject)

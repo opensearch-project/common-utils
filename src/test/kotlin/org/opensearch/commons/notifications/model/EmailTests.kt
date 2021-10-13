@@ -29,7 +29,6 @@ package org.opensearch.commons.notifications.model
 import com.fasterxml.jackson.core.JsonParseException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
@@ -37,51 +36,14 @@ import org.opensearch.commons.utils.recreateObject
 
 internal class EmailTests {
 
-    private fun checkValidEmailAddress(emailAddress: String) {
-        assertDoesNotThrow("should accept $emailAddress") {
-            Email("sampleId", listOf(emailAddress), listOf())
-        }
-    }
-
-    private fun checkInvalidEmailAddress(emailAddress: String) {
-        assertThrows<IllegalArgumentException>("Should throw an Exception for invalid email $emailAddress") {
-            Email("sampleId", listOf(emailAddress), listOf())
-        }
-    }
-
-    @Test
-    fun `Email should accept valid email address`() {
-        checkValidEmailAddress("email1234@email.com")
-        checkValidEmailAddress("email+1234@email.com")
-        checkValidEmailAddress("email-1234@email.com")
-        checkValidEmailAddress("email_1234@email.com")
-        checkValidEmailAddress("email.1234@email.com")
-        checkValidEmailAddress("e.ma_il-1+2@test-email-domain.co.uk")
-        checkValidEmailAddress("email-.+_=#|@domain.com")
-        checkValidEmailAddress("e@mail.com")
-    }
-
-    @Test
-    fun `Email should throw exception for invalid email address`() {
-        checkInvalidEmailAddress("email")
-        checkInvalidEmailAddress("email@")
-        checkInvalidEmailAddress("email@1234@email.com")
-        checkInvalidEmailAddress(".email@email.com")
-        checkInvalidEmailAddress("email.@email.com")
-        checkInvalidEmailAddress("email..1234@email.com")
-        checkInvalidEmailAddress("email@email..com")
-        checkInvalidEmailAddress("email@.com")
-        checkInvalidEmailAddress("email@email.com.")
-        checkInvalidEmailAddress("email@.email.com")
-        checkInvalidEmailAddress("email@email.com-")
-        checkInvalidEmailAddress("email@email_domain.com")
-    }
-
     @Test
     fun `Email serialize and deserialize transport object should be equal`() {
         val sampleEmail = Email(
             "sampleAccountId",
-            listOf("email1@email.com", "email2@email.com"),
+            listOf(
+                EmailRecipient("email1@email.com"),
+                EmailRecipient("email2@email.com")
+            ),
             listOf("sample_group_id_1", "sample_group_id_2")
         )
         val recreatedObject = recreateObject(sampleEmail) { Email(it) }
@@ -92,7 +54,10 @@ internal class EmailTests {
     fun `Email serialize and deserialize using json object should be equal`() {
         val sampleEmail = Email(
             "sampleAccountId",
-            listOf("email1@email.com", "email2@email.com"),
+            listOf(
+                EmailRecipient("email1@email.com"),
+                EmailRecipient("email2@email.com")
+            ),
             listOf("sample_group_id_1", "sample_group_id_2")
         )
         val jsonString = getJsonString(sampleEmail)
@@ -104,15 +69,18 @@ internal class EmailTests {
     fun `Email should deserialize json object using parser`() {
         val sampleEmail = Email(
             "sampleAccountId",
-            listOf("email1@email.com", "email2@email.com"),
+            listOf(
+                EmailRecipient("email1@email.com"),
+                EmailRecipient("email2@email.com")
+            ),
             listOf("sample_group_id_1", "sample_group_id_2")
         )
         val jsonString = """
             {
                 "email_account_id":"${sampleEmail.emailAccountID}",
                 "recipient_list":[
-                    "${sampleEmail.recipients[0]}",
-                    "${sampleEmail.recipients[1]}"
+                    {"recipient":"${sampleEmail.recipients[0].recipient}"},
+                    {"recipient":"${sampleEmail.recipients[1].recipient}"}
                 ],
                 "email_group_id_list":[
                     "${sampleEmail.emailGroupIds[0]}",
@@ -136,15 +104,18 @@ internal class EmailTests {
     fun `Email should throw exception when emailAccountID is replaced with emailAccountID2 in json object`() {
         val sampleEmail = Email(
             "sampleAccountId",
-            listOf("email1@email.com", "email2@email.com"),
+            listOf(
+                EmailRecipient("email1@email.com"),
+                EmailRecipient("email2@email.com")
+            ),
             listOf("sample_group_id_1", "sample_group_id_2")
         )
         val jsonString = """
             {
                 "email_account_id2":"${sampleEmail.emailAccountID}",
                 "recipient_list":[
-                    "${sampleEmail.recipients[0]}",
-                    "${sampleEmail.recipients[1]}"
+                    {"recipient":"${sampleEmail.recipients[0]}"},
+                    {"recipient":"${sampleEmail.recipients[1]}"}
                 ],
                 "email_group_id_list":[
                     "${sampleEmail.emailGroupIds[0]}",
