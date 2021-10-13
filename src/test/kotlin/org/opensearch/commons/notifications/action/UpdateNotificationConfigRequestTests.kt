@@ -36,6 +36,7 @@ import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.Email
 import org.opensearch.commons.notifications.model.EmailGroup
+import org.opensearch.commons.notifications.model.EmailRecipient
 import org.opensearch.commons.notifications.model.MethodType
 import org.opensearch.commons.notifications.model.NotificationConfig
 import org.opensearch.commons.notifications.model.Slack
@@ -84,7 +85,7 @@ internal class UpdateNotificationConfigRequestTests {
     }
 
     private fun createEmailGroupContentConfigObject(): NotificationConfig {
-        val sampleEmailGroup = EmailGroup(listOf("dummy@company.com"))
+        val sampleEmailGroup = EmailGroup(listOf(EmailRecipient("dummy@company.com")))
         return NotificationConfig(
             "name",
             "description",
@@ -98,7 +99,7 @@ internal class UpdateNotificationConfigRequestTests {
     private fun createEmailContentConfigObject(): NotificationConfig {
         val sampleEmail = Email(
             emailAccountID = "sample_1@dummy.com",
-            recipients = listOf("sample_2@dummy.com"),
+            recipients = listOf(EmailRecipient("sample_2@dummy.com")),
             emailGroupIds = listOf("sample_3@dummy.com")
         )
         return NotificationConfig(
@@ -334,7 +335,7 @@ internal class UpdateNotificationConfigRequestTests {
 
     @Test
     fun `Update config should deserialize json object using parser Email Group`() {
-        val sampleEmailGroup = EmailGroup(listOf("dummy@company.com"))
+        val sampleEmailGroup = EmailGroup(listOf(EmailRecipient("dummy@company.com")))
         val config = NotificationConfig(
             "name",
             "description",
@@ -353,7 +354,7 @@ internal class UpdateNotificationConfigRequestTests {
                 "config_type":"email_group",
                 "feature_list":["index_management"],
                 "is_enabled":true,
-                "email_group":{"recipient_list":["dummy@company.com"]}
+                "email_group":{"recipient_list":[{"recipient":"dummy@company.com"}]}
             }
         }
         """.trimIndent()
@@ -366,7 +367,7 @@ internal class UpdateNotificationConfigRequestTests {
     fun `Update config should deserialize json object using parser Email`() {
         val sampleEmail = Email(
             emailAccountID = "sample_1@dummy.com",
-            recipients = listOf("sample_2@dummy.com"),
+            recipients = listOf(EmailRecipient("sample_2@dummy.com")),
             emailGroupIds = listOf("sample_3@dummy.com")
         )
         val config = NotificationConfig(
@@ -387,8 +388,11 @@ internal class UpdateNotificationConfigRequestTests {
                 "config_type":"email",
                 "feature_list":["index_management"],
                 "is_enabled":true,
-                "email":{"email_account_id":"sample_1@dummy.com","recipient_list":["sample_2@dummy.com"],
-                "email_group_id_list":["sample_3@dummy.com"] }
+                "email":{
+                    "email_account_id":"sample_1@dummy.com",
+                    "recipient_list":[{"recipient":"sample_2@dummy.com"}],
+                    "email_group_id_list":["sample_3@dummy.com"]
+                }
             }
         }
         """.trimIndent()
