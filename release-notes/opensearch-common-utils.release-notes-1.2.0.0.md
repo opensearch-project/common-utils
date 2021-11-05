@@ -11,3 +11,4 @@ Compatible with OpenSearch 1.2.0
 
   * Add themed logo to README ([#41](https://github.com/opensearch-project/common-utils/pull/41)) 
   * Update copyright notice ([#90](https://github.com/opensearch-project/common-utils/pull/90))
+  * Add release notes for version 1.2.0.0 ([#92](https://github.com/opensearch-project/common-utils/pull/92))
