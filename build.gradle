@@ -12,7 +12,7 @@
 buildscript {
     ext {
         opensearch_group = "org.opensearch"
-        opensearch_version = System.getProperty("opensearch.version", "1.1.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "1.2.0-SNAPSHOT")
         kotlin_version = System.getProperty("kotlin.version", "1.4.32")
     }
 
@@ -21,6 +21,7 @@ buildscript {
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
         jcenter()
+        maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
     }
 
     dependencies {
@@ -42,6 +43,7 @@ repositories {
     mavenCentral()
     maven { url "https://plugins.gradle.org/m2/" }
     jcenter()
+    maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
 }
 
 ext {
@@ -155,8 +157,13 @@ task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
-
 publishing {
+    repositories {
+        maven {
+            name = 'staging'
+            url = "${rootProject.buildDir}/local-staging-repo"
+        }
+    }
     publications {
         shadow(MavenPublication) {
             project.shadow.component(it)
@@ -195,9 +202,4 @@ publishing {
 
     gradle.startParameter.setShowStacktrace(ShowStacktrace.ALWAYS)
     gradle.startParameter.setLogLevel(LogLevel.DEBUG)
-
-    signing {
-        required { gradle.taskGraph.hasTask("publishShadowPublicationToSonatype-stagingRepository") }
-        sign publishing.publications.shadow
-    }
 }
