@@ -35,7 +35,6 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven { url "https://plugins.gradle.org/m2/" }
-    jcenter()
     maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
 }
 
