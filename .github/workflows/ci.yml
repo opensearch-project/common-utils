@@ -28,7 +28,6 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
 
-      # common-utils
       - name: Build and Test
         run: |
           ./gradlew build
