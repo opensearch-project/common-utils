@@ -11,7 +11,10 @@ jobs:
   build:
     strategy:
       matrix:
-        java: [14]
+        java: 
+          - 8
+          - 11
+          - 14
 
     name: Build and Test
     runs-on: ubuntu-latest
