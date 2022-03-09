@@ -7,7 +7,7 @@ buildscript {
     ext {
         opensearch_group = "org.opensearch"
         opensearch_version = System.getProperty("opensearch.version", "2.0.0-SNAPSHOT")
-        kotlin_version = System.getProperty("kotlin.version", "1.4.32")
+        kotlin_version = System.getProperty("kotlin.version", "1.6.10")
     }
 
     repositories {
@@ -21,7 +21,7 @@ buildscript {
         classpath "${opensearch_group}.gradle:build-tools:${opensearch_version}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
         classpath "org.jetbrains.kotlin:kotlin-allopen:${kotlin_version}"
-        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.17.1"
+        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.20.0-RC1"
     }
 }
 
@@ -50,7 +50,8 @@ allprojects {
     }
 }
 
-sourceCompatibility = 1.8
+targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_11
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -70,15 +71,15 @@ dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3" // ${kotlin_version} does not work for coroutines
-    testCompile "org.opensearch.test:framework:${opensearch_version}"
-    testCompile "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
-    testCompile "org.mockito:mockito-core:3.10.0"
+    testImplementation "org.opensearch.test:framework:${opensearch_version}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
+    testImplementation "org.mockito:mockito-core:3.10.0"
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.10.0'
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 
-    ktlint "com.pinterest:ktlint:0.41.0"
+    ktlint "com.pinterest:ktlint:0.44.0"
 }
 
 test {
@@ -126,13 +127,13 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict']
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
