@@ -1,27 +1,6 @@
 /*
+ * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
- *
- * The OpenSearch Contributors require contributions made to
- * this file be licensed under the Apache-2.0 license or a
- * compatible open source license.
- *
- * Modifications Copyright OpenSearch Contributors. See
- * GitHub history for details.
- */
-
-/*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
  */
 
 package org.opensearch.commons;
@@ -36,7 +15,7 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTE
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
 
 import java.util.Arrays;
-import java.util.Map;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
 import org.opensearch.common.settings.Settings;
@@ -135,7 +114,11 @@ public class InjectSecurityTest {
             assertTrue(helper.injectProperty("property1", true));
             assertTrue(helper.injectProperty("property2", "some value"));
             assertTrue(helper.injectProperty("property3", ""));
-            assertTrue(helper.injectProperty("property4", Map.of("key", "value")));
+            assertTrue(helper.injectProperty("property4", new HashMap<String, String>() {
+                {
+                    put("key", "value");
+                }
+            }));
             // verify the set properties are not null and equal to what was set
             assertNull(threadContext.getTransient("property"));
             assertNotNull(threadContext.getTransient("property1"));
@@ -145,7 +128,11 @@ public class InjectSecurityTest {
             assertNotNull(threadContext.getTransient("property3"));
             assertEquals("", threadContext.getTransient("property3"));
             assertNotNull(threadContext.getTransient("property4"));
-            assertEquals(Map.of("key", "value"), threadContext.getTransient("property4"));
+            assertEquals(new HashMap<String, String>() {
+                {
+                    put("key", "value");
+                }
+            }, threadContext.getTransient("property4"));
         }
         assertEquals("1", threadContext.getHeader("default"));
         assertEquals("opendistro", threadContext.getHeader("name"));
