@@ -187,7 +187,6 @@ internal class GetNotificationConfigResponseTests {
                         "name":"name",
                         "description":"description",
                         "config_type":"slack",
-                        "feature_list":["index_management"],
                         "is_enabled":true,
                         "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
                     }
@@ -232,7 +231,6 @@ internal class GetNotificationConfigResponseTests {
                         "name":"name",
                         "description":"description",
                         "config_type":"slack",
-                        "feature_list":["index_management"],
                         "is_enabled":true,
                         "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
                     }

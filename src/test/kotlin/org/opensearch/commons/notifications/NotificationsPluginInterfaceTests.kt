@@ -21,9 +21,7 @@ import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.destination.response.LegacyDestinationResponse
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
 import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigRequest
@@ -198,7 +196,6 @@ internal class NotificationsPluginInterfaceTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            FEATURE_REPORTS,
             SeverityType.HIGH,
             listOf("tag1", "tag2")
         )
@@ -264,7 +261,6 @@ internal class NotificationsPluginInterfaceTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(

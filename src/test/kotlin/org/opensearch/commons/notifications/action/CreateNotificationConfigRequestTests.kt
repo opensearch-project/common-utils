@@ -267,7 +267,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"slack",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
             }
@@ -294,7 +293,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"webhook",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "webhook":{"url":"https://domain.com/sample_webhook_url#1234567890"}
             }
@@ -322,7 +320,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"chime",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "chime":{"url":"https://domain.com/sample_chime_url#1234567890"}
             }
@@ -350,7 +347,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"email_group",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "email_group":{"recipient_list":[{"recipient":"dummy@company.com"}]}
             }
@@ -382,7 +378,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"email",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "email":{
                     "email_account_id":"sample_1@dummy.com",
@@ -419,7 +414,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"smtp_account",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "smtp_account":{"host":"http://dummy.com", "port":11,"method": "ssl", "from_address": "sample@dummy.com" }
             }
@@ -450,7 +444,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"chime",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "chime":{"url":"https://domain.com/sample_chime_url#1234567890"}
             }
@@ -485,7 +478,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"slack",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "slack":{"url":"https://domain.com/sample_slack_url#1234567890"},
                 "extra_field_1":["extra", "value"],

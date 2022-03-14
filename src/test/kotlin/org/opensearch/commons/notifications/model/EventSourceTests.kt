@@ -7,7 +7,6 @@ package org.opensearch.commons.notifications.model
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
@@ -19,7 +18,6 @@ internal class EventSourceTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val recreatedObject = recreateObject(sampleEventSource) { EventSource(it) }
@@ -31,7 +29,6 @@ internal class EventSourceTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
 
@@ -45,9 +42,8 @@ internal class EventSourceTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
-            tags = listOf("tag1", "tag2"),
-            severity = SeverityType.INFO
+            severity = SeverityType.INFO,
+            tags = listOf("tag1", "tag2")
         )
         val jsonString = """
         { 
@@ -70,9 +66,8 @@ internal class EventSourceTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            "NewFeature",
-            tags = listOf("tag1", "tag2"),
-            severity = SeverityType.INFO
+            severity = SeverityType.INFO,
+            tags = listOf("tag1", "tag2")
         )
         val jsonString = """
         {
@@ -93,9 +88,8 @@ internal class EventSourceTests {
             EventSource(
                 "",
                 "reference_id",
-                FEATURE_ALERTING,
-                tags = listOf("tag1", "tag2"),
-                severity = SeverityType.INFO
+                severity = SeverityType.INFO,
+                tags = listOf("tag1", "tag2")
             )
         }
     }

@@ -10,9 +10,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.EventSource
 import org.opensearch.commons.notifications.model.SeverityType
@@ -38,7 +35,6 @@ internal class SendNotificationRequestTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            FEATURE_REPORTS,
             SeverityType.HIGH,
             listOf("tag1", "tag2")
         )
@@ -62,7 +58,6 @@ internal class SendNotificationRequestTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            FEATURE_INDEX_MANAGEMENT,
             SeverityType.CRITICAL,
             listOf("tag1", "tag2")
         )
@@ -95,7 +90,6 @@ internal class SendNotificationRequestTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             SeverityType.HIGH,
             listOf("tag1", "tag2")
         )
@@ -115,7 +109,6 @@ internal class SendNotificationRequestTests {
             "event_source":{
                 "title":"${notificationInfo.title}",
                 "reference_id":"${notificationInfo.referenceId}",
-                "feature":"${notificationInfo.feature}",
                 "severity":"${notificationInfo.severity}",
                 "tags":["tag1", "tag2"]
             },
@@ -139,7 +132,6 @@ internal class SendNotificationRequestTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            FEATURE_REPORTS,
             SeverityType.INFO,
             listOf("tag1", "tag2")
         )
@@ -159,7 +151,6 @@ internal class SendNotificationRequestTests {
             "event_source":{
                 "title":"${notificationInfo.title}",
                 "reference_id":"${notificationInfo.referenceId}",
-                "feature":"${notificationInfo.feature}",
                 "severity":"${notificationInfo.severity}",
                 "tags":["tag1", "tag2"]
             },
@@ -196,7 +187,6 @@ internal class SendNotificationRequestTests {
             "event_source":{
                 "title":"title",
                 "reference_id":"reference_id",
-                "feature":"feature",
                 "severity":"High",
                 "tags":["tag1", "tag2"]
             },
@@ -215,7 +205,6 @@ internal class SendNotificationRequestTests {
             "event_source":{
                 "title":"title",
                 "reference_id":"reference_id",
-                "feature":"feature",
                 "severity":"High",
                 "tags":["tag1", "tag2"]
             },
@@ -236,7 +225,6 @@ internal class SendNotificationRequestTests {
             "event_source":{
                 "title":"title",
                 "reference_id":"reference_id",
-                "feature":"feature",
                 "severity":"High",
                 "tags":["tag1", "tag2"]
             },
