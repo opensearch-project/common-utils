@@ -249,7 +249,6 @@ internal class NotificationsPluginInterfaceTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(

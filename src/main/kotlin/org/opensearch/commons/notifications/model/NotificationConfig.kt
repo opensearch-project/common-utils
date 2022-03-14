@@ -14,17 +14,13 @@ import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_TYPE_TAG
 import org.opensearch.commons.notifications.NotificationConstants.DESCRIPTION_TAG
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_LIST_TAG
 import org.opensearch.commons.notifications.NotificationConstants.IS_ENABLED_TAG
 import org.opensearch.commons.notifications.NotificationConstants.NAME_TAG
 import org.opensearch.commons.notifications.model.config.ConfigDataProperties.createConfigData
 import org.opensearch.commons.notifications.model.config.ConfigDataProperties.getReaderForConfigType
 import org.opensearch.commons.notifications.model.config.ConfigDataProperties.validateConfigData
-import org.opensearch.commons.utils.STRING_READER
-import org.opensearch.commons.utils.STRING_WRITER
 import org.opensearch.commons.utils.fieldIfNotNull
 import org.opensearch.commons.utils.logger
-import org.opensearch.commons.utils.stringList
 import java.io.IOException
 
 /**
@@ -34,7 +30,6 @@ data class NotificationConfig(
     val name: String,
     val description: String,
     val configType: ConfigType,
-    val features: Set<String>,
     val configData: BaseConfigData?,
     val isEnabled: Boolean = true
 ) : BaseModel {
@@ -68,7 +63,6 @@ data class NotificationConfig(
             var name: String? = null
             var description = ""
             var configType: ConfigType? = null
-            var features: Set<String>? = null
             var isEnabled = true
             var configData: BaseConfigData? = null
             XContentParserUtils.ensureExpectedToken(
@@ -83,7 +77,6 @@ data class NotificationConfig(
                     NAME_TAG -> name = parser.text()
                     DESCRIPTION_TAG -> description = parser.text()
                     CONFIG_TYPE_TAG -> configType = ConfigType.fromTagOrDefault(parser.text())
-                    FEATURE_LIST_TAG -> features = parser.stringList().toSet()
                     IS_ENABLED_TAG -> isEnabled = parser.booleanValue()
                     else -> {
                         val configTypeForTag = ConfigType.fromTagOrDefault(fieldName)
@@ -98,12 +91,10 @@ data class NotificationConfig(
             }
             name ?: throw IllegalArgumentException("$NAME_TAG field absent")
             configType ?: throw IllegalArgumentException("$CONFIG_TYPE_TAG field absent")
-            features ?: throw IllegalArgumentException("$FEATURE_LIST_TAG field absent")
             return NotificationConfig(
                 name,
                 description,
                 configType,
-                features,
                 configData,
                 isEnabled
             )
@@ -119,7 +110,6 @@ data class NotificationConfig(
             .field(NAME_TAG, name)
             .field(DESCRIPTION_TAG, description)
             .field(CONFIG_TYPE_TAG, configType.tag)
-            .field(FEATURE_LIST_TAG, features)
             .field(IS_ENABLED_TAG, isEnabled)
             .fieldIfNotNull(configType.tag, configData)
             .endObject()
@@ -133,7 +123,6 @@ data class NotificationConfig(
         name = input.readString(),
         description = input.readString(),
         configType = input.readEnum(ConfigType::class.java),
-        features = input.readSet(STRING_READER),
         isEnabled = input.readBoolean(),
         configData = input.readOptionalWriteable(getReaderForConfigType(input.readEnum(ConfigType::class.java)))
     )
@@ -145,7 +134,6 @@ data class NotificationConfig(
         output.writeString(name)
         output.writeString(description)
         output.writeEnum(configType)
-        output.writeCollection(features, STRING_WRITER)
         output.writeBoolean(isEnabled)
         // Reading config types multiple times in constructor
         output.writeEnum(configType)

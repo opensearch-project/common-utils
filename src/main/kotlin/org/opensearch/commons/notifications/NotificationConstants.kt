@@ -36,7 +36,6 @@ object NotificationConstants {
     const val NAME_TAG = "name"
     const val DESCRIPTION_TAG = "description"
     const val IS_ENABLED_TAG = "is_enabled"
-    const val FEATURE_LIST_TAG = "feature_list"
     const val TITLE_TAG = "title"
     const val SEVERITY_TAG = "severity"
     const val TAGS_TAG = "tags"
