@@ -69,9 +69,5 @@ object NotificationConstants {
     const val ALLOWED_CONFIG_FEATURE_LIST_TAG = "allowed_config_feature_list"
     const val PLUGIN_FEATURES_TAG = "plugin_features"
 
-    const val FEATURE_ALERTING = "alerting"
-    const val FEATURE_INDEX_MANAGEMENT = "index_management"
-    const val FEATURE_REPORTS = "reports"
-
     const val DEFAULT_MAX_ITEMS = 1000
 }

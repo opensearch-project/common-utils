@@ -21,7 +21,6 @@ import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.destination.response.LegacyDestinationResponse
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigRequest
@@ -231,10 +230,6 @@ internal class NotificationsPluginInterfaceTests {
             (it.getArgument(2) as ActionListener<LegacyPublishNotificationResponse>)
                 .onResponse(res)
         }.whenever(client).execute(any(ActionType::class.java), any(), any())
-
-        doAnswer {
-            FEATURE_INDEX_MANAGEMENT
-        }.whenever(request).feature
 
         NotificationsPluginInterface.publishLegacyNotification(client, request, l)
         verify(l, times(1)).onResponse(eq(res))
