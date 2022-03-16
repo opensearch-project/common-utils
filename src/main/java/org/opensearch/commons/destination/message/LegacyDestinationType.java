@@ -6,7 +6,7 @@
 package org.opensearch.commons.destination.message;
 
 /**
- * Supported legacy notification destinations for Index Management
+ * Supported legacy notification destinations for Alerting and Index Management
  */
 public enum LegacyDestinationType {
     LEGACY_CHIME,

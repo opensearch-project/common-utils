@@ -200,7 +200,7 @@ object NotificationsPluginInterface {
 
     /**
      * Publishes a notification API using the legacy notification implementation. No REST API.
-     * Internal API only for the Index Management plugin.
+     * Internal API only for the Alerting and Index Management plugin, other consumers should use [sendNotification].
      * @param client Node client for making transport action
      * @param request The legacy publish notification request
      * @param listener The listener for getting response
