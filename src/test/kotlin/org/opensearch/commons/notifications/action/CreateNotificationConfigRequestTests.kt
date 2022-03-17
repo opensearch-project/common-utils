@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
 import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.Email
@@ -32,9 +31,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.WEBHOOK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleWebhook
+            configData = sampleWebhook,
+            isEnabled = true
         )
     }
 
@@ -44,9 +42,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
+            configData = sampleSlack,
+            isEnabled = true
         )
     }
 
@@ -56,9 +53,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.CHIME,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleChime
+            configData = sampleChime,
+            isEnabled = true
         )
     }
 
@@ -68,9 +64,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL_GROUP,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleEmailGroup
+            configData = sampleEmailGroup,
+            isEnabled = true
         )
     }
 
@@ -84,9 +79,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleEmail
+            configData = sampleEmail,
+            isEnabled = true
         )
     }
 
@@ -101,9 +95,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SMTP_ACCOUNT,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSmtpAccount
+            configData = sampleSmtpAccount,
+            isEnabled = true
         )
     }
 
@@ -264,9 +257,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
+            configData = sampleSlack,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -275,7 +267,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"slack",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
             }
@@ -292,9 +283,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.WEBHOOK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleWebhook
+            configData = sampleWebhook,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -303,7 +293,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"webhook",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "webhook":{"url":"https://domain.com/sample_webhook_url#1234567890"}
             }
@@ -320,9 +309,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.CHIME,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleChime
+            configData = sampleChime,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -332,7 +320,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"chime",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "chime":{"url":"https://domain.com/sample_chime_url#1234567890"}
             }
@@ -349,9 +336,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL_GROUP,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleEmailGroup
+            configData = sampleEmailGroup,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -361,7 +347,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"email_group",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "email_group":{"recipient_list":[{"recipient":"dummy@company.com"}]}
             }
@@ -382,9 +367,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleEmail
+            configData = sampleEmail,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -394,7 +378,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"email",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "email":{
                     "email_account_id":"sample_1@dummy.com",
@@ -420,9 +403,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SMTP_ACCOUNT,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSmtpAccount
+            configData = sampleSmtpAccount,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -432,7 +414,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"smtp_account",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "smtp_account":{"host":"http://dummy.com", "port":11,"method": "ssl", "from_address": "sample@dummy.com" }
             }
@@ -463,7 +444,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"chime",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "chime":{"url":"https://domain.com/sample_chime_url#1234567890"}
             }
@@ -488,9 +468,8 @@ internal class CreateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
+            configData = sampleSlack,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -499,7 +478,6 @@ internal class CreateNotificationConfigRequestTests {
                 "name":"name",
                 "description":"description",
                 "config_type":"slack",
-                "feature_list":["index_management"],
                 "is_enabled":true,
                 "slack":{"url":"https://domain.com/sample_slack_url#1234567890"},
                 "extra_field_1":["extra", "value"],

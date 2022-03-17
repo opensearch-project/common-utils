@@ -21,9 +21,6 @@ import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.destination.response.LegacyDestinationResponse
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigRequest
@@ -198,7 +195,6 @@ internal class NotificationsPluginInterfaceTests {
         val notificationInfo = EventSource(
             "title",
             "reference_id",
-            FEATURE_REPORTS,
             SeverityType.HIGH,
             listOf("tag1", "tag2")
         )
@@ -235,10 +231,6 @@ internal class NotificationsPluginInterfaceTests {
                 .onResponse(res)
         }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
-        doAnswer {
-            FEATURE_INDEX_MANAGEMENT
-        }.whenever(request).feature
-
         NotificationsPluginInterface.publishLegacyNotification(client, request, l)
         verify(l, times(1)).onResponse(eq(res))
     }
@@ -249,7 +241,6 @@ internal class NotificationsPluginInterfaceTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -265,7 +256,6 @@ internal class NotificationsPluginInterfaceTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(

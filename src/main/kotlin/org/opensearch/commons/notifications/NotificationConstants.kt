@@ -36,7 +36,6 @@ object NotificationConstants {
     const val NAME_TAG = "name"
     const val DESCRIPTION_TAG = "description"
     const val IS_ENABLED_TAG = "is_enabled"
-    const val FEATURE_LIST_TAG = "feature_list"
     const val TITLE_TAG = "title"
     const val SEVERITY_TAG = "severity"
     const val TAGS_TAG = "tags"
@@ -69,10 +68,6 @@ object NotificationConstants {
     const val ALLOWED_CONFIG_TYPE_LIST_TAG = "allowed_config_type_list"
     const val ALLOWED_CONFIG_FEATURE_LIST_TAG = "allowed_config_feature_list"
     const val PLUGIN_FEATURES_TAG = "plugin_features"
-
-    const val FEATURE_ALERTING = "alerting"
-    const val FEATURE_INDEX_MANAGEMENT = "index_management"
-    const val FEATURE_REPORTS = "reports"
 
     const val DEFAULT_MAX_ITEMS = 1000
 }

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.opensearch.commons.destination.message.LegacyChimeMessage
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
 import org.opensearch.commons.utils.recreateObject
 
 internal class LegacyPublishNotificationRequestTests {
@@ -22,14 +21,13 @@ internal class LegacyPublishNotificationRequestTests {
         assertEquals(expected.baseMessage.channelType, actual.baseMessage.channelType)
         assertEquals(expected.baseMessage.messageContent, actual.baseMessage.messageContent)
         assertEquals(expected.baseMessage.url, actual.baseMessage.url)
-        assertEquals(expected.feature, actual.feature)
         assertNull(actual.validate())
     }
 
     @Test
     fun `publish request serialize and deserialize transport object should be equal`() {
         val baseMessage = LegacyChimeMessage.Builder("chime_message").withMessage("Hello world").withUrl("https://amazon.com").build()
-        val request = LegacyPublishNotificationRequest(baseMessage, FEATURE_INDEX_MANAGEMENT)
+        val request = LegacyPublishNotificationRequest(baseMessage)
         val recreatedObject = recreateObject(request) { LegacyPublishNotificationRequest(it) }
         assertRequestEquals(request, recreatedObject)
     }

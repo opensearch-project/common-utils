@@ -8,8 +8,6 @@ import org.apache.lucene.search.TotalHits
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.NotificationConfig
@@ -41,7 +39,6 @@ internal class GetNotificationConfigResponseTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -62,7 +59,6 @@ internal class GetNotificationConfigResponseTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_REPORTS),
             configData = Slack("https://domain.com/sample_url#1234567890")
         )
         val configInfo1 = NotificationConfigInfo(
@@ -75,7 +71,6 @@ internal class GetNotificationConfigResponseTests {
             "name",
             "description",
             ConfigType.CHIME,
-            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = Chime("https://domain.com/sample_url#1234567890")
         )
         val configInfo2 = NotificationConfigInfo(
@@ -104,7 +99,6 @@ internal class GetNotificationConfigResponseTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -128,7 +122,6 @@ internal class GetNotificationConfigResponseTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_REPORTS),
             configData = Slack("https://domain.com/sample_url#1234567890")
         )
         val configInfo1 = NotificationConfigInfo(
@@ -141,7 +134,6 @@ internal class GetNotificationConfigResponseTests {
             "name",
             "description",
             ConfigType.CHIME,
-            setOf(FEATURE_INDEX_MANAGEMENT),
             configData = Chime("https://domain.com/sample_url#1234567890")
         )
         val configInfo2 = NotificationConfigInfo(
@@ -171,9 +163,8 @@ internal class GetNotificationConfigResponseTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
+            configData = sampleSlack,
+            isEnabled = true
         )
         val configInfo = NotificationConfigInfo(
             "config-Id",
@@ -196,7 +187,6 @@ internal class GetNotificationConfigResponseTests {
                         "name":"name",
                         "description":"description",
                         "config_type":"slack",
-                        "feature_list":["index_management"],
                         "is_enabled":true,
                         "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
                     }
@@ -220,9 +210,8 @@ internal class GetNotificationConfigResponseTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
+            configData = sampleSlack,
+            isEnabled = true
         )
         val configInfo = NotificationConfigInfo(
             "config-Id",
@@ -242,7 +231,6 @@ internal class GetNotificationConfigResponseTests {
                         "name":"name",
                         "description":"description",
                         "config_type":"slack",
-                        "feature_list":["index_management"],
                         "is_enabled":true,
                         "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
                     }

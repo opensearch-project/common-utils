@@ -8,8 +8,6 @@ import org.apache.lucene.search.TotalHits
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.DeliveryStatus
 import org.opensearch.commons.notifications.model.EventSource
@@ -41,7 +39,6 @@ internal class GetNotificationEventResponseTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(
@@ -68,13 +65,11 @@ internal class GetNotificationEventResponseTests {
         val eventSource1 = EventSource(
             "title 1",
             "reference_id_1",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val eventSource2 = EventSource(
             "title 2",
             "reference_id_2",
-            FEATURE_REPORTS,
             severity = SeverityType.HIGH
         )
         val status1 = EventStatus(
@@ -131,7 +126,6 @@ internal class GetNotificationEventResponseTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(
@@ -161,13 +155,11 @@ internal class GetNotificationEventResponseTests {
         val eventSource1 = EventSource(
             "title 1",
             "reference_id_1",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val eventSource2 = EventSource(
             "title 2",
             "reference_id_2",
-            FEATURE_REPORTS,
             severity = SeverityType.HIGH
         )
         val status1 = EventStatus(
@@ -213,7 +205,6 @@ internal class GetNotificationEventResponseTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(
@@ -244,7 +235,6 @@ internal class GetNotificationEventResponseTests {
                         "event_source":{
                             "title":"title",
                             "reference_id":"reference_id",
-                            "feature":"alerting",
                             "severity":"info",
                             "tags":[]
                         },
@@ -279,7 +269,6 @@ internal class GetNotificationEventResponseTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(
@@ -307,7 +296,6 @@ internal class GetNotificationEventResponseTests {
                         "event_source":{
                             "title":"title",
                             "reference_id":"reference_id",
-                            "feature":"alerting",
                             "severity":"info",
                             "tags":[]
                         },

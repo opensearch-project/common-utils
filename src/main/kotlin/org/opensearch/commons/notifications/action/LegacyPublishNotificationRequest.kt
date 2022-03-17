@@ -23,7 +23,6 @@ import java.io.IOException
  */
 class LegacyPublishNotificationRequest : ActionRequest {
     val baseMessage: LegacyBaseMessage
-    val feature: String
 
     companion object {
         /**
@@ -35,14 +34,11 @@ class LegacyPublishNotificationRequest : ActionRequest {
     /**
      * constructor for creating the class
      * @param baseMessage the base message to send
-     * @param feature the feature that is trying to use this request
      */
     constructor(
-        baseMessage: LegacyBaseMessage,
-        feature: String
+        baseMessage: LegacyBaseMessage
     ) {
         this.baseMessage = baseMessage
-        this.feature = feature
     }
 
     /**
@@ -55,7 +51,6 @@ class LegacyPublishNotificationRequest : ActionRequest {
             LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK -> LegacyCustomWebhookMessage(input)
             LegacyDestinationType.LEGACY_SLACK -> LegacySlackMessage(input)
         }
-        feature = input.readString()
     }
 
     /**
@@ -66,7 +61,6 @@ class LegacyPublishNotificationRequest : ActionRequest {
         super.writeTo(output)
         output.writeEnum(baseMessage.channelType)
         baseMessage.writeTo(output)
-        output.writeString(feature)
     }
 
     /**
