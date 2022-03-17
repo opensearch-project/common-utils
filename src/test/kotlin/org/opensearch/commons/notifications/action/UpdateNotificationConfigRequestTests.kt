@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
 import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.Email
@@ -32,9 +31,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.WEBHOOK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleWebhook
+            configData = sampleWebhook,
+            isEnabled = true
         )
     }
 
@@ -44,9 +42,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
+            configData = sampleSlack,
+            isEnabled = true
         )
     }
 
@@ -56,9 +53,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.CHIME,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleChime
+            configData = sampleChime,
+            isEnabled = true
         )
     }
 
@@ -68,9 +64,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL_GROUP,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleEmailGroup
+            configData = sampleEmailGroup,
+            isEnabled = true
         )
     }
 
@@ -84,9 +79,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleEmail
+            configData = sampleEmail,
+            isEnabled = true
         )
     }
 
@@ -101,9 +95,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SMTP_ACCOUNT,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSmtpAccount
+            configData = sampleSmtpAccount,
+            isEnabled = true
         )
     }
 
@@ -228,9 +221,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
+            configData = sampleSlack,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -258,9 +250,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.WEBHOOK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleWebhook
+            configData = sampleWebhook,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -288,9 +279,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.CHIME,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleChime
+            configData = sampleChime,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -318,9 +308,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL_GROUP,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleEmailGroup
+            configData = sampleEmailGroup,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -352,9 +341,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.EMAIL,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleEmail
+            configData = sampleEmail,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -391,9 +379,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SMTP_ACCOUNT,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSmtpAccount
+            configData = sampleSmtpAccount,
+            isEnabled = true
         )
 
         val jsonString = """
@@ -429,9 +416,8 @@ internal class UpdateNotificationConfigRequestTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
+            configData = sampleSlack,
+            isEnabled = true
         )
 
         val jsonString = """

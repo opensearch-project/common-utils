@@ -52,7 +52,7 @@ object NotificationsActions {
 
     /**
      * Publish legacy notification message. Internal only - Inter plugin communication.
-     * Only for the Index Management plugin.
+     * Only for the Alerting and Index Management plugins.
      */
     const val LEGACY_PUBLISH_NOTIFICATION_NAME = "cluster:admin/opensearch/notifications/feature/publish"
 
@@ -106,7 +106,7 @@ object NotificationsActions {
 
     /**
      * Send legacy notification transport action type. Internal only - Inter plugin communication.
-     * Only for the Index Management plugin.
+     * Only for the Alerting and Index Management plugins.
      */
     val LEGACY_PUBLISH_NOTIFICATION_ACTION_TYPE =
         ActionType(LEGACY_PUBLISH_NOTIFICATION_NAME, ::LegacyPublishNotificationResponse)

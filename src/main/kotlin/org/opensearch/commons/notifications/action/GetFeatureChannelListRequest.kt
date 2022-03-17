@@ -14,7 +14,7 @@ import org.opensearch.common.xcontent.ToXContentObject
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_TAG
+import org.opensearch.commons.notifications.NotificationConstants.COMPACT_TAG
 import org.opensearch.commons.utils.logger
 import java.io.IOException
 
@@ -22,7 +22,7 @@ import java.io.IOException
  * This request is plugin-only call. i.e. REST interface is not exposed.
  */
 class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
-    val feature: String
+    val compact: Boolean // Dummy request parameter for transport request
 
     companion object {
         private val log by logger(GetFeatureChannelListRequest::class.java)
@@ -39,7 +39,7 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
         @JvmStatic
         @Throws(IOException::class)
         fun parse(parser: XContentParser): GetFeatureChannelListRequest {
-            var feature: String? = null
+            var compact = false
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
@@ -50,24 +50,32 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    FEATURE_TAG -> feature = parser.text()
+                    COMPACT_TAG -> compact = parser.booleanValue()
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing GetFeatureChannelListRequest")
                     }
                 }
             }
-            feature ?: throw IllegalArgumentException("$FEATURE_TAG field absent")
-            return GetFeatureChannelListRequest(feature)
+            return GetFeatureChannelListRequest()
         }
     }
 
     /**
-     * constructor for creating the class
-     * @param feature the caller plugin feature
+     * {@inheritDoc}
      */
-    constructor(feature: String) {
-        this.feature = feature
+    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+        return builder!!.startObject()
+            .field(COMPACT_TAG, compact)
+            .endObject()
+    }
+
+    /**
+     * constructor for creating the class
+     * @param compact Dummy request parameter for transport request
+     */
+    constructor(compact: Boolean = false) {
+        this.compact = compact
     }
 
     /**
@@ -75,7 +83,7 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
      */
     @Throws(IOException::class)
     constructor(input: StreamInput) : super(input) {
-        feature = input.readString()
+        compact = input.readBoolean()
     }
 
     /**
@@ -84,17 +92,7 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
     @Throws(IOException::class)
     override fun writeTo(output: StreamOutput) {
         super.writeTo(output)
-        output.writeString(feature)
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        builder!!
-        return builder.startObject()
-            .field(FEATURE_TAG, feature)
-            .endObject()
+        output.writeBoolean(compact)
     }
 
     /**

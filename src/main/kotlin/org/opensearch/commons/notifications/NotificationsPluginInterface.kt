@@ -9,7 +9,6 @@ import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.common.io.stream.Writeable
 import org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
@@ -201,7 +200,7 @@ object NotificationsPluginInterface {
 
     /**
      * Publishes a notification API using the legacy notification implementation. No REST API.
-     * Internal API only for the Index Management plugin.
+     * Internal API only for the Alerting and Index Management plugin, other consumers should use [sendNotification].
      * @param client Node client for making transport action
      * @param request The legacy publish notification request
      * @param listener The listener for getting response
@@ -211,11 +210,6 @@ object NotificationsPluginInterface {
         request: LegacyPublishNotificationRequest,
         listener: ActionListener<LegacyPublishNotificationResponse>
     ) {
-        if (request.feature != FEATURE_INDEX_MANAGEMENT) {
-            // Do not change this; do not pass in FEATURE_INDEX_MANAGEMENT if you are not the Index Management plugin.
-            throw IllegalArgumentException("The publish notification method only supports the Index Management feature.")
-        }
-
         client.execute(
             LEGACY_PUBLISH_NOTIFICATION_ACTION_TYPE,
             request,

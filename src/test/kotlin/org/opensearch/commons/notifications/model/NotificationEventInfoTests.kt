@@ -7,7 +7,6 @@ package org.opensearch.commons.notifications.model
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_ALERTING
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
@@ -20,7 +19,6 @@ internal class NotificationEventInfoTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(
@@ -47,7 +45,6 @@ internal class NotificationEventInfoTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(
@@ -75,7 +72,6 @@ internal class NotificationEventInfoTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(
@@ -133,7 +129,6 @@ internal class NotificationEventInfoTests {
         val sampleEventSource = EventSource(
             "title",
             "reference_id",
-            FEATURE_ALERTING,
             severity = SeverityType.INFO
         )
         val sampleStatus = EventStatus(

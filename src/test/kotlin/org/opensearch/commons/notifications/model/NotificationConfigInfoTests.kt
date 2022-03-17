@@ -7,8 +7,6 @@ package org.opensearch.commons.notifications.model
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_INDEX_MANAGEMENT
-import org.opensearch.commons.notifications.NotificationConstants.FEATURE_REPORTS
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
@@ -23,7 +21,6 @@ internal class NotificationConfigInfoTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -45,7 +42,6 @@ internal class NotificationConfigInfoTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         val configInfo = NotificationConfigInfo(
@@ -68,9 +64,8 @@ internal class NotificationConfigInfoTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_INDEX_MANAGEMENT),
-            isEnabled = true,
-            configData = sampleSlack
+            configData = sampleSlack,
+            isEnabled = true
         )
         val configInfo = NotificationConfigInfo(
             "config-Id",
@@ -107,7 +102,6 @@ internal class NotificationConfigInfoTests {
             "name",
             "description",
             ConfigType.SLACK,
-            setOf(FEATURE_REPORTS),
             configData = sampleSlack
         )
         Assertions.assertThrows(IllegalArgumentException::class.java) {
