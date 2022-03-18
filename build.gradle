@@ -65,6 +65,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'io.gitlab.arturbosch.detekt'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.jetbrains.kotlin.plugin.allopen'
+apply plugin: 'opensearch.repositories'
 
 configurations {
     ktlint
