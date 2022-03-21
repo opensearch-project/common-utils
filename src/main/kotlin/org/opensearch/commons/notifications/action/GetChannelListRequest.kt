@@ -21,16 +21,16 @@ import java.io.IOException
 /**
  * This request is plugin-only call. i.e. REST interface is not exposed.
  */
-class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
+class GetChannelListRequest : ActionRequest, ToXContentObject {
     val compact: Boolean // Dummy request parameter for transport request
 
     companion object {
-        private val log by logger(GetFeatureChannelListRequest::class.java)
+        private val log by logger(GetChannelListRequest::class.java)
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { GetFeatureChannelListRequest(it) }
+        val reader = Writeable.Reader { GetChannelListRequest(it) }
 
         /**
          * Creator used in REST communication.
@@ -38,7 +38,7 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): GetFeatureChannelListRequest {
+        fun parse(parser: XContentParser): GetChannelListRequest {
             var compact = false
 
             XContentParserUtils.ensureExpectedToken(
@@ -53,11 +53,11 @@ class GetFeatureChannelListRequest : ActionRequest, ToXContentObject {
                     COMPACT_TAG -> compact = parser.booleanValue()
                     else -> {
                         parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing GetFeatureChannelListRequest")
+                        log.info("Unexpected field: $fieldName, while parsing GetChannelListRequest")
                     }
                 }
             }
-            return GetFeatureChannelListRequest()
+            return GetChannelListRequest()
         }
     }
 

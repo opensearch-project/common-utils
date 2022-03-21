@@ -11,38 +11,38 @@ import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
-internal class FeatureChannelTests {
+internal class ChannelTests {
 
     @Test
-    fun `FeatureChannel Object serialize and deserialize using transport should be equal`() {
-        val featureChannel = FeatureChannel(
+    fun `Channel Object serialize and deserialize using transport should be equal`() {
+        val channel = Channel(
             "configId",
             "name",
             "description",
             ConfigType.SLACK,
             true
         )
-        val recreatedObject = recreateObject(featureChannel) { FeatureChannel(it) }
-        assertEquals(featureChannel, recreatedObject)
+        val recreatedObject = recreateObject(channel) { Channel(it) }
+        assertEquals(channel, recreatedObject)
     }
 
     @Test
-    fun `FeatureChannel Object serialize and deserialize using json should be equal`() {
-        val featureChannel = FeatureChannel(
+    fun `Channel Object serialize and deserialize using json should be equal`() {
+        val channel = Channel(
             "configId",
             "name",
             "description",
             ConfigType.CHIME,
             false
         )
-        val jsonString = getJsonString(featureChannel)
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
-        assertEquals(featureChannel, recreatedObject)
+        val jsonString = getJsonString(channel)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Channel.parse(it) }
+        assertEquals(channel, recreatedObject)
     }
 
     @Test
-    fun `FeatureChannel Json parsing should safely ignore extra fields`() {
-        val featureChannel = FeatureChannel(
+    fun `Channel Json parsing should safely ignore extra fields`() {
+        val channel = Channel(
             "configId",
             "name",
             "description",
@@ -61,13 +61,13 @@ internal class FeatureChannelTests {
             "extra_field_3":"extra value 3"
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
-        assertEquals(featureChannel, recreatedObject)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Channel.parse(it) }
+        assertEquals(channel, recreatedObject)
     }
 
     @Test
-    fun `FeatureChannel Json parsing should safely ignore unknown config type`() {
-        val featureChannel = FeatureChannel(
+    fun `Channel Json parsing should safely ignore unknown config type`() {
+        val channel = Channel(
             "configId",
             "name",
             "description",
@@ -83,13 +83,13 @@ internal class FeatureChannelTests {
             "is_enabled":true
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
-        assertEquals(featureChannel, recreatedObject)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Channel.parse(it) }
+        assertEquals(channel, recreatedObject)
     }
 
     @Test
-    fun `FeatureChannel Json parsing should safely parse if description is absent`() {
-        val featureChannel = FeatureChannel(
+    fun `Channel Json parsing should safely parse if description is absent`() {
+        val channel = Channel(
             "configId",
             "name",
             "",
@@ -104,13 +104,13 @@ internal class FeatureChannelTests {
             "is_enabled":true
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
-        assertEquals(featureChannel, recreatedObject)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Channel.parse(it) }
+        assertEquals(channel, recreatedObject)
     }
 
     @Test
-    fun `FeatureChannel Json parsing should safely parse if is_enabled is absent`() {
-        val featureChannel = FeatureChannel(
+    fun `Channel Json parsing should safely parse if is_enabled is absent`() {
+        val channel = Channel(
             "configId",
             "name",
             "description",
@@ -125,12 +125,12 @@ internal class FeatureChannelTests {
             "config_type":"slack"
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
-        assertEquals(featureChannel, recreatedObject)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Channel.parse(it) }
+        assertEquals(channel, recreatedObject)
     }
 
     @Test
-    fun `FeatureChannel Json parsing should throw exception if config_id is absent`() {
+    fun `Channel Json parsing should throw exception if config_id is absent`() {
         val jsonString = """
         {
             "name":"name",
@@ -140,12 +140,12 @@ internal class FeatureChannelTests {
         }
         """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
+            createObjectFromJsonString(jsonString) { Channel.parse(it) }
         }
     }
 
     @Test
-    fun `FeatureChannel Json parsing should throw exception if config_id is empty`() {
+    fun `Channel Json parsing should throw exception if config_id is empty`() {
         val jsonString = """
         {
             "config_id":"",
@@ -156,12 +156,12 @@ internal class FeatureChannelTests {
         }
         """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
+            createObjectFromJsonString(jsonString) { Channel.parse(it) }
         }
     }
 
     @Test
-    fun `FeatureChannel Json parsing should throw exception if name is absent`() {
+    fun `Channel Json parsing should throw exception if name is absent`() {
         val jsonString = """
         {
             "config_id":"configId",
@@ -171,12 +171,12 @@ internal class FeatureChannelTests {
         }
         """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
+            createObjectFromJsonString(jsonString) { Channel.parse(it) }
         }
     }
 
     @Test
-    fun `FeatureChannel Json parsing should throw exception if name is empty`() {
+    fun `Channel Json parsing should throw exception if name is empty`() {
         val jsonString = """
         {
             "config_id":"configId",
@@ -187,12 +187,12 @@ internal class FeatureChannelTests {
         }
         """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
+            createObjectFromJsonString(jsonString) { Channel.parse(it) }
         }
     }
 
     @Test
-    fun `FeatureChannel Json parsing should throw exception if config_type is absent`() {
+    fun `Channel Json parsing should throw exception if config_type is absent`() {
         val jsonString = """
         {
             "config_id":"configId",
@@ -202,7 +202,7 @@ internal class FeatureChannelTests {
         }
         """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { FeatureChannel.parse(it) }
+            createObjectFromJsonString(jsonString) { Channel.parse(it) }
         }
     }
 }

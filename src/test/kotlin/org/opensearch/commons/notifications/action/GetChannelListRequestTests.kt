@@ -12,27 +12,27 @@ import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
-internal class GetFeatureChannelListRequestTests {
+internal class GetChannelListRequestTests {
 
     private fun assertGetRequestEquals(
-        expected: GetFeatureChannelListRequest,
-        actual: GetFeatureChannelListRequest
+        expected: GetChannelListRequest,
+        actual: GetChannelListRequest
     ) {
         assertEquals(expected.compact, actual.compact)
     }
 
     @Test
     fun `Get request serialize and deserialize transport object should be equal`() {
-        val configRequest = GetFeatureChannelListRequest()
-        val recreatedObject = recreateObject(configRequest) { GetFeatureChannelListRequest(it) }
+        val configRequest = GetChannelListRequest()
+        val recreatedObject = recreateObject(configRequest) { GetChannelListRequest(it) }
         assertGetRequestEquals(configRequest, recreatedObject)
     }
 
     @Test
     fun `Get request serialize and deserialize using json object should be equal`() {
-        val configRequest = GetFeatureChannelListRequest()
+        val configRequest = GetChannelListRequest()
         val jsonString = getJsonString(configRequest)
-        val recreatedObject = createObjectFromJsonString(jsonString) { GetFeatureChannelListRequest.parse(it) }
+        val recreatedObject = createObjectFromJsonString(jsonString) { GetChannelListRequest.parse(it) }
         assertGetRequestEquals(configRequest, recreatedObject)
     }
 
@@ -40,13 +40,13 @@ internal class GetFeatureChannelListRequestTests {
     fun `Get request should throw exception when invalid json object is passed`() {
         val jsonString = "sample message"
         assertThrows<JsonParseException> {
-            createObjectFromJsonString(jsonString) { GetFeatureChannelListRequest.parse(it) }
+            createObjectFromJsonString(jsonString) { GetChannelListRequest.parse(it) }
         }
     }
 
     @Test
     fun `Get request should safely ignore extra field in json object`() {
-        val configRequest = GetFeatureChannelListRequest()
+        val configRequest = GetChannelListRequest()
         val jsonString = """
         {
             "extra_field_1":["extra", "value"],
@@ -54,7 +54,7 @@ internal class GetFeatureChannelListRequestTests {
             "extra_field_3":"extra value 3"
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { GetFeatureChannelListRequest.parse(it) }
+        val recreatedObject = createObjectFromJsonString(jsonString) { GetChannelListRequest.parse(it) }
         assertGetRequestEquals(configRequest, recreatedObject)
     }
 }

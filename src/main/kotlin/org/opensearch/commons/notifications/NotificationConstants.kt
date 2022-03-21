@@ -52,7 +52,7 @@ object NotificationConstants {
     const val CREATED_TIME_TAG = "created_time_ms"
     const val CONFIG_LIST_TAG = "config_list"
     const val EVENT_LIST_TAG = "event_list"
-    const val FEATURE_CONFIG_LIST_TAG = "feature_channel_list"
+    const val CHANNEL_LIST_TAG = "channel_list"
     const val DELETE_RESPONSE_LIST_TAG = "delete_response_list"
     const val FROM_INDEX_TAG = "from_index"
     const val MAX_ITEMS_TAG = "max_items"

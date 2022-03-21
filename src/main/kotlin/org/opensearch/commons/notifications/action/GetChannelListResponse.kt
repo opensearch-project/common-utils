@@ -10,21 +10,21 @@ import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
-import org.opensearch.commons.notifications.model.FeatureChannelList
+import org.opensearch.commons.notifications.model.ChannelList
 import java.io.IOException
 
 /**
  * Action Response for creating new configuration.
  */
-class GetFeatureChannelListResponse : BaseResponse {
-    val searchResult: FeatureChannelList
+class GetChannelListResponse : BaseResponse {
+    val searchResult: ChannelList
 
     companion object {
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { GetFeatureChannelListResponse(it) }
+        val reader = Writeable.Reader { GetChannelListResponse(it) }
 
         /**
          * Creator used in REST communication.
@@ -32,8 +32,8 @@ class GetFeatureChannelListResponse : BaseResponse {
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): GetFeatureChannelListResponse {
-            return GetFeatureChannelListResponse(FeatureChannelList(parser))
+        fun parse(parser: XContentParser): GetChannelListResponse {
+            return GetChannelListResponse(ChannelList(parser))
         }
     }
 
@@ -41,7 +41,7 @@ class GetFeatureChannelListResponse : BaseResponse {
      * constructor for creating the class
      * @param searchResult the notification configuration list
      */
-    constructor(searchResult: FeatureChannelList) {
+    constructor(searchResult: ChannelList) {
         this.searchResult = searchResult
     }
 
@@ -50,7 +50,7 @@ class GetFeatureChannelListResponse : BaseResponse {
      */
     @Throws(IOException::class)
     constructor(input: StreamInput) : super(input) {
-        searchResult = FeatureChannelList(input)
+        searchResult = ChannelList(input)
     }
 
     /**
