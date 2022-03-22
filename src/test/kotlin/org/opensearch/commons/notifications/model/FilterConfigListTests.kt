@@ -15,8 +15,8 @@ import org.opensearch.commons.utils.recreateObject
 internal class FilterConfigListTests {
 
     private fun assertSearchResultEquals(
-        expected: FeatureChannelList,
-        actual: FeatureChannelList
+        expected: ChannelList,
+        actual: ChannelList
     ) {
         assertEquals(expected.startIndex, actual.startIndex)
         assertEquals(expected.totalHits, actual.totalHits)
@@ -27,108 +27,108 @@ internal class FilterConfigListTests {
 
     @Test
     fun `Search result serialize and deserialize with config object should be equal`() {
-        val sampleConfig = FeatureChannel(
+        val sampleConfig = Channel(
             "config_id",
             "name",
             "description",
             ConfigType.SLACK
         )
-        val searchResult = FeatureChannelList(sampleConfig)
-        val recreatedObject = recreateObject(searchResult) { FeatureChannelList(it) }
+        val searchResult = ChannelList(sampleConfig)
+        val recreatedObject = recreateObject(searchResult) { ChannelList(it) }
         assertSearchResultEquals(searchResult, recreatedObject)
     }
 
     @Test
     fun `Search result serialize and deserialize with multiple config object should be equal`() {
-        val sampleConfig1 = FeatureChannel(
+        val sampleConfig1 = Channel(
             "config_id1",
             "name1",
             "description1",
             ConfigType.SLACK
         )
-        val sampleConfig2 = FeatureChannel(
+        val sampleConfig2 = Channel(
             "config_id2",
             "name2",
             "description2",
             ConfigType.CHIME
         )
-        val sampleConfig3 = FeatureChannel(
+        val sampleConfig3 = Channel(
             "config_id3",
             "name3",
             "description3",
             ConfigType.WEBHOOK
         )
-        val searchResult = FeatureChannelList(
+        val searchResult = ChannelList(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
             listOf(sampleConfig1, sampleConfig2, sampleConfig3)
         )
-        val recreatedObject = recreateObject(searchResult) { FeatureChannelList(it) }
+        val recreatedObject = recreateObject(searchResult) { ChannelList(it) }
         assertSearchResultEquals(searchResult, recreatedObject)
     }
 
     @Test
     fun `Search result serialize and deserialize using json config object should be equal`() {
-        val sampleConfig = FeatureChannel(
+        val sampleConfig = Channel(
             "config_id",
             "name",
             "description",
             ConfigType.EMAIL_GROUP
         )
-        val searchResult = FeatureChannelList(sampleConfig)
+        val searchResult = ChannelList(sampleConfig)
         val jsonString = getJsonString(searchResult)
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannelList(it) }
+        val recreatedObject = createObjectFromJsonString(jsonString) { ChannelList(it) }
         assertSearchResultEquals(searchResult, recreatedObject)
     }
 
     @Test
     fun `Search result serialize and deserialize using json with multiple config object should be equal`() {
-        val sampleConfig1 = FeatureChannel(
+        val sampleConfig1 = Channel(
             "config_id1",
             "name1",
             "description1",
             ConfigType.SLACK
         )
-        val sampleConfig2 = FeatureChannel(
+        val sampleConfig2 = Channel(
             "config_id2",
             "name2",
             "description2",
             ConfigType.CHIME
         )
-        val sampleConfig3 = FeatureChannel(
+        val sampleConfig3 = Channel(
             "config_id3",
             "name3",
             "description3",
             ConfigType.WEBHOOK
         )
-        val searchResult = FeatureChannelList(
+        val searchResult = ChannelList(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
             listOf(sampleConfig1, sampleConfig2, sampleConfig3)
         )
         val jsonString = getJsonString(searchResult)
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannelList(it) }
+        val recreatedObject = createObjectFromJsonString(jsonString) { ChannelList(it) }
         assertSearchResultEquals(searchResult, recreatedObject)
     }
 
     @Test
     fun `Search result should use isEnabled=true if absent in json object`() {
-        val sampleConfig = FeatureChannel(
+        val sampleConfig = Channel(
             "config_id",
             "name",
             "description",
             ConfigType.EMAIL,
             true
         )
-        val searchResult = FeatureChannelList(sampleConfig)
+        val searchResult = ChannelList(sampleConfig)
         val jsonString = """
         {
             "start_index":"0",
             "total_hits":"1",
             "total_hit_relation":"eq",
-            "feature_channel_list":[
+            "channel_list":[
                 {
                     "config_id":"config_id",
                     "name":"name",
@@ -138,25 +138,25 @@ internal class FilterConfigListTests {
             ]
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannelList(it) }
+        val recreatedObject = createObjectFromJsonString(jsonString) { ChannelList(it) }
         assertSearchResultEquals(searchResult, recreatedObject)
     }
 
     @Test
     fun `Search result should safely ignore extra field in json object`() {
-        val sampleConfig = FeatureChannel(
+        val sampleConfig = Channel(
             "config_id",
             "name",
             "description",
             ConfigType.EMAIL
         )
-        val searchResult = FeatureChannelList(sampleConfig)
+        val searchResult = ChannelList(sampleConfig)
         val jsonString = """
         {
             "start_index":"0",
             "total_hits":"1",
             "total_hit_relation":"eq",
-            "feature_channel_list":[
+            "channel_list":[
                 {
                     "config_id":"config_id",
                     "name":"name",
@@ -170,22 +170,22 @@ internal class FilterConfigListTests {
             "extra_field_3":"extra value 3"
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannelList(it) }
+        val recreatedObject = createObjectFromJsonString(jsonString) { ChannelList(it) }
         assertSearchResultEquals(searchResult, recreatedObject)
     }
 
     @Test
     fun `Search result should safely fallback to default if startIndex, totalHits or totalHitRelation field absent in json object`() {
-        val sampleConfig = FeatureChannel(
+        val sampleConfig = Channel(
             "config_id",
             "name",
             "description",
             ConfigType.EMAIL
         )
-        val searchResult = FeatureChannelList(sampleConfig)
+        val searchResult = ChannelList(sampleConfig)
         val jsonString = """
         {
-            "feature_channel_list":[
+            "channel_list":[
                 {
                     "config_id":"config_id",
                     "name":"name",
@@ -196,12 +196,12 @@ internal class FilterConfigListTests {
             ]
         }
         """.trimIndent()
-        val recreatedObject = createObjectFromJsonString(jsonString) { FeatureChannelList(it) }
+        val recreatedObject = createObjectFromJsonString(jsonString) { ChannelList(it) }
         assertSearchResultEquals(searchResult, recreatedObject)
     }
 
     @Test
-    fun `Search result should throw exception if featureChannelList is absent in json`() {
+    fun `Search result should throw exception if channelList is absent in json`() {
         val jsonString = """
         {
             "start_index":"0",
@@ -210,7 +210,7 @@ internal class FilterConfigListTests {
         }
         """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            createObjectFromJsonString(jsonString) { FeatureChannelList(it) }
+            createObjectFromJsonString(jsonString) { ChannelList(it) }
         }
     }
 }
