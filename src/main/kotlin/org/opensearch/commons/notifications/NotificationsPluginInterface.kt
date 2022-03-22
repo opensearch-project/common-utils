@@ -14,8 +14,8 @@ import org.opensearch.commons.notifications.action.CreateNotificationConfigReque
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigRequest
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigResponse
-import org.opensearch.commons.notifications.action.GetFeatureChannelListRequest
-import org.opensearch.commons.notifications.action.GetFeatureChannelListResponse
+import org.opensearch.commons.notifications.action.GetChannelListRequest
+import org.opensearch.commons.notifications.action.GetChannelListResponse
 import org.opensearch.commons.notifications.action.GetNotificationConfigRequest
 import org.opensearch.commons.notifications.action.GetNotificationConfigResponse
 import org.opensearch.commons.notifications.action.GetNotificationEventRequest
@@ -26,7 +26,7 @@ import org.opensearch.commons.notifications.action.LegacyPublishNotificationRequ
 import org.opensearch.commons.notifications.action.LegacyPublishNotificationResponse
 import org.opensearch.commons.notifications.action.NotificationsActions.CREATE_NOTIFICATION_CONFIG_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.DELETE_NOTIFICATION_CONFIG_ACTION_TYPE
-import org.opensearch.commons.notifications.action.NotificationsActions.GET_FEATURE_CHANNEL_LIST_ACTION_TYPE
+import org.opensearch.commons.notifications.action.NotificationsActions.GET_CHANNEL_LIST_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_NOTIFICATION_CONFIG_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_NOTIFICATION_EVENT_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_PLUGIN_FEATURES_ACTION_TYPE
@@ -156,20 +156,20 @@ object NotificationsPluginInterface {
     }
 
     /**
-     * Get notification channel configuration enabled for a feature.
+     * Get notification channel configuration.
      * @param client Node client for making transport action
      * @param request The request object
      * @param listener The listener for getting response
      */
-    fun getFeatureChannelList(
+    fun getChannelList(
         client: NodeClient,
-        request: GetFeatureChannelListRequest,
-        listener: ActionListener<GetFeatureChannelListResponse>
+        request: GetChannelListRequest,
+        listener: ActionListener<GetChannelListResponse>
     ) {
         client.execute(
-            GET_FEATURE_CHANNEL_LIST_ACTION_TYPE,
+            GET_CHANNEL_LIST_ACTION_TYPE,
             request,
-            wrapActionListener(listener) { response -> recreateObject(response) { GetFeatureChannelListResponse(it) } }
+            wrapActionListener(listener) { response -> recreateObject(response) { GetChannelListResponse(it) } }
         )
     }
 

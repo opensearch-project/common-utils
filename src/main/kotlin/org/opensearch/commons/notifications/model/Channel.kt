@@ -21,9 +21,9 @@ import org.opensearch.commons.utils.logger
 import java.io.IOException
 
 /**
- * Data class representing Notification config for exposed for other plugins.
+ * Data class representing Notification config exposed for other plugins.
  */
-data class FeatureChannel(
+data class Channel(
     val configId: String,
     val name: String,
     val description: String,
@@ -37,12 +37,12 @@ data class FeatureChannel(
     }
 
     companion object {
-        private val log by logger(FeatureChannel::class.java)
+        private val log by logger(Channel::class.java)
 
         /**
          * reader to create instance of class from writable.
          */
-        val reader = Writeable.Reader { FeatureChannel(it) }
+        val reader = Writeable.Reader { Channel(it) }
 
         /**
          * Creator used in REST communication.
@@ -51,7 +51,7 @@ data class FeatureChannel(
         @Suppress("ComplexMethod")
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): FeatureChannel {
+        fun parse(parser: XContentParser): Channel {
             var configId: String? = null
             var name: String? = null
             var description = ""
@@ -74,14 +74,14 @@ data class FeatureChannel(
                     IS_ENABLED_TAG -> isEnabled = parser.booleanValue()
                     else -> {
                         parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing FeatureChannel")
+                        log.info("Unexpected field: $fieldName, while parsing Channel")
                     }
                 }
             }
             configId ?: throw IllegalArgumentException("$CONFIG_ID_TAG field absent")
             name ?: throw IllegalArgumentException("$NAME_TAG field absent")
             configType ?: throw IllegalArgumentException("$CONFIG_TYPE_TAG field absent")
-            return FeatureChannel(
+            return Channel(
                 configId,
                 name,
                 description,

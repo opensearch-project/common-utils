@@ -25,8 +25,8 @@ import org.opensearch.commons.notifications.action.CreateNotificationConfigReque
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigRequest
 import org.opensearch.commons.notifications.action.DeleteNotificationConfigResponse
-import org.opensearch.commons.notifications.action.GetFeatureChannelListRequest
-import org.opensearch.commons.notifications.action.GetFeatureChannelListResponse
+import org.opensearch.commons.notifications.action.GetChannelListRequest
+import org.opensearch.commons.notifications.action.GetChannelListResponse
 import org.opensearch.commons.notifications.action.GetNotificationConfigRequest
 import org.opensearch.commons.notifications.action.GetNotificationConfigResponse
 import org.opensearch.commons.notifications.action.GetNotificationEventRequest
@@ -38,13 +38,13 @@ import org.opensearch.commons.notifications.action.LegacyPublishNotificationResp
 import org.opensearch.commons.notifications.action.SendNotificationResponse
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.UpdateNotificationConfigResponse
+import org.opensearch.commons.notifications.model.Channel
+import org.opensearch.commons.notifications.model.ChannelList
 import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.DeliveryStatus
 import org.opensearch.commons.notifications.model.EventSource
 import org.opensearch.commons.notifications.model.EventStatus
-import org.opensearch.commons.notifications.model.FeatureChannel
-import org.opensearch.commons.notifications.model.FeatureChannelList
 import org.opensearch.commons.notifications.model.NotificationConfig
 import org.opensearch.commons.notifications.model.NotificationConfigInfo
 import org.opensearch.commons.notifications.model.NotificationConfigSearchResult
@@ -168,25 +168,25 @@ internal class NotificationsPluginInterfaceTests {
     }
 
     @Test
-    fun getFeatureChannelList() {
-        val sampleConfig = FeatureChannel(
+    fun getChannelList() {
+        val sampleConfig = Channel(
             "config_id",
             "name",
             "description",
             ConfigType.SLACK
         )
 
-        val request = mock(GetFeatureChannelListRequest::class.java)
-        val response = GetFeatureChannelListResponse(FeatureChannelList(sampleConfig))
-        val listener: ActionListener<GetFeatureChannelListResponse> =
-            mock(ActionListener::class.java) as ActionListener<GetFeatureChannelListResponse>
+        val request = mock(GetChannelListRequest::class.java)
+        val response = GetChannelListResponse(ChannelList(sampleConfig))
+        val listener: ActionListener<GetChannelListResponse> =
+            mock(ActionListener::class.java) as ActionListener<GetChannelListResponse>
 
         doAnswer {
-            (it.getArgument(2) as ActionListener<GetFeatureChannelListResponse>)
+            (it.getArgument(2) as ActionListener<GetChannelListResponse>)
                 .onResponse(response)
         }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
-        NotificationsPluginInterface.getFeatureChannelList(client, request, listener)
+        NotificationsPluginInterface.getChannelList(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
     }
 
