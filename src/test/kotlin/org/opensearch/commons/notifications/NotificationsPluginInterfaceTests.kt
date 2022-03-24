@@ -148,7 +148,6 @@ internal class NotificationsPluginInterfaceTests {
         val request = mock(GetPluginFeaturesRequest::class.java)
         val response = GetPluginFeaturesResponse(
             listOf("config_type_1", "config_type_2", "config_type_3"),
-            listOf("config_feature_1", "config_feature_2", "config_feature_3"),
             mapOf(
                 Pair("FeatureKey1", "FeatureValue1"),
                 Pair("FeatureKey2", "FeatureValue2"),
