@@ -18,8 +18,6 @@ import org.opensearch.commons.notifications.action.GetChannelListRequest
 import org.opensearch.commons.notifications.action.GetChannelListResponse
 import org.opensearch.commons.notifications.action.GetNotificationConfigRequest
 import org.opensearch.commons.notifications.action.GetNotificationConfigResponse
-import org.opensearch.commons.notifications.action.GetNotificationEventRequest
-import org.opensearch.commons.notifications.action.GetNotificationEventResponse
 import org.opensearch.commons.notifications.action.GetPluginFeaturesRequest
 import org.opensearch.commons.notifications.action.GetPluginFeaturesResponse
 import org.opensearch.commons.notifications.action.LegacyPublishNotificationRequest
@@ -28,7 +26,6 @@ import org.opensearch.commons.notifications.action.NotificationsActions.CREATE_N
 import org.opensearch.commons.notifications.action.NotificationsActions.DELETE_NOTIFICATION_CONFIG_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_CHANNEL_LIST_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_NOTIFICATION_CONFIG_ACTION_TYPE
-import org.opensearch.commons.notifications.action.NotificationsActions.GET_NOTIFICATION_EVENT_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.GET_PLUGIN_FEATURES_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.LEGACY_PUBLISH_NOTIFICATION_ACTION_TYPE
 import org.opensearch.commons.notifications.action.NotificationsActions.SEND_NOTIFICATION_ACTION_TYPE
@@ -116,24 +113,6 @@ object NotificationsPluginInterface {
             GET_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
             wrapActionListener(listener) { response -> recreateObject(response) { GetNotificationConfigResponse(it) } }
-        )
-    }
-
-    /**
-     * Get notification events.
-     * @param client Node client for making transport action
-     * @param request The request object
-     * @param listener The listener for getting response
-     */
-    fun getNotificationEvent(
-        client: NodeClient,
-        request: GetNotificationEventRequest,
-        listener: ActionListener<GetNotificationEventResponse>
-    ) {
-        client.execute(
-            GET_NOTIFICATION_EVENT_ACTION_TYPE,
-            request,
-            wrapActionListener(listener) { response -> recreateObject(response) { GetNotificationEventResponse(it) } }
         )
     }
 

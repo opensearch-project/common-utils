@@ -29,8 +29,6 @@ import org.opensearch.commons.notifications.action.GetChannelListRequest
 import org.opensearch.commons.notifications.action.GetChannelListResponse
 import org.opensearch.commons.notifications.action.GetNotificationConfigRequest
 import org.opensearch.commons.notifications.action.GetNotificationConfigResponse
-import org.opensearch.commons.notifications.action.GetNotificationEventRequest
-import org.opensearch.commons.notifications.action.GetNotificationEventResponse
 import org.opensearch.commons.notifications.action.GetPluginFeaturesRequest
 import org.opensearch.commons.notifications.action.GetPluginFeaturesResponse
 import org.opensearch.commons.notifications.action.LegacyPublishNotificationRequest
@@ -42,15 +40,10 @@ import org.opensearch.commons.notifications.model.Channel
 import org.opensearch.commons.notifications.model.ChannelList
 import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.ConfigType
-import org.opensearch.commons.notifications.model.DeliveryStatus
 import org.opensearch.commons.notifications.model.EventSource
-import org.opensearch.commons.notifications.model.EventStatus
 import org.opensearch.commons.notifications.model.NotificationConfig
 import org.opensearch.commons.notifications.model.NotificationConfigInfo
 import org.opensearch.commons.notifications.model.NotificationConfigSearchResult
-import org.opensearch.commons.notifications.model.NotificationEvent
-import org.opensearch.commons.notifications.model.NotificationEventInfo
-import org.opensearch.commons.notifications.model.NotificationEventSearchResult
 import org.opensearch.commons.notifications.model.SeverityType
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.rest.RestStatus
@@ -124,22 +117,6 @@ internal class NotificationsPluginInterfaceTests {
         }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.getNotificationConfig(client, request, listener)
-        verify(listener, times(1)).onResponse(eq(response))
-    }
-
-    @Test
-    fun getNotificationEvent() {
-        val request = mock(GetNotificationEventRequest::class.java)
-        val response = mockGetNotificationEventResponse()
-        val listener: ActionListener<GetNotificationEventResponse> =
-            mock(ActionListener::class.java) as ActionListener<GetNotificationEventResponse>
-
-        doAnswer {
-            (it.getArgument(2) as ActionListener<GetNotificationEventResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(any(ActionType::class.java), any(), any())
-
-        NotificationsPluginInterface.getNotificationEvent(client, request, listener)
         verify(listener, times(1)).onResponse(eq(response))
     }
 
@@ -249,27 +226,5 @@ internal class NotificationsPluginInterfaceTests {
             sampleConfig
         )
         return GetNotificationConfigResponse(NotificationConfigSearchResult(configInfo))
-    }
-
-    private fun mockGetNotificationEventResponse(): GetNotificationEventResponse {
-        val sampleEventSource = EventSource(
-            "title",
-            "reference_id",
-            severity = SeverityType.INFO
-        )
-        val sampleStatus = EventStatus(
-            "config_id",
-            "name",
-            ConfigType.SLACK,
-            deliveryStatus = DeliveryStatus("404", "invalid recipient")
-        )
-        val sampleEvent = NotificationEvent(sampleEventSource, listOf(sampleStatus))
-        val eventInfo = NotificationEventInfo(
-            "event_id",
-            Instant.now(),
-            Instant.now(),
-            sampleEvent
-        )
-        return GetNotificationEventResponse(NotificationEventSearchResult(eventInfo))
     }
 }
