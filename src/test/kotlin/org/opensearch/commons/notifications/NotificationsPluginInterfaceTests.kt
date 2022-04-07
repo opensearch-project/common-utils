@@ -40,10 +40,13 @@ import org.opensearch.commons.notifications.model.Channel
 import org.opensearch.commons.notifications.model.ChannelList
 import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.ConfigType
+import org.opensearch.commons.notifications.model.DeliveryStatus
 import org.opensearch.commons.notifications.model.EventSource
+import org.opensearch.commons.notifications.model.EventStatus
 import org.opensearch.commons.notifications.model.NotificationConfig
 import org.opensearch.commons.notifications.model.NotificationConfigInfo
 import org.opensearch.commons.notifications.model.NotificationConfigSearchResult
+import org.opensearch.commons.notifications.model.NotificationEvent
 import org.opensearch.commons.notifications.model.SeverityType
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.rest.RestStatus
@@ -180,7 +183,16 @@ internal class NotificationsPluginInterfaceTests {
             null
         )
 
-        val response = SendNotificationResponse("configId")
+        val sampleStatus = EventStatus(
+            "config_id",
+            "name",
+            ConfigType.SLACK,
+            deliveryStatus = DeliveryStatus("404", "invalid recipient")
+        )
+
+        val sampleEvent = NotificationEvent(notificationInfo, listOf(sampleStatus))
+
+        val response = SendNotificationResponse(sampleEvent)
         val listener: ActionListener<SendNotificationResponse> =
             mock(ActionListener::class.java) as ActionListener<SendNotificationResponse>
 

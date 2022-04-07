@@ -10,19 +10,16 @@ import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
-import org.opensearch.common.xcontent.XContentParserUtils
-import org.opensearch.commons.notifications.NotificationConstants.EVENT_ID_TAG
-import org.opensearch.commons.utils.logger
+import org.opensearch.commons.notifications.model.NotificationEvent
 import java.io.IOException
 
 /**
  * Action Response for send notification.
  */
 class SendNotificationResponse : BaseResponse {
-    val notificationId: String
+    val notificationEvent: NotificationEvent
 
     companion object {
-        private val log by logger(SendNotificationResponse::class.java)
 
         /**
          * reader to create instance of class from writable.
@@ -36,35 +33,16 @@ class SendNotificationResponse : BaseResponse {
         @JvmStatic
         @Throws(IOException::class)
         fun parse(parser: XContentParser): SendNotificationResponse {
-            var notificationId: String? = null
-
-            XContentParserUtils.ensureExpectedToken(
-                XContentParser.Token.START_OBJECT,
-                parser.currentToken(),
-                parser
-            )
-            while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
-                val fieldName = parser.currentName()
-                parser.nextToken()
-                when (fieldName) {
-                    EVENT_ID_TAG -> notificationId = parser.text()
-                    else -> {
-                        parser.skipChildren()
-                        log.info("Unexpected field: $fieldName, while parsing SendNotificationResponse")
-                    }
-                }
-            }
-            notificationId ?: throw IllegalArgumentException("$EVENT_ID_TAG field absent")
-            return SendNotificationResponse(notificationId)
+            return SendNotificationResponse(NotificationEvent.parse(parser))
         }
     }
 
     /**
      * constructor for creating the class
-     * @param configId the id of the created notification configuration
+     * @param notificationEvent the id of the created notification configuration
      */
-    constructor(configId: String) {
-        this.notificationId = configId
+    constructor(notificationEvent: NotificationEvent) {
+        this.notificationEvent = notificationEvent
     }
 
     /**
@@ -72,7 +50,7 @@ class SendNotificationResponse : BaseResponse {
      */
     @Throws(IOException::class)
     constructor(input: StreamInput) : super(input) {
-        notificationId = input.readString()
+        notificationEvent = NotificationEvent(input)
     }
 
     /**
@@ -80,16 +58,13 @@ class SendNotificationResponse : BaseResponse {
      */
     @Throws(IOException::class)
     override fun writeTo(output: StreamOutput) {
-        output.writeString(notificationId)
+        notificationEvent.writeTo(output)
     }
 
     /**
      * {@inheritDoc}
      */
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        builder!!
-        return builder.startObject()
-            .field(EVENT_ID_TAG, notificationId)
-            .endObject()
+        return notificationEvent.toXContent(builder, params)
     }
 }
