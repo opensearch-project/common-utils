@@ -21,6 +21,7 @@ public class LegacyEmailMessageTest {
     @Test
     public void testBuildingLegacyEmailMessage() {
         LegacyEmailMessage message = new LegacyEmailMessage.Builder("email")
+            .withAccountName("test_email")
             .withHost("smtp.test.com")
             .withPort(123)
             .withMethod("none")
@@ -32,6 +33,7 @@ public class LegacyEmailMessageTest {
 
         assertEquals("email", message.destinationName);
         assertEquals(LegacyDestinationType.LEGACY_EMAIL, message.getChannelType());
+        assertEquals("test_email", message.getAccountName());
         assertEquals("smtp.test.com", message.getHost());
         assertEquals(123, message.getPort());
         assertEquals("none", message.getMethod());
@@ -44,6 +46,7 @@ public class LegacyEmailMessageTest {
     @Test
     public void testRoundTrippingLegacyEmailMessage() throws IOException {
         LegacyEmailMessage message = new LegacyEmailMessage.Builder("email")
+            .withAccountName("test_email")
             .withHost("smtp.test.com")
             .withPort(123)
             .withMethod("none")
@@ -60,6 +63,7 @@ public class LegacyEmailMessageTest {
 
         assertEquals(newMessage.destinationName, message.destinationName);
         assertEquals(newMessage.getChannelType(), message.getChannelType());
+        assertEquals(newMessage.getAccountName(), message.getAccountName());
         assertEquals(newMessage.getHost(), message.getHost());
         assertEquals(newMessage.getPort(), message.getPort());
         assertEquals(newMessage.getMethod(), message.getMethod());
@@ -73,6 +77,7 @@ public class LegacyEmailMessageTest {
     public void testContentMissingMessage() {
         try {
             new LegacyEmailMessage.Builder("email")
+                .withAccountName("test_email")
                 .withHost("smtp.test.com")
                 .withPort(123)
                 .withMethod("none")
@@ -90,6 +95,7 @@ public class LegacyEmailMessageTest {
     public void testMissingDestinationName() {
         try {
             new LegacyEmailMessage.Builder(null)
+                .withAccountName("test_email")
                 .withHost("smtp.test.com")
                 .withPort(123)
                 .withMethod("none")
@@ -108,6 +114,7 @@ public class LegacyEmailMessageTest {
     public void testUnsupportedMethods() {
         try {
             new LegacyEmailMessage.Builder("email")
+                .withAccountName("test_email")
                 .withHost("smtp.test.com")
                 .withPort(123)
                 .withMethod("unsupported")
@@ -123,9 +130,44 @@ public class LegacyEmailMessageTest {
     }
 
     @Test
+    public void testAccountNameMissingOrEmpty() {
+        try {
+            new LegacyEmailMessage.Builder("email")
+                .withHost("smtp.test.com")
+                .withPort(123)
+                .withMethod("none")
+                .withFrom("test@email.com")
+                .withRecipients(Arrays.asList("test2@email.com", "test3@email.com"))
+                .withSubject("Test Subject")
+                .withMessage("Hello world")
+                .build();
+            fail("Building legacy email message with missing account name should fail");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Account name should be provided", e.getMessage());
+        }
+
+        try {
+            new LegacyEmailMessage.Builder("email")
+                .withAccountName("")
+                .withHost("smtp.test.com")
+                .withPort(123)
+                .withMethod("none")
+                .withFrom("test@email.com")
+                .withRecipients(Arrays.asList("test2@email.com", "test3@email.com"))
+                .withSubject("Test Subject")
+                .withMessage("Hello world")
+                .build();
+            fail("Building legacy email message with empty account name should fail");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Account name should be provided", e.getMessage());
+        }
+    }
+
+    @Test
     public void testHostMissingOrEmpty() {
         try {
             new LegacyEmailMessage.Builder("email")
+                .withAccountName("test_email")
                 .withPort(123)
                 .withMethod("none")
                 .withFrom("test@email.com")
@@ -140,6 +182,7 @@ public class LegacyEmailMessageTest {
 
         try {
             new LegacyEmailMessage.Builder("email")
+                .withAccountName("test_email")
                 .withHost("")
                 .withPort(123)
                 .withMethod("none")
@@ -158,6 +201,7 @@ public class LegacyEmailMessageTest {
     public void testFromMissingOrEmpty() {
         try {
             new LegacyEmailMessage.Builder("email")
+                .withAccountName("test_email")
                 .withHost("smtp.test.com")
                 .withPort(123)
                 .withMethod("none")
@@ -172,6 +216,7 @@ public class LegacyEmailMessageTest {
 
         try {
             new LegacyEmailMessage.Builder("email")
+                .withAccountName("test_email")
                 .withHost("smtp.test.com")
                 .withPort(123)
                 .withMethod("none")
@@ -190,6 +235,7 @@ public class LegacyEmailMessageTest {
     public void testRecipientsMissingOrEmpty() {
         try {
             new LegacyEmailMessage.Builder("email")
+                .withAccountName("test_email")
                 .withHost("smtp.test.com")
                 .withPort(123)
                 .withMethod("none")
@@ -204,6 +250,7 @@ public class LegacyEmailMessageTest {
 
         try {
             new LegacyEmailMessage.Builder("email")
+                .withAccountName("test_email")
                 .withHost("smtp.test.com")
                 .withPort(123)
                 .withMethod("none")
@@ -221,6 +268,7 @@ public class LegacyEmailMessageTest {
     @Test
     public void testSubjectDefaultsToDestinationNameWhenMissingOrEmpty() {
         LegacyEmailMessage message = new LegacyEmailMessage.Builder("email")
+            .withAccountName("test_email")
             .withHost("smtp.test.com")
             .withPort(123)
             .withMethod("none")
@@ -232,6 +280,7 @@ public class LegacyEmailMessageTest {
         assertEquals("email", message.getSubject());
 
         message = new LegacyEmailMessage.Builder("email")
+            .withAccountName("test_email")
             .withHost("smtp.test.com")
             .withPort(123)
             .withMethod("none")

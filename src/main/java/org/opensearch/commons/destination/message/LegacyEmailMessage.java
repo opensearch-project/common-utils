@@ -19,16 +19,18 @@ import org.opensearch.commons.notifications.model.MethodType;
  */
 public class LegacyEmailMessage extends LegacyBaseMessage {
 
-    private final String message;
+    private final String accountName;
     private final String host;
     private final int port;
     private final String method;
     private final String from;
     private final List<String> recipients;
     private final String subject;
+    private final String message;
 
     private LegacyEmailMessage(
         final String destinationName,
+        final String accountName,
         final String host,
         final Integer port,
         final String method,
@@ -41,6 +43,10 @@ public class LegacyEmailMessage extends LegacyBaseMessage {
 
         if (Strings.isNullOrEmpty(message)) {
             throw new IllegalArgumentException("Message content is missing");
+        }
+
+        if (Strings.isNullOrEmpty(accountName)) {
+            throw new IllegalArgumentException("Account name should be provided");
         }
 
         if (Strings.isNullOrEmpty(host)) {
@@ -56,6 +62,7 @@ public class LegacyEmailMessage extends LegacyBaseMessage {
         }
 
         this.message = message;
+        this.accountName = accountName;
         this.host = host;
         this.port = port == null ? 25 : port;
 
@@ -78,6 +85,7 @@ public class LegacyEmailMessage extends LegacyBaseMessage {
     public LegacyEmailMessage(StreamInput streamInput) throws IOException {
         super(streamInput);
         this.message = super.getMessageContent();
+        this.accountName = streamInput.readString();
         this.host = streamInput.readString();
         this.port = streamInput.readInt();
         this.method = streamInput.readString();
@@ -92,6 +100,8 @@ public class LegacyEmailMessage extends LegacyBaseMessage {
             + getChannelType()
             + ", DestinationName:"
             + destinationName
+            + ", AccountName:"
+            + accountName
             + ", From: "
             + from
             + ", Host: "
@@ -106,6 +116,7 @@ public class LegacyEmailMessage extends LegacyBaseMessage {
 
     public static class Builder {
         private final String destinationName;
+        private String accountName;
         private String host;
         private Integer port;
         private String method;
@@ -116,6 +127,11 @@ public class LegacyEmailMessage extends LegacyBaseMessage {
 
         public Builder(String destinationName) {
             this.destinationName = destinationName;
+        }
+
+        public LegacyEmailMessage.Builder withAccountName(String accountName) {
+            this.accountName = accountName;
+            return this;
         }
 
         public LegacyEmailMessage.Builder withHost(String host) {
@@ -156,6 +172,7 @@ public class LegacyEmailMessage extends LegacyBaseMessage {
         public LegacyEmailMessage build() {
             return new LegacyEmailMessage(
                 this.destinationName,
+                this.accountName,
                 this.host,
                 this.port,
                 this.method,
@@ -165,6 +182,10 @@ public class LegacyEmailMessage extends LegacyBaseMessage {
                 this.message
             );
         }
+    }
+
+    public String getAccountName() {
+        return accountName;
     }
 
     public String getHost() {
@@ -202,6 +223,7 @@ public class LegacyEmailMessage extends LegacyBaseMessage {
     @Override
     public void writeTo(StreamOutput streamOutput) throws IOException {
         super.writeTo(streamOutput);
+        streamOutput.writeString(accountName);
         streamOutput.writeString(host);
         streamOutput.writeInt(port);
         streamOutput.writeString(method);

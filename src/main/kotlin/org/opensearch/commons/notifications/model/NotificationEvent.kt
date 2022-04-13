@@ -4,7 +4,6 @@
  */
 package org.opensearch.commons.notifications.model
 
-import org.opensearch.OpenSearchException
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
@@ -112,7 +111,7 @@ data class NotificationEvent(
         return try {
             XContentHelper.toXContent(this, XContentType.JSON, EMPTY_PARAMS, true).utf8ToString()
         } catch (e: IOException) {
-            throw OpenSearchException(e)
+            super.toString() + " threw " + e.toString()
         }
     }
 }
