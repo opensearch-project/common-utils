@@ -236,8 +236,9 @@ public class LegacyCustomWebhookMessage extends LegacyBaseMessage {
     @Override
     public void writeTo(StreamOutput streamOutput) throws IOException {
         super.writeTo(streamOutput);
-        // Making LegacyCustomWebhookMessage streamable is purely to support the new pass through API from ISM -> Notification plugin
-        // and it only supports LegacyCustomWebhookMessage when the url is already constructed by ISM.
+        // Making LegacyCustomWebhookMessage streamable is purely to support the new pass through API from Alerting/ISM -> Notification
+        // plugin
+        // and it only supports LegacyCustomWebhookMessage when the url is already constructed by Alerting/ISM.
         if (Strings.isNullOrEmpty(getUrl())) {
             throw new IllegalStateException("Cannot use LegacyCustomWebhookMessage across transport wire without defining full url.");
         }
