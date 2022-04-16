@@ -8,9 +8,12 @@ import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.ToXContent
+import org.opensearch.common.xcontent.ToXContent.EMPTY_PARAMS
 import org.opensearch.common.xcontent.XContentBuilder
+import org.opensearch.common.xcontent.XContentHelper
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.notifications.NotificationConstants.EVENT_SOURCE_TAG
 import org.opensearch.commons.notifications.NotificationConstants.STATUS_LIST_TAG
 import org.opensearch.commons.utils.logger
@@ -101,5 +104,14 @@ data class NotificationEvent(
             .field(EVENT_SOURCE_TAG, eventSource)
             .field(STATUS_LIST_TAG, statusList)
             .endObject()
+    }
+
+    // Overriding toString so consuming plugins can log/output this from the  sendNotification response if needed
+    override fun toString(): String {
+        return try {
+            XContentHelper.toXContent(this, XContentType.JSON, EMPTY_PARAMS, true).utf8ToString()
+        } catch (e: IOException) {
+            super.toString() + " threw " + e.toString()
+        }
     }
 }

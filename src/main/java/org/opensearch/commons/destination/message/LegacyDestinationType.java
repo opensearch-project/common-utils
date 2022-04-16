@@ -11,5 +11,6 @@ package org.opensearch.commons.destination.message;
 public enum LegacyDestinationType {
     LEGACY_CHIME,
     LEGACY_SLACK,
-    LEGACY_CUSTOM_WEBHOOK
+    LEGACY_CUSTOM_WEBHOOK,
+    LEGACY_EMAIL
 }
