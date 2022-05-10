@@ -1,4 +1,5 @@
 <img src="https://opensearch.org/assets/img/opensearch-logo-themed.svg" height="64px">
+[![codecov](https://codecov.io/gh/opensearch-project/common-utils/branch/main/graph/badge.svg?token=CQ01D9MNQL)](https://codecov.io/gh/opensearch-project/common-utils)
 
 - [OpenSearch Common Utils](#opensearch-common-utils)
 - [Contributing](#contributing)
