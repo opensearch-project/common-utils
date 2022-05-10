@@ -190,7 +190,7 @@ internal class NotificationsPluginInterfaceTests {
             deliveryStatus = DeliveryStatus("404", "invalid recipient")
         )
 
-        val sampleEvent = NotificationEvent(notificationInfo, listOf(sampleStatus))
+        val sampleEvent = listOf(NotificationEvent(notificationInfo, listOf(sampleStatus)))
 
         val response = SendNotificationResponse(sampleEvent)
         val listener: ActionListener<SendNotificationResponse> =

@@ -10,16 +10,21 @@ import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
+import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.commons.notifications.NotificationConstants.EVENT_LIST_TAG
 import org.opensearch.commons.notifications.model.NotificationEvent
+import org.opensearch.commons.utils.logger
+import org.opensearch.commons.utils.objectList
 import java.io.IOException
 
 /**
  * Action Response for send notification.
  */
 class SendNotificationResponse : BaseResponse {
-    val notificationEvent: NotificationEvent
+    val notificationEvents: List<NotificationEvent>
 
     companion object {
+        private val log by logger(SendNotificationResponse::class.java)
 
         /**
          * reader to create instance of class from writable.
@@ -33,7 +38,27 @@ class SendNotificationResponse : BaseResponse {
         @JvmStatic
         @Throws(IOException::class)
         fun parse(parser: XContentParser): SendNotificationResponse {
-            return SendNotificationResponse(NotificationEvent.parse(parser))
+            var notificationEvents: List<NotificationEvent>? = null
+
+            XContentParserUtils.ensureExpectedToken(
+                XContentParser.Token.START_OBJECT,
+                parser.currentToken(),
+                parser
+            )
+            while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
+                val fieldName = parser.currentName()
+                parser.nextToken()
+                when (fieldName) {
+                    EVENT_LIST_TAG -> notificationEvents = parser.objectList { NotificationEvent.parse(it) }
+                    else -> {
+                        parser.skipChildren()
+                        log.info("Unexpected field: $fieldName, while parsing SendNotificationResponse")
+                    }
+                }
+            }
+
+            notificationEvents ?: throw IllegalArgumentException("$EVENT_LIST_TAG field absent")
+            return SendNotificationResponse(notificationEvents)
         }
     }
 
@@ -41,8 +66,8 @@ class SendNotificationResponse : BaseResponse {
      * constructor for creating the class
      * @param notificationEvent the id of the created notification configuration
      */
-    constructor(notificationEvent: NotificationEvent) {
-        this.notificationEvent = notificationEvent
+    constructor(notificationEvents: List<NotificationEvent>) {
+        this.notificationEvents = notificationEvents
     }
 
     /**
@@ -50,7 +75,7 @@ class SendNotificationResponse : BaseResponse {
      */
     @Throws(IOException::class)
     constructor(input: StreamInput) : super(input) {
-        notificationEvent = NotificationEvent(input)
+        notificationEvents = input.readList(NotificationEvent.reader)
     }
 
     /**
@@ -58,13 +83,15 @@ class SendNotificationResponse : BaseResponse {
      */
     @Throws(IOException::class)
     override fun writeTo(output: StreamOutput) {
-        notificationEvent.writeTo(output)
+        output.writeList(notificationEvents)
     }
 
     /**
      * {@inheritDoc}
      */
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return notificationEvent.toXContent(builder, params)
+        return builder!!.startObject()
+            .field(EVENT_LIST_TAG, notificationEvents)
+            .endObject()
     }
 }

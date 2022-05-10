@@ -65,7 +65,7 @@ internal class SendNotificationResponseTests {
 
     @Test
     fun `Create response should safely ignore extra field in json object`() {
-        val sampleEvent = getSampleEvent()
+        val sampleEvent = getSampleEvents()
         val jsonString = """
         {
             "event_id":"$sampleEvent",
@@ -92,5 +92,36 @@ internal class SendNotificationResponseTests {
         )
 
         return NotificationEvent(sampleEventSource, listOf(sampleStatus))
+    }
+
+    private fun getSampleEvents(): List<NotificationEvent> {
+        val sampleEventSourceOne = EventSource(
+            "title",
+            "reference_id",
+            severity = SeverityType.INFO
+        )
+        val sampleStatusOne = EventStatus(
+            "config_id",
+            "name",
+            ConfigType.SLACK,
+            deliveryStatus = DeliveryStatus("404", "invalid recipient")
+        )
+
+        val sampleEventSourceTwo = EventSource(
+            "title",
+            "reference_id",
+            severity = SeverityType.INFO
+        )
+        val sampleStatusTwo = EventStatus(
+            "config_id",
+            "name",
+            ConfigType.SLACK,
+            deliveryStatus = DeliveryStatus("404", "invalid recipient")
+        )
+
+        return listOf(
+            NotificationEvent(sampleEventSourceOne, listOf(sampleStatusOne)),
+            NotificationEvent(sampleEventSourceTwo, listOf(sampleStatusTwo))
+        )
     }
 }
