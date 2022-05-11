@@ -111,6 +111,7 @@ data class NotificationEvent(
         return try {
             XContentHelper.toXContent(this, XContentType.JSON, EMPTY_PARAMS, true).utf8ToString()
         } catch (e: IOException) {
+            log.debug("Failed to convert NotificationEvent to string", e)
             super.toString() + " threw " + e.toString()
         }
     }
