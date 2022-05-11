@@ -5,9 +5,9 @@
 package org.opensearch.commons.notifications.model
 
 import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.ToXContent
+import org.opensearch.common.xcontent.ToXContentObject
 
 /**
  * interface for representing objects.
  */
-interface BaseModel : Writeable, ToXContent
+interface BaseModel : Writeable, ToXContentObject
