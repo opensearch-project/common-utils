@@ -26,7 +26,7 @@ val STRING_WRITER = Writeable.Writer { output: StreamOutput, value: String ->
  * This method needs to be inline and reified so that when this is called from
  * doExecute() of transport action, the object may be created from other JVM.
  */
-inline fun <reified Request> recreateObject(writeable: Writeable, block: (StreamInput) -> Request): Request {
+inline fun <Request> recreateObject(writeable: Writeable, block: (StreamInput) -> Request): Request {
     ByteArrayOutputStream().use { byteArrayOutputStream ->
         OutputStreamStreamOutput(byteArrayOutputStream).use {
             writeable.writeTo(it)
