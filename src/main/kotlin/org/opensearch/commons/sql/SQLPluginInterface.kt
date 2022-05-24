@@ -53,15 +53,15 @@ object SQLPluginInterface {
      */
     fun sendPPLQuery(
         client: NodeClient,
-        query: String,
+        request: TransportPPLQueryRequest,
         listener: ActionListener<TransportPPLQueryResponse>
     ) {
-        val threadContext: String? =
-            client.threadPool().threadContext.getTransient<String>(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
-        val wrapper = SecureClientWrapper(client) // Executing request in privileged mode
-        wrapper.execute(
+//        val threadContext: String? =
+//            client.threadPool().threadContext.getTransient<String>(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
+//        val wrapper = SecureClientWrapper(client) // Executing request in privileged mode
+        client.execute(
             SQLActions.SEND_PPL_QUERY_ACTION_TYPE,
-            TransportPPLQueryRequest(query, threadContext),
+            request,
             wrapActionListener(listener) { response -> recreateObject(response) { TransportPPLQueryResponse(it) } }
         )
     }

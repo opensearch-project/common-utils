@@ -14,13 +14,18 @@ import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.ToXContentObject
 import org.opensearch.common.xcontent.XContentBuilder
+import org.opensearch.commons.sql.model.Style
 import java.io.IOException
 
 /**
  * Action Request to send ppl query.
  */
 class TransportPPLQueryRequest : ActionRequest, ToXContentObject {
-    val query: String
+    val pplQuery: String
+    val path: String
+    var format: String
+    var sanitize: Boolean?
+    var style: Style?
     val threadContext: String?
 
     companion object {
@@ -37,9 +42,17 @@ class TransportPPLQueryRequest : ActionRequest, ToXContentObject {
      */
     constructor(
         query: String,
+        path: String,
+        format: String = "",
+        sanitize: Boolean? = true,
+        style: Style? = Style.COMPACT,
         threadContext: String?
     ) {
-        this.query = query
+        this.pplQuery = query
+        this.path = path
+        this.format = format
+        this.sanitize = sanitize
+        this.style = style
         this.threadContext = threadContext
     }
 
@@ -48,22 +61,30 @@ class TransportPPLQueryRequest : ActionRequest, ToXContentObject {
      */
     @Throws(IOException::class)
     constructor(input: StreamInput) : super(input) {
-        query = input.readString()
+        pplQuery = input.readString()
+        path = input.readString()
+        format = input.readString()
+        sanitize = input.readOptionalBoolean()
+        style = input.readEnum(Style::class.java)
         threadContext = input.readOptionalString()
     }
 
     @Throws(IOException::class)
     override fun writeTo(output: StreamOutput) {
         super.writeTo(output)
-        output.writeString(query)
+        output.writeString(pplQuery)
+        output.writeString(path)
+        output.writeOptionalString(format)
+        output.writeOptionalBoolean(sanitize)
+        output.writeEnum(style)
         output.writeOptionalString(threadContext)
     }
 
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        throw IllegalStateException("Transport ppl request is not intended for REST or persistence and does not support XContent.")
+    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder? {
+        return null
     }
 
     /**
@@ -71,7 +92,7 @@ class TransportPPLQueryRequest : ActionRequest, ToXContentObject {
      */
     override fun validate(): ActionRequestValidationException? {
         var validationException: ActionRequestValidationException? = null
-        if (query.isEmpty()) {
+        if (pplQuery.isEmpty()) {
             validationException = ValidateActions.addValidationError("query is empty", validationException)
         }
         return validationException

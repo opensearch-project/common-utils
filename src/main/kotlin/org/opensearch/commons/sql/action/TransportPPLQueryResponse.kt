@@ -52,6 +52,10 @@ class TransportPPLQueryResponse : BaseResponse {
      * {@inheritDoc}
      */
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        throw IllegalStateException("Transport ppl response is not intended for REST or persistence and does not support XContent.")
+//        throw IllegalStateException("Transport ppl response is not intended for REST or persistence and does not support XContent.")
+        builder!!
+        return builder.startObject()
+            .field("response", queryResponse)
+            .endObject()
     }
 }

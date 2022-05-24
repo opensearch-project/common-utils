@@ -17,7 +17,7 @@ internal class TransportPPLQueryRequestTest {
         expected: TransportPPLQueryRequest,
         actual: TransportPPLQueryRequest
     ) {
-        assertEquals(expected.query, actual.query)
+        assertEquals(expected.pplQuery, actual.pplQuery)
         assertEquals(expected.threadContext, actual.threadContext)
         assertNull(actual.validate())
     }
@@ -25,7 +25,9 @@ internal class TransportPPLQueryRequestTest {
     @Test
     fun `Send request serialize and deserialize transport object should be equal PPL`() {
         val query = "search source=accounts"
-        val request = TransportPPLQueryRequest(query, "sample-thread-context")
+        val path = "plugin/_ppl"
+        val format = ""
+        val request = TransportPPLQueryRequest(query, path, format, threadContext = "sample")
         val recreatedObject = recreateObject(request) { TransportPPLQueryRequest(it) }
         assertGetRequestEquals(request, recreatedObject)
     }
@@ -33,7 +35,9 @@ internal class TransportPPLQueryRequestTest {
     @Test
     fun `Send query request validate return exception if query is empty`() {
         val query = ""
-        val request = TransportPPLQueryRequest(query, "sample-thread-context")
+        val path = "plugin/_ppl"
+        val format = ""
+        val request = TransportPPLQueryRequest(query, path, format, threadContext = "sample")
         val recreatedObject = recreateObject(request) { TransportPPLQueryRequest(it) }
         assertNotNull(recreatedObject.validate())
     }

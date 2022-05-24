@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
+import org.opensearch.commons.sql.action.TransportPPLQueryRequest
 import org.opensearch.commons.sql.action.TransportPPLQueryResponse
 import org.opensearch.commons.sql.action.TransportSQLQueryResponse
 
@@ -44,6 +45,8 @@ internal class SQLPluginInterfaceTest {
     @Test
     fun sendPPLQuery() {
         val query = "search source=accounts"
+        val path = "plugin/_ppl"
+        val format = ""
         val response = TransportPPLQueryResponse("sample response")
         val listener: ActionListener<TransportPPLQueryResponse> =
             Mockito.mock(ActionListener::class.java) as ActionListener<TransportPPLQueryResponse>
@@ -53,7 +56,7 @@ internal class SQLPluginInterfaceTest {
                 .onResponse(response)
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
-        SQLPluginInterface.sendPPLQuery(client, query, listener)
+        SQLPluginInterface.sendPPLQuery(client, TransportPPLQueryRequest(query, path, format, threadContext = null), listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 }
