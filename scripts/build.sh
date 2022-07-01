@@ -59,8 +59,8 @@ fi
 [[ "$SNAPSHOT" == "true" ]] && VERSION=$VERSION-SNAPSHOT
 [ -z "$OUTPUT" ] && OUTPUT=artifacts
 
-./gradlew build -Dopensearch.version=$VERSION -Dbuild.snapshot=$SNAPSHOT
-./gradlew publishShadowPublicationToMavenLocal -Dopensearch.version=$VERSION -Dbuild.snapshot=$SNAPSHOT
-./gradlew publishShadowPublicationToStagingRepository -Dopensearch.version=$VERSION -Dbuild.snapshot=$SNAPSHOT
+./gradlew build -Popensearch.version=$VERSION -Pbuild.snapshot=$SNAPSHOT
+./gradlew publishShadowPublicationToMavenLocal -Popensearch.version=$VERSION -Pbuild.snapshot=$SNAPSHOT
+./gradlew publishShadowPublicationToStagingRepository -Popensearch.version=$VERSION -Pbuild.snapshot=$SNAPSHOT
 mkdir -p $OUTPUT/maven/org/opensearch
 cp -r ./build/local-staging-repo/org/opensearch/common-utils $OUTPUT/maven/org/opensearch/common-utils
