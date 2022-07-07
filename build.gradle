@@ -6,7 +6,7 @@
 buildscript {
     ext {
         opensearch_group = "org.opensearch"
-        opensearch_version = project.property('opensearch.version')
+        opensearch_version = System.getProperty("opensearch.version", "1.3.3-SNAPSHOT")
         kotlin_version = System.getProperty("kotlin.version", "1.4.32")
     }
 
@@ -39,7 +39,7 @@ repositories {
 }
 
 ext {
-    isSnapshot = project.property('build.snapshot')
+    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
 allprojects {
@@ -140,11 +140,14 @@ shadowJar {
     classifier = null
 }
 
-task setVersion() {
+task versionIncrement {
     if(project.hasProperty('newVersion')) {
-        ant.propertyfile(
-            file: "gradle.properties") {
-            entry( key: "opensearch.version", value: "${newVersion}")
+        println 'Set Project to new Version '+newVersion.tokenize('-')[0]
+        final String workingDir = project.buildDir.toString() + "/../"
+        ant.replaceregexp(match: opensearch_version.tokenize('-')[0], replace: newVersion.tokenize('-')[0], flags:'g', byline:true) {
+            fileset(dir: workingDir) {
+                include(name: "build.gradle")
+            }
         }
     }
 }
