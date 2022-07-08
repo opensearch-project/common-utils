@@ -141,14 +141,15 @@ shadowJar {
 }
 
 task versionIncrement {
-    if(project.hasProperty('newVersion')) {
-        println 'Set Project to new Version '+newVersion.tokenize('-')[0]
+    onlyIf { project.hasProperty('newVersion') }
+    doLast {
         final String workingDir = project.buildDir.toString() + "/../"
         ant.replaceregexp(match: opensearch_version.tokenize('-')[0], replace: newVersion.tokenize('-')[0], flags:'g', byline:true) {
             fileset(dir: workingDir) {
                 include(name: "build.gradle")
             }
         }
+        println "Setting version to ${project.getProperty('newVersion')}."
     }
 }
 
