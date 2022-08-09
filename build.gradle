@@ -59,7 +59,7 @@ apply plugin: 'jacoco'
 apply plugin: 'signing'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'io.gitlab.arturbosch.detekt'
+// apply plugin: 'io.gitlab.arturbosch.detekt'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.jetbrains.kotlin.plugin.allopen'
 apply plugin: 'opensearch.repositories'
@@ -81,8 +81,11 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:3.10.0'
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
-
+    implementation "com.cronutils:cron-utils:9.1.6"
     ktlint "com.pinterest:ktlint:0.44.0"
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'commons-validator:commons-validator:1.7'
+
 }
 
 test {
@@ -103,10 +106,10 @@ spotless {
         eclipse().configFile rootProject.file('.eclipseformat.xml')
     }
 }
-detekt {
+/*detekt {
     config = files("detekt.yml")
     buildUponDefaultConfig = true
-}
+}*/
 
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
@@ -118,7 +121,7 @@ task ktlint(type: JavaExec, group: "verification") {
     // see https://github.com/pinterest/ktlint#usage for more
 }
 
-check.dependsOn ktlint
+// check.dependsOn ktlint
 
 task ktlintFormat(type: JavaExec, group: "formatting") {
     description = "Fix Kotlin code style deviations."
@@ -208,6 +211,6 @@ task updateVersion {
         println "Setting version to ${newVersion}."
         // String tokenization to support -SNAPSHOT
         // Include the required files that needs to be updated with new Version
-        ant.replaceregexp(file:'build.gradle', match: '"opensearch.version", "\\d.*"', replace: '"opensearch.version", "' + newVersion.tokenize('-')[0] + '-SNAPSHOT"', flags:'g', byline:true)
+        ant.replaceregexp(file: 'build.gradle', match: '"opensearch.version", "\\d.*"', replace: '"opensearch.version", "' + newVersion.tokenize('-')[0] + '-SNAPSHOT"', flags: 'g', byline: true)
     }
 }  
