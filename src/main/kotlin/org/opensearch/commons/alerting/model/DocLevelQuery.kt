@@ -39,15 +39,6 @@ data class DocLevelQuery(
         sin.readStringList() // tags
     )
 
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
-            QUERY_ID_FIELD to id,
-            NAME_FIELD to name,
-            QUERY_FIELD to query,
-            TAGS_FIELD to tags
-        )
-    }
-
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         out.writeString(id)

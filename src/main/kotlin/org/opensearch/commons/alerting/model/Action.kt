@@ -9,11 +9,7 @@ import org.opensearch.common.UUIDs
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.ToXContentObject
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
-import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.common.xcontent.*
 import org.opensearch.script.Script
 import java.io.IOException
 
@@ -144,7 +140,8 @@ data class Action(
                     }
                     MESSAGE_TEMPLATE_FIELD -> messageTemplate = Script.parse(xcp, Script.DEFAULT_TEMPLATE_LANG)
                     THROTTLE_FIELD -> {
-                        throttle = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else Throttle.parse(xcp)
+                        throttle =
+                            if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else Throttle.parse(xcp)
                     }
                     THROTTLE_ENABLED_FIELD -> {
                         throttleEnabled = xcp.booleanValue()

@@ -10,7 +10,6 @@ import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import java.io.IOException
-import java.time.Instant
 
 abstract class TriggerRunResult(
     open var triggerName: String,
@@ -31,13 +30,6 @@ abstract class TriggerRunResult(
 
     abstract fun internalXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder
 
-    /** Returns error information to store in the Alert. Currently it's just the stack trace but it can be more */
-    open fun alertError(): AlertError? {
-        if (error != null) {
-            return AlertError(Instant.now(), "Failed evaluating trigger:\n${error!!.userErrorMessage()}")
-        }
-        return null
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

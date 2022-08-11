@@ -50,9 +50,11 @@ data class SearchInput(val indices: List<String>, val query: SearchSourceBuilder
         const val QUERY_FIELD = "query"
         const val SEARCH_FIELD = "search"
 
-        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(Input::class.java, ParseField("search"), CheckedFunction { parseInner(it) })
+        val XCONTENT_REGISTRY =
+            NamedXContentRegistry.Entry(Input::class.java, ParseField("search"), CheckedFunction { parseInner(it) })
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): SearchInput {
             val indices = mutableListOf<String>()
             lateinit var searchSourceBuilder: SearchSourceBuilder

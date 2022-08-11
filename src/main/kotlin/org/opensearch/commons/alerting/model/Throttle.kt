@@ -9,14 +9,10 @@ import org.apache.commons.codec.binary.StringUtils
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.ToXContentObject
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
-import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.common.xcontent.*
 import java.io.IOException
 import java.time.temporal.ChronoUnit
-import java.util.Locale
+import java.util.*
 
 data class Throttle(
     val value: Int,
@@ -24,7 +20,7 @@ data class Throttle(
 ) : Writeable, ToXContentObject {
 
     @Throws(IOException::class)
-    constructor(sin: StreamInput) : this (
+    constructor(sin: StreamInput) : this(
         sin.readInt(), // value
         sin.readEnum(ChronoUnit::class.java) // unit
     )
@@ -59,7 +55,9 @@ data class Throttle(
                 when (fieldName) {
                     UNIT_FIELD -> {
                         val unitString = xcp.text().uppercase(Locale.ROOT)
-                        require(StringUtils.equals(unitString, ChronoUnit.MINUTES.name), { "Only support MINUTES throttle unit currently" })
+                        require(
+                            StringUtils.equals(unitString, ChronoUnit.MINUTES.name),
+                            { "Only support MINUTES throttle unit currently" })
                         unit = ChronoUnit.valueOf(unitString)
                     }
                     VALUE_FIELD -> {

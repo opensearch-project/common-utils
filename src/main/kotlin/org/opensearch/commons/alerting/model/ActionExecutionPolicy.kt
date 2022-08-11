@@ -24,7 +24,7 @@ data class ActionExecutionPolicy(
 ) : Writeable, ToXContentObject {
 
     @Throws(IOException::class)
-    constructor(sin: StreamInput) : this (
+    constructor(sin: StreamInput) : this(
         ActionExecutionScope.readFrom(sin) // actionExecutionScope
     )
 
@@ -71,32 +71,6 @@ data class ActionExecutionPolicy(
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): ActionExecutionPolicy {
             return ActionExecutionPolicy(sin)
-        }
-
-        /**
-         * The default [ActionExecutionPolicy] configuration for Bucket-Level Monitors.
-         *
-         * If Query-Level Monitors integrate the use of [ActionExecutionPolicy] then a separate default configuration
-         * will need to be made depending on the desired behavior.
-         */
-        fun getDefaultConfigurationForBucketLevelMonitor(): ActionExecutionPolicy {
-            val defaultActionExecutionScope = PerAlertActionScope(
-                actionableAlerts = setOf(AlertCategory.DEDUPED, AlertCategory.NEW)
-            )
-            return ActionExecutionPolicy(actionExecutionScope = defaultActionExecutionScope)
-        }
-
-        /**
-         * The default [ActionExecutionPolicy] configuration for Document-Level Monitors.
-         *
-         * If Query-Level Monitors integrate the use of [ActionExecutionPolicy] then a separate default configuration
-         * will need to be made depending on the desired behavior.
-         */
-        fun getDefaultConfigurationForDocumentLevelMonitor(): ActionExecutionPolicy {
-            val defaultActionExecutionScope = PerAlertActionScope(
-                actionableAlerts = setOf(AlertCategory.DEDUPED, AlertCategory.NEW)
-            )
-            return ActionExecutionPolicy(actionExecutionScope = defaultActionExecutionScope)
         }
     }
 }

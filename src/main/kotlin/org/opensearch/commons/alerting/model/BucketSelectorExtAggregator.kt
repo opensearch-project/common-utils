@@ -6,9 +6,9 @@
 package org.opensearch.commons.alerting.model
 
 import org.apache.lucene.util.BytesRef
-import org.opensearch.commons.alerting.model.BucketSelectorExtAggregationBuilder.Companion.NAME
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
+import org.opensearch.commons.alerting.model.BucketSelectorExtAggregationBuilder.Companion.NAME
 import org.opensearch.script.BucketAggregationSelectorScript
 import org.opensearch.script.Script
 import org.opensearch.search.DocValueFormat

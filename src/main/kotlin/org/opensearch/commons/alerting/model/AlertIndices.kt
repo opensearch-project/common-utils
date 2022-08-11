@@ -6,17 +6,10 @@
 package org.opensearch.commons.alerting.model
 
 import org.apache.logging.log4j.LogManager
-import org.opensearch.ResourceAlreadyExistsException
 import org.opensearch.action.ActionListener
 import org.opensearch.action.admin.cluster.state.ClusterStateRequest
 import org.opensearch.action.admin.cluster.state.ClusterStateResponse
-import org.opensearch.action.admin.indices.alias.Alias
-import org.opensearch.action.admin.indices.create.CreateIndexRequest
-import org.opensearch.action.admin.indices.create.CreateIndexResponse
 import org.opensearch.action.admin.indices.delete.DeleteIndexRequest
-import org.opensearch.action.admin.indices.exists.indices.IndicesExistsRequest
-import org.opensearch.action.admin.indices.exists.indices.IndicesExistsResponse
-import org.opensearch.action.admin.indices.mapping.put.PutMappingRequest
 import org.opensearch.action.admin.indices.rollover.RolloverRequest
 import org.opensearch.action.admin.indices.rollover.RolloverResponse
 import org.opensearch.action.support.IndicesOptions
@@ -28,7 +21,6 @@ import org.opensearch.cluster.metadata.IndexMetadata
 import org.opensearch.cluster.service.ClusterService
 import org.opensearch.common.settings.Settings
 import org.opensearch.common.unit.TimeValue
-import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.alerting.model.AlertIndices.Companion.ALERT_HISTORY_WRITE_INDEX
 import org.opensearch.commons.alerting.model.AlertIndices.Companion.ALERT_INDEX
 import org.opensearch.commons.alerting.model.AlertingSettings.Companion.ALERT_HISTORY_ENABLED
@@ -42,8 +34,6 @@ import org.opensearch.commons.alerting.model.AlertingSettings.Companion.FINDING_
 import org.opensearch.commons.alerting.model.AlertingSettings.Companion.FINDING_HISTORY_RETENTION_PERIOD
 import org.opensearch.commons.alerting.model.AlertingSettings.Companion.FINDING_HISTORY_ROLLOVER_PERIOD
 import org.opensearch.commons.alerting.model.AlertingSettings.Companion.REQUEST_TIMEOUT
-import org.opensearch.commons.alerting.utils.IndexUtils
-import org.opensearch.commons.suspendUntil
 import org.opensearch.threadpool.Scheduler.Cancellable
 import org.opensearch.threadpool.ThreadPool
 import java.time.Instant
@@ -255,59 +245,6 @@ class AlertIndices(
                     findingHistoryRolloverPeriod,
                     executorName()
                 )
-        }
-    }
-
-    private suspend fun createIndex(index: String, schemaMapping: String, alias: String? = null): Boolean {
-        // This should be a fast check of local cluster state. Should be exceedingly rare that the local cluster
-        // state does not contain the index and multiple nodes concurrently try to create the index.
-        // If it does happen that error is handled we catch the ResourceAlreadyExistsException
-        val existsResponse: IndicesExistsResponse = client.admin().indices().suspendUntil {
-            exists(IndicesExistsRequest(index).local(true), it)
-        }
-        if (existsResponse.isExists) return true
-
-        val request = CreateIndexRequest(index)
-            .mapping(schemaMapping)
-            .settings(Settings.builder().put("index.hidden", true).build())
-
-        if (alias != null) request.alias(Alias(alias))
-        return try {
-            val createIndexResponse: CreateIndexResponse = client.admin().indices().suspendUntil { create(request, it) }
-            createIndexResponse.isAcknowledged
-        } catch (e: ResourceAlreadyExistsException) {
-            true
-        }
-    }
-
-    private suspend fun updateIndexMapping(index: String, mapping: String, alias: Boolean = false) {
-        val clusterState = clusterService.state()
-        var targetIndex = index
-        if (alias) {
-            targetIndex = IndexUtils.getIndexNameWithAlias(clusterState, index)
-        }
-
-        if (targetIndex == IndexUtils.lastUpdatedAlertHistoryIndex || targetIndex == IndexUtils.lastUpdatedFindingHistoryIndex) {
-            return
-        }
-
-        var putMappingRequest: PutMappingRequest = PutMappingRequest(targetIndex)
-            .source(mapping, XContentType.JSON)
-        val updateResponse: AcknowledgedResponse =
-            client.admin().indices().suspendUntil { putMapping(putMappingRequest, it) }
-        if (updateResponse.isAcknowledged) {
-            logger.info("Index mapping of $targetIndex is updated")
-            setIndexUpdateFlag(index, targetIndex)
-        } else {
-            logger.info("Failed to update index mapping of $targetIndex")
-        }
-    }
-
-    private fun setIndexUpdateFlag(index: String, targetIndex: String) {
-        when (index) {
-            ALERT_INDEX -> IndexUtils.alertIndexUpdated()
-            ALERT_HISTORY_WRITE_INDEX -> IndexUtils.lastUpdatedAlertHistoryIndex = targetIndex
-            FINDING_HISTORY_WRITE_INDEX -> IndexUtils.lastUpdatedFindingHistoryIndex = targetIndex
         }
     }
 

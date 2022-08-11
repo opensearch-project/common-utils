@@ -5,8 +5,6 @@
 
 package org.opensearch.commons.alerting.model
 
-import org.opensearch.commons.alerting.model.BucketSelectorExtFilter.Companion.BUCKET_SELECTOR_COMPOSITE_AGG_FILTER
-import org.opensearch.commons.alerting.model.BucketSelectorExtFilter.Companion.BUCKET_SELECTOR_FILTER
 import org.opensearch.common.ParseField
 import org.opensearch.common.ParsingException
 import org.opensearch.common.io.stream.StreamInput
@@ -14,12 +12,14 @@ import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.xcontent.ToXContent.Params
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
+import org.opensearch.commons.alerting.model.BucketSelectorExtFilter.Companion.BUCKET_SELECTOR_COMPOSITE_AGG_FILTER
+import org.opensearch.commons.alerting.model.BucketSelectorExtFilter.Companion.BUCKET_SELECTOR_FILTER
 import org.opensearch.script.Script
 import org.opensearch.search.aggregations.pipeline.AbstractPipelineAggregationBuilder
 import org.opensearch.search.aggregations.pipeline.BucketHelpers.GapPolicy
 import org.opensearch.search.aggregations.pipeline.PipelineAggregator
 import java.io.IOException
-import java.util.Objects
+import java.util.*
 
 class BucketSelectorExtAggregationBuilder :
     AbstractPipelineAggregationBuilder<BucketSelectorExtAggregationBuilder> {
@@ -121,10 +121,10 @@ class BucketSelectorExtAggregationBuilder :
         if (!super.equals(other)) return false
         val otherCast = other as BucketSelectorExtAggregationBuilder
         return (
-            bucketsPathsMap == otherCast.bucketsPathsMap &&
-                script == otherCast.script &&
-                gapPolicy == otherCast.gapPolicy
-            )
+                bucketsPathsMap == otherCast.bucketsPathsMap &&
+                        script == otherCast.script &&
+                        gapPolicy == otherCast.gapPolicy
+                )
     }
 
     override fun getWriteableName(): String {
@@ -222,14 +222,14 @@ class BucketSelectorExtAggregationBuilder :
                 throw ParsingException(
                     parser.tokenLocation,
                     "Missing required field [" + PipelineAggregator.Parser.BUCKETS_PATH.preferredName +
-                        "] for bucket_selector aggregation [" + reducerName + "]"
+                            "] for bucket_selector aggregation [" + reducerName + "]"
                 )
             }
             if (script == null) {
                 throw ParsingException(
                     parser.tokenLocation,
                     "Missing required field [" + Script.SCRIPT_PARSE_FIELD.preferredName +
-                        "] for bucket_selector aggregation [" + reducerName + "]"
+                            "] for bucket_selector aggregation [" + reducerName + "]"
                 )
             }
 
@@ -237,10 +237,11 @@ class BucketSelectorExtAggregationBuilder :
                 throw ParsingException(
                     parser.tokenLocation,
                     "Missing required field [" + PARENT_BUCKET_PATH +
-                        "] for bucket_selector aggregation [" + reducerName + "]"
+                            "] for bucket_selector aggregation [" + reducerName + "]"
                 )
             }
-            val factory = BucketSelectorExtAggregationBuilder(reducerName, bucketsPathsMap, script, parentBucketPath, filter)
+            val factory =
+                BucketSelectorExtAggregationBuilder(reducerName, bucketsPathsMap, script, parentBucketPath, filter)
             if (gapPolicy != null) {
                 factory.gapPolicy(gapPolicy)
             }

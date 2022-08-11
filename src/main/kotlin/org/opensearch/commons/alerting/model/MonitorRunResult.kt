@@ -112,15 +112,6 @@ data class InputRunResults(
             return map as Map<String, Any>
         }
     }
-
-    fun afterKeysPresent(): Boolean {
-        aggTriggersAfterKey?.forEach {
-            if (it.value.afterKey != null && !it.value.lastPage) {
-                return true
-            }
-        }
-        return false
-    }
 }
 
 data class TriggerAfterKey(val afterKey: Map<String, Any>?, val lastPage: Boolean)

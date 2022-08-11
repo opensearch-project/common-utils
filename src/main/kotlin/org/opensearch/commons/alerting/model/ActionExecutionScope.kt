@@ -15,7 +15,6 @@ import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParser.Token
 import org.opensearch.common.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
-import java.lang.IllegalArgumentException
 
 /**
  * This class represents configurations used to control the scope of Action executions when Alerts are created.
@@ -72,7 +71,8 @@ sealed class ActionExecutionScope : Writeable, ToXContentObject {
                     }
                     PER_EXECUTION_FIELD -> {
                         type = Type.PER_EXECUTION
-                        while (xcp.nextToken() != Token.END_OBJECT) {}
+                        while (xcp.nextToken() != Token.END_OBJECT) {
+                        }
                     }
                     else -> throw IllegalArgumentException("Invalid field [$fieldName] found in action execution scope.")
                 }
@@ -162,7 +162,8 @@ class PerExecutionActionScope() : ActionExecutionScope() {
     }
 
     @Throws(IOException::class)
-    override fun writeTo(out: StreamOutput) {}
+    override fun writeTo(out: StreamOutput) {
+    }
 
     companion object {
         @JvmStatic

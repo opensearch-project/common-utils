@@ -35,7 +35,7 @@ data class ClusterMetricsInput(
         }
 
         // Create an UrlValidator that only accepts "http" and "https" as valid scheme and allows local URLs.
-         val urlValidator = UrlValidator(arrayOf("http", "https"), UrlValidator.ALLOW_LOCAL_URLS)
+        val urlValidator = UrlValidator(arrayOf("http", "https"), UrlValidator.ALLOW_LOCAL_URLS)
 
         // Build url field by field if not provided as whole.
         constructedUri = toConstructedUri()

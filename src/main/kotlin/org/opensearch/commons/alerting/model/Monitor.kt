@@ -19,7 +19,6 @@ import org.opensearch.commons.alerting.action._ID
 import org.opensearch.commons.alerting.action._VERSION
 import org.opensearch.commons.alerting.model.AlertingSettings.Companion.MONITOR_MAX_INPUTS
 import org.opensearch.commons.alerting.model.AlertingSettings.Companion.MONITOR_MAX_TRIGGERS
-import org.opensearch.commons.alerting.utils.IndexUtils.Companion.NO_SCHEMA_VERSION
 import org.opensearch.commons.authuser.User
 import org.opensearch.commons.instant
 import org.opensearch.commons.optionalTimeField
@@ -27,6 +26,8 @@ import org.opensearch.commons.optionalUserField
 import java.io.IOException
 import java.time.Instant
 import java.util.*
+
+const val NO_SCHEMA_VERSION = 0
 
 /**
  * A value object that represents a Monitor. Monitors are used to periodically execute a source query and check the
@@ -49,6 +50,7 @@ data class Monitor(
     val triggers: List<Trigger>,
     val uiMetadata: Map<String, Any>
 ) : ScheduledJob {
+
 
     override val type = MONITOR_TYPE
 

@@ -60,16 +60,6 @@ data class DocumentLevelTrigger(
         return DOCUMENT_LEVEL_TRIGGER_FIELD
     }
 
-    /** Returns a representation of the trigger suitable for passing into painless and mustache scripts. */
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
-            ID_FIELD to id,
-            NAME_FIELD to name,
-            SEVERITY_FIELD to severity,
-            ACTIONS_FIELD to actions.map { it.asTemplateArg() }
-        )
-    }
-
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         out.writeString(id)

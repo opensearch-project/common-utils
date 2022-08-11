@@ -18,14 +18,10 @@ import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
-import java.time.DateTimeException
-import java.time.Duration
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 import java.time.temporal.ChronoUnit
 import java.time.zone.ZoneRulesException
-import java.util.Locale
+import java.util.*
 
 sealed class Schedule : Writeable, ToXContentObject {
     enum class TYPE { CRON, INTERVAL }
@@ -39,7 +35,8 @@ sealed class Schedule : Writeable, ToXContentObject {
 
         val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX))
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parse(xcp: XContentParser): Schedule {
             var expression: String? = null
             var timezone: ZoneId? = null
@@ -97,7 +94,8 @@ sealed class Schedule : Writeable, ToXContentObject {
             return requireNotNull(schedule) { "Schedule is null." }
         }
 
-        @JvmStatic @Throws(IllegalArgumentException::class)
+        @JvmStatic
+        @Throws(IllegalArgumentException::class)
         private fun getTimeZone(timeZone: String): ZoneId {
             try {
                 return ZoneId.of(timeZone)
@@ -187,7 +185,8 @@ data class CronSchedule(
     }
 
     override fun getExpectedNextExecutionTime(enabledTime: Instant, expectedPreviousExecutionTime: Instant?): Instant? {
-        val zonedDateTime = ZonedDateTime.ofInstant(expectedPreviousExecutionTime ?: testInstant ?: Instant.now(), timezone)
+        val zonedDateTime =
+            ZonedDateTime.ofInstant(expectedPreviousExecutionTime ?: testInstant ?: Instant.now(), timezone)
         val nextExecution = executionTime.nextExecution(zonedDateTime)
         return nextExecution.orElse(null)?.toInstant()
     }
@@ -273,6 +272,7 @@ data class IntervalSchedule(
         sin.readInt(), // interval
         sin.readEnum(ChronoUnit::class.java) // unit
     )
+
     companion object {
         @Transient
         private val SUPPORTED_UNIT = listOf(ChronoUnit.MINUTES, ChronoUnit.HOURS, ChronoUnit.DAYS)

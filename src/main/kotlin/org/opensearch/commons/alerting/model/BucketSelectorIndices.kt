@@ -10,7 +10,7 @@ import org.opensearch.common.xcontent.ToXContent.Params
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.search.aggregations.InternalAggregation
 import java.io.IOException
-import java.util.Objects
+import java.util.*
 
 open class BucketSelectorIndices(
     name: String?,

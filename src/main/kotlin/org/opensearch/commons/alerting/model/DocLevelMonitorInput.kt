@@ -29,14 +29,6 @@ data class DocLevelMonitorInput(
         sin.readList(::DocLevelQuery) // docLevelQueries
     )
 
-    fun asTemplateArg(): Map<String, Any?> {
-        return mapOf(
-            DESCRIPTION_FIELD to description,
-            INDICES_FIELD to indices,
-            QUERIES_FIELD to queries.map { it.asTemplateArg() }
-        )
-    }
-
     override fun name(): String {
         return DOC_LEVEL_INPUT_FIELD
     }
@@ -72,7 +64,8 @@ data class DocLevelMonitorInput(
             ParseField(DOC_LEVEL_INPUT_FIELD), CheckedFunction { parse(it) }
         )
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parse(xcp: XContentParser): DocLevelMonitorInput {
             var description: String = NO_DESCRIPTION
             val indices: MutableList<String> = mutableListOf()
@@ -103,7 +96,8 @@ data class DocLevelMonitorInput(
             return DocLevelMonitorInput(description = description, indices = indices, queries = docLevelQueries)
         }
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun readFrom(sin: StreamInput): DocLevelMonitorInput {
             return DocLevelMonitorInput(sin)
         }

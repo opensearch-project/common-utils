@@ -71,24 +71,9 @@ data class BucketLevelTrigger(
         out.writeCollection(actions)
     }
 
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
-            ID_FIELD to id,
-            NAME_FIELD to name,
-            SEVERITY_FIELD to severity,
-            ACTIONS_FIELD to actions.map { it.asTemplateArg() },
-            PARENT_BUCKET_PATH to getParentBucketPath()
-        )
-    }
-
-    fun getParentBucketPath(): String {
-        return bucketSelector.parentBucketPath
-    }
-
     companion object {
         const val BUCKET_LEVEL_TRIGGER_FIELD = "bucket_level_trigger"
         const val CONDITION_FIELD = "condition"
-        const val PARENT_BUCKET_PATH = "parentBucketPath"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             Trigger::class.java, ParseField(BUCKET_LEVEL_TRIGGER_FIELD),

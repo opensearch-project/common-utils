@@ -36,7 +36,6 @@ interface ScheduledJob : Writeable, ToXContentObject {
     companion object {
         /** The name of the ElasticSearch index in which we store jobs */
         const val SCHEDULED_JOBS_INDEX = ".opendistro-alerting-config"
-        const val DOC_LEVEL_QUERIES_INDEX = ".opensearch-alerting-queries"
 
         const val NO_ID = ""
 
