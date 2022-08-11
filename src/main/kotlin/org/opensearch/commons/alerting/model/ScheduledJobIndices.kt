@@ -46,19 +46,4 @@ class ScheduledJobIndices(private val client: AdminClient, private val clusterSe
         val clusterState = clusterService.state()
         return clusterState.routingTable.hasIndex(ScheduledJob.SCHEDULED_JOBS_INDEX)
     }
-
-    /**
-     * Check if the index exists. If the index does not exist, return null.
-     */
-    fun scheduledJobIndexHealth(): ClusterIndexHealth? {
-        var indexHealth: ClusterIndexHealth? = null
-
-        if (scheduledJobIndexExists()) {
-            val indexRoutingTable = clusterService.state().routingTable.index(ScheduledJob.SCHEDULED_JOBS_INDEX)
-            val indexMetaData = clusterService.state().metadata().index(ScheduledJob.SCHEDULED_JOBS_INDEX)
-
-            indexHealth = ClusterIndexHealth(indexMetaData, indexRoutingTable)
-        }
-        return indexHealth
-    }
 }

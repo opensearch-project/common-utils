@@ -31,12 +31,7 @@ class IndexUtils {
             private set
         var findingIndexSchemaVersion: Int
             private set
-
-        var scheduledJobIndexUpdated: Boolean = false
-            private set
         var alertIndexUpdated: Boolean = false
-            private set
-        var findingIndexUpdated: Boolean = false
             private set
         var lastUpdatedAlertHistoryIndex: String? = null
         var lastUpdatedFindingHistoryIndex: String? = null
@@ -48,18 +43,8 @@ class IndexUtils {
         }
 
         @JvmStatic
-        fun scheduledJobIndexUpdated() {
-            scheduledJobIndexUpdated = true
-        }
-
-        @JvmStatic
         fun alertIndexUpdated() {
             alertIndexUpdated = true
-        }
-
-        @JvmStatic
-        fun findingIndexUpdated() {
-            findingIndexUpdated = true
         }
 
         @JvmStatic
@@ -111,25 +96,6 @@ class IndexUtils {
                 }
             }
             return newVersion > oldVersion
-        }
-
-        @JvmStatic
-        fun updateIndexMapping(
-            index: String,
-            mapping: String,
-            clusterState: ClusterState,
-            client: IndicesAdminClient,
-            actionListener: ActionListener<AcknowledgedResponse>
-        ) {
-            if (clusterState.metadata.indices.containsKey(index)) {
-                if (shouldUpdateIndex(clusterState.metadata.indices[index], mapping)) {
-                    val putMappingRequest: PutMappingRequest =
-                        PutMappingRequest(index).source(mapping, XContentType.JSON)
-                    client.putMapping(putMappingRequest, actionListener)
-                } else {
-                    actionListener.onResponse(AcknowledgedResponse(true))
-                }
-            }
         }
     }
 }

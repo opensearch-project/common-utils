@@ -15,55 +15,6 @@ class AlertingSettings {
 
         const val MONITOR_MAX_INPUTS = 1
         const val MONITOR_MAX_TRIGGERS = 10
-        const val DEFAULT_MAX_ACTIONABLE_ALERT_COUNT = 50L
-
-        val ALERTING_MAX_MONITORS = Setting.intSetting(
-            "plugins.alerting.monitor.max_monitors",
-            LegacyOpenDistroAlertingSettings.ALERTING_MAX_MONITORS,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val INPUT_TIMEOUT = Setting.positiveTimeSetting(
-            "plugins.alerting.input_timeout",
-            LegacyOpenDistroAlertingSettings.INPUT_TIMEOUT,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val INDEX_TIMEOUT = Setting.positiveTimeSetting(
-            "plugins.alerting.index_timeout",
-            LegacyOpenDistroAlertingSettings.INDEX_TIMEOUT,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val BULK_TIMEOUT = Setting.positiveTimeSetting(
-            "plugins.alerting.bulk_timeout",
-            LegacyOpenDistroAlertingSettings.BULK_TIMEOUT,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val ALERT_BACKOFF_MILLIS = Setting.positiveTimeSetting(
-            "plugins.alerting.alert_backoff_millis",
-            LegacyOpenDistroAlertingSettings.ALERT_BACKOFF_MILLIS,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val ALERT_BACKOFF_COUNT = Setting.intSetting(
-            "plugins.alerting.alert_backoff_count",
-            LegacyOpenDistroAlertingSettings.ALERT_BACKOFF_COUNT,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val MOVE_ALERTS_BACKOFF_MILLIS = Setting.positiveTimeSetting(
-            "plugins.alerting.move_alerts_backoff_millis",
-            LegacyOpenDistroAlertingSettings.MOVE_ALERTS_BACKOFF_MILLIS,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val MOVE_ALERTS_BACKOFF_COUNT = Setting.intSetting(
-            "plugins.alerting.move_alerts_backoff_count",
-            LegacyOpenDistroAlertingSettings.MOVE_ALERTS_BACKOFF_COUNT,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
 
         val ALERT_HISTORY_ENABLED = Setting.boolSetting(
             "plugins.alerting.alert_history_enabled",
@@ -131,25 +82,6 @@ class AlertingSettings {
         val REQUEST_TIMEOUT = Setting.positiveTimeSetting(
             "plugins.alerting.request_timeout",
             LegacyOpenDistroAlertingSettings.REQUEST_TIMEOUT,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val MAX_ACTION_THROTTLE_VALUE = Setting.positiveTimeSetting(
-            "plugins.alerting.action_throttle_max_value",
-            LegacyOpenDistroAlertingSettings.MAX_ACTION_THROTTLE_VALUE,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val FILTER_BY_BACKEND_ROLES = Setting.boolSetting(
-            "plugins.alerting.filter_by_backend_roles",
-            LegacyOpenDistroAlertingSettings.FILTER_BY_BACKEND_ROLES,
-            Setting.Property.NodeScope, Setting.Property.Dynamic
-        )
-
-        val MAX_ACTIONABLE_ALERT_COUNT = Setting.longSetting(
-            "plugins.alerting.max_actionable_alert_count",
-            DEFAULT_MAX_ACTIONABLE_ALERT_COUNT,
-            -1L,
             Setting.Property.NodeScope, Setting.Property.Dynamic
         )
     }

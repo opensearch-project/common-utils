@@ -121,12 +121,6 @@ class AlertIndices(
         /** The index name pattern to create finding history indices */
         const val FINDING_HISTORY_INDEX_PATTERN = "<.opensearch-alerting-finding-history-{now/d}-1>"
 
-        /** The index name pattern to query all alerts, history and current alerts. */
-        const val ALL_ALERT_INDEX_PATTERN = ".opendistro-alerting-alert*"
-
-        /** The index name pattern to query all findings, history and current findings. */
-        const val ALL_FINDING_INDEX_PATTERN = ".opensearch-alerting-finding*"
-
         @JvmStatic
         fun alertMapping() =
             AlertIndices::class.java.getResource("alert_mapping.json").readText()
@@ -262,55 +256,6 @@ class AlertIndices(
                     executorName()
                 )
         }
-    }
-
-    fun isAlertInitialized(): Boolean {
-        return alertIndexInitialized && alertHistoryIndexInitialized
-    }
-
-    fun isAlertHistoryEnabled(): Boolean = alertHistoryEnabled
-
-    fun isFindingHistoryEnabled(): Boolean = findingHistoryEnabled
-
-    suspend fun createOrUpdateAlertIndex() {
-        if (!alertIndexInitialized) {
-            alertIndexInitialized = createIndex(ALERT_INDEX, alertMapping())
-            if (alertIndexInitialized) IndexUtils.alertIndexUpdated()
-        } else {
-            if (!IndexUtils.alertIndexUpdated) updateIndexMapping(ALERT_INDEX, alertMapping())
-        }
-        alertIndexInitialized
-    }
-
-    suspend fun createOrUpdateInitialAlertHistoryIndex() {
-        if (!alertHistoryIndexInitialized) {
-            alertHistoryIndexInitialized =
-                createIndex(ALERT_HISTORY_INDEX_PATTERN, alertMapping(), ALERT_HISTORY_WRITE_INDEX)
-            if (alertHistoryIndexInitialized)
-                IndexUtils.lastUpdatedAlertHistoryIndex = IndexUtils.getIndexNameWithAlias(
-                    clusterService.state(),
-                    ALERT_HISTORY_WRITE_INDEX
-                )
-        } else {
-            updateIndexMapping(ALERT_HISTORY_WRITE_INDEX, alertMapping(), true)
-        }
-        alertHistoryIndexInitialized
-    }
-
-    suspend fun createOrUpdateInitialFindingHistoryIndex() {
-        if (!findingHistoryIndexInitialized) {
-            findingHistoryIndexInitialized =
-                createIndex(FINDING_HISTORY_INDEX_PATTERN, findingMapping(), FINDING_HISTORY_WRITE_INDEX)
-            if (findingHistoryIndexInitialized) {
-                IndexUtils.lastUpdatedFindingHistoryIndex = IndexUtils.getIndexNameWithAlias(
-                    clusterService.state(),
-                    FINDING_HISTORY_WRITE_INDEX
-                )
-            }
-        } else {
-            updateIndexMapping(FINDING_HISTORY_WRITE_INDEX, findingMapping(), true)
-        }
-        findingHistoryIndexInitialized
     }
 
     private suspend fun createIndex(index: String, schemaMapping: String, alias: String? = null): Boolean {

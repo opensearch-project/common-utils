@@ -48,22 +48,6 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
             .endObject()
     }
 
-    /** Returns error information to store in the Alert. Currently it's just the stack trace but it can be more */
-    fun alertError(): AlertError? {
-        if (error != null) {
-            return AlertError(Instant.now(), "Failed running monitor:\n${error.userErrorMessage()}")
-        }
-
-        if (inputResults.error != null) {
-            return AlertError(Instant.now(), "Failed fetching inputs:\n${inputResults.error.userErrorMessage()}")
-        }
-        return null
-    }
-
-    fun scriptContextError(trigger: Trigger): Exception? {
-        return error ?: inputResults.error ?: triggerResults[trigger.id]?.error
-    }
-
     companion object {
         @JvmStatic
         @Throws(IOException::class)
@@ -100,6 +84,7 @@ data class InputRunResults(
             .field("error", error?.message)
             .endObject()
     }
+
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         out.writeVInt(results.size)
