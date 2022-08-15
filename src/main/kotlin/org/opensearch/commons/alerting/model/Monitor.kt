@@ -17,8 +17,6 @@ import org.opensearch.common.xcontent.XContentParser.Token
 import org.opensearch.common.xcontent.XContentParserUtils.ensureExpectedToken
 import org.opensearch.commons.alerting.action._ID
 import org.opensearch.commons.alerting.action._VERSION
-import org.opensearch.commons.alerting.model.AlertingSettings.Companion.MONITOR_MAX_INPUTS
-import org.opensearch.commons.alerting.model.AlertingSettings.Companion.MONITOR_MAX_TRIGGERS
 import org.opensearch.commons.authuser.User
 import org.opensearch.commons.instant
 import org.opensearch.commons.optionalTimeField
@@ -28,6 +26,8 @@ import java.time.Instant
 import java.util.*
 
 const val NO_SCHEMA_VERSION = 0
+const val MONITOR_MAX_INPUTS = 1
+const val MONITOR_MAX_TRIGGERS = 10
 
 /**
  * A value object that represents a Monitor. Monitors are used to periodically execute a source query and check the
