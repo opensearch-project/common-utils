@@ -4,7 +4,6 @@
  */
 
 package org.opensearch.commons.alerting.model
-
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.http.client.utils.URIBuilder
 import org.opensearch.common.CheckedFunction

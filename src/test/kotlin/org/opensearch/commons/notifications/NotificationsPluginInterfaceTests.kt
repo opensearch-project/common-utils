@@ -6,6 +6,7 @@
 package org.opensearch.commons.notifications
 
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Ignore
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Answers

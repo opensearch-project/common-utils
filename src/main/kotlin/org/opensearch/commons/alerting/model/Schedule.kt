@@ -35,6 +35,7 @@ sealed class Schedule : Writeable, ToXContentObject {
 
         val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX))
 
+
         @JvmStatic
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): Schedule {
