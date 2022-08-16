@@ -92,6 +92,10 @@ data class Monitor(
 
     fun Monitor.isBucketLevelMonitor(): Boolean = this.monitorType == Monitor.MonitorType.BUCKET_LEVEL_MONITOR
 
+    fun getMonitorUser(): Optional<User> {
+        return Optional.ofNullable(this.user);
+    }
+
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         id = sin.readString(),

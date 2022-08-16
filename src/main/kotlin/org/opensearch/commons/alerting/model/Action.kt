@@ -12,6 +12,7 @@ import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.*
 import org.opensearch.script.Script
 import java.io.IOException
+import java.util.*
 
 /**
  * This class holds the data and parser logic for Action which is part of a trigger
@@ -36,6 +37,14 @@ data class Action(
         if (actionExecutionPolicy?.actionExecutionScope is PerExecutionActionScope) {
             require(throttle == null) { "Throttle is currently not supported for per execution action scope" }
         }
+    }
+
+    fun getActionThrottle(): Optional<Throttle> {
+        return Optional.ofNullable(this.throttle);
+    }
+
+    fun getActionSubjectTemplate():Optional<Script> {
+       return Optional.ofNullable(this.subjectTemplate);
     }
 
     @Throws(IOException::class)

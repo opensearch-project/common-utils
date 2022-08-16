@@ -66,6 +66,13 @@ interface Trigger : Writeable, ToXContentObject {
         }
     }
 
+    fun asTemplateArg(): Map<String, Any> {
+        return mapOf(
+            ID_FIELD to id, NAME_FIELD to name, SEVERITY_FIELD to severity,
+            ACTIONS_FIELD to actions.map { it.asTemplateArg() }
+        )
+    }
+
     /** The id of the Trigger in the [SCHEDULED_JOBS_INDEX] */
     val id: String
 

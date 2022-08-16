@@ -10,6 +10,7 @@ import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import java.io.IOException
+import java.util.*
 
 abstract class TriggerRunResult(
     open var triggerName: String,
@@ -30,6 +31,9 @@ abstract class TriggerRunResult(
 
     abstract fun internalXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder
 
+    fun getResultError(): Optional<Exception> {
+        return Optional.ofNullable(this.error);
+    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

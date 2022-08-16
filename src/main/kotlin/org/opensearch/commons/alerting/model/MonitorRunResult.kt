@@ -16,6 +16,7 @@ import org.opensearch.commons.optionalTimeField
 import org.opensearch.script.ScriptException
 import java.io.IOException
 import java.time.Instant
+import java.util.*
 
 data class MonitorRunResult<TriggerResult : TriggerRunResult>(
     val monitorName: String,
@@ -36,6 +37,10 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
         InputRunResults.readFrom(sin), // inputResults
         suppressWarning(sin.readMap()) as Map<String, TriggerResult> // triggerResults
     )
+
+    fun getResultError(): Optional<Exception> {
+        return Optional.ofNullable(this.error);
+    }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         return builder.startObject()
@@ -70,6 +75,10 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
         inputResults.writeTo(out)
         out.writeMap(triggerResults)
     }
+
+    fun scriptContextError(trigger: Trigger): Exception? {
+        return error ?: inputResults.error ?: triggerResults[trigger.id]?.error
+    }
 }
 
 data class InputRunResults(
@@ -84,6 +93,11 @@ data class InputRunResults(
             .field("error", error?.message)
             .endObject()
     }
+
+    fun getAggregateTriggersAfterKey(): Optional<MutableMap<String, TriggerAfterKey>> {
+        return Optional.ofNullable(this.aggTriggersAfterKey);
+    }
+
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -134,6 +148,10 @@ data class ActionRunResult(
         sin.readOptionalInstant(), // executionTime
         sin.readException() // error
     )
+
+    fun getActionError(): Optional<Exception> {
+        return Optional.ofNullable(this.error);
+    }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         return builder.startObject()
