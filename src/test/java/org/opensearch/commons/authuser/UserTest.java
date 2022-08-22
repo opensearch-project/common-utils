@@ -28,6 +28,17 @@ public class UserTest {
     }
 
     User testTenantUser() {
+        return new User(
+            "chip",
+            Arrays.asList("admin", "ops"),
+            Arrays.asList("ops_data"),
+            Arrays.asList("attr1", "attr2"),
+            "__user__",
+            "WRITE"
+        );
+    }
+
+    User testTenantUserWithNoAccessInfo() {
         return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1", "attr2"), "__user__");
     }
 
@@ -52,6 +63,16 @@ public class UserTest {
     }
 
     @Test
+    public void testParamsConstForTenantUserWithNoAccessInfo() {
+        User user = testTenantUserWithNoAccessInfo();
+        assertFalse(Strings.isNullOrEmpty(user.getName()));
+        assertEquals(2, user.getBackendRoles().size());
+        assertEquals(1, user.getRoles().size());
+        assertEquals(2, user.getCustomAttNames().size());
+        assertFalse(Strings.isNullOrEmpty(user.getRequestedTenant()));
+    }
+
+    @Test
     public void testParamsConstForTenantUser() {
         User user = testTenantUser();
         assertFalse(Strings.isNullOrEmpty(user.getName()));
@@ -59,6 +80,7 @@ public class UserTest {
         assertEquals(1, user.getRoles().size());
         assertEquals(2, user.getCustomAttNames().size());
         assertFalse(Strings.isNullOrEmpty(user.getRequestedTenant()));
+        assertEquals("WRITE", user.getRequestedTenantAccess());
     }
 
     @Test
@@ -101,6 +123,17 @@ public class UserTest {
     @Test
     public void testStreamConstForTenantUser() throws IOException {
         User user = testTenantUser();
+        BytesStreamOutput out = new BytesStreamOutput();
+        user.writeTo(out);
+        StreamInput in = StreamInput.wrap(out.bytes().toBytesRef().bytes);
+        User newUser = new User(in);
+        assertEquals(user.toString(), newUser.toString(), "Round tripping User doesn't work");
+        assertEquals(user, newUser, "Round tripping User doesn't work");
+    }
+
+    @Test
+    public void testStreamConstForTenantUserWithNoAccessInfo() throws IOException {
+        User user = testTenantUserWithNoAccessInfo();
         BytesStreamOutput out = new BytesStreamOutput();
         user.writeTo(out);
         StreamInput in = StreamInput.wrap(out.bytes().toBytesRef().bytes);
@@ -155,6 +188,21 @@ public class UserTest {
         assertEquals(0, user.getBackendRoles().size());
         assertEquals(0, user.getRoles().size());
         assertEquals("myTenant", user.getRequestedTenant());
+        assertNull(user.getRequestedTenantAccess());
+    }
+
+    @Test
+    public void testParseUserStringNameWithTenantAndAccess() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|||myTenant|NO");
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+
+        assertEquals("myuser", user.getName());
+        assertEquals(0, user.getBackendRoles().size());
+        assertEquals(0, user.getRoles().size());
+        assertEquals("myTenant", user.getRequestedTenant());
+        assertEquals("NO", user.getRequestedTenantAccess());
     }
 
     @Test
