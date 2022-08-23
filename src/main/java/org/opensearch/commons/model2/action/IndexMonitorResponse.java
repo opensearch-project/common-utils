@@ -11,9 +11,9 @@ import org.opensearch.common.xcontent.ToXContent;
 import org.opensearch.common.xcontent.ToXContentObject;
 import org.opensearch.common.xcontent.XContentBuilder;
 import org.opensearch.commons.model2.ModelSerializer;
+import org.opensearch.commons.model2.model.Monitor;
 import org.opensearch.rest.RestStatus;
 
-import javax.management.monitor.Monitor;
 import java.io.IOException;
 
 public class IndexMonitorResponse extends ActionResponse implements ToXContentObject {
