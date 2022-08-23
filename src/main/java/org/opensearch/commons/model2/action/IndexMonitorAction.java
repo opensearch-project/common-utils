@@ -9,8 +9,8 @@ import org.opensearch.action.ActionType;
 
 public class IndexMonitorAction extends ActionType<IndexMonitorResponse> {
 
-    public static final String ALERTING_NAME = "cluster:admin/opendistro/security_analytics/monitor/index";
-    public static final IndexMonitorAction ALERTING_INSTANCE = new IndexMonitorAction(ALERTING_NAME);
+    public static final String SAP_ALERTING_BRIDGE_NAME = "cluster:admin/opendistro/alerting/monitor/write2";
+    public static final IndexMonitorAction SAP_ALERTING_BRIDGE_INSTANCE = new IndexMonitorAction(SAP_ALERTING_BRIDGE_NAME);
 
     private IndexMonitorAction(final String name) {
         super(name, IndexMonitorResponse::new);

@@ -7,7 +7,6 @@ package org.opensearch.commons.model2;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensearch.common.io.stream.BytesStreamInput;
 import org.opensearch.common.io.stream.BytesStreamOutput;
@@ -18,34 +17,33 @@ import org.opensearch.test.OpenSearchTestCase;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 
 import static org.opensearch.commons.model2.ModelSerializer.checkType;
 import static org.opensearch.commons.model2.ModelSerializer.getListGeneric;
 
-public class ModelTests extends OpenSearchTestCase {
+public class ModelTest extends OpenSearchTestCase {
 
-    private static final Logger LOG = LogManager.getLogger(ModelTests.class);
+    private static final Logger LOG = LogManager.getLogger(ModelTest.class);
 
-    public List<Class<?>> TEST_MODELS = new ArrayList<>();
+    public static List<Class<?>> TEST_MODELS = List.of(
+            Action.class,
+            Action.ExecutionPolicy.class,
+            Action.ExecutionScope.class,
+            Action.ExecutionScope.PerScope.class,
+            Input.class,
+            Monitor.class,
+            Query.class,
+            Script.class,
+            Throttle.class,
+            Trigger.class);
 
     private static final int NULL_FIELD_PROBABILITY = 10;
     private static final List<String> ALPHABET = List.of("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "_", "-");
 
-    @BeforeClass
-    public void loadModelsForTesting() {
-        Collections.addAll(TEST_MODELS,
-                Action.class,
-                Action.ExecutionPolicy.class,
-                Action.ExecutionScope.class,
-                Action.ExecutionScope.PerScope.class,
-                Input.class,
-                Monitor.class,
-                Query.class,
-                Script.class,
-                Throttle.class,
-                Trigger.class);
-    }
 
     @Test
     public void testModels() throws Exception {
@@ -70,7 +68,7 @@ public class ModelTests extends OpenSearchTestCase {
 
             LOG.info("\tVerifying stream input/output serialization consistency for {}", modelClass);
             // TODO: test against all stream output/input types
-            assertEquals(modelA, ModelTests.serializeDeserialize((ToXContentModel) modelA));
+            assertEquals(modelA, ModelTest.serializeDeserialize((ToXContentModel) modelA));
             for (final Field field : ModelSerializer.getSortedFields(modelClass)) {
                 assertEquals(field.get(modelA), field.get(modelB));
             }
