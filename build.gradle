@@ -75,12 +75,16 @@ dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3" // ${kotlin_version} does not work for coroutines
+    compileOnly "com.cronutils:cron-utils:9.1.6"
+    compileOnly "commons-validator:commons-validator:1.7"
     testImplementation "org.opensearch.test:framework:${opensearch_version}"
     testImplementation "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
     testImplementation "org.mockito:mockito-core:3.10.0"
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.10.0'
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+    testImplementation "com.cronutils:cron-utils:9.1.6"
+    testImplementation "commons-validator:commons-validator:1.7"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 
     ktlint "com.pinterest:ktlint:0.44.0"
@@ -213,4 +217,4 @@ task updateVersion {
         // Include the required files that needs to be updated with new Version
         ant.replaceregexp(file:'build.gradle', match: '"opensearch.version", "\\d.*"', replace: '"opensearch.version", "' + newVersion.tokenize('-')[0] + '-SNAPSHOT"', flags:'g', byline:true)
     }
-}  
+}
