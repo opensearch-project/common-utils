@@ -24,12 +24,12 @@ public class LegacySNSMessage extends LegacyBaseMessage {
     private final String clusterName;
 
     private LegacySNSMessage(
-            final String destinationName,
-            final String roleArn,
-            final String topicArn,
-            final String clusterName,
-            final String subject,
-            final String message
+        final String destinationName,
+        final String roleArn,
+        final String topicArn,
+        final String clusterName,
+        final String subject,
+        final String message
     ) {
         super(LegacyDestinationType.LEGACY_SNS, destinationName, message);
 
@@ -66,13 +66,20 @@ public class LegacySNSMessage extends LegacyBaseMessage {
 
     @Override
     public String toString() {
-        return "DestinationType: " + getChannelType()
-                + ", DestinationName: " +  destinationName
-                + ", RoleARn: " + roleArn
-                + ", TopicArn: " + topicArn
-                + ", ClusterName: " + clusterName
-                + ", Subject: " + subject
-                + ", Message: " + message;
+        return "DestinationType: "
+            + getChannelType()
+            + ", DestinationName: "
+            + destinationName
+            + ", RoleARn: "
+            + roleArn
+            + ", TopicArn: "
+            + topicArn
+            + ", ClusterName: "
+            + clusterName
+            + ", Subject: "
+            + subject
+            + ", Message: "
+            + message;
     }
 
     public static class Builder {
@@ -113,14 +120,7 @@ public class LegacySNSMessage extends LegacyBaseMessage {
         }
 
         public LegacySNSMessage build() {
-            return new LegacySNSMessage(
-                    this.destinationName,
-                    this.roleArn,
-                    this.topicArn,
-                    this.clusterName,
-                    this.subject,
-                    this.message
-            );
+            return new LegacySNSMessage(this.destinationName, this.roleArn, this.topicArn, this.clusterName, this.subject, this.message);
         }
     }
 

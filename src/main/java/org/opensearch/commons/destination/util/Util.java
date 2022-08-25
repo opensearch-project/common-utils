@@ -5,15 +5,16 @@
 
 package org.opensearch.commons.destination.util;
 
+import java.util.regex.Pattern;
+
 import org.opensearch.common.Strings;
 import org.opensearch.common.ValidationException;
-
-import java.util.regex.Pattern;
 
 public class Util {
     private Util() {}
 
-    public static final Pattern SNS_ARN_REGEX = Pattern.compile("^arn:aws(-[^:]+)?:sns:([a-zA-Z0-9-]+):([0-9]{12}):([a-zA-Z0-9-_]+)(\\.fifo)?$");
+    public static final Pattern SNS_ARN_REGEX = Pattern
+        .compile("^arn:aws(-[^:]+)?:sns:([a-zA-Z0-9-]+):([0-9]{12}):([a-zA-Z0-9-_]+)(\\.fifo)?$");
     public static final Pattern IAM_ARN_REGEX = Pattern.compile("^arn:aws(-[^:]+)?:iam::([0-9]{12}):([a-zA-Z0-9-/_+=@.,]+)$");
 
     public static String getRegion(String arn) {
