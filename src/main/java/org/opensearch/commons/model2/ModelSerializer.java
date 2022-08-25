@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -81,6 +82,8 @@ public class ModelSerializer {
                     field.set(model, new TimeValue(parser.longValue()));
                 else if (checkType(field, ChronoUnit.class))
                     field.set(model, ChronoUnit.valueOf(parser.text()));
+                else if (checkType(field, ZoneId.class))
+                    field.set(model, ZoneId.of(parser.text()));
                 else if (checkType(field, List.class))
                     field.set(model, parser.list());
                 else if (checkType(field, ToXContentObject.class))
@@ -117,6 +120,8 @@ public class ModelSerializer {
                         output.writeTimeValue((TimeValue) field.get(model));
                     else if (checkType(field, ChronoUnit.class))
                         output.writeEnum((ChronoUnit) field.get(model));
+                    else if (checkType(field, ZoneId.class))
+                        output.writeString(field.get(model).toString());
                     else if (checkType(field, List.class, String.class))
                         output.writeStringCollection((List<String>) field.get(model));
                     else if (checkType(field, List.class)) {
@@ -156,6 +161,8 @@ public class ModelSerializer {
                         field.set(model, input.readTimeValue());
                     else if (checkType(field, ChronoUnit.class))
                         field.set(model, input.readEnum(ChronoUnit.class));
+                    else if (checkType(field, ZoneId.class))
+                        field.set(model, ZoneId.of(input.readString()));
                     else if (checkType(field, List.class, String.class))
                         field.set(model, input.readStringList());
                     else if (checkType(field, List.class)) {

@@ -14,7 +14,7 @@ public class ExecuteMonitorRequest extends ActionRequest {
 
     private static final Logger LOG = LogManager.getLogger(ExecuteMonitorRequest.class);
 
-    Monitor monitor;
+    public Monitor monitor;
 
     public ExecuteMonitorRequest(final Monitor monitor) {
         this.monitor = monitor;

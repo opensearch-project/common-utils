@@ -7,25 +7,27 @@ package org.opensearch.commons.model2;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opensearch.common.io.stream.BytesStreamInput;
 import org.opensearch.common.io.stream.BytesStreamOutput;
 import org.opensearch.common.unit.TimeValue;
 import org.opensearch.commons.model2.model.*;
-import org.opensearch.test.OpenSearchTestCase;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.opensearch.commons.model2.ModelSerializer.checkType;
 import static org.opensearch.commons.model2.ModelSerializer.getListGeneric;
 
-public class ModelTest extends OpenSearchTestCase {
+public class ModelTest  {
 
     private static final Logger LOG = LogManager.getLogger(ModelTest.class);
 
@@ -37,13 +39,13 @@ public class ModelTest extends OpenSearchTestCase {
             Input.class,
             Monitor.class,
             Query.class,
+            Schedule.class,
             Script.class,
             Throttle.class,
             Trigger.class);
 
     private static final int NULL_FIELD_PROBABILITY = 10;
     private static final List<String> ALPHABET = List.of("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "_", "-");
-
 
     @Test
     public void testModels() throws Exception {
@@ -97,6 +99,8 @@ public class ModelTest extends OpenSearchTestCase {
                         field.set(model, ChronoUnit.values()[random.nextInt(ChronoUnit.values().length)]);
                     else if (checkType(field, List.class, String.class))
                         field.set(model, nextListString(random));
+                    else if (checkType(field, ZoneId.class))
+                        field.set(model, ZoneId.of(new ArrayList<>(ZoneId.getAvailableZoneIds()).get(random.nextInt(ZoneId.getAvailableZoneIds().size()))));
                     else if (checkType(field, List.class))
                         field.set(model, nextList(random, getListGeneric(field)));
                     else if (checkType(field, ToXContentModel.class))
