@@ -6,6 +6,7 @@ package org.opensearch.commons.model2;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 import org.opensearch.common.io.stream.StreamInput;
 import org.opensearch.common.io.stream.StreamOutput;
 import org.opensearch.common.io.stream.Writeable;
@@ -176,6 +177,40 @@ public class ModelSerializer {
                         field.set(model, ModelSerializer.read(input, field.getType()));
                     else
                         throw new IllegalArgumentException(String.format(Locale.getDefault(), "Unsupported field type %s in model %s", field.getType().getName(), model.getClass().getSimpleName()));
+                }
+            }
+            return model;
+        } catch (final Exception e) {
+            if (e instanceof IOException)
+                throw (IOException) e;
+            else
+                throw new IOException(e);
+        }
+    }
+
+    public static <T> T read(final JSONObject json, final Class<T> modelClass) throws IOException {
+        try {
+            final T model = modelClass.getConstructor().newInstance();
+            final Map<String, Object> map = json.toMap();
+            for (final Field field : ModelSerializer.getSortedFields(modelClass)) {
+                if (map.containsKey(field.getName())) {
+                    final Object obj = map.get(field.getName());
+                    if (Boolean.class.isAssignableFrom(field.getType()) ||
+                            Long.class.isAssignableFrom(field.getType()) ||
+                            Integer.class.isAssignableFrom(field.getType()) ||
+                            field.getType().equals(String.class))
+                        field.set(model, field.getType().cast(obj));
+                    else if (obj instanceof Map) {
+                        field.set(model, ModelSerializer.read(new JSONObject((Map) obj), field.getType()));
+                    } else if (obj instanceof List && List.class.isAssignableFrom(field.getType())) {
+                        final List list = new ArrayList();
+                        for (final Object arrayObj : ((List) obj)) {
+                            list.add((arrayObj instanceof Map) ?
+                                    ModelSerializer.read(new JSONObject((Map) arrayObj), getListGeneric(field)) :
+                                    getListGeneric(field).cast(arrayObj));
+                        }
+                        field.set(model, list);
+                    }
                 }
             }
             return model;

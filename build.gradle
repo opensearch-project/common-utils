@@ -83,6 +83,7 @@ configurations {
 }
 
 dependencies {
+    implementation group: 'org.json', name: 'json', version: '20220320'
     compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
