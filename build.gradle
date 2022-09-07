@@ -104,6 +104,8 @@ spotless {
         eclipse().configFile rootProject.file('.eclipseformat.xml')
     }
 }
+
+// TODO: enable detekt only when snakeyaml vulnerability is fixed
 /*detekt {
     config = files("detekt.yml")
     buildUponDefaultConfig = true
