@@ -7,19 +7,48 @@
 style:
   ForbiddenComment:
     active: false
+  LoopWithTooManyJumpStatements:
+    maxJumpCount: 4
   MaxLineLength:
-    maxLineLength: 150
+    maxLineLength: 200
   ThrowsCount:
     active: true
     max: 10
   ReturnCount:
     active: true
     max: 10
+  UtilityClassWithPublicConstructor:
+    active: false
+
+empty-blocks:
+  EmptyCatchBlock:
+    excludes: ['**/test/**']
+
+exceptions:
+  SwallowedException:
+    excludes: ['**/test/**']
+    ignoredExceptionTypes:
+      - 'ZoneRulesException'
+      - 'DateTimeException'
 
 complexity:
   LargeClass:
     excludes: ['**/test/**']
   LongMethod:
     excludes: ['**/test/**']
+    threshold: 110
   LongParameterList:
     excludes: ['**/test/**']
+    constructorThreshold: 8
+  ComplexMethod:
+    threshold: 27
+  NestedBlockDepth:
+    threshold: 10
+
+naming:
+  ObjectPropertyNaming:
+    constantPattern: '[_A-Za-z][_A-Za-z0-9]*'
+
+performance:
+  SpreadOperator:
+    active: false
