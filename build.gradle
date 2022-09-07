@@ -23,7 +23,7 @@ buildscript {
         classpath "${opensearch_group}.gradle:build-tools:${opensearch_version}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
         classpath "org.jetbrains.kotlin:kotlin-allopen:${kotlin_version}"
-        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.20.0-RC1"
+//        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.20.0-RC1"
     }
 }
 
@@ -59,7 +59,7 @@ apply plugin: 'jacoco'
 apply plugin: 'signing'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'io.gitlab.arturbosch.detekt'
+// apply plugin: 'io.gitlab.arturbosch.detekt'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.jetbrains.kotlin.plugin.allopen'
 apply plugin: 'opensearch.repositories'
@@ -67,6 +67,7 @@ apply from: 'build-tools/opensearchplugin-coverage.gradle'
 
 configurations {
     ktlint
+    all*.exclude group: 'org.yaml', module: 'snakeyaml'
 }
 
 dependencies {
@@ -103,10 +104,12 @@ spotless {
         eclipse().configFile rootProject.file('.eclipseformat.xml')
     }
 }
-detekt {
+
+// TODO: enable detekt only when snakeyaml vulnerability is fixed
+/*detekt {
     config = files("detekt.yml")
     buildUponDefaultConfig = true
-}
+}*/
 
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
