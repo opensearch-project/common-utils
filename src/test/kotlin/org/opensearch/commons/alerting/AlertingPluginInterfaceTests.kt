@@ -12,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
+import org.opensearch.commons.alerting.action.DeleteMonitorRequest
+import org.opensearch.commons.alerting.action.DeleteMonitorResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.alerting.model.Monitor
@@ -39,6 +41,22 @@ internal class AlertingPluginInterfaceTests {
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
         AlertingPluginInterface.indexMonitor(client, request, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
+    fun deleteMonitor() {
+        val request = mock(DeleteMonitorRequest::class.java)
+        val response = DeleteMonitorResponse(Monitor.NO_ID, Monitor.NO_VERSION)
+        val listener: ActionListener<DeleteMonitorResponse> =
+            mock(ActionListener::class.java) as ActionListener<DeleteMonitorResponse>
+
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<DeleteMonitorResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+
+        AlertingPluginInterface.deleteMonitor(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 }
