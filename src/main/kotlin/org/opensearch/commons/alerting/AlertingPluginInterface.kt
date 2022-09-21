@@ -6,11 +6,11 @@ package org.opensearch.commons.alerting
 
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionResponse
-import org.opensearch.alerting.action.GetFindingsRequest
-import org.opensearch.alerting.action.GetFindingsResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.common.io.stream.Writeable
 import org.opensearch.commons.alerting.action.AlertingActions
+import org.opensearch.commons.alerting.action.GetFindingsRequest
+import org.opensearch.commons.alerting.action.GetFindingsResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.notifications.action.BaseResponse
