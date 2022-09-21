@@ -5,7 +5,6 @@
 package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionType
-import org.opensearch.alerting.action.GetFindingsResponse
 
 object AlertingActions {
     const val INDEX_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/write"
