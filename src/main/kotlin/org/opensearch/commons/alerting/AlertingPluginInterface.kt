@@ -9,6 +9,8 @@ import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.common.io.stream.Writeable
 import org.opensearch.commons.alerting.action.AlertingActions
+import org.opensearch.commons.alerting.action.GetFindingsRequest
+import org.opensearch.commons.alerting.action.GetFindingsResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.notifications.action.BaseResponse
@@ -36,6 +38,24 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     IndexMonitorResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    fun getFindings(
+        client: NodeClient,
+        request: GetFindingsRequest,
+        listener: ActionListener<GetFindingsResponse>
+    ) {
+        client.execute(
+            AlertingActions.GET_FINDINGS_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    GetFindingsResponse(
                         it
                     )
                 }
