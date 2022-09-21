@@ -9,10 +9,10 @@ import org.opensearch.action.ActionType
 object AlertingActions {
     const val INDEX_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/write"
     const val GET_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/get"
-
+    @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
         ActionType(INDEX_MONITOR_ACTION_NAME, ::IndexMonitorResponse)
-
+    @JvmField
     val GET_FINDINGS_ACTION_TYPE =
         ActionType(GET_FINDINGS_ACTION_NAME, ::GetFindingsResponse)
 }
