@@ -71,7 +71,7 @@ object AlertingPluginInterface {
      * @param request The request object
      * @param listener The listener for getting response
      */
-    fun indexMonitor(
+    fun getAlerts(
         client: NodeClient,
         request: GetAlertsRequest,
         listener: ActionListener<GetAlertsResponse>
