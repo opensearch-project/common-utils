@@ -22,6 +22,7 @@ import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtFilter
 import org.opensearch.commons.alerting.model.ActionExecutionResult
+import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
@@ -421,3 +422,17 @@ fun randomActionExecutionResult(
     lastExecutionTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
     throttledCount: Int = 0
 ) = ActionExecutionResult(actionId, lastExecutionTime, throttledCount)
+
+fun randomAlertWithAggregationResultBucket(monitor: Monitor = randomBucketLevelMonitor()): Alert {
+    val trigger = randomBucketLevelTrigger()
+    val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
+    return Alert(
+        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
+        actionExecutionResults = actionExecutionResults,
+        aggregationResultBucket = AggregationResultBucket(
+            "parent_bucket_path_1",
+            listOf("bucket_key_1"),
+            mapOf("k1" to "val1", "k2" to "val2")
+        )
+    )
+}
