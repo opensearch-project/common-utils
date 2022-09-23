@@ -12,8 +12,13 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
+<<<<<<< HEAD
 import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
+=======
+import org.opensearch.commons.alerting.action.GetAlertsRequest
+import org.opensearch.commons.alerting.action.GetAlertsResponse
+>>>>>>> 8cbb375 (add test for get alerts)
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.alerting.model.Monitor
@@ -45,6 +50,7 @@ internal class AlertingPluginInterfaceTests {
     }
 
     @Test
+<<<<<<< HEAD
     fun deleteMonitor() {
         val request = mock(DeleteMonitorRequest::class.java)
         val response = DeleteMonitorResponse(Monitor.NO_ID, Monitor.NO_VERSION)
@@ -57,6 +63,22 @@ internal class AlertingPluginInterfaceTests {
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
         AlertingPluginInterface.deleteMonitor(client, request, listener)
+=======
+    fun getAlerts() {
+        val monitor = randomQueryLevelMonitor()
+        val alert = randomAlert(monitor)
+        val request = mock(GetAlertsRequest::class.java)
+        val response = GetAlertsResponse(listOf(alert), 1)
+        val listener: ActionListener<GetAlertsResponse> =
+            mock(ActionListener::class.java) as ActionListener<GetAlertsResponse>
+
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<GetAlertsResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+
+        AlertingPluginInterface.getAlerts(client, request, listener)
+>>>>>>> 8cbb375 (add test for get alerts)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 }

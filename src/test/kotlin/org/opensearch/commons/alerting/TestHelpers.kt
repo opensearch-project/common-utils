@@ -21,6 +21,8 @@ import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtFilter
+import org.opensearch.commons.alerting.model.ActionExecutionResult
+import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
@@ -404,3 +406,18 @@ fun assertUserNull(map: Map<String, Any?>) {
 fun assertUserNull(monitor: Monitor) {
     assertNull("User is not null", monitor.user)
 }
+
+fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
+    val trigger = randomQueryLevelTrigger()
+    val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
+    return Alert(
+        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
+        actionExecutionResults = actionExecutionResults
+    )
+}
+
+fun randomActionExecutionResult(
+    actionId: String = UUIDs.base64UUID(),
+    lastExecutionTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    throttledCount: Int = 0
+) = ActionExecutionResult(actionId, lastExecutionTime, throttledCount)
