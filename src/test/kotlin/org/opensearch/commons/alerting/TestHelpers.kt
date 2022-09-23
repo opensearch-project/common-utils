@@ -21,11 +21,15 @@ import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtFilter
+import org.opensearch.commons.alerting.model.ActionExecutionResult
+import org.opensearch.commons.alerting.model.AggregationResultBucket
+import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.DocumentLevelTrigger
+import org.opensearch.commons.alerting.model.Finding
 import org.opensearch.commons.alerting.model.Input
 import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Monitor
@@ -403,4 +407,53 @@ fun assertUserNull(map: Map<String, Any?>) {
 
 fun assertUserNull(monitor: Monitor) {
     assertNull("User is not null", monitor.user)
+}
+
+fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
+    val trigger = randomQueryLevelTrigger()
+    val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
+    return Alert(
+        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
+        actionExecutionResults = actionExecutionResults
+    )
+}
+
+fun randomActionExecutionResult(
+    actionId: String = UUIDs.base64UUID(),
+    lastExecutionTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    throttledCount: Int = 0
+) = ActionExecutionResult(actionId, lastExecutionTime, throttledCount)
+
+fun randomAlertWithAggregationResultBucket(monitor: Monitor = randomBucketLevelMonitor()): Alert {
+    val trigger = randomBucketLevelTrigger()
+    val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
+    return Alert(
+        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
+        actionExecutionResults = actionExecutionResults,
+        aggregationResultBucket = AggregationResultBucket(
+            "parent_bucket_path_1",
+            listOf("bucket_key_1"),
+            mapOf("k1" to "val1", "k2" to "val2")
+        )
+    )
+}
+
+fun randomFinding(
+    id: String = UUIDs.base64UUID(),
+    relatedDocIds: List<String> = listOf(UUIDs.base64UUID()),
+    monitorId: String = UUIDs.base64UUID(),
+    monitorName: String = UUIDs.base64UUID(),
+    index: String = UUIDs.base64UUID(),
+    docLevelQueries: List<DocLevelQuery> = listOf(randomDocLevelQuery()),
+    timestamp: Instant = Instant.now()
+): Finding {
+    return Finding(
+        id = id,
+        relatedDocIds = relatedDocIds,
+        monitorId = monitorId,
+        monitorName = monitorName,
+        index = index,
+        docLevelQueries = docLevelQueries,
+        timestamp = timestamp
+    )
 }
