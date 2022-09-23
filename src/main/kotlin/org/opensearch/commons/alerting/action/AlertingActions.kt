@@ -11,4 +11,9 @@ object AlertingActions {
 
     val INDEX_MONITOR_ACTION_TYPE =
         ActionType(INDEX_MONITOR_ACTION_NAME, ::IndexMonitorResponse)
+
+    const val DELETE_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/delete"
+
+    val DELETE_MONITOR_ACTION_TYPE =
+        ActionType(DELETE_MONITOR_ACTION_NAME, ::DeleteMonitorResponse)
 }
