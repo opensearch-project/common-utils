@@ -37,7 +37,7 @@ data class Alert(
     val errorMessage: String? = null,
     val errorHistory: List<AlertError>,
     val severity: String,
-    val actionExecutionResults: List<AlertExecutionResult>,
+    val actionExecutionResults: List<ActionExecutionResult>,
     val aggregationResultBucket: AggregationResultBucket? = null
 ) : Writeable, ToXContent {
 
@@ -55,7 +55,7 @@ data class Alert(
         state: State = State.ACTIVE,
         errorMessage: String? = null,
         errorHistory: List<AlertError> = mutableListOf(),
-        actionExecutionResults: List<AlertExecutionResult> = mutableListOf(),
+        actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
@@ -73,7 +73,7 @@ data class Alert(
         state: State = State.ACTIVE,
         errorMessage: String? = null,
         errorHistory: List<AlertError> = mutableListOf(),
-        actionExecutionResults: List<AlertExecutionResult> = mutableListOf(),
+        actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
@@ -91,7 +91,7 @@ data class Alert(
         state: State = State.ACTIVE,
         errorMessage: String? = null,
         errorHistory: List<AlertError> = mutableListOf(),
-        actionExecutionResults: List<AlertExecutionResult> = mutableListOf(),
+        actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
         aggregationResultBucket: AggregationResultBucket
     ) : this(
@@ -113,7 +113,7 @@ data class Alert(
         state: State = State.ACTIVE,
         errorMessage: String? = null,
         errorHistory: List<AlertError> = mutableListOf(),
-        actionExecutionResults: List<AlertExecutionResult> = mutableListOf(),
+        actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION
     ) : this(
         id = id, monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
@@ -150,7 +150,7 @@ data class Alert(
         errorMessage = sin.readOptionalString(),
         errorHistory = sin.readList(::AlertError),
         severity = sin.readString(),
-        actionExecutionResults = sin.readList(::AlertExecutionResult),
+        actionExecutionResults = sin.readList(::ActionExecutionResult),
         aggregationResultBucket = if (sin.readBoolean()) AggregationResultBucket(sin) else null
     )
 
@@ -235,7 +235,7 @@ data class Alert(
             var acknowledgedTime: Instant? = null
             var errorMessage: String? = null
             val errorHistory: MutableList<AlertError> = mutableListOf()
-            val actionExecutionResults: MutableList<AlertExecutionResult> = mutableListOf()
+            val actionExecutionResults: MutableList<ActionExecutionResult> = mutableListOf()
             var aggAlertBucket: AggregationResultBucket? = null
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -278,7 +278,7 @@ data class Alert(
                     ACTION_EXECUTION_RESULTS_FIELD -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
-                            actionExecutionResults.add(AlertExecutionResult.parse(xcp))
+                            actionExecutionResults.add(ActionExecutionResult.parse(xcp))
                         }
                     }
                     AggregationResultBucket.CONFIG_NAME -> {

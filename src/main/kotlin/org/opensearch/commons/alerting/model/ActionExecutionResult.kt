@@ -17,7 +17,7 @@ import java.time.Instant
  * When an alert triggered, the trigger's actions will be executed.
  * Action execution result records action throttle result and is a part of Alert.
  */
-data class AlertExecutionResult(
+data class ActionExecutionResult(
     val actionId: String,
     val lastExecutionTime: Instant?,
     val throttledCount: Int = 0
@@ -52,7 +52,7 @@ data class AlertExecutionResult(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser): AlertExecutionResult {
+        fun parse(xcp: XContentParser): ActionExecutionResult {
             lateinit var actionId: String
             var throttledCount: Int = 0
             var lastExecutionTime: Instant? = null
@@ -73,13 +73,13 @@ data class AlertExecutionResult(
             }
 
             requireNotNull(actionId) { "Must set action id" }
-            return AlertExecutionResult(actionId, lastExecutionTime, throttledCount)
+            return ActionExecutionResult(actionId, lastExecutionTime, throttledCount)
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): AlertExecutionResult {
-            return AlertExecutionResult(sin)
+        fun readFrom(sin: StreamInput): ActionExecutionResult {
+            return ActionExecutionResult(sin)
         }
     }
 }

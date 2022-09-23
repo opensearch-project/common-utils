@@ -69,7 +69,7 @@ data class DataSources(
             FINDINGS_INDEX_FIELD to findingsIndex,
             ALERTS_INDEX_FIELD to alertsIndex,
             QUERY_INDEX_MAPPINGS_BY_TYPE to queryIndexMappingsByType
-        ) as Map<String, Any>
+        )
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
