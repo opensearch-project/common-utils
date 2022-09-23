@@ -11,6 +11,10 @@ import org.opensearch.common.io.stream.Writeable
 import org.opensearch.commons.alerting.action.AlertingActions
 import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
+import org.opensearch.commons.alerting.action.GetAlertsRequest
+import org.opensearch.commons.alerting.action.GetAlertsResponse
+import org.opensearch.commons.alerting.action.GetFindingsRequest
+import org.opensearch.commons.alerting.action.GetFindingsResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.notifications.action.BaseResponse
@@ -56,6 +60,54 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     DeleteMonitorResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    /**
+     * Get Alerts interface.
+     * @param client Node client for making transport action
+     * @param request The request object
+     * @param listener The listener for getting response
+     */
+    fun getAlerts(
+        client: NodeClient,
+        request: GetAlertsRequest,
+        listener: ActionListener<GetAlertsResponse>
+    ) {
+        client.execute(
+            AlertingActions.GET_ALERTS_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    GetAlertsResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    /**
+     * Get Findings interface.
+     * @param client Node client for making transport action
+     * @param request The request object
+     * @param listener The listener for getting response
+     */
+    fun getFindings(
+        client: NodeClient,
+        request: GetFindingsRequest,
+        listener: ActionListener<GetFindingsResponse>
+    ) {
+        client.execute(
+            AlertingActions.GET_FINDINGS_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    GetFindingsResponse(
                         it
                     )
                 }
