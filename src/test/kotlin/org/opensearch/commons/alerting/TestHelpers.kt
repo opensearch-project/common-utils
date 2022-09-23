@@ -29,6 +29,7 @@ import org.opensearch.commons.alerting.model.ClusterMetricsInput
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.DocumentLevelTrigger
+import org.opensearch.commons.alerting.model.Finding
 import org.opensearch.commons.alerting.model.Input
 import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Monitor
@@ -434,5 +435,25 @@ fun randomAlertWithAggregationResultBucket(monitor: Monitor = randomBucketLevelM
             listOf("bucket_key_1"),
             mapOf("k1" to "val1", "k2" to "val2")
         )
+    )
+}
+
+fun randomFinding(
+    id: String = UUIDs.base64UUID(),
+    relatedDocIds: List<String> = listOf(UUIDs.base64UUID()),
+    monitorId: String = UUIDs.base64UUID(),
+    monitorName: String = UUIDs.base64UUID(),
+    index: String = UUIDs.base64UUID(),
+    docLevelQueries: List<DocLevelQuery> = listOf(randomDocLevelQuery()),
+    timestamp: Instant = Instant.now()
+): Finding {
+    return Finding(
+        id = id,
+        relatedDocIds = relatedDocIds,
+        monitorId = monitorId,
+        monitorName = monitorName,
+        index = index,
+        docLevelQueries = docLevelQueries,
+        timestamp = timestamp
     )
 }

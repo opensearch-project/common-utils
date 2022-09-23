@@ -16,10 +16,15 @@ import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
 import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
+import org.opensearch.commons.alerting.action.GetFindingsRequest
+import org.opensearch.commons.alerting.action.GetFindingsResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
+import org.opensearch.commons.alerting.model.FindingDocument
+import org.opensearch.commons.alerting.model.FindingWithDocs
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.index.seqno.SequenceNumbers
+import org.opensearch.rest.RestStatus
 
 @Suppress("UNCHECKED_CAST")
 @ExtendWith(MockitoExtension::class)
@@ -75,6 +80,30 @@ internal class AlertingPluginInterfaceTests {
                 .onResponse(response)
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.getAlerts(client, request, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
+    fun getFindings() {
+        val finding = randomFinding()
+        val documentIds = finding.relatedDocIds
+        val relatedDocs = mutableListOf<FindingDocument>()
+        val request = mock(GetFindingsRequest::class.java)
+        val documents: Map<String, FindingDocument> = mutableMapOf()
+        for (docId in documentIds) {
+            val key = "${finding.index}|$docId"
+            documents[key]?.let { document -> relatedDocs.add(document) }
+        }
+        val findingWithDocs = FindingWithDocs(finding, relatedDocs)
+        val response = GetFindingsResponse(RestStatus.OK, 1, listOf(findingWithDocs))
+        val listener: ActionListener<GetFindingsResponse> =
+            mock(ActionListener::class.java) as ActionListener<GetFindingsResponse>
+
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<GetFindingsResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        AlertingPluginInterface.getFindings(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 }
