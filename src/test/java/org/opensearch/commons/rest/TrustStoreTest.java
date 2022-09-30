@@ -20,7 +20,7 @@ public class TrustStoreTest {
     public void testCreate() throws Exception {
         String resourceName = "sample.pem";
         String absolutePath = new File(getClass().getClassLoader().getResource(resourceName).getFile()).getAbsolutePath();
-        assertTrue(absolutePath.endsWith("/sample.pem"));
+        assertTrue(absolutePath.endsWith(File.separator + "sample.pem"));
 
         KeyStore store = new TrustStore(absolutePath).create();
         assertNotNull(store);
