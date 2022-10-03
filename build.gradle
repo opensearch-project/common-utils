@@ -7,7 +7,7 @@ buildscript {
     ext {
         opensearch_group = "org.opensearch"
         opensearch_version = System.getProperty("opensearch.version", "1.4.0-SNAPSHOT")
-        kotlin_version = System.getProperty("kotlin.version", "1.4.32")
+        kotlin_version = System.getProperty("kotlin.version", "1.6.0")
     }
 
     repositories {
@@ -21,7 +21,7 @@ buildscript {
         classpath "${opensearch_group}.gradle:build-tools:${opensearch_version}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
         classpath "org.jetbrains.kotlin:kotlin-allopen:${kotlin_version}"
-        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.17.1"
+//        classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.17.1"
     }
 }
 
@@ -57,7 +57,7 @@ apply plugin: 'jacoco'
 apply plugin: 'signing'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'io.gitlab.arturbosch.detekt'
+//apply plugin: 'io.gitlab.arturbosch.detekt'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.jetbrains.kotlin.plugin.allopen'
 
@@ -69,7 +69,7 @@ dependencies {
     compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
-    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3" // ${kotlin_version} does not work for coroutines
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0" // ${kotlin_version} does not work for coroutines
     testCompile "org.opensearch.test:framework:${opensearch_version}"
     testCompile "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
     testCompile "org.mockito:mockito-core:3.10.0"
@@ -78,7 +78,7 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 
-    ktlint "com.pinterest:ktlint:0.41.0"
+    ktlint "com.pinterest:ktlint:0.45.1"
 }
 
 test {
@@ -99,10 +99,10 @@ spotless {
         eclipse().configFile rootProject.file('.eclipseformat.xml')
     }
 }
-detekt {
+/*detekt {
     config = files("detekt.yml")
     buildUponDefaultConfig = true
-}
+}*/
 
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
