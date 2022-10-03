@@ -67,7 +67,6 @@ apply from: 'build-tools/opensearchplugin-coverage.gradle'
 
 configurations {
     ktlint
-    all*.exclude group: 'org.yaml', module: 'snakeyaml'
 }
 
 dependencies {
