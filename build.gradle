@@ -7,7 +7,7 @@ buildscript {
     ext {
         opensearch_group = "org.opensearch"
         opensearch_version = System.getProperty("opensearch.version", "1.3.6-SNAPSHOT")
-        kotlin_version = System.getProperty("kotlin.version", "1.4.32")
+        kotlin_version = System.getProperty("kotlin.version", "1.6.0")
     }
 
     repositories {
@@ -69,7 +69,7 @@ dependencies {
     compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
-    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3" // ${kotlin_version} does not work for coroutines
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0" // ${kotlin_version} does not work for coroutines
     testCompile "org.opensearch.test:framework:${opensearch_version}"
     testCompile "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
     testCompile "org.mockito:mockito-core:3.10.0"
@@ -78,7 +78,7 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 
-    ktlint "com.pinterest:ktlint:0.41.0"
+    ktlint "com.pinterest:ktlint:0.45.1"
 }
 
 test {
