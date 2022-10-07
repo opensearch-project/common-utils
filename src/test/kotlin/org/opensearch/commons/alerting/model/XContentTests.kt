@@ -12,7 +12,9 @@ import org.opensearch.commons.alerting.model.action.Throttle
 import org.opensearch.commons.alerting.parser
 import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
+import org.opensearch.commons.alerting.randomActionExecutionResult
 import org.opensearch.commons.alerting.randomActionWithPolicy
+import org.opensearch.commons.alerting.randomAlert
 import org.opensearch.commons.alerting.randomBucketLevelMonitor
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
@@ -27,6 +29,7 @@ import org.opensearch.commons.alerting.util.string
 import org.opensearch.commons.authuser.User
 import org.opensearch.index.query.QueryBuilders
 import org.opensearch.search.builder.SearchSourceBuilder
+import org.opensearch.test.OpenSearchTestCase
 import java.time.temporal.ChronoUnit
 import kotlin.test.assertFailsWith
 
@@ -342,5 +345,49 @@ class XContentTests {
             parsedActionExecutionPolicy,
             "Round tripping ActionExecutionPolicy doesn't work"
         )
+    }
+
+    @Test
+    fun `test alert parsing`() {
+        val alert = randomAlert()
+
+        val alertString = alert.toXContentWithUser(builder()).string()
+        val parsedAlert = Alert.parse(parser(alertString))
+
+        assertEquals("Round tripping alert doesn't work", alert, parsedAlert)
+    }
+
+    @Test
+    fun `test alert parsing without user`() {
+        val alertStr = "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1," +
+            "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
+            "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
+            ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
+            "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
+            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+        val parsedAlert = Alert.parse(parser(alertStr))
+        OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
+    }
+
+    @Test
+    fun `test alert parsing with user as null`() {
+        val alertStr = "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1,\"monitor_user\":null," +
+            "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
+            "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
+            ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
+            "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
+            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+        val parsedAlert = Alert.parse(parser(alertStr))
+        OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
+    }
+
+    @Test
+    fun `test action execution result parsing`() {
+        val actionExecutionResult = randomActionExecutionResult()
+
+        val actionExecutionResultString = actionExecutionResult.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedActionExecutionResultString = ActionExecutionResult.parse(parser(actionExecutionResultString))
+
+        assertEquals("Round tripping alert doesn't work", actionExecutionResult, parsedActionExecutionResultString)
     }
 }
