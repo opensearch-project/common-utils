@@ -15,6 +15,7 @@ import org.opensearch.commons.destination.message.LegacyChimeMessage
 import org.opensearch.commons.destination.message.LegacyCustomWebhookMessage
 import org.opensearch.commons.destination.message.LegacyDestinationType
 import org.opensearch.commons.destination.message.LegacyEmailMessage
+import org.opensearch.commons.destination.message.LegacySNSMessage
 import org.opensearch.commons.destination.message.LegacySlackMessage
 import java.io.IOException
 
@@ -52,6 +53,7 @@ class LegacyPublishNotificationRequest : ActionRequest {
             LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK -> LegacyCustomWebhookMessage(input)
             LegacyDestinationType.LEGACY_SLACK -> LegacySlackMessage(input)
             LegacyDestinationType.LEGACY_EMAIL -> LegacyEmailMessage(input)
+            LegacyDestinationType.LEGACY_SNS -> LegacySNSMessage(input)
         }
     }
 
