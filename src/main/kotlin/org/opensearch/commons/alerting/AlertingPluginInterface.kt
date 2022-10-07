@@ -9,6 +9,8 @@ import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.common.io.stream.Writeable
 import org.opensearch.commons.alerting.action.AlertingActions
+import org.opensearch.commons.alerting.action.DeleteMonitorRequest
+import org.opensearch.commons.alerting.action.DeleteMonitorResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.notifications.action.BaseResponse
@@ -36,6 +38,24 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     IndexMonitorResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    fun deleteMonitor(
+        client: NodeClient,
+        request: DeleteMonitorRequest,
+        listener: ActionListener<DeleteMonitorResponse>
+    ) {
+        client.execute(
+            AlertingActions.DELETE_MONITOR_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    DeleteMonitorResponse(
                         it
                     )
                 }
