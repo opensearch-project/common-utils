@@ -6,23 +6,27 @@ import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.model.Table
 import java.io.IOException
+import java.util.Collections
 
 class GetFindingsRequest : ActionRequest {
     val findingId: String?
     val table: Table
     val monitorId: String?
+    val monitorIds: List<String>?
     val findingIndex: String?
 
     constructor(
         findingId: String?,
         table: Table,
         monitorId: String? = null,
-        findingIndexName: String? = null
+        findingIndexName: String? = null,
+        monitorIds: List<String> = Collections.emptyList()
     ) : super() {
         this.findingId = findingId
         this.table = table
         this.monitorId = monitorId
         this.findingIndex = findingIndexName
+        this.monitorIds = monitorIds
     }
 
     @Throws(IOException::class)
@@ -30,7 +34,8 @@ class GetFindingsRequest : ActionRequest {
         findingId = sin.readOptionalString(),
         table = Table.readFrom(sin),
         monitorId = sin.readOptionalString(),
-        findingIndexName = sin.readOptionalString()
+        findingIndexName = sin.readOptionalString(),
+        monitorIds = sin.readOptionalStringList()
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -43,5 +48,6 @@ class GetFindingsRequest : ActionRequest {
         table.writeTo(out)
         out.writeOptionalString(monitorId)
         out.writeOptionalString(findingIndex)
+        out.writeOptionalStringCollection(monitorIds)
     }
 }

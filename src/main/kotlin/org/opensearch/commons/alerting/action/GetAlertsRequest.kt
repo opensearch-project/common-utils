@@ -6,6 +6,7 @@ import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.model.Table
 import java.io.IOException
+import java.util.Collections
 
 class GetAlertsRequest : ActionRequest {
     val table: Table
@@ -13,19 +14,22 @@ class GetAlertsRequest : ActionRequest {
     val alertState: String
     val monitorId: String?
     val alertIndex: String?
+    val monitorIds: List<String>?
 
     constructor(
         table: Table,
         severityLevel: String,
         alertState: String,
         monitorId: String?,
-        alertIndex: String?
+        alertIndex: String?,
+        monitorIds: List<String> = Collections.emptyList()
     ) : super() {
         this.table = table
         this.severityLevel = severityLevel
         this.alertState = alertState
         this.monitorId = monitorId
         this.alertIndex = alertIndex
+        this.monitorIds = monitorIds
     }
 
     @Throws(IOException::class)
@@ -34,7 +38,8 @@ class GetAlertsRequest : ActionRequest {
         severityLevel = sin.readString(),
         alertState = sin.readString(),
         monitorId = sin.readOptionalString(),
-        alertIndex = sin.readOptionalString()
+        alertIndex = sin.readOptionalString(),
+        monitorIds = sin.readOptionalStringList()
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -48,5 +53,6 @@ class GetAlertsRequest : ActionRequest {
         out.writeString(alertState)
         out.writeOptionalString(monitorId)
         out.writeOptionalString(alertIndex)
+        out.writeOptionalStringCollection(monitorIds)
     }
 }
