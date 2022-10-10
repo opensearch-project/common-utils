@@ -6,7 +6,6 @@ import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.model.Table
 import java.io.IOException
-import java.util.Collections
 
 class GetAlertsRequest : ActionRequest {
     val table: Table
@@ -22,7 +21,7 @@ class GetAlertsRequest : ActionRequest {
         alertState: String,
         monitorId: String?,
         alertIndex: String?,
-        monitorIds: List<String> = Collections.emptyList()
+        monitorIds: List<String>? = null
     ) : super() {
         this.table = table
         this.severityLevel = severityLevel

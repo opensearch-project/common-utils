@@ -6,7 +6,6 @@ import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.model.Table
 import java.io.IOException
-import java.util.Collections
 
 class GetFindingsRequest : ActionRequest {
     val findingId: String?
@@ -20,7 +19,7 @@ class GetFindingsRequest : ActionRequest {
         table: Table,
         monitorId: String? = null,
         findingIndexName: String? = null,
-        monitorIds: List<String> = Collections.emptyList()
+        monitorIds: List<String>? = null
     ) : super() {
         this.findingId = findingId
         this.table = table
