@@ -3,6 +3,7 @@ package org.opensearch.commons.alerting.action
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.io.stream.StreamInput
@@ -15,7 +16,7 @@ internal class GetFindingsRequestTests {
 
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetFindingsRequest("2121", table, "1", "finding_index_name")
+        val req = GetFindingsRequest("2121", table, "1", "finding_index_name", listOf("1", "2"))
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -27,6 +28,8 @@ internal class GetFindingsRequestTests {
         assertEquals("2121", newReq.findingId)
         assertEquals("finding_index_name", newReq.findingIndex)
         assertEquals(table, newReq.table)
+        assertTrue(newReq.monitorIds!!.contains("1"))
+        assertTrue(newReq.monitorIds!!.contains("2"))
     }
 
     @Test
