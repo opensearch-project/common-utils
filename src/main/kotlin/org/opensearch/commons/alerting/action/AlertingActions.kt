@@ -11,6 +11,7 @@ object AlertingActions {
     const val GET_ALERTS_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/get"
     const val DELETE_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/delete"
     const val GET_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/get"
+    const val ACKNOWLEDGE_ALERTS_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/ack"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -24,4 +25,7 @@ object AlertingActions {
     @JvmField
     val GET_FINDINGS_ACTION_TYPE =
         ActionType(GET_FINDINGS_ACTION_NAME, ::GetFindingsResponse)
+    @JvmField
+    val ACKNOWLEDGE_ALERTS_ACTION_TYPE =
+        ActionType(ACKNOWLEDGE_ALERTS_ACTION_NAME, ::AcknowledgeAlertResponse)
 }
