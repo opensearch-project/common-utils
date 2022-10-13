@@ -91,7 +91,7 @@ class ClusterMetricsInputTests {
         // GIVEN
         path = "/_cluster/health/"
         pathParams = "index1,index2,index3,index4,index5"
-        url = "http://localhost:9200/_cluster/health/index1,index2,index3,index4,index5"
+        url = "http://localhost:9200/_cluster/health/index1%2Cindex2%2Cindex3%2Cindex4%2Cindex5"
 
         // WHEN
         val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
@@ -207,7 +207,7 @@ class ClusterMetricsInputTests {
         // GIVEN
         path = "/_cluster/health/"
         pathParams = "index1,index2,index3,index4,index5"
-        val testUrl = "http://localhost:9200/_cluster/health/index1,index2,index3,index4,index5"
+        val testUrl = "http://localhost:9200/_cluster/health/index1%2Cindex2%2Cindex3%2Cindex4%2Cindex5"
         val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
 
         // WHEN
@@ -437,6 +437,6 @@ class ClusterMetricsInputTests {
         // THEN
         assertEquals(path, clusterMetricsInput.path)
         assertEquals(pathParams, clusterMetricsInput.pathParams)
-        assertEquals(testUrl, clusterMetricsInput.url)
+        assertEquals(testUrl.replace(",", "%2C"), clusterMetricsInput.url)
     }
 }
