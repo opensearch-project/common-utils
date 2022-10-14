@@ -13,6 +13,7 @@ import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import java.io.IOException
 import java.net.URI
+import java.net.URISyntaxException
 
 val ILLEGAL_PATH_PARAMETER_CHARACTERS = arrayOf(':', '"', '+', '\\', '|', '?', '#', '>', '<', ' ')
 
@@ -200,12 +201,21 @@ data class ClusterMetricsInput(
      * @return The constructed [URI].
      */
     private fun constructUrlFromInputs(): URI {
-        val uriBuilder = URIBuilder()
-            .setScheme(SUPPORTED_SCHEME)
-            .setHost(SUPPORTED_HOST)
-            .setPort(SUPPORTED_PORT)
-            .setPath(path + pathParams)
-        return uriBuilder.build()
+        /**
+         * this try-catch block is required due to a httpcomponents 5.1.x library issue
+         * it auto encodes path params in the url.
+         */
+        return try {
+            val uriBuilder = URIBuilder("$SUPPORTED_SCHEME://$SUPPORTED_HOST:$SUPPORTED_PORT$path$pathParams")
+            uriBuilder.build()
+        } catch (ex: URISyntaxException) {
+            val uriBuilder = URIBuilder()
+                .setScheme(SUPPORTED_SCHEME)
+                .setHost(SUPPORTED_HOST)
+                .setPort(SUPPORTED_PORT)
+                .setPath(path + pathParams)
+            uriBuilder.build()
+        }
     }
 
     /**
