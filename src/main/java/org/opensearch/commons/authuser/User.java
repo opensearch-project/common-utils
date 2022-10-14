@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.opensearch.client.Response;
 import org.opensearch.common.Nullable;
 import org.opensearch.common.Strings;
@@ -83,7 +84,7 @@ final public class User implements Writeable, ToXContent {
      * @param response
      * @throws IOException
      */
-    public User(final Response response) throws IOException {
+    public User(final Response response) throws IOException, ParseException {
         this(EntityUtils.toString(response.getEntity()));
     }
 
