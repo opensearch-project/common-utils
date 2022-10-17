@@ -16,7 +16,7 @@ internal class GetAlertsRequestTests {
 
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetAlertsRequest(table, "1", "active", null, null, listOf("1", "2"))
+        val req = GetAlertsRequest(table, "1", "active", null, null, listOf("1", "2"), listOf("alert1", "alert2"))
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -30,6 +30,8 @@ internal class GetAlertsRequestTests {
         assertEquals(table, newReq.table)
         assertTrue(newReq.monitorIds!!.contains("1"))
         assertTrue(newReq.monitorIds!!.contains("2"))
+        assertTrue(newReq.alertIds!!.contains("alert1"))
+        assertTrue(newReq.alertIds!!.contains("alert2"))
     }
 
     @Test
