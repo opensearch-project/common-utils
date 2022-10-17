@@ -14,6 +14,7 @@ class GetAlertsRequest : ActionRequest {
     val monitorId: String?
     val alertIndex: String?
     val monitorIds: List<String>?
+    val alertIds: List<String>?
 
     constructor(
         table: Table,
@@ -21,7 +22,8 @@ class GetAlertsRequest : ActionRequest {
         alertState: String,
         monitorId: String?,
         alertIndex: String?,
-        monitorIds: List<String>? = null
+        monitorIds: List<String>? = null,
+        alertIds: List<String>? = null
     ) : super() {
         this.table = table
         this.severityLevel = severityLevel
@@ -29,6 +31,7 @@ class GetAlertsRequest : ActionRequest {
         this.monitorId = monitorId
         this.alertIndex = alertIndex
         this.monitorIds = monitorIds
+        this.alertIds = alertIds
     }
 
     @Throws(IOException::class)
@@ -38,7 +41,8 @@ class GetAlertsRequest : ActionRequest {
         alertState = sin.readString(),
         monitorId = sin.readOptionalString(),
         alertIndex = sin.readOptionalString(),
-        monitorIds = sin.readOptionalStringList()
+        monitorIds = sin.readOptionalStringList(),
+        alertIds = sin.readOptionalStringList()
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -53,5 +57,6 @@ class GetAlertsRequest : ActionRequest {
         out.writeOptionalString(monitorId)
         out.writeOptionalString(alertIndex)
         out.writeOptionalStringCollection(monitorIds)
+        out.writeOptionalStringCollection(alertIds)
     }
 }
