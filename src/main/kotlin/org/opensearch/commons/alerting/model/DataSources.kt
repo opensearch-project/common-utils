@@ -18,12 +18,18 @@ data class DataSources(
      *  If index is pre-existing, mapping is updated*/
     val findingsIndex: String = ".opensearch-alerting-finding-history-write", // AlertIndices.FINDING_HISTORY_WRITE_INDEX
 
+    /** Configures a custom index pattern for  findingsIndex alias.*/
+    val findingsIndexPattern: String = "<.opensearch-alerting-finding-history-{now/d}-1>", // AlertIndices.FINDING_HISTORY_INDEX_PATTERN
+
     /** Configures a custom index to store alerts for a monitor. Creates a new index if index with given name not present.
      *  If index is pre-existing, mapping is updated. */
     val alertsIndex: String = ".opendistro-alerting-alerts", // AlertIndices.ALERT_INDEX
 
-    /** Configures a custom index to store historic alerts for a monitor.*/
-    val alertsHistoryIndex: String,
+    /** Configures a custom index alias to store historic alerts for a monitor.*/
+    val alertsHistoryIndex: String = ".opendistro-alerting-alert-history-write", // AlertIndices.ALERT_HISTORY_WRITE_INDEX
+
+    /** Configures a custom index pattern for alertHistoryIndex alias.*/
+    val alertsHistoryIndexPattern: String = "<.opendistro-alerting-alert-history-{now/d}-1>", // AlertIndices.ALERT_HISTORY_INDEX_PATTERN
 
     /** Configures custom mappings by field type for query index.
      * Custom query index mappings are configurable, only if a custom query index is configured too. */
