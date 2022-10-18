@@ -67,8 +67,10 @@ data class DataSources(
     constructor(sin: StreamInput) : this(
         queryIndex = sin.readString(),
         findingsIndex = sin.readString(),
+        findingsIndexPattern = sin.readString(),
         alertsIndex = sin.readString(),
         alertsHistoryIndex = sin.readString(),
+        alertsHistoryIndexPattern = sin.readString(),
         queryIndexMappingsByType = sin.readMap() as Map<String, Map<String, String>>
     )
 
@@ -77,8 +79,10 @@ data class DataSources(
         return mapOf(
             QUERY_INDEX_FIELD to queryIndex,
             FINDINGS_INDEX_FIELD to findingsIndex,
+            FINDINGS_INDEX_PATTERN_FIELD to findingsIndexPattern,
             ALERTS_INDEX_FIELD to alertsIndex,
             ALERTS_HISTORY_INDEX_FIELD to alertsHistoryIndex,
+            ALERTS_HISTORY_INDEX_PATTERN_FIELD to alertsHistoryIndexPattern,
             QUERY_INDEX_MAPPINGS_BY_TYPE to queryIndexMappingsByType
         )
     }
@@ -87,8 +91,10 @@ data class DataSources(
         builder.startObject()
         builder.field(QUERY_INDEX_FIELD, queryIndex)
         builder.field(FINDINGS_INDEX_FIELD, findingsIndex)
+        builder.field(FINDINGS_INDEX_PATTERN_FIELD, findingsIndexPattern)
         builder.field(ALERTS_INDEX_FIELD, alertsIndex)
-        builder.field(ALERTS_HISTORY_INDEX_FIELD, alertsIndex)
+        builder.field(ALERTS_HISTORY_INDEX_FIELD, alertsHistoryIndex)
+        builder.field(ALERTS_HISTORY_INDEX_PATTERN_FIELD, alertsHistoryIndexPattern)
         builder.field(QUERY_INDEX_MAPPINGS_BY_TYPE, queryIndexMappingsByType as Map<String, Any>)
         builder.endObject()
         return builder
@@ -97,8 +103,10 @@ data class DataSources(
     companion object {
         const val QUERY_INDEX_FIELD = "query_index"
         const val FINDINGS_INDEX_FIELD = "findings_index"
+        const val FINDINGS_INDEX_PATTERN_FIELD = "findings_index_pattern"
         const val ALERTS_INDEX_FIELD = "alerts_index"
         const val ALERTS_HISTORY_INDEX_FIELD = "alerts_history_index"
+        const val ALERTS_HISTORY_INDEX_PATTERN_FIELD = "alerts_history_index_pattern"
         const val QUERY_INDEX_MAPPINGS_BY_TYPE = "query_index_mappings_by_type"
 
         @JvmStatic
@@ -107,8 +115,10 @@ data class DataSources(
         fun parse(xcp: XContentParser): DataSources {
             var queryIndex = ""
             var findingsIndex = ""
+            var findingsIndexPattern = ""
             var alertsIndex = ""
             var alertsHistoryIndex = ""
+            var alertsHistoryIndexPattern = ""
             var queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf()
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -119,16 +129,20 @@ data class DataSources(
                 when (fieldName) {
                     QUERY_INDEX_FIELD -> queryIndex = xcp.text()
                     FINDINGS_INDEX_FIELD -> findingsIndex = xcp.text()
+                    FINDINGS_INDEX_PATTERN_FIELD -> findingsIndexPattern = xcp.text()
                     ALERTS_INDEX_FIELD -> alertsIndex = xcp.text()
                     ALERTS_HISTORY_INDEX_FIELD -> alertsHistoryIndex = xcp.text()
+                    ALERTS_HISTORY_INDEX_PATTERN_FIELD -> alertsHistoryIndexPattern = xcp.text()
                     QUERY_INDEX_MAPPINGS_BY_TYPE -> queryIndexMappingsByType = xcp.map() as Map<String, Map<String, String>>
                 }
             }
             return DataSources(
                 queryIndex = queryIndex,
                 findingsIndex = findingsIndex,
+                findingsIndexPattern = findingsIndexPattern,
                 alertsIndex = alertsIndex,
                 alertsHistoryIndex = alertsHistoryIndex,
+                alertsHistoryIndexPattern = alertsHistoryIndexPattern,
                 queryIndexMappingsByType = queryIndexMappingsByType
             )
         }
@@ -138,8 +152,10 @@ data class DataSources(
     override fun writeTo(out: StreamOutput) {
         out.writeString(queryIndex)
         out.writeString(findingsIndex)
+        out.writeString(findingsIndexPattern)
         out.writeString(alertsIndex)
         out.writeString(alertsHistoryIndex)
+        out.writeString(alertsHistoryIndexPattern)
         out.writeMap(queryIndexMappingsByType as Map<String, Any>)
     }
 }
