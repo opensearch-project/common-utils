@@ -22,6 +22,9 @@ data class DataSources(
      *  If index is pre-existing, mapping is updated. */
     val alertsIndex: String = ".opendistro-alerting-alerts", // AlertIndices.ALERT_INDEX
 
+    /** Configures a custom index to store historic alerts for a monitor.*/
+    val alertsHistoryIndex: String,
+
     /** Configures custom mappings by field type for query index.
      * Custom query index mappings are configurable, only if a custom query index is configured too. */
     val queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf()
@@ -59,6 +62,7 @@ data class DataSources(
         queryIndex = sin.readString(),
         findingsIndex = sin.readString(),
         alertsIndex = sin.readString(),
+        alertsHistoryIndex = sin.readString(),
         queryIndexMappingsByType = sin.readMap() as Map<String, Map<String, String>>
     )
 
@@ -68,6 +72,7 @@ data class DataSources(
             QUERY_INDEX_FIELD to queryIndex,
             FINDINGS_INDEX_FIELD to findingsIndex,
             ALERTS_INDEX_FIELD to alertsIndex,
+            ALERTS_HISTORY_INDEX_FIELD to alertsHistoryIndex,
             QUERY_INDEX_MAPPINGS_BY_TYPE to queryIndexMappingsByType
         )
     }
@@ -77,6 +82,7 @@ data class DataSources(
         builder.field(QUERY_INDEX_FIELD, queryIndex)
         builder.field(FINDINGS_INDEX_FIELD, findingsIndex)
         builder.field(ALERTS_INDEX_FIELD, alertsIndex)
+        builder.field(ALERTS_HISTORY_INDEX_FIELD, alertsIndex)
         builder.field(QUERY_INDEX_MAPPINGS_BY_TYPE, queryIndexMappingsByType as Map<String, Any>)
         builder.endObject()
         return builder
@@ -86,6 +92,7 @@ data class DataSources(
         const val QUERY_INDEX_FIELD = "query_index"
         const val FINDINGS_INDEX_FIELD = "findings_index"
         const val ALERTS_INDEX_FIELD = "alerts_index"
+        const val ALERTS_HISTORY_INDEX_FIELD = "alerts_history_index"
         const val QUERY_INDEX_MAPPINGS_BY_TYPE = "query_index_mappings_by_type"
 
         @JvmStatic
@@ -95,6 +102,7 @@ data class DataSources(
             var queryIndex = ""
             var findingsIndex = ""
             var alertsIndex = ""
+            var alertsHistoryIndex = ""
             var queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf()
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -106,6 +114,7 @@ data class DataSources(
                     QUERY_INDEX_FIELD -> queryIndex = xcp.text()
                     FINDINGS_INDEX_FIELD -> findingsIndex = xcp.text()
                     ALERTS_INDEX_FIELD -> alertsIndex = xcp.text()
+                    ALERTS_HISTORY_INDEX_FIELD -> alertsHistoryIndex = xcp.text()
                     QUERY_INDEX_MAPPINGS_BY_TYPE -> queryIndexMappingsByType = xcp.map() as Map<String, Map<String, String>>
                 }
             }
@@ -113,6 +122,7 @@ data class DataSources(
                 queryIndex = queryIndex,
                 findingsIndex = findingsIndex,
                 alertsIndex = alertsIndex,
+                alertsHistoryIndex = alertsHistoryIndex,
                 queryIndexMappingsByType = queryIndexMappingsByType
             )
         }
@@ -123,6 +133,7 @@ data class DataSources(
         out.writeString(queryIndex)
         out.writeString(findingsIndex)
         out.writeString(alertsIndex)
+        out.writeString(alertsHistoryIndex)
         out.writeMap(queryIndexMappingsByType as Map<String, Any>)
     }
 }
