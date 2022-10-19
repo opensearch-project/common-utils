@@ -53,9 +53,9 @@ data class DataSources(
             }
             require(
                 queryIndexMappingsByType.size == 1 &&
-                        queryIndexMappingsByType.containsKey("text") &&
-                        queryIndexMappingsByType.get("text")?.size == 1 &&
-                        queryIndexMappingsByType.get("text")!!.containsKey("analyzer")
+                queryIndexMappingsByType.containsKey("text") &&
+                queryIndexMappingsByType.get("text")?.size == 1 &&
+                queryIndexMappingsByType.get("text")!!.containsKey("analyzer")
             ) {
                 "Custom query index mappings are currently configurable only for 'text' fields and mapping parameter can only be 'analyzer'"
             }
