@@ -8,6 +8,8 @@ import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.common.io.stream.Writeable
+import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
+import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
 import org.opensearch.commons.alerting.action.AlertingActions
 import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
@@ -108,6 +110,30 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     GetFindingsResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    /**
+     * Acknowledge Alerts interface.
+     * @param client Node client for making transport action
+     * @param request The request object
+     * @param listener The listener for getting response
+     */
+    fun acknowledgeAlerts(
+        client: NodeClient,
+        request: AcknowledgeAlertRequest,
+        listener: ActionListener<AcknowledgeAlertResponse>
+    ) {
+        client.execute(
+            AlertingActions.ACKNOWLEDGE_ALERTS_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    AcknowledgeAlertResponse(
                         it
                     )
                 }
