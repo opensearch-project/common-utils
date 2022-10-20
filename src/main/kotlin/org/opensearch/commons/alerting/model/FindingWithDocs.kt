@@ -3,19 +3,26 @@ package org.opensearch.commons.alerting.model
 import org.apache.logging.log4j.LogManager
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.commons.notifications.model.BaseModel
 import java.io.IOException
 
 private val log = LogManager.getLogger(Finding::class.java)
 
-class FindingWithDocs(
-    val finding: Finding,
-    val documents: List<FindingDocument>
-) : Writeable, ToXContent {
+class FindingWithDocs : BaseModel {
+    var finding: Finding
+    var documents: List<FindingDocument>
+
+    constructor(
+        finding: Finding,
+        documents: List<FindingDocument>
+    ) : super() {
+        this.finding = finding
+        this.documents = documents
+    }
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
@@ -26,15 +33,15 @@ class FindingWithDocs(
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         finding.writeTo(out)
-        documents.forEach {
-            it.writeTo(out)
-        }
+        out.writeCollection(documents)
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         builder.startObject()
+            .startObject("finding_with_docs")
             .field(FINDING_FIELD, finding)
-            .field(DOCUMENTS_FIELD, documents)
+            .field(DOCUMENTS_FIELD, documents.toTypedArray())
+            .endObject()
         builder.endObject()
         return builder
     }
