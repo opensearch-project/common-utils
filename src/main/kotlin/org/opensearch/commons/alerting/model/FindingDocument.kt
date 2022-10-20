@@ -3,21 +3,21 @@ package org.opensearch.commons.alerting.model
 import org.apache.logging.log4j.LogManager
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.commons.notifications.model.BaseModel
 import java.io.IOException
 
 private val log = LogManager.getLogger(FindingDocument::class.java)
 
-class FindingDocument(
+data class FindingDocument(
     val index: String,
     val id: String,
     val found: Boolean,
     val document: String
-) : Writeable, ToXContent {
+) : BaseModel {
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
@@ -52,7 +52,7 @@ class FindingDocument(
         const val NO_ID = ""
         const val NO_INDEX = ""
 
-        @JvmStatic @JvmOverloads
+        @JvmStatic
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, index: String = NO_INDEX): FindingDocument {
             var found = false
