@@ -2,8 +2,6 @@ package org.opensearch.commons.alerting.aggregation.bucketselectorext
 
 import org.apache.lucene.util.BytesRef
 import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder.Companion.NAME
 import org.opensearch.script.BucketAggregationSelectorScript
 import org.opensearch.script.Script
 import org.opensearch.search.DocValueFormat
@@ -57,25 +55,6 @@ class BucketSelectorExtAggregator : SiblingPipelineAggregator {
         } else {
             bucketSelectorExtFilter = null
         }
-    }
-
-    @Throws(IOException::class)
-    override fun doWriteTo(out: StreamOutput) {
-        out.writeString(name)
-        script.writeTo(out)
-        gapPolicy.writeTo(out)
-        out.writeGenericValue(bucketsPathsMap)
-        out.writeString(parentBucketPath)
-        if (bucketSelectorExtFilter != null) {
-            out.writeBoolean(true)
-            bucketSelectorExtFilter!!.writeTo(out)
-        } else {
-            out.writeBoolean(false)
-        }
-    }
-
-    override fun getWriteableName(): String {
-        return NAME.preferredName
     }
 
     override fun doReduce(aggregations: Aggregations, reduceContext: InternalAggregation.ReduceContext): InternalAggregation {
