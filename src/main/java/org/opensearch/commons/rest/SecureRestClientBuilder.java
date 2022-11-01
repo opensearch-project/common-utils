@@ -30,6 +30,7 @@ import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;
@@ -204,6 +205,7 @@ public class SecureRestClientBuilder {
                 if (credentialsProvider != null) {
                     httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
                 }
+                httpClientBuilder.setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_1);
                 return httpClientBuilder;
             }
         });
