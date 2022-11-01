@@ -44,13 +44,14 @@ internal class AlertingPluginInterfaceTests {
         val response = IndexMonitorResponse(Monitor.NO_ID, Monitor.NO_VERSION, SequenceNumbers.UNASSIGNED_SEQ_NO, SequenceNumbers.UNASSIGNED_PRIMARY_TERM, monitor)
         val listener: ActionListener<IndexMonitorResponse> =
             mock(ActionListener::class.java) as ActionListener<IndexMonitorResponse>
+        val namedWriteableRegistry = NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)
 
         Mockito.doAnswer {
             (it.getArgument(2) as ActionListener<IndexMonitorResponse>)
                 .onResponse(response)
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
-        AlertingPluginInterface.indexMonitor(client, request, listener)
+        AlertingPluginInterface.indexMonitor(client, request, namedWriteableRegistry, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 

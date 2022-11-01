@@ -60,18 +60,22 @@ class IndexMonitorRequestTests {
 
     @Test
     fun `Index bucket monitor serialize and deserialize transport object should be equal`() {
-        val req = IndexMonitorRequest(
+        val bucketLevelMonitorRequest = IndexMonitorRequest(
             "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.POST,
             randomBucketLevelMonitor()
         )
 
-        val recreatedObject = recreateObject(req, NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)) { IndexMonitorRequest(it) }
-        Assertions.assertEquals(req.monitorId, recreatedObject.monitorId)
-        Assertions.assertEquals(req.seqNo, recreatedObject.seqNo)
-        Assertions.assertEquals(req.primaryTerm, recreatedObject.primaryTerm)
-        Assertions.assertEquals(req.method, recreatedObject.method)
+        Assertions.assertThrows(UnsupportedOperationException::class.java) {
+            recreateObject(bucketLevelMonitorRequest) { IndexMonitorRequest(it) }
+        }
+
+        val recreatedObject = recreateObject(bucketLevelMonitorRequest, NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)) { IndexMonitorRequest(it) }
+        Assertions.assertEquals(bucketLevelMonitorRequest.monitorId, recreatedObject.monitorId)
+        Assertions.assertEquals(bucketLevelMonitorRequest.seqNo, recreatedObject.seqNo)
+        Assertions.assertEquals(bucketLevelMonitorRequest.primaryTerm, recreatedObject.primaryTerm)
+        Assertions.assertEquals(bucketLevelMonitorRequest.method, recreatedObject.method)
         Assertions.assertNotNull(recreatedObject.monitor)
-        Assertions.assertEquals(req.monitor, recreatedObject.monitor)
+        Assertions.assertEquals(bucketLevelMonitorRequest.monitor, recreatedObject.monitor)
     }
 
     @Test

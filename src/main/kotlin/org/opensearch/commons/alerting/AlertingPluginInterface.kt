@@ -32,29 +32,6 @@ object AlertingPluginInterface {
      * Index monitor interface.
      * @param client Node client for making transport action
      * @param request The request object
-     * @param listener The listener for getting response
-     */
-    fun indexMonitor(
-        client: NodeClient,
-        request: IndexMonitorRequest,
-        listener: ActionListener<IndexMonitorResponse>
-    ) {
-        client.execute(
-            AlertingActions.INDEX_MONITOR_ACTION_TYPE,
-            request,
-            wrapActionListener(listener) { response ->
-                recreateObject(response) {
-                    IndexMonitorResponse(
-                        it
-                    )
-                }
-            }
-        )
-    }
-    /**
-     * Index monitor interface.
-     * @param client Node client for making transport action
-     * @param request The request object
      * @param namedWriteableRegistry Registry for building aggregations
      * @param listener The listener for getting response
      */
@@ -76,7 +53,6 @@ object AlertingPluginInterface {
             }
         )
     }
-
     fun deleteMonitor(
         client: NodeClient,
         request: DeleteMonitorRequest,
