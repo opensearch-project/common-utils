@@ -74,13 +74,14 @@ data class Alert(
         errorMessage: String? = null,
         errorHistory: List<AlertError> = mutableListOf(),
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
-        schemaVersion: Int = NO_SCHEMA_VERSION
+        schemaVersion: Int = NO_SCHEMA_VERSION,
+        findingIds: List<String> = emptyList()
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
-        aggregationResultBucket = null, findingIds = emptyList(), relatedDocIds = emptyList()
+        aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = emptyList()
     )
 
     constructor(
@@ -93,13 +94,14 @@ data class Alert(
         errorHistory: List<AlertError> = mutableListOf(),
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
-        aggregationResultBucket: AggregationResultBucket
+        aggregationResultBucket: AggregationResultBucket,
+        findingIds: List<String> = emptyList()
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
-        aggregationResultBucket = aggregationResultBucket, findingIds = emptyList(), relatedDocIds = emptyList()
+        aggregationResultBucket = aggregationResultBucket, findingIds = findingIds, relatedDocIds = emptyList()
     )
 
     constructor(
