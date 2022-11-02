@@ -33,7 +33,10 @@ data class DataSources(
 
     /** Configures custom mappings by field type for query index.
      * Custom query index mappings are configurable, only if a custom query index is configured too. */
-    val queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf()
+    val queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf(),
+
+    /** Configures flag to enable or disable creating and storing findings. */
+    val findingsEnabled: Boolean? = false
 
 ) : Writeable, ToXContentObject {
 
@@ -71,7 +74,8 @@ data class DataSources(
         alertsIndex = sin.readString(),
         alertsHistoryIndex = sin.readOptionalString(),
         alertsHistoryIndexPattern = sin.readOptionalString(),
-        queryIndexMappingsByType = sin.readMap() as Map<String, Map<String, String>>
+        queryIndexMappingsByType = sin.readMap() as Map<String, Map<String, String>>,
+        findingsEnabled = sin.readOptionalBoolean()
     )
 
     @Suppress("UNCHECKED_CAST")
@@ -83,7 +87,8 @@ data class DataSources(
             ALERTS_INDEX_FIELD to alertsIndex,
             ALERTS_HISTORY_INDEX_FIELD to alertsHistoryIndex,
             ALERTS_HISTORY_INDEX_PATTERN_FIELD to alertsHistoryIndexPattern,
-            QUERY_INDEX_MAPPINGS_BY_TYPE to queryIndexMappingsByType
+            QUERY_INDEX_MAPPINGS_BY_TYPE to queryIndexMappingsByType,
+            FINDINGS_ENABLED_FIELD to findingsEnabled,
         )
     }
 
@@ -96,6 +101,7 @@ data class DataSources(
         builder.field(ALERTS_HISTORY_INDEX_FIELD, alertsHistoryIndex)
         builder.field(ALERTS_HISTORY_INDEX_PATTERN_FIELD, alertsHistoryIndexPattern)
         builder.field(QUERY_INDEX_MAPPINGS_BY_TYPE, queryIndexMappingsByType as Map<String, Any>)
+        builder.field(FINDINGS_ENABLED_FIELD, findingsEnabled)
         builder.endObject()
         return builder
     }
@@ -108,6 +114,7 @@ data class DataSources(
         const val ALERTS_HISTORY_INDEX_FIELD = "alerts_history_index"
         const val ALERTS_HISTORY_INDEX_PATTERN_FIELD = "alerts_history_index_pattern"
         const val QUERY_INDEX_MAPPINGS_BY_TYPE = "query_index_mappings_by_type"
+        const val FINDINGS_ENABLED_FIELD = "findings_enabled"
 
         @JvmStatic
         @Throws(IOException::class)
@@ -120,6 +127,7 @@ data class DataSources(
             var alertsHistoryIndex = ""
             var alertsHistoryIndexPattern = ""
             var queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf()
+            var findingsEnabled = false
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -134,6 +142,7 @@ data class DataSources(
                     ALERTS_HISTORY_INDEX_FIELD -> alertsHistoryIndex = xcp.text()
                     ALERTS_HISTORY_INDEX_PATTERN_FIELD -> alertsHistoryIndexPattern = xcp.text()
                     QUERY_INDEX_MAPPINGS_BY_TYPE -> queryIndexMappingsByType = xcp.map() as Map<String, Map<String, String>>
+                    FINDINGS_ENABLED_FIELD -> findingsEnabled = xcp.booleanValue()
                 }
             }
             return DataSources(
@@ -143,7 +152,8 @@ data class DataSources(
                 alertsIndex = alertsIndex,
                 alertsHistoryIndex = alertsHistoryIndex,
                 alertsHistoryIndexPattern = alertsHistoryIndexPattern,
-                queryIndexMappingsByType = queryIndexMappingsByType
+                queryIndexMappingsByType = queryIndexMappingsByType,
+                findingsEnabled = findingsEnabled
             )
         }
     }
@@ -157,5 +167,6 @@ data class DataSources(
         out.writeOptionalString(alertsHistoryIndex)
         out.writeOptionalString(alertsHistoryIndexPattern)
         out.writeMap(queryIndexMappingsByType as Map<String, Any>)
+        out.writeOptionalBoolean(findingsEnabled)
     }
 }
