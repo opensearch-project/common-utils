@@ -16,6 +16,7 @@ class IndexMonitorRequest : ActionRequest {
     val refreshPolicy: WriteRequest.RefreshPolicy
     val method: RestRequest.Method
     var monitor: Monitor
+    val rbacRoles: List<String>?
 
     constructor(
         monitorId: String,
@@ -23,7 +24,8 @@ class IndexMonitorRequest : ActionRequest {
         primaryTerm: Long,
         refreshPolicy: WriteRequest.RefreshPolicy,
         method: RestRequest.Method,
-        monitor: Monitor
+        monitor: Monitor,
+        rbacRoles: List<String>? = null
     ) : super() {
         this.monitorId = monitorId
         this.seqNo = seqNo
@@ -31,6 +33,7 @@ class IndexMonitorRequest : ActionRequest {
         this.refreshPolicy = refreshPolicy
         this.method = method
         this.monitor = monitor
+        this.rbacRoles = rbacRoles
     }
 
     @Throws(IOException::class)
@@ -40,7 +43,8 @@ class IndexMonitorRequest : ActionRequest {
         primaryTerm = sin.readLong(),
         refreshPolicy = WriteRequest.RefreshPolicy.readFrom(sin),
         method = sin.readEnum(RestRequest.Method::class.java),
-        monitor = Monitor.readFrom(sin) as Monitor
+        monitor = Monitor.readFrom(sin) as Monitor,
+        rbacRoles = sin.readOptionalStringList()
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -55,5 +59,6 @@ class IndexMonitorRequest : ActionRequest {
         refreshPolicy.writeTo(out)
         out.writeEnum(method)
         monitor.writeTo(out)
+        out.writeOptionalStringCollection(rbacRoles)
     }
 }
