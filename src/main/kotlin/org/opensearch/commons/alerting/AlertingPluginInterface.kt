@@ -7,6 +7,7 @@ package org.opensearch.commons.alerting
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
+import org.opensearch.common.io.stream.NamedWriteableRegistry
 import org.opensearch.common.io.stream.Writeable
 import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
 import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
@@ -31,18 +32,20 @@ object AlertingPluginInterface {
      * Index monitor interface.
      * @param client Node client for making transport action
      * @param request The request object
+     * @param namedWriteableRegistry Registry for building aggregations
      * @param listener The listener for getting response
      */
     fun indexMonitor(
         client: NodeClient,
         request: IndexMonitorRequest,
+        namedWriteableRegistry: NamedWriteableRegistry,
         listener: ActionListener<IndexMonitorResponse>
     ) {
         client.execute(
             AlertingActions.INDEX_MONITOR_ACTION_TYPE,
             request,
             wrapActionListener(listener) { response ->
-                recreateObject(response) {
+                recreateObject(response, namedWriteableRegistry) {
                     IndexMonitorResponse(
                         it
                     )
@@ -50,7 +53,6 @@ object AlertingPluginInterface {
             }
         )
     }
-
     fun deleteMonitor(
         client: NodeClient,
         request: DeleteMonitorRequest,
