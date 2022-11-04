@@ -12,7 +12,7 @@ Compatible with OpenSearch 2.4.0
 * Copy over monitor datasources config from alerting to common utils ([#247](https://github.com/opensearch-project/common-utils/pull/247))
 * expose delete monitor api from alerting ([#251](https://github.com/opensearch-project/common-utils/pull/251))
 * Move Findings and Alerts action, request, response and models from alerting to common-utils ([#254](https://github.com/opensearch-project/common-utils/pull/254))
-* * move acknowledge alerts dtos from alerting to common-utils ([#283](https://github.com/opensearch-project/common-utils/pull/282))
+* Move acknowledge alerts dtos from alerting to common-utils ([#283](https://github.com/opensearch-project/common-utils/pull/282))
 
 ### Enhancements
 * Accept of list of monitor ids in findings and alerts request dtos ([#277](https://github.com/opensearch-project/common-utils/pull/277))
@@ -25,7 +25,6 @@ Compatible with OpenSearch 2.4.0
 * Support backend roles in indexMonitorRequest ([#308](https://github.com/opensearch-project/common-utils/pull/308))
 * Added function for request recreation that considers the writeable request ([#303](https://github.com/opensearch-project/common-utils/pull/303))
 * Adds owner field in monitor model ([#313](https://github.com/opensearch-project/common-utils/pull/313))
-
 
 ### Documentation
 * Added 2.4 release notes. ([#316](https://github.com/opensearch-project/common-utils/pull/316))
