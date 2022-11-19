@@ -132,6 +132,15 @@ public class SecureRestClientBuilder {
         hosts.add(new HttpHost(host, port, httpSSLEnabled ? ConfigConstants.HTTPS : ConfigConstants.HTTP));
     }
 
+    public SecureRestClientBuilder(Settings settings, Path configPath, HttpHost[] httpHosts) {
+        this.httpSSLEnabled = settings.getAsBoolean(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_ENABLED, false);
+        this.settings = settings;
+        this.configPath = configPath;
+        this.user = null;
+        this.passwd = null;
+        hosts.addAll(Arrays.asList(httpHosts));
+    }
+
     /**
      * Creates a low-level Rest client.
      * @return
