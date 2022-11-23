@@ -57,8 +57,8 @@ public class LegacySNSMessage extends LegacyBaseMessage {
 
     public LegacySNSMessage(StreamInput streamInput) throws java.io.IOException {
         super(streamInput);
-        this.subject = streamInput.readString();
         this.message = super.getMessageContent();
+        this.subject = streamInput.readString();
         this.roleArn = streamInput.readString();
         this.topicArn = streamInput.readString();
         this.clusterName = streamInput.readString();
@@ -148,7 +148,6 @@ public class LegacySNSMessage extends LegacyBaseMessage {
     public void writeTo(StreamOutput streamOutput) throws IOException {
         super.writeTo(streamOutput);
         streamOutput.writeString(subject);
-        streamOutput.writeString(message);
         streamOutput.writeString(roleArn);
         streamOutput.writeString(topicArn);
         streamOutput.writeString(clusterName);
