@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_ENABLED;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH;
-import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD;
-import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD;
+import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD_SETTING;
+import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD_SETTING;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_PEMCERT_FILEPATH;
 
 import java.io.File;
@@ -24,6 +24,8 @@ import org.opensearch.client.Request;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.Response;
 import org.opensearch.client.RestClient;
+import org.opensearch.common.settings.MockSecureSettings;
+import org.opensearch.common.settings.SecureSettings;
 import org.opensearch.common.settings.Settings;
 
 @Disabled("Enable this after integration with security plugin is done")
@@ -34,6 +36,13 @@ public class IntegrationTests {
         RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
         request.setOptions(builder);
         return request;
+    }
+
+    protected SecureSettings createSecureSettings() {
+        MockSecureSettings mockSecureSettings = new MockSecureSettings();
+        mockSecureSettings.setString(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD_SETTING.getKey(), "changeit");
+        mockSecureSettings.setString(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD_SETTING.getKey(), "changeit");
+        return mockSecureSettings;
     }
 
     @Test
@@ -56,8 +65,7 @@ public class IntegrationTests {
             .put(OPENSEARCH_SECURITY_SSL_HTTP_ENABLED, true)
             .put(OPENSEARCH_SECURITY_SSL_HTTP_PEMCERT_FILEPATH, "sample.pem")
             .put(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH, "test-kirk.jks")
-            .put(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD, "changeit")
-            .put(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD, "changeit")
+            .setSecureSettings(createSecureSettings())
             .build();
 
         RestClient client = new SecureRestClientBuilder(settings, configPath).build();
@@ -77,8 +85,7 @@ public class IntegrationTests {
             .put("http.port", 9200)
             .put(OPENSEARCH_SECURITY_SSL_HTTP_ENABLED, true)
             .put(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH, "test-kirk.jks")
-            .put(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD, "changeit")
-            .put(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD, "changeit")
+            .setSecureSettings(createSecureSettings())
             .build();
 
         RestClient client = new SecureRestClientBuilder(settings, configPath).build();

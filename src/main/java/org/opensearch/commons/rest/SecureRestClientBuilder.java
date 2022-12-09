@@ -289,13 +289,13 @@ public class SecureRestClientBuilder {
     }
 
     private String getKeystorePasswd() {
-        return settings.get(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD, null);
+        return ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD_SETTING.get(settings).toString();
     }
 
     private KeyStore getKeyStore() throws IOException, GeneralSecurityException {
         KeyStore keyStore = KeyStore.getInstance("jks");
         String keyStoreFile = settings.get(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH, null);
-        String passwd = settings.get(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD, null);
+        String passwd = ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD_SETTING.get(settings).toString();
         if (Strings.isNullOrEmpty(keyStoreFile) || Strings.isNullOrEmpty(passwd)) {
             return null;
         }

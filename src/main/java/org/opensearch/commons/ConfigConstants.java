@@ -5,6 +5,10 @@
 
 package org.opensearch.commons;
 
+import org.opensearch.common.settings.SecureSetting;
+import org.opensearch.common.settings.SecureString;
+import org.opensearch.common.settings.Setting;
+
 public class ConfigConstants {
 
     public static final String HTTPS = "https";
@@ -19,8 +23,33 @@ public class ConfigConstants {
     // These reside in security plugin.
     public static final String OPENSEARCH_SECURITY_SSL_HTTP_PEMCERT_FILEPATH = "plugins.security.ssl.http.pemcert_filepath";
     public static final String OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH = "plugins.security.ssl.http.keystore_filepath";
+    /**
+     * @deprecated in favor of the {@link #OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD_SETTING} secure setting
+     */
+    @Deprecated
     public static final String OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD = "plugins.security.ssl.http.keystore_password";
+
+    /**
+     * @deprecated in favor of the {@link #OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD_SETTING} secure setting
+     */
+    @Deprecated
     public static final String OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD = "plugins.security.ssl.http.keystore_keypassword";
+    private static final String SECURE_SUFFIX = "_secure";
+
+    private static Setting<SecureString> createFallbackInsecureSetting(String key) {
+        return new Setting<>(key, (settings) -> "", (strValue) -> new SecureString(strValue.toCharArray()));
+    }
+
+    public static final Setting<SecureString> OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD_SETTING = SecureSetting
+        .secureString(
+            OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD + SECURE_SUFFIX,
+            createFallbackInsecureSetting(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD)
+        );
+    public static final Setting<SecureString> OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD_SETTING = SecureSetting
+        .secureString(
+            OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD + SECURE_SUFFIX,
+            createFallbackInsecureSetting(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD)
+        );
     public static final String OPENSEARCH_SECURITY_INJECTED_ROLES = "opendistro_security_injected_roles";
     public static final String INJECTED_USER = "injected_user";
     public static final String OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS = "plugins.security_use_injected_user_for_plugins";
