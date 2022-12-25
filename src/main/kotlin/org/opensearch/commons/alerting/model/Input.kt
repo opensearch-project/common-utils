@@ -14,7 +14,8 @@ interface Input : BaseModel {
     enum class Type(val value: String) {
         DOCUMENT_LEVEL_INPUT(DOC_LEVEL_INPUT_FIELD),
         CLUSTER_METRICS_INPUT(URI_FIELD),
-        SEARCH_INPUT(SEARCH_FIELD);
+        SEARCH_INPUT(SEARCH_FIELD),
+        COMPOSITE_INPUT(COMPO);
 
         override fun toString(): String {
             return value
@@ -32,6 +33,8 @@ interface Input : BaseModel {
                 SearchInput.parseInner(xcp)
             } else if (xcp.currentName() == Type.CLUSTER_METRICS_INPUT.value) {
                 ClusterMetricsInput.parseInner(xcp)
+            } else if (xcp.currentName() == Type.COMPOSITE_INPUT.value) {
+                CompositeInput.parse(xcp)
             } else {
                 DocLevelMonitorInput.parse(xcp)
             }
