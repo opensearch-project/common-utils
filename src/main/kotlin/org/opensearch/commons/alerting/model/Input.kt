@@ -4,6 +4,7 @@ import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.alerting.model.ClusterMetricsInput.Companion.URI_FIELD
+import org.opensearch.commons.alerting.model.CompositeInput.Companion.COMPOSITE_INPUT_FIELD
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput.Companion.DOC_LEVEL_INPUT_FIELD
 import org.opensearch.commons.alerting.model.SearchInput.Companion.SEARCH_FIELD
 import org.opensearch.commons.notifications.model.BaseModel
@@ -14,7 +15,8 @@ interface Input : BaseModel {
     enum class Type(val value: String) {
         DOCUMENT_LEVEL_INPUT(DOC_LEVEL_INPUT_FIELD),
         CLUSTER_METRICS_INPUT(URI_FIELD),
-        SEARCH_INPUT(SEARCH_FIELD);
+        SEARCH_INPUT(SEARCH_FIELD),
+        COMPOSITE_INPUT(COMPOSITE_INPUT_FIELD);
 
         override fun toString(): String {
             return value
@@ -32,6 +34,8 @@ interface Input : BaseModel {
                 SearchInput.parseInner(xcp)
             } else if (xcp.currentName() == Type.CLUSTER_METRICS_INPUT.value) {
                 ClusterMetricsInput.parseInner(xcp)
+            } else if (xcp.currentName() == Type.COMPOSITE_INPUT.value) {
+                CompositeInput.parse(xcp)
             } else {
                 DocLevelMonitorInput.parse(xcp)
             }

@@ -25,7 +25,10 @@ import org.opensearch.commons.alerting.model.ActionExecutionResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
+import org.opensearch.commons.alerting.model.ChainedFindings
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
+import org.opensearch.commons.alerting.model.CompositeInput
+import org.opensearch.commons.alerting.model.Delegate
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.DocumentLevelTrigger
@@ -36,6 +39,7 @@ import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.QueryLevelTrigger
 import org.opensearch.commons.alerting.model.Schedule
 import org.opensearch.commons.alerting.model.SearchInput
+import org.opensearch.commons.alerting.model.Sequence
 import org.opensearch.commons.alerting.model.Trigger
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
@@ -153,6 +157,47 @@ fun randomDocumentLevelMonitor(
         schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
         uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
+}
+
+fun randomCompositeMonitor(
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    user: User? = randomUser(),
+    inputs: List<Input>?,
+    schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
+    enabled: Boolean = Random().nextBoolean(),
+    enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
+    lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    withMetadata: Boolean = false
+): Monitor {
+    var input = inputs
+    if (input == null) {
+        input = listOf(
+            CompositeInput(
+                Sequence(
+                    listOf(Delegate(1, "delegate1"))
+                )
+            )
+        )
+    }
+    return Monitor(
+        name = name, monitorType = Monitor.MonitorType.COMPOSITE_MONITOR, enabled = enabled, inputs = input,
+        schedule = schedule, triggers = listOf(), enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
+    )
+}
+
+fun randomSequence(
+    delegates: List<Delegate> = listOf(randomDelegate())
+): Sequence {
+    return Sequence(delegates)
+}
+
+fun randomDelegate(
+    order: Int = 1,
+    monitorId: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    chainedFindings: ChainedFindings? = null
+): Delegate {
+    return Delegate(order, monitorId, chainedFindings)
 }
 
 fun randomQueryLevelTrigger(
