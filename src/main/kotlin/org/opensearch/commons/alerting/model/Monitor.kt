@@ -113,7 +113,8 @@ data class Monitor(
         QUERY_LEVEL_MONITOR("query_level_monitor"),
         BUCKET_LEVEL_MONITOR("bucket_level_monitor"),
         CLUSTER_METRICS_MONITOR("cluster_metrics_monitor"),
-        DOC_LEVEL_MONITOR("doc_level_monitor");
+        DOC_LEVEL_MONITOR("doc_level_monitor"),
+        COMPOSITE_MONITOR("composite_monitor");
 
         override fun toString(): String {
             return value

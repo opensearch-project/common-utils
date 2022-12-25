@@ -16,6 +16,7 @@ import org.opensearch.commons.alerting.randomActionWithPolicy
 import org.opensearch.commons.alerting.randomAlert
 import org.opensearch.commons.alerting.randomBucketLevelMonitor
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
+import org.opensearch.commons.alerting.randomCompositeMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitorWithoutUser
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
@@ -154,6 +155,14 @@ class XContentTests {
     fun `test bucket-level monitor parsing`() {
         val monitor = randomBucketLevelMonitor()
 
+        val monitorString = monitor.toJsonStringWithUser()
+        val parsedMonitor = Monitor.parse(parser(monitorString))
+        Assertions.assertEquals(monitor, parsedMonitor, "Round tripping BucketLevelMonitor doesn't work")
+    }
+
+    @Test
+    fun `test composite monitor parsing`() {
+        val monitor = randomCompositeMonitor(inputs = null)
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
         Assertions.assertEquals(monitor, parsedMonitor, "Round tripping BucketLevelMonitor doesn't work")
