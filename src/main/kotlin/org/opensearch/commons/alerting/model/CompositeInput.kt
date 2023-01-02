@@ -13,7 +13,7 @@ import java.io.IOException
 
 data class CompositeInput(
     val sequence: Sequence
-) : Input {
+) : WorkflowInput {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         Sequence(sin)
@@ -48,7 +48,7 @@ data class CompositeInput(
         const val SEQUENCE_FIELD = "sequence"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Input::class.java,
+            WorkflowInput::class.java,
             ParseField(COMPOSITE_INPUT_FIELD), CheckedFunction { CompositeInput.parse(it) }
         )
 
