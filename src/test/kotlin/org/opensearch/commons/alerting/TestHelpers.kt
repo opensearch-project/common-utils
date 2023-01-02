@@ -41,6 +41,8 @@ import org.opensearch.commons.alerting.model.Schedule
 import org.opensearch.commons.alerting.model.SearchInput
 import org.opensearch.commons.alerting.model.Sequence
 import org.opensearch.commons.alerting.model.Trigger
+import org.opensearch.commons.alerting.model.Workflow
+import org.opensearch.commons.alerting.model.WorkflowInput
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
 import org.opensearch.commons.alerting.model.action.ActionExecutionScope
@@ -159,16 +161,15 @@ fun randomDocumentLevelMonitor(
     )
 }
 
-fun randomCompositeMonitor(
+fun randomCompositeWorkflow(
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
     user: User? = randomUser(),
-    inputs: List<Input>?,
+    inputs: List<WorkflowInput>? = null,
     schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    withMetadata: Boolean = false
-): Monitor {
+): Workflow {
     var input = inputs
     if (input == null) {
         input = listOf(
@@ -179,11 +180,15 @@ fun randomCompositeMonitor(
             )
         )
     }
-    return Monitor(
-        name = name, monitorType = Monitor.MonitorType.COMPOSITE_MONITOR, enabled = enabled, inputs = input,
-        schedule = schedule, triggers = listOf(), enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
+    return Workflow(
+        name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
+        schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
     )
+}
+
+fun Workflow.toJsonStringWithUser(): String {
+    val builder = XContentFactory.jsonBuilder()
+    return this.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS).string()
 }
 
 fun randomSequence(
