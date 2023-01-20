@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.CredentialsProvider;
@@ -28,9 +29,10 @@ import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager;
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
+import org.apache.hc.core5.function.Factory;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;
@@ -74,7 +76,9 @@ public class SecureRestClientBuilder {
 
     private int defaultConnectTimeOutMSecs = 5000;
     private int defaultSoTimeoutMSecs = 10000;
-    private int defaultConnRequestTimeoutMSecs = 0;
+    private int defaultConnRequestTimeoutMSecs = 3 * 60 * 1000; /* 3 mins */
+    private int defaultMaxConnPerRoute = RestClientBuilder.DEFAULT_MAX_CONN_PER_ROUTE;
+    private int defaultMaxConnTotal = RestClientBuilder.DEFAULT_MAX_CONN_TOTAL;
 
     private static final Logger log = LogManager.getLogger(SecureRestClientBuilder.class);
 
@@ -180,6 +184,16 @@ public class SecureRestClientBuilder {
         return this;
     }
 
+    public SecureRestClientBuilder setMaxConnPerRoute(final int maxConnPerRoute) {
+        this.defaultMaxConnPerRoute = maxConnPerRoute;
+        return this;
+    }
+
+    public SecureRestClientBuilder setMaxConnTotal(final int maxConnTotal) {
+        this.defaultMaxConnTotal = maxConnTotal;
+        return this;
+    }
+
     private RestClientBuilder createRestClientBuilder() throws IOException {
         RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[hosts.size()]));
 
@@ -204,17 +218,28 @@ public class SecureRestClientBuilder {
             @Override
             public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
                 if (sslContext != null) {
-                    TlsStrategy tlsStrategy = ClientTlsStrategyBuilder.create().setSslContext(sslContext).build();
+                    TlsStrategy tlsStrategy = ClientTlsStrategyBuilder
+                        .create()
+                        .setSslContext(sslContext)
+                        // See please https://issues.apache.org/jira/browse/HTTPCLIENT-2219
+                        .setTlsDetailsFactory(new Factory<SSLEngine, TlsDetails>() {
+                            @Override
+                            public TlsDetails create(final SSLEngine sslEngine) {
+                                return new TlsDetails(sslEngine.getSession(), sslEngine.getApplicationProtocol());
+                            }
+                        })
+                        .build();
                     PoolingAsyncClientConnectionManager connectionManager = PoolingAsyncClientConnectionManagerBuilder
                         .create()
                         .setTlsStrategy(tlsStrategy)
+                        .setMaxConnPerRoute(defaultMaxConnPerRoute)
+                        .setMaxConnTotal(defaultMaxConnTotal)
                         .build();
                     httpClientBuilder.setConnectionManager(connectionManager);
                 }
                 if (credentialsProvider != null) {
                     httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
                 }
-                httpClientBuilder.setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_1);
                 return httpClientBuilder;
             }
         });
