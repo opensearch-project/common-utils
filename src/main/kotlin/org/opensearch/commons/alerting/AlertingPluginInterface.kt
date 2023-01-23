@@ -20,6 +20,8 @@ import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
 import org.opensearch.commons.alerting.action.GetFindingsResponse
+import org.opensearch.commons.alerting.action.GetWorkflowRequest
+import org.opensearch.commons.alerting.action.GetWorkflowResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.alerting.action.IndexWorkflowRequest
@@ -136,6 +138,30 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     GetAlertsResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    /**
+     * Get Workflow interface.
+     * @param client Node client for making transport action
+     * @param request The request object
+     * @param listener The listener for getting response
+     */
+    fun getWorkflow(
+        client: NodeClient,
+        request: GetWorkflowRequest,
+        listener: ActionListener<GetWorkflowResponse>
+    ) {
+        client.execute(
+            AlertingActions.GET_WORKFLOW_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    GetWorkflowResponse(
                         it
                     )
                 }

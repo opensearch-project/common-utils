@@ -1,14 +1,14 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.ParseField
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.NamedXContentRegistry
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.ParseField
+import org.opensearch.core.xcontent.NamedXContentRegistry
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 
 data class CompositeInput(
@@ -41,6 +41,10 @@ data class CompositeInput(
 
     override fun name(): String {
         return COMPOSITE_INPUT_FIELD
+    }
+
+    fun getMonitorIds(): List<String> {
+        return sequence.delegates.map { delegate -> delegate.monitorId }
     }
 
     companion object {
