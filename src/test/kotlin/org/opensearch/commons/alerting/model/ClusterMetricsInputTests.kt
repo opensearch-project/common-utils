@@ -429,7 +429,7 @@ class ClusterMetricsInputTests {
         // GIVEN
         path = "/_cluster/health"
         pathParams = "index1,index2,index3,index4,index5"
-        val testUrl = "http://localhost:9200$path$pathParams"
+        val testUrl = "http://localhost:9200$path/$pathParams"
 
         // WHEN
         val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
