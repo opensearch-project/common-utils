@@ -206,7 +206,9 @@ data class ClusterMetricsInput(
          * it auto encodes path params in the url.
          */
         return try {
-            val uriBuilder = URIBuilder("$SUPPORTED_SCHEME://$SUPPORTED_HOST:$SUPPORTED_PORT$path$pathParams")
+            val formattedPath = if (path.startsWith("/") || path.isBlank()) path else "/$path"
+            val formattedPathParams = if (pathParams.startsWith("/") || pathParams.isBlank()) pathParams else "/$pathParams"
+            val uriBuilder = URIBuilder("$SUPPORTED_SCHEME://$SUPPORTED_HOST:$SUPPORTED_PORT$formattedPath$formattedPathParams")
             uriBuilder.build()
         } catch (ex: URISyntaxException) {
             val uriBuilder = URIBuilder()
