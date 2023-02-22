@@ -8,8 +8,8 @@ package org.opensearch.commons.notifications.model
 import org.apache.lucene.search.TotalHits
 import org.opensearch.action.search.SearchResponse
 import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_LIST_TAG
+import org.opensearch.core.xcontent.XContentParser
 
 /**
  * NotificationConfig search results
