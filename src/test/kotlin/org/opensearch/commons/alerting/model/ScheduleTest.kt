@@ -1,8 +1,8 @@
 package org.opensearch.commons.alerting.model
 
 import org.junit.jupiter.api.Test
-import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.commons.alerting.util.string
+import org.opensearch.core.xcontent.ToXContent
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
