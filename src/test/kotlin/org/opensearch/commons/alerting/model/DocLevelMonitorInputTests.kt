@@ -2,13 +2,12 @@ package org.opensearch.commons.alerting.model
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.alerting.randomDocLevelMonitorInput
 import org.opensearch.commons.alerting.randomDocLevelQuery
 import org.opensearch.commons.alerting.util.string
-import java.lang.IllegalArgumentException
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
 
 class DocLevelMonitorInputTests {
     @Test
