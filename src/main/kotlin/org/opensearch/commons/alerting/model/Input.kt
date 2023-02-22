@@ -1,12 +1,12 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.alerting.model.ClusterMetricsInput.Companion.URI_FIELD
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput.Companion.DOC_LEVEL_INPUT_FIELD
 import org.opensearch.commons.alerting.model.SearchInput.Companion.SEARCH_FIELD
 import org.opensearch.commons.notifications.model.BaseModel
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 
 interface Input : BaseModel {
