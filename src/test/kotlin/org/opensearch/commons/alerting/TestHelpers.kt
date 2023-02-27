@@ -3,8 +3,8 @@ package org.opensearch.commons.alerting
 import com.carrotsearch.randomizedtesting.generators.RandomNumbers
 import com.carrotsearch.randomizedtesting.generators.RandomStrings
 import junit.framework.TestCase.assertNull
-import org.apache.hc.core5.http.Header
-import org.apache.hc.core5.http.HttpEntity
+import org.apache.http.Header
+import org.apache.http.HttpEntity
 import org.opensearch.client.Request
 import org.opensearch.client.RequestOptions
 import org.opensearch.client.Response

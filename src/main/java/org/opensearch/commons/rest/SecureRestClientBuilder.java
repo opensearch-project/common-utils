@@ -18,21 +18,15 @@ import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.client5.http.auth.AuthScope;
-import org.apache.hc.client5.http.auth.CredentialsProvider;
-import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
-import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
-import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager;
-import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
-import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
-import org.apache.hc.core5.util.Timeout;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.OpenSearchException;
@@ -102,7 +96,7 @@ public class SecureRestClientBuilder {
         this.passwd = passWord;
         this.settings = Settings.EMPTY;
         this.configPath = null;
-        hosts.add(new HttpHost(httpSSLEnabled ? ConfigConstants.HTTPS : ConfigConstants.HTTP, host, port));
+        hosts.add(new HttpHost(host, port, httpSSLEnabled ? ConfigConstants.HTTPS : ConfigConstants.HTTP));
     }
 
     /**
@@ -135,7 +129,7 @@ public class SecureRestClientBuilder {
         this.passwd = null;
         String host = ConfigConstants.HOST_DEFAULT;
         int port = settings.getAsInt(ConfigConstants.HTTP_PORT, ConfigConstants.HTTP_PORT_DEFAULT);
-        hosts.add(new HttpHost(httpSSLEnabled ? ConfigConstants.HTTPS : ConfigConstants.HTTP, host, port));
+        hosts.add(new HttpHost(host, port, httpSSLEnabled ? ConfigConstants.HTTPS : ConfigConstants.HTTP));
     }
 
     public SecureRestClientBuilder(Settings settings, Path configPath, HttpHost[] httpHosts) {
@@ -187,9 +181,9 @@ public class SecureRestClientBuilder {
             @Override
             public RequestConfig.Builder customizeRequestConfig(RequestConfig.Builder requestConfigBuilder) {
                 return requestConfigBuilder
-                    .setConnectTimeout(Timeout.ofMilliseconds(defaultConnectTimeOutMSecs))
-                    .setResponseTimeout(Timeout.ofMilliseconds(defaultSoTimeoutMSecs))
-                    .setConnectionRequestTimeout(Timeout.ofMilliseconds(defaultConnRequestTimeoutMSecs));
+                    .setConnectTimeout(defaultConnectTimeOutMSecs)
+                    .setSocketTimeout(defaultSoTimeoutMSecs)
+                    .setConnectionRequestTimeout(defaultConnRequestTimeoutMSecs);
             }
         });
 
@@ -204,17 +198,11 @@ public class SecureRestClientBuilder {
             @Override
             public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
                 if (sslContext != null) {
-                    TlsStrategy tlsStrategy = ClientTlsStrategyBuilder.create().setSslContext(sslContext).build();
-                    PoolingAsyncClientConnectionManager connectionManager = PoolingAsyncClientConnectionManagerBuilder
-                        .create()
-                        .setTlsStrategy(tlsStrategy)
-                        .build();
-                    httpClientBuilder.setConnectionManager(connectionManager);
+                    httpClientBuilder.setSSLContext(sslContext);
                 }
                 if (credentialsProvider != null) {
                     httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
                 }
-                httpClientBuilder.setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_1);
                 return httpClientBuilder;
             }
         });
@@ -248,8 +236,8 @@ public class SecureRestClientBuilder {
         if (Strings.isNullOrEmpty(user) || Strings.isNullOrEmpty(passwd))
             return null;
 
-        final BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(new AuthScope(null, -1), new UsernamePasswordCredentials(user, passwd.toCharArray()));
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, passwd));
         return credentialsProvider;
     }
 

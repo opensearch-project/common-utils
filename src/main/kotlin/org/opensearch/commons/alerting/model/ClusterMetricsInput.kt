@@ -1,7 +1,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.apache.commons.validator.routines.UrlValidator
-import org.apache.hc.core5.net.URIBuilder
+import org.apache.http.client.utils.URIBuilder
 import org.opensearch.common.CheckedFunction
 import org.opensearch.common.ParseField
 import org.opensearch.common.io.stream.StreamInput

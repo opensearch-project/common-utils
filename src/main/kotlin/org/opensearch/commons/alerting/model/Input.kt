@@ -15,6 +15,7 @@ interface Input : BaseModel {
         DOCUMENT_LEVEL_INPUT(DOC_LEVEL_INPUT_FIELD),
         CLUSTER_METRICS_INPUT(URI_FIELD),
         SEARCH_INPUT(SEARCH_FIELD);
+
         override fun toString(): String {
             return value
         }

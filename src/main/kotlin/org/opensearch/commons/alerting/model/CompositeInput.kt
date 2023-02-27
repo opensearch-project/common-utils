@@ -43,6 +43,10 @@ data class CompositeInput(
         return COMPOSITE_INPUT_FIELD
     }
 
+    fun getMonitorIds(): List<String> {
+        return sequence.delegates.map { delegate -> delegate.monitorId }
+    }
+
     companion object {
         const val COMPOSITE_INPUT_FIELD = "composite_input"
         const val SEQUENCE_FIELD = "sequence"
