@@ -147,6 +147,8 @@ data class Workflow(
     }
 
     companion object {
+        const val WORKFLOW_DELEGATE_PATH = "workflow.inputs.composite_input.sequence.delegates"
+        const val WORKFLOW_MONITOR_PATH = "workflow.inputs.composite_input.sequence.delegates.monitor_id"
         const val WORKFLOW_TYPE = "workflow"
         const val TYPE_FIELD = "type"
         const val WORKFLOW_TYPE_FIELD = "workflow_type"
@@ -220,6 +222,9 @@ data class Workflow(
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
                     OWNER_FIELD -> {
                         owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
+                    }
+                    else -> {
+                        xcp.skipChildren()
                     }
                 }
             }
