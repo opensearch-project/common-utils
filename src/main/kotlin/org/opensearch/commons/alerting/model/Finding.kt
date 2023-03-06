@@ -22,7 +22,7 @@ class Finding(
     val index: String,
     val docLevelQueries: List<DocLevelQuery>,
     val timestamp: Instant,
-    val workflowExecutionId: String? = null,
+    val executionId: String? = null,
 ) : Writeable, ToXContent {
 
     constructor(
@@ -41,7 +41,7 @@ class Finding(
         index = index,
         docLevelQueries = docLevelQueries,
         timestamp = timestamp,
-        workflowExecutionId = null
+        executionId = null
     )
 
     @Throws(IOException::class)
@@ -53,7 +53,7 @@ class Finding(
         index = sin.readString(),
         docLevelQueries = sin.readList((DocLevelQuery)::readFrom),
         timestamp = sin.readInstant(),
-        workflowExecutionId = sin.readOptionalString()
+        executionId = sin.readOptionalString()
     )
 
     fun asTemplateArg(): Map<String, Any?> {
@@ -65,7 +65,7 @@ class Finding(
             INDEX_FIELD to index,
             QUERIES_FIELD to docLevelQueries,
             TIMESTAMP_FIELD to timestamp.toEpochMilli(),
-            WORKFLOW_EXECUTION_ID_FIELD to workflowExecutionId
+            EXECUTION_ID_FIELD to executionId
         )
     }
 
@@ -78,7 +78,7 @@ class Finding(
             .field(INDEX_FIELD, index)
             .field(QUERIES_FIELD, docLevelQueries.toTypedArray())
             .field(TIMESTAMP_FIELD, timestamp.toEpochMilli())
-            .field(WORKFLOW_EXECUTION_ID_FIELD, workflowExecutionId)
+            .field(EXECUTION_ID_FIELD, executionId)
         builder.endObject()
         return builder
     }
@@ -92,7 +92,7 @@ class Finding(
         out.writeString(index)
         out.writeCollection(docLevelQueries)
         out.writeInstant(timestamp)
-        out.writeOptionalString(workflowExecutionId)
+        out.writeOptionalString(executionId)
     }
 
     companion object {
@@ -103,7 +103,7 @@ class Finding(
         const val INDEX_FIELD = "index"
         const val QUERIES_FIELD = "queries"
         const val TIMESTAMP_FIELD = "timestamp"
-        const val WORKFLOW_EXECUTION_ID_FIELD = "workflow_execution_id"
+        const val EXECUTION_ID_FIELD = "execution_id"
         const val NO_ID = ""
 
         @JvmStatic @JvmOverloads
@@ -143,7 +143,7 @@ class Finding(
                     TIMESTAMP_FIELD -> {
                         timestamp = requireNotNull(xcp.instant())
                     }
-                    WORKFLOW_EXECUTION_ID_FIELD -> executionId = xcp.textOrNull()
+                    EXECUTION_ID_FIELD -> executionId = xcp.textOrNull()
                 }
             }
 
@@ -155,7 +155,7 @@ class Finding(
                 index = index,
                 docLevelQueries = queries,
                 timestamp = timestamp,
-                workflowExecutionId = executionId
+                executionId = executionId
             )
         }
 
