@@ -30,7 +30,7 @@ buildscript {
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id "com.diffplug.gradle.spotless" version "3.26.1"
+    id "com.diffplug.spotless" version "6.16.0"
 }
 
 repositories {
@@ -147,16 +147,16 @@ compileTestKotlin {
 }
 
 shadowJar {
-    classifier = null
+    archiveClassifier = null
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allJava
 }
 
 task javadocJar(type: Jar) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
 }
 publishing {

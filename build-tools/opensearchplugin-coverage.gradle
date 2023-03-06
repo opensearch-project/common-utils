@@ -37,8 +37,12 @@ jacocoTestReport {
     getSourceDirectories().from(sourceSets.main.allSource)
     getClassDirectories().from(sourceSets.main.output)
     reports {
-        html.enabled = true // human readable
-        xml.enabled = true // for coverlay
+        html {
+            enabled true // human readable
+        }
+        xml {
+            enabled true // for coverlay
+        }
     }
 }
 
