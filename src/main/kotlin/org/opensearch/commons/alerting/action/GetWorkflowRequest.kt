@@ -20,12 +20,12 @@ class GetWorkflowRequest : ActionRequest {
     val srcContext: FetchSourceContext?
 
     constructor(
-        monitorId: String,
+        workflowId: String,
         version: Long,
         method: RestRequest.Method,
         srcContext: FetchSourceContext?
     ) : super() {
-        this.workflowId = monitorId
+        this.workflowId = workflowId
         this.version = version
         this.method = method
         this.srcContext = srcContext
@@ -33,7 +33,7 @@ class GetWorkflowRequest : ActionRequest {
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        sin.readString(), // monitorId
+        sin.readString(), // workflowId
         sin.readLong(), // version
         sin.readEnum(RestRequest.Method::class.java), // method
         if (sin.readBoolean()) {
