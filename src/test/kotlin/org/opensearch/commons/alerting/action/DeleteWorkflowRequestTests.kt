@@ -11,7 +11,7 @@ class DeleteWorkflowRequestTests {
     @Test
     fun `test delete workflow request`() {
 
-        val req = DeleteWorkflowRequest("1234", WriteRequest.RefreshPolicy.IMMEDIATE)
+        val req = DeleteWorkflowRequest("1234", true, WriteRequest.RefreshPolicy.IMMEDIATE)
         Assert.assertNotNull(req)
         Assert.assertEquals("1234", req.workflowId)
         Assert.assertEquals("true", req.refreshPolicy.value)
