@@ -21,8 +21,28 @@ class Finding(
     val monitorName: String,
     val index: String,
     val docLevelQueries: List<DocLevelQuery>,
-    val timestamp: Instant
+    val timestamp: Instant,
+    val executionId: String? = null,
 ) : Writeable, ToXContent {
+
+    constructor(
+        id: String = NO_ID,
+        relatedDocIds: List<String>,
+        monitorId: String,
+        monitorName: String,
+        index: String,
+        docLevelQueries: List<DocLevelQuery>,
+        timestamp: Instant
+    ) : this (
+        id = id,
+        relatedDocIds = relatedDocIds,
+        monitorId = monitorId,
+        monitorName = monitorName,
+        index = index,
+        docLevelQueries = docLevelQueries,
+        timestamp = timestamp,
+        executionId = null
+    )
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
@@ -32,7 +52,8 @@ class Finding(
         monitorName = sin.readString(),
         index = sin.readString(),
         docLevelQueries = sin.readList((DocLevelQuery)::readFrom),
-        timestamp = sin.readInstant()
+        timestamp = sin.readInstant(),
+        executionId = sin.readOptionalString()
     )
 
     fun asTemplateArg(): Map<String, Any?> {
@@ -43,7 +64,8 @@ class Finding(
             MONITOR_NAME_FIELD to monitorName,
             INDEX_FIELD to index,
             QUERIES_FIELD to docLevelQueries,
-            TIMESTAMP_FIELD to timestamp.toEpochMilli()
+            TIMESTAMP_FIELD to timestamp.toEpochMilli(),
+            EXECUTION_ID_FIELD to executionId
         )
     }
 
@@ -56,6 +78,7 @@ class Finding(
             .field(INDEX_FIELD, index)
             .field(QUERIES_FIELD, docLevelQueries.toTypedArray())
             .field(TIMESTAMP_FIELD, timestamp.toEpochMilli())
+            .field(EXECUTION_ID_FIELD, executionId)
         builder.endObject()
         return builder
     }
@@ -69,6 +92,7 @@ class Finding(
         out.writeString(index)
         out.writeCollection(docLevelQueries)
         out.writeInstant(timestamp)
+        out.writeOptionalString(executionId)
     }
 
     companion object {
@@ -79,6 +103,7 @@ class Finding(
         const val INDEX_FIELD = "index"
         const val QUERIES_FIELD = "queries"
         const val TIMESTAMP_FIELD = "timestamp"
+        const val EXECUTION_ID_FIELD = "execution_id"
         const val NO_ID = ""
 
         @JvmStatic @JvmOverloads
@@ -91,6 +116,7 @@ class Finding(
             lateinit var index: String
             val queries: MutableList<DocLevelQuery> = mutableListOf()
             lateinit var timestamp: Instant
+            var executionId: String? = null
 
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -117,6 +143,7 @@ class Finding(
                     TIMESTAMP_FIELD -> {
                         timestamp = requireNotNull(xcp.instant())
                     }
+                    EXECUTION_ID_FIELD -> executionId = xcp.textOrNull()
                 }
             }
 
@@ -127,7 +154,8 @@ class Finding(
                 monitorName = monitorName,
                 index = index,
                 docLevelQueries = queries,
-                timestamp = timestamp
+                timestamp = timestamp,
+                executionId = executionId
             )
         }
 
