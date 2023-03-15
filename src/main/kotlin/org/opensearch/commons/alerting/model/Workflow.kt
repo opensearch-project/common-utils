@@ -35,9 +35,8 @@ data class Workflow(
     val user: User?,
     val schemaVersion: Int = NO_SCHEMA_VERSION,
     val inputs: List<WorkflowInput>,
-    val owner: String? = "alerting"
+    val owner: String? = DEFAULT_OWNER
 ) : ScheduledJob {
-
     override val type = WORKFLOW_TYPE
 
     init {
@@ -185,7 +184,7 @@ data class Workflow(
             var enabled = true
             var schemaVersion = NO_SCHEMA_VERSION
             val inputs: MutableList<WorkflowInput> = mutableListOf()
-            var owner = "alerting"
+            var owner = DEFAULT_OWNER
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -260,5 +259,7 @@ data class Workflow(
         fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, Any> {
             return map as MutableMap<String, Any>
         }
+
+        private const val DEFAULT_OWNER = "alerting"
     }
 }

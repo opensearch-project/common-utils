@@ -18,7 +18,7 @@ import java.io.IOException
 data class Delegate(
     val order: Int,
     val monitorId: String,
-    val chainedFindings: ChainedFindings? = null
+    val chainedMonitorFindings: ChainedMonitorFindings? = null
 ) : BaseModel {
 
     init {
@@ -30,8 +30,8 @@ data class Delegate(
     constructor(sin: StreamInput) : this(
         order = sin.readInt(),
         monitorId = sin.readString(),
-        chainedFindings = if (sin.readBoolean()) {
-            ChainedFindings(sin)
+        chainedMonitorFindings = if (sin.readBoolean()) {
+            ChainedMonitorFindings(sin)
         } else null,
     )
 
@@ -46,16 +46,16 @@ data class Delegate(
     override fun writeTo(out: StreamOutput) {
         out.writeInt(order)
         out.writeString(monitorId)
-        out.writeBoolean(chainedFindings != null)
-        chainedFindings?.writeTo(out)
+        out.writeBoolean(chainedMonitorFindings != null)
+        chainedMonitorFindings?.writeTo(out)
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         builder.startObject()
             .field(ORDER_FIELD, order)
             .field(MONITOR_ID_FIELD, monitorId)
-        if (chainedFindings != null) {
-            builder.field(CHAINED_FINDINGS_FIELD, chainedFindings)
+        if (chainedMonitorFindings != null) {
+            builder.field(CHAINED_FINDINGS_FIELD, chainedMonitorFindings)
         }
         builder.endObject()
         return builder
@@ -71,7 +71,7 @@ data class Delegate(
         fun parse(xcp: XContentParser): Delegate {
             lateinit var monitorId: String
             var order = 0
-            var chainedFindings: ChainedFindings? = null
+            var chainedMonitorFindings: ChainedMonitorFindings? = null
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -88,11 +88,11 @@ data class Delegate(
                         validateId(monitorId)
                     }
                     CHAINED_FINDINGS_FIELD -> {
-                        chainedFindings = ChainedFindings.parse(xcp)
+                        chainedMonitorFindings = ChainedMonitorFindings.parse(xcp)
                     }
                 }
             }
-            return Delegate(order, monitorId, chainedFindings)
+            return Delegate(order, monitorId, chainedMonitorFindings)
         }
 
         @JvmStatic

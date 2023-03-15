@@ -10,35 +10,28 @@ import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
-import org.opensearch.search.fetch.subphase.FetchSourceContext
 import java.io.IOException
 
 class GetWorkflowRequest : ActionRequest {
     val workflowId: String
     val version: Long
     val method: RestRequest.Method
-    val srcContext: FetchSourceContext?
 
     constructor(
         workflowId: String,
         version: Long,
-        method: RestRequest.Method,
-        srcContext: FetchSourceContext?
+        method: RestRequest.Method
     ) : super() {
         this.workflowId = workflowId
         this.version = version
         this.method = method
-        this.srcContext = srcContext
     }
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // workflowId
         sin.readLong(), // version
-        sin.readEnum(RestRequest.Method::class.java), // method
-        if (sin.readBoolean()) {
-            FetchSourceContext(sin) // srcContext
-        } else null
+        sin.readEnum(RestRequest.Method::class.java) // method
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -50,7 +43,5 @@ class GetWorkflowRequest : ActionRequest {
         out.writeString(workflowId)
         out.writeLong(version)
         out.writeEnum(method)
-        out.writeBoolean(srcContext != null)
-        srcContext?.writeTo(out)
     }
 }

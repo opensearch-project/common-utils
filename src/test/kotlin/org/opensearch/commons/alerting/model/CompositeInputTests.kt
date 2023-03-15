@@ -72,7 +72,7 @@ class CompositeInputTests {
     @Test
     fun `test create Chained Findings with illegal monitorId value`() {
         try {
-            ChainedFindings("")
+            ChainedMonitorFindings("")
             Assertions.fail("Expecting an illegal argument exception")
         } catch (e: IllegalArgumentException) {
             e.message?.let {

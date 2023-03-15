@@ -25,7 +25,7 @@ import org.opensearch.commons.alerting.model.ActionExecutionResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
-import org.opensearch.commons.alerting.model.ChainedFindings
+import org.opensearch.commons.alerting.model.ChainedMonitorFindings
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
 import org.opensearch.commons.alerting.model.CompositeInput
 import org.opensearch.commons.alerting.model.Delegate
@@ -200,9 +200,9 @@ fun randomSequence(
 fun randomDelegate(
     order: Int = 1,
     monitorId: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
-    chainedFindings: ChainedFindings? = null
+    chainedMonitorFindings: ChainedMonitorFindings? = null
 ): Delegate {
-    return Delegate(order, monitorId, chainedFindings)
+    return Delegate(order, monitorId, chainedMonitorFindings)
 }
 
 fun randomQueryLevelTrigger(

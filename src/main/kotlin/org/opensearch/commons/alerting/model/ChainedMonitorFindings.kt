@@ -13,7 +13,8 @@ import java.io.IOException
 /**
  * Context passed in delegate monitor to filter data queried by a monitor based on the findings of the given monitor id.
  */
-data class ChainedFindings(
+// TODO - Remove the class and move the monitorId to Delegate (as a chainedMonitorId property) if this class won't be updated by adding new properties
+data class ChainedMonitorFindings(
     val monitorId: String
 ) : BaseModel {
 
@@ -49,7 +50,7 @@ data class ChainedFindings(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser): ChainedFindings {
+        fun parse(xcp: XContentParser): ChainedMonitorFindings {
             lateinit var monitorId: String
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -64,13 +65,13 @@ data class ChainedFindings(
                     }
                 }
             }
-            return ChainedFindings(monitorId)
+            return ChainedMonitorFindings(monitorId)
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): ChainedFindings {
-            return ChainedFindings(sin)
+        fun readFrom(sin: StreamInput): ChainedMonitorFindings {
+            return ChainedMonitorFindings(sin)
         }
     }
 }
