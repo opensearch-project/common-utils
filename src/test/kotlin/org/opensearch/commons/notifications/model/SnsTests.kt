@@ -8,6 +8,7 @@ package org.opensearch.commons.notifications.model
 import com.fasterxml.jackson.core.JsonParseException
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
@@ -46,6 +47,18 @@ internal class SnsTests {
             "{\"topic_arn\":\"arn:aws:sns:us-east-1:012345678912:topic-test\",\"role_arn\":\"arn:aws:iam:us-east-1:0123456789:role-test\"}"
         assertThrows(IllegalArgumentException::class.java) {
             createObjectFromJsonString(jsonString) { Sns.parse(it) }
+        }
+    }
+
+    @Test
+    fun `test SNS correctly validates SNS FIFO topic ARN`() {
+        try {
+            Sns(
+                "arn:aws:sns:ap-southeast-2:333654771707:sns-fifo-alerting.fifo",
+                "arn:aws:iam::012345678912:role/iam-test"
+            )
+        } catch (e: Exception) {
+            fail("Expected fifo sns topic ARN to be validated successfully", e)
         }
     }
 

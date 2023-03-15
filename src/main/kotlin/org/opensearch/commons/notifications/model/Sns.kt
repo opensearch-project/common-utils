@@ -58,7 +58,7 @@ data class Sns(val topicArn: String, val roleArn: String?) : BaseConfigData {
         private val log by logger(Sns::class.java)
 
         private val SNS_ARN_REGEX =
-            Pattern.compile("^arn:aws(-[^:]+)?:sns:([a-zA-Z0-9-]+):([0-9]{12}):([a-zA-Z0-9-_]+)$")
+            Pattern.compile("^arn:aws(-[^:]+)?:sns:([a-zA-Z0-9-]+):([0-9]{12}):([a-zA-Z_0-9+=,.@\\-_/]+)$")
 
         /**
          * reader to create instance of class from writable.
