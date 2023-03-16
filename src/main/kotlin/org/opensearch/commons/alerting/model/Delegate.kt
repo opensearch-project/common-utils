@@ -16,8 +16,18 @@ import java.io.IOException
  * Optionally accepts chained findings context.
  * */
 data class Delegate(
+    /**
+     * Defines the order of the monitor in delegate list
+     */
     val order: Int,
+    /**
+     * Id of the monitor
+     */
     val monitorId: String,
+    /**
+     * Keeps the track of the previously executed monitor in a chain list.
+     * Used for pre-filtering by getting the findings doc ids for the given monitor
+     */
     val chainedMonitorFindings: ChainedMonitorFindings? = null
 ) : BaseModel {
 

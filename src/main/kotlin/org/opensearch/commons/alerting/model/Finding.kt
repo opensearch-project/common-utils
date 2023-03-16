@@ -22,6 +22,10 @@ class Finding(
     val index: String,
     val docLevelQueries: List<DocLevelQuery>,
     val timestamp: Instant,
+    /**
+     * Keeps the track of the workflow-monitor exact execution.
+     * Used for filtering the data in chained findings.
+     */
     val executionId: String? = null,
 ) : Writeable, ToXContent {
 
