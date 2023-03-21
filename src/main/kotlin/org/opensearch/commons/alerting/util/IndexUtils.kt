@@ -14,6 +14,7 @@ class IndexUtils {
         const val NO_SCHEMA_VERSION = 0
 
         const val MONITOR_MAX_INPUTS = 1
+        const val WORKFLOW_MAX_INPUTS = 1
 
         const val MONITOR_MAX_TRIGGERS = 10
 
