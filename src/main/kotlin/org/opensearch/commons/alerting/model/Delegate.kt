@@ -74,7 +74,7 @@ data class Delegate(
     companion object {
         const val ORDER_FIELD = "order"
         const val MONITOR_ID_FIELD = "monitor_id"
-        const val CHAINED_FINDINGS_FIELD = "chained_findings"
+        const val CHAINED_FINDINGS_FIELD = "chained_monitor_findings"
 
         @JvmStatic
         @Throws(IOException::class)
