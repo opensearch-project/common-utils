@@ -3,11 +3,11 @@ package org.opensearch.commons.alerting.model.action
 import org.opensearch.common.UUIDs
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.model.BaseModel
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.script.Script
 import java.io.IOException
 
@@ -130,8 +130,9 @@ data class Action(
                     NAME_FIELD -> name = xcp.textOrNull()
                     DESTINATION_ID_FIELD -> destinationId = xcp.textOrNull()
                     SUBJECT_TEMPLATE_FIELD -> {
-                        subjectTemplate = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else
+                        subjectTemplate = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else {
                             Script.parse(xcp, Script.DEFAULT_TEMPLATE_LANG)
+                        }
                     }
                     MESSAGE_TEMPLATE_FIELD -> messageTemplate = Script.parse(xcp, Script.DEFAULT_TEMPLATE_LANG)
                     THROTTLE_FIELD -> {

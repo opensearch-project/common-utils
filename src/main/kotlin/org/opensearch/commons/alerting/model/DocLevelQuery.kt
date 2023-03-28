@@ -2,11 +2,11 @@ package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.model.BaseModel
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 import java.lang.IllegalArgumentException
 import java.util.UUID
@@ -69,7 +69,8 @@ data class DocLevelQuery(
         const val NO_ID = ""
         val INVALID_CHARACTERS: List<String> = listOf(" ", "[", "]", "{", "}", "(", ")")
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parse(xcp: XContentParser): DocLevelQuery {
             var id: String = UUID.randomUUID().toString()
             lateinit var query: String
@@ -111,7 +112,8 @@ data class DocLevelQuery(
             )
         }
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun readFrom(sin: StreamInput): DocLevelQuery {
             return DocLevelQuery(sin)
         }

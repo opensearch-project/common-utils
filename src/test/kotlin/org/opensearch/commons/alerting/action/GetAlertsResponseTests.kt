@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.commons.alerting.builder
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.util.string
+import org.opensearch.core.xcontent.ToXContent
 import java.time.Instant
 import java.util.Collections
 
