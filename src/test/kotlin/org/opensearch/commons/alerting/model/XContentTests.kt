@@ -3,7 +3,6 @@ package org.opensearch.commons.alerting.model
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.opensearch.common.xcontent.ToXContent
 import org.opensearch.commons.alerting.builder
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
@@ -27,6 +26,7 @@ import org.opensearch.commons.alerting.toJsonString
 import org.opensearch.commons.alerting.toJsonStringWithUser
 import org.opensearch.commons.alerting.util.string
 import org.opensearch.commons.authuser.User
+import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.index.query.QueryBuilders
 import org.opensearch.search.builder.SearchSourceBuilder
 import org.opensearch.test.OpenSearchTestCase

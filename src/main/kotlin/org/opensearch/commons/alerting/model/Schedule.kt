@@ -6,11 +6,11 @@ import com.cronutils.model.time.ExecutionTime
 import com.cronutils.parser.CronParser
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.model.BaseModel
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 import java.time.DateTimeException
 import java.time.Duration
@@ -33,7 +33,8 @@ sealed class Schedule : BaseModel {
 
         val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX))
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parse(xcp: XContentParser): Schedule {
             var expression: String? = null
             var timezone: ZoneId? = null
@@ -91,7 +92,8 @@ sealed class Schedule : BaseModel {
             return requireNotNull(schedule) { "Schedule is null." }
         }
 
-        @JvmStatic @Throws(IllegalArgumentException::class)
+        @JvmStatic
+        @Throws(IllegalArgumentException::class)
         private fun getTimeZone(timeZone: String): ZoneId {
             try {
                 return ZoneId.of(timeZone)
@@ -106,10 +108,11 @@ sealed class Schedule : BaseModel {
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): Schedule {
             val type = sin.readEnum(Schedule.TYPE::class.java)
-            if (type == Schedule.TYPE.CRON)
+            if (type == Schedule.TYPE.CRON) {
                 return CronSchedule(sin)
-            else
+            } else {
                 return IntervalSchedule(sin)
+            }
         }
     }
 

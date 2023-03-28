@@ -9,15 +9,15 @@ import org.opensearch.common.Strings
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.ATTACHMENT_TAG
 import org.opensearch.commons.notifications.NotificationConstants.HTML_DESCRIPTION_TAG
 import org.opensearch.commons.notifications.NotificationConstants.TEXT_DESCRIPTION_TAG
 import org.opensearch.commons.utils.fieldIfNotNull
 import org.opensearch.commons.utils.logger
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 
 /**
@@ -48,7 +48,6 @@ data class ChannelMessage(
         @JvmStatic
         @Throws(IOException::class)
         fun parse(parser: XContentParser): ChannelMessage {
-
             var textDescription: String? = null
             var htmlDescription: String? = null
             var attachment: Attachment? = null
