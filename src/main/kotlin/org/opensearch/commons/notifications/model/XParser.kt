@@ -4,7 +4,7 @@
  */
 package org.opensearch.commons.notifications.model
 
-import org.opensearch.common.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParser
 
 /**
  * Functional interface to create config data object using XContentParser

@@ -3,11 +3,11 @@ package org.opensearch.commons.alerting.model
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils.ensureExpectedToken
 import org.opensearch.commons.alerting.util.instant
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 import java.time.Instant
 
@@ -81,7 +81,8 @@ class Finding(
         const val TIMESTAMP_FIELD = "timestamp"
         const val NO_ID = ""
 
-        @JvmStatic @JvmOverloads
+        @JvmStatic
+        @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): Finding {
             var id: String = NO_ID

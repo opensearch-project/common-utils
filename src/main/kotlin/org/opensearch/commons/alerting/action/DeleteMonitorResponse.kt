@@ -2,10 +2,10 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.commons.alerting.util.IndexUtils
 import org.opensearch.commons.notifications.action.BaseResponse
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
 
 class DeleteMonitorResponse : BaseResponse {
     var id: String
