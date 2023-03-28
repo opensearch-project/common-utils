@@ -1,20 +1,20 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.ParseField
 import org.opensearch.common.UUIDs
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.NamedXContentRegistry
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.alerting.model.Trigger.Companion.ACTIONS_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.ID_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.NAME_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.SEVERITY_FIELD
 import org.opensearch.commons.alerting.model.action.Action
+import org.opensearch.core.ParseField
+import org.opensearch.core.xcontent.NamedXContentRegistry
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.script.Script
 import java.io.IOException
 
@@ -80,11 +80,13 @@ data class DocumentLevelTrigger(
         const val QUERY_IDS_FIELD = "query_ids"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java, ParseField(DOCUMENT_LEVEL_TRIGGER_FIELD),
+            Trigger::class.java,
+            ParseField(DOCUMENT_LEVEL_TRIGGER_FIELD),
             CheckedFunction { parseInner(it) }
         )
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): DocumentLevelTrigger {
             var id = UUIDs.base64UUID() // assign a default triggerId if one is not specified
             lateinit var name: String

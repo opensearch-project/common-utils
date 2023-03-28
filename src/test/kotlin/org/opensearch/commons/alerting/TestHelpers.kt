@@ -13,11 +13,7 @@ import org.opensearch.client.WarningsHandler
 import org.opensearch.common.UUIDs
 import org.opensearch.common.settings.Settings
 import org.opensearch.common.xcontent.LoggingDeprecationHandler
-import org.opensearch.common.xcontent.NamedXContentRegistry
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
 import org.opensearch.common.xcontent.XContentFactory
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtFilter
@@ -52,6 +48,10 @@ import org.opensearch.commons.alerting.model.action.PerExecutionActionScope
 import org.opensearch.commons.alerting.model.action.Throttle
 import org.opensearch.commons.alerting.util.string
 import org.opensearch.commons.authuser.User
+import org.opensearch.core.xcontent.NamedXContentRegistry
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.index.query.QueryBuilders
 import org.opensearch.script.Script
 import org.opensearch.script.ScriptType
@@ -255,9 +255,9 @@ fun randomDocumentLevelTrigger(
         name = name,
         severity = severity,
         condition = condition,
-        actions = if (actions.isEmpty() && destinationId.isNotBlank())
+        actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
             (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
-        else actions
+        } else actions
     )
 }
 
@@ -463,7 +463,10 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     val trigger = randomQueryLevelTrigger()
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
     return Alert(
-        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
+        monitor,
+        trigger,
+        Instant.now().truncatedTo(ChronoUnit.MILLIS),
+        null,
         actionExecutionResults = actionExecutionResults
     )
 }
@@ -478,7 +481,10 @@ fun randomAlertWithAggregationResultBucket(monitor: Monitor = randomBucketLevelM
     val trigger = randomBucketLevelTrigger()
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
     return Alert(
-        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
+        monitor,
+        trigger,
+        Instant.now().truncatedTo(ChronoUnit.MILLIS),
+        null,
         actionExecutionResults = actionExecutionResults,
         aggregationResultBucket = AggregationResultBucket(
             "parent_bucket_path_1",

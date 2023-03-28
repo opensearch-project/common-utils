@@ -19,12 +19,14 @@ object AlertingActions {
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
         ActionType(INDEX_MONITOR_ACTION_NAME, ::IndexMonitorResponse)
+
     @JvmField
     val INDEX_WORKFLOW_ACTION_TYPE =
         ActionType(INDEX_WORKFLOW_ACTION_NAME, ::IndexWorkflowResponse)
     @JvmField
     val GET_ALERTS_ACTION_TYPE =
         ActionType(GET_ALERTS_ACTION_NAME, ::GetAlertsResponse)
+
     @JvmField
     val GET_WORKFLOW_ACTION_TYPE =
         ActionType(GET_WORKFLOW_ACTION_NAME, ::GetWorkflowResponse)
@@ -32,12 +34,14 @@ object AlertingActions {
     @JvmField
     val DELETE_MONITOR_ACTION_TYPE =
         ActionType(DELETE_MONITOR_ACTION_NAME, ::DeleteMonitorResponse)
+
     @JvmField
     val DELETE_WORKFLOW_ACTION_TYPE =
         ActionType(DELETE_WORKFLOW_ACTION_NAME, ::DeleteWorkflowResponse)
     @JvmField
     val GET_FINDINGS_ACTION_TYPE =
         ActionType(GET_FINDINGS_ACTION_NAME, ::GetFindingsResponse)
+
     @JvmField
     val ACKNOWLEDGE_ALERTS_ACTION_TYPE =
         ActionType(ACKNOWLEDGE_ALERTS_ACTION_NAME, ::AcknowledgeAlertResponse)
