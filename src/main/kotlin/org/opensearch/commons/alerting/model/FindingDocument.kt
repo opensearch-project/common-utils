@@ -4,10 +4,10 @@ import org.apache.logging.log4j.LogManager
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 
 private val log = LogManager.getLogger(FindingDocument::class.java)
@@ -52,7 +52,8 @@ class FindingDocument(
         const val NO_ID = ""
         const val NO_INDEX = ""
 
-        @JvmStatic @JvmOverloads
+        @JvmStatic
+        @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, index: String = NO_INDEX): FindingDocument {
             var found = false

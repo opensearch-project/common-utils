@@ -3,14 +3,14 @@ package org.opensearch.commons.alerting.model
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.http.client.utils.URIBuilder
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.ParseField
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.NamedXContentRegistry
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.ParseField
+import org.opensearch.core.xcontent.NamedXContentRegistry
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 import java.net.URI
 
@@ -43,10 +43,11 @@ data class ClusterMetricsInput(
             "Invalid URI constructed from the path and path_params inputs, or the url input."
         }
 
-        if (url.isNotEmpty() && validateFieldsNotEmpty())
+        if (url.isNotEmpty() && validateFieldsNotEmpty()) {
             require(constructedUri == constructUrlFromInputs()) {
                 "The provided URL and URI fields form different URLs."
             }
+        }
 
         require(constructedUri.host.lowercase() == SUPPORTED_HOST) {
             "Only host '$SUPPORTED_HOST' is supported."
@@ -104,7 +105,8 @@ data class ClusterMetricsInput(
         /**
          * This parse function uses [XContentParser] to parse JSON input and store corresponding fields to create a [ClusterMetricsInput] object
          */
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): ClusterMetricsInput {
             var path = ""
             var pathParams = ""
@@ -161,17 +163,20 @@ data class ClusterMetricsInput(
         if (pathParams.isNotEmpty()) {
             pathParams = pathParams.trim('/')
             ILLEGAL_PATH_PARAMETER_CHARACTERS.forEach { character ->
-                if (pathParams.contains(character))
+                if (pathParams.contains(character)) {
                     throw IllegalArgumentException(
                         "The provided path parameters contain invalid characters or spaces. Please omit: " + "${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")}"
                     )
+                }
             }
         }
 
-        if (apiType.requiresPathParams && pathParams.isEmpty())
+        if (apiType.requiresPathParams && pathParams.isEmpty()) {
             throw IllegalArgumentException("The API requires path parameters.")
-        if (!apiType.supportsPathParams && pathParams.isNotEmpty())
+        }
+        if (!apiType.supportsPathParams && pathParams.isNotEmpty()) {
             throw IllegalArgumentException("The API does not use path parameters.")
+        }
 
         return pathParams
     }
@@ -187,11 +192,13 @@ data class ClusterMetricsInput(
         ClusterMetricType.values()
             .filter { option -> option != ClusterMetricType.BLANK }
             .forEach { option ->
-                if (uriPath.startsWith(option.prependPath) || uriPath.startsWith(option.defaultPath))
+                if (uriPath.startsWith(option.prependPath) || uriPath.startsWith(option.defaultPath)) {
                     apiType = option
+                }
             }
-        if (apiType.isBlank())
+        if (apiType.isBlank()) {
             throw IllegalArgumentException("The API could not be determined from the provided URI.")
+        }
         return apiType
     }
 
@@ -213,12 +220,15 @@ data class ClusterMetricsInput(
      * If [path] and [pathParams] are empty, populates them with values from [url].
      */
     private fun parseEmptyFields() {
-        if (pathParams.isEmpty())
+        if (pathParams.isEmpty()) {
             pathParams = this.parsePathParams()
-        if (path.isEmpty())
+        }
+        if (path.isEmpty()) {
             path = if (pathParams.isEmpty()) clusterMetricType.defaultPath else clusterMetricType.prependPath
-        if (url.isEmpty())
+        }
+        if (url.isEmpty()) {
             url = constructedUri.toString()
+        }
     }
 
     /**

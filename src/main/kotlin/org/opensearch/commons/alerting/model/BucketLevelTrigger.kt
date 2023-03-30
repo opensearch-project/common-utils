@@ -1,14 +1,9 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.ParseField
 import org.opensearch.common.UUIDs
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.NamedXContentRegistry
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
 import org.opensearch.commons.alerting.model.Trigger.Companion.ACTIONS_FIELD
@@ -16,6 +11,11 @@ import org.opensearch.commons.alerting.model.Trigger.Companion.ID_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.NAME_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.SEVERITY_FIELD
 import org.opensearch.commons.alerting.model.action.Action
+import org.opensearch.core.ParseField
+import org.opensearch.core.xcontent.NamedXContentRegistry
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 
 data class BucketLevelTrigger(
@@ -83,7 +83,8 @@ data class BucketLevelTrigger(
         const val PARENT_BUCKET_PATH = "parentBucketPath"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java, ParseField(BUCKET_LEVEL_TRIGGER_FIELD),
+            Trigger::class.java,
+            ParseField(BUCKET_LEVEL_TRIGGER_FIELD),
             CheckedFunction { parseInner(it) }
         )
 

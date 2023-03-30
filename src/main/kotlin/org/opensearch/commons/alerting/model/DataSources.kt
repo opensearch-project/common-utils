@@ -3,11 +3,11 @@ package org.opensearch.commons.alerting.model
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.ToXContent
-import org.opensearch.common.xcontent.ToXContentObject
-import org.opensearch.common.xcontent.XContentBuilder
-import org.opensearch.common.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.ToXContentObject
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 
 data class DataSources(
@@ -88,7 +88,7 @@ data class DataSources(
             ALERTS_HISTORY_INDEX_FIELD to alertsHistoryIndex,
             ALERTS_HISTORY_INDEX_PATTERN_FIELD to alertsHistoryIndexPattern,
             QUERY_INDEX_MAPPINGS_BY_TYPE to queryIndexMappingsByType,
-            FINDINGS_ENABLED_FIELD to findingsEnabled,
+            FINDINGS_ENABLED_FIELD to findingsEnabled
         )
     }
 
