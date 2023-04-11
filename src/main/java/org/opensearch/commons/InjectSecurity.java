@@ -10,12 +10,14 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTE
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.common.Strings;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
+import org.opensearch.commons.authuser.User;
 
 /**
  * For background jobs usage only. User or Roles injection can be done using transport layer only.
@@ -104,7 +106,7 @@ public class InjectSecurity implements AutoCloseable {
 
     /**
      * Injects user.
-     * @param user
+     * @param user name
      */
     public void injectUser(final String user) {
         if (Strings.isNullOrEmpty(user)) {
@@ -115,8 +117,27 @@ public class InjectSecurity implements AutoCloseable {
             threadContext.putTransient(INJECTED_USER, user);
             log.debug("{}, InjectSecurity - inject roles: {}", Thread.currentThread().getName(), id);
         } else {
-            log.error("{}, InjectSecurity- most likely thread context corruption : {}", Thread.currentThread().getName(), id);
+            log.error("{}, InjectSecurity - most likely thread context corruption : {}", Thread.currentThread().getName(), id);
         }
+    }
+
+    /**
+     * Injects user object into user info.
+     * @param user
+     */
+    public void injectUserInfo(final User user) {
+        if (user == null) {
+            return;
+        }
+        if (threadContext.getTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT) != null) {
+            log.error("{}, InjectSecurity - most likely thread context corruption : {}", Thread.currentThread().getName(), id);
+            return;
+        }
+        StringJoiner joiner = new StringJoiner("|");
+        joiner.add(user.getName());
+        joiner.add(java.lang.String.join(",", user.getBackendRoles()));
+        joiner.add(java.lang.String.join(",", user.getRoles()));
+        threadContext.putTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, joiner.toString());
     }
 
     /**
