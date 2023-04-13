@@ -93,6 +93,7 @@ public class InjectSecurity implements AutoCloseable {
 
     /**
      * Injects user or roles, based on opendistro_security_use_injected_user_for_plugins setting. By default injects roles.
+     * Expects threadContext to be stashed
      * @param user
      * @param roles
      */
@@ -106,6 +107,7 @@ public class InjectSecurity implements AutoCloseable {
 
     /**
      * Injects user.
+     * Expects threadContext to be stashed
      * @param user name
      */
     public void injectUser(final String user) {
@@ -123,20 +125,26 @@ public class InjectSecurity implements AutoCloseable {
 
     /**
      * Injects user object into user info.
+     * Expects threadContext to be stashed.
      * @param user
      */
     public void injectUserInfo(final User user) {
         if (user == null) {
             return;
         }
-        if (threadContext.getTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT) != null) {
-            log.error("{}, InjectSecurity - most likely thread context corruption : {}", Thread.currentThread().getName(), id);
+        String userObjectAsString = threadContext.getTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        if (userObjectAsString != null) {
+            log.error("{}, InjectSecurity - id: [{}] found existing user_info: {}", Thread.currentThread().getName(), id, userObjectAsString);
             return;
         }
         StringJoiner joiner = new StringJoiner("|");
         joiner.add(user.getName());
         joiner.add(java.lang.String.join(",", user.getBackendRoles()));
         joiner.add(java.lang.String.join(",", user.getRoles()));
+        String requestedTenant = user.getRequestedTenant();
+        if (!Strings.isNullOrEmpty(requestedTenant)) {
+            joiner.add(requestedTenant);
+        }
         threadContext.putTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, joiner.toString());
     }
 
