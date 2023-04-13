@@ -134,7 +134,13 @@ public class InjectSecurity implements AutoCloseable {
         }
         String userObjectAsString = threadContext.getTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         if (userObjectAsString != null) {
-            log.error("{}, InjectSecurity - id: [{}] found existing user_info: {}", Thread.currentThread().getName(), id, userObjectAsString);
+            log
+                .error(
+                    "{}, InjectSecurity - id: [{}] found existing user_info: {}",
+                    Thread.currentThread().getName(),
+                    id,
+                    userObjectAsString
+                );
             return;
         }
         StringJoiner joiner = new StringJoiner("|");

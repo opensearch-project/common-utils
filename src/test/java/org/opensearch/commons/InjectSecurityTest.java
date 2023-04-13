@@ -17,8 +17,8 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJ
 
 import java.util.Arrays;
 import java.util.HashMap;
-
 import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
@@ -100,14 +100,23 @@ public class InjectSecurityTest {
         assertEquals("opendistro", threadContext.getHeader("name"));
         assertEquals("plugin", threadContext.getTransient("ctx.name"));
 
-        User user = new User("Bob", List.of("backendRole1", "backendRole2"), List.of("role1", "role2"), List.of("attr1", "attr2"), "tenant1");
+        User user = new User(
+            "Bob",
+            List.of("backendRole1", "backendRole2"),
+            List.of("role1", "role2"),
+            List.of("attr1", "attr2"),
+            "tenant1"
+        );
         try (InjectSecurity helper = new InjectSecurity("test-name", null, threadContext)) {
             helper.injectUserInfo(user);
             assertEquals("1", threadContext.getHeader("default"));
             assertEquals("opendistro", threadContext.getHeader("name"));
             assertEquals("plugin", threadContext.getTransient("ctx.name"));
             assertNotNull(threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT));
-            assertEquals("Bob|backendRole1,backendRole2|role1,role2|tenant1", threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT));
+            assertEquals(
+                "Bob|backendRole1,backendRole2|role1,role2|tenant1",
+                threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
+            );
         }
         assertEquals("1", threadContext.getHeader("default"));
         assertEquals("opendistro", threadContext.getHeader("name"));
