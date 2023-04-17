@@ -161,16 +161,24 @@ fun randomDocumentLevelMonitor(
     )
 }
 
-fun randomCompositeWorkflow(
+fun randomWorkflow(
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
     user: User? = randomUser(),
-    inputs: List<WorkflowInput>? = null,
+    monitorIds: List<String>? = null,
     schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
 ): Workflow {
-    var input = inputs
+    val delegates = mutableListOf<Delegate>()
+    if (!monitorIds.isNullOrEmpty()) {
+        delegates.add(Delegate(1, monitorIds[0]))
+        for (i in 1 until monitorIds.size) {
+            // Order of monitors in workflow will be the same like forwarded meaning that the first monitorId will be used as second monitor chained finding
+            delegates.add(Delegate(i + 1, monitorIds [i], ChainedMonitorFindings(monitorIds[i - 1])))
+        }
+    }
+    var input = listOf(CompositeInput(Sequence(delegates)))
     if (input == null) {
         input = listOf(
             CompositeInput(
@@ -180,6 +188,21 @@ fun randomCompositeWorkflow(
             )
         )
     }
+    return Workflow(
+        name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
+        schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+    )
+}
+
+fun randomWorkflowWithDelegates(
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    user: User? = randomUser(),
+    input: List<WorkflowInput>,
+    schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
+    enabled: Boolean = Random().nextBoolean(),
+    enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
+    lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+): Workflow {
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
         schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
