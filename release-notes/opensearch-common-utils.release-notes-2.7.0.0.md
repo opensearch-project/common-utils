@@ -19,4 +19,4 @@ Compatible with OpenSearch 2.7.0
 * Fix SNS regex for validation on notification channel to support SNS FIFO topics. ([#381](https://github.com/opensearch-project/common-utils/pull/381))
 
 ### Documentation
-* Added 2.7 release notes. ([#]())
+* Added 2.7 release notes. ([#407](https://github.com/opensearch-project/common-utils/pull/407))
