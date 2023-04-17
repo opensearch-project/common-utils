@@ -62,7 +62,7 @@ internal class AlertingPluginInterfaceTests {
 
     @Test
     fun indexWorkflow() {
-        val workflow = randomCompositeWorkflow()
+        val workflow = randomWorkflow()
 
         val request = mock(IndexWorkflowRequest::class.java)
         val response = IndexWorkflowResponse(
