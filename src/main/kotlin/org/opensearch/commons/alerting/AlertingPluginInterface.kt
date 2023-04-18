@@ -20,6 +20,8 @@ import org.opensearch.commons.alerting.action.GetFindingsRequest
 import org.opensearch.commons.alerting.action.GetFindingsResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
+import org.opensearch.commons.alerting.action.PublishFindingsRequest
+import org.opensearch.commons.alerting.action.SubscribeFindingsResponse
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.utils.recreateObject
 
@@ -136,6 +138,24 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     AcknowledgeAlertResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    fun publishFinding(
+        client: NodeClient,
+        request: PublishFindingsRequest,
+        listener: ActionListener<SubscribeFindingsResponse>
+    ) {
+        client.execute(
+            AlertingActions.SUBSCRIBE_FINDINGS_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    SubscribeFindingsResponse(
                         it
                     )
                 }

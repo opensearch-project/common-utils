@@ -17,6 +17,7 @@ import java.time.Instant
 class Finding(
     val id: String = NO_ID,
     val relatedDocIds: List<String>,
+    val correlatedDocIds: List<String> = listOf(),
     val monitorId: String,
     val monitorName: String,
     val index: String,
@@ -28,6 +29,7 @@ class Finding(
     constructor(sin: StreamInput) : this(
         id = sin.readString(),
         relatedDocIds = sin.readStringList(),
+        correlatedDocIds = sin.readStringList(),
         monitorId = sin.readString(),
         monitorName = sin.readString(),
         index = sin.readString(),
@@ -39,6 +41,7 @@ class Finding(
         return mapOf(
             FINDING_ID_FIELD to id,
             RELATED_DOC_IDS_FIELD to relatedDocIds,
+            CORRELATED_DOC_IDS_FIELD to correlatedDocIds,
             MONITOR_ID_FIELD to monitorId,
             MONITOR_NAME_FIELD to monitorName,
             INDEX_FIELD to index,
@@ -51,6 +54,7 @@ class Finding(
         builder.startObject()
             .field(FINDING_ID_FIELD, id)
             .field(RELATED_DOC_IDS_FIELD, relatedDocIds)
+            .field(CORRELATED_DOC_IDS_FIELD, correlatedDocIds)
             .field(MONITOR_ID_FIELD, monitorId)
             .field(MONITOR_NAME_FIELD, monitorName)
             .field(INDEX_FIELD, index)
@@ -64,6 +68,7 @@ class Finding(
     override fun writeTo(out: StreamOutput) {
         out.writeString(id)
         out.writeStringCollection(relatedDocIds)
+        out.writeStringCollection(correlatedDocIds)
         out.writeString(monitorId)
         out.writeString(monitorName)
         out.writeString(index)
@@ -74,6 +79,7 @@ class Finding(
     companion object {
         const val FINDING_ID_FIELD = "id"
         const val RELATED_DOC_IDS_FIELD = "related_doc_ids"
+        const val CORRELATED_DOC_IDS_FIELD = "correlated_doc_ids"
         const val MONITOR_ID_FIELD = "monitor_id"
         const val MONITOR_NAME_FIELD = "monitor_name"
         const val INDEX_FIELD = "index"
@@ -86,6 +92,7 @@ class Finding(
         fun parse(xcp: XContentParser): Finding {
             var id: String = NO_ID
             val relatedDocIds: MutableList<String> = mutableListOf()
+            val correlatedDocIds: MutableList<String> = mutableListOf()
             lateinit var monitorId: String
             lateinit var monitorName: String
             lateinit var index: String
@@ -103,6 +110,12 @@ class Finding(
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             relatedDocIds.add(xcp.text())
+                        }
+                    }
+                    CORRELATED_DOC_IDS_FIELD -> {
+                        ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
+                            correlatedDocIds.add(xcp.text())
                         }
                     }
                     MONITOR_ID_FIELD -> monitorId = xcp.text()
@@ -123,6 +136,7 @@ class Finding(
             return Finding(
                 id = id,
                 relatedDocIds = relatedDocIds,
+                correlatedDocIds = correlatedDocIds,
                 monitorId = monitorId,
                 monitorName = monitorName,
                 index = index,
