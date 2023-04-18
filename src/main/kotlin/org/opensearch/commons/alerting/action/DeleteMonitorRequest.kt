@@ -11,16 +11,19 @@ class DeleteMonitorRequest : ActionRequest {
 
     val monitorId: String
     val refreshPolicy: WriteRequest.RefreshPolicy
+    val workflowMetadataId: String?
 
-    constructor(monitorId: String, refreshPolicy: WriteRequest.RefreshPolicy) : super() {
+    constructor(monitorId: String, refreshPolicy: WriteRequest.RefreshPolicy, workflowMetadataId: String? = null) : super() {
         this.monitorId = monitorId
         this.refreshPolicy = refreshPolicy
+        this.workflowMetadataId = workflowMetadataId
     }
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         monitorId = sin.readString(),
-        refreshPolicy = WriteRequest.RefreshPolicy.readFrom(sin)
+        refreshPolicy = WriteRequest.RefreshPolicy.readFrom(sin),
+        workflowMetadataId = sin.readOptionalString()
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -31,5 +34,6 @@ class DeleteMonitorRequest : ActionRequest {
     override fun writeTo(out: StreamOutput) {
         out.writeString(monitorId)
         refreshPolicy.writeTo(out)
+        out.writeOptionalString(workflowMetadataId)
     }
 }
