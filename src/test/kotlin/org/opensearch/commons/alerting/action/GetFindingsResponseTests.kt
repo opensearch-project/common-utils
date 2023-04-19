@@ -21,6 +21,7 @@ internal class GetFindingsResponseTests {
         val finding1 = Finding(
             "1",
             listOf("doc1", "doc2", "doc3"),
+            listOf("doc1", "doc2", "doc3"),
             "monitor_id1",
             "monitor_name1",
             "test_index1",
@@ -38,6 +39,7 @@ internal class GetFindingsResponseTests {
         // Alerting GetFindingsResponse mock #2
         val finding2 = Finding(
             "1",
+            listOf("doc21", "doc22"),
             listOf("doc21", "doc22"),
             "monitor_id2",
             "monitor_name2",
