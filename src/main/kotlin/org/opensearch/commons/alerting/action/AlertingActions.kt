@@ -12,7 +12,7 @@ object AlertingActions {
     const val DELETE_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/delete"
     const val GET_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/get"
     const val ACKNOWLEDGE_ALERTS_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/ack"
-    const val SUBSCRIBE_FINDINGS_ACTION_NAME = "cluster:admin/opendistro/alerting/findings/subscribe"
+    const val SUBSCRIBE_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/subscribe"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
