@@ -35,7 +35,8 @@ data class Workflow(
     val user: User?,
     val schemaVersion: Int = NO_SCHEMA_VERSION,
     val inputs: List<WorkflowInput>,
-    val owner: String? = "alerting"
+    val owner: String? = "alerting",
+    val chainedAlerts: List<ChainedAlertCondition>,
 ) : ScheduledJob {
 
     override val type = WORKFLOW_TYPE
@@ -64,7 +65,8 @@ data class Workflow(
         } else null,
         schemaVersion = sin.readInt(),
         inputs = sin.readList((WorkflowInput)::readFrom),
-        owner = sin.readOptionalString()
+        owner = sin.readOptionalString(),
+        chainedAlerts = sin.readList((ChainedAlertCondition)::readFrom),
     )
 
     // This enum classifies different workflows
@@ -112,6 +114,7 @@ data class Workflow(
             .field(INPUTS_FIELD, inputs.toTypedArray())
             .optionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
         builder.field(OWNER_FIELD, owner)
+        builder.field(CHAINED_ALERTS_FIELD, chainedAlerts.toTypedArray())
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
     }
@@ -144,7 +147,12 @@ data class Workflow(
         }
         // Outputting type with each Trigger so that the generic Trigger.readFrom() can read it
         out.writeOptionalString(owner)
+        chainedAlerts.forEach {
+            it.writeTo(out)
+        }
     }
+
+
 
     companion object {
         const val WORKFLOW_DELEGATE_PATH = "workflow.inputs.composite_input.sequence.delegates"
@@ -163,6 +171,7 @@ data class Workflow(
         const val LAST_UPDATE_TIME_FIELD = "last_update_time"
         const val ENABLED_TIME_FIELD = "enabled_time"
         const val OWNER_FIELD = "owner"
+        const val CHAINED_ALERTS_FIELD = "chained_alerts"
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
         // the different subclasses and creating circular dependencies
@@ -186,6 +195,8 @@ data class Workflow(
             var schemaVersion = NO_SCHEMA_VERSION
             val inputs: MutableList<WorkflowInput> = mutableListOf()
             var owner = "alerting"
+            var chainedAlertConditions: MutableList<ChainedAlertCondition> = mutableListOf()
+
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -223,9 +234,21 @@ data class Workflow(
                     OWNER_FIELD -> {
                         owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
                     }
+                    CHAINED_ALERTS_FIELD -> {
+                        XContentParserUtils.ensureExpectedToken(
+                            XContentParser.Token.START_ARRAY,
+                            xcp.currentToken(),
+                            xcp
+                        )
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
+                            val cac = ChainedAlertCondition.parse(xcp)
+                            chainedAlertConditions.add(cac)
+                        }
+                    }
                     else -> {
                         xcp.skipChildren()
                     }
+
                 }
             }
 
@@ -246,7 +269,8 @@ data class Workflow(
                 user,
                 schemaVersion,
                 inputs.toList(),
-                owner
+                owner,
+                chainedAlertConditions
             )
         }
 

@@ -16,29 +16,32 @@ import org.opensearch.commons.alerting.util.optionalUserField
 import org.opensearch.commons.authuser.User
 import java.io.IOException
 import java.time.Instant
+import javax.print.attribute.standard.Severity
 
 data class Alert(
     val id: String = NO_ID,
     val version: Long = NO_VERSION,
     val schemaVersion: Int = NO_SCHEMA_VERSION,
-    val monitorId: String,
-    val monitorName: String,
+    val monitorId: String? = null,
+    val monitorName: String? = null,
     val monitorVersion: Long,
     val monitorUser: User?,
-    val triggerId: String,
-    val triggerName: String,
-    val findingIds: List<String>,
-    val relatedDocIds: List<String>,
+    val triggerId: String? = null,
+    val triggerName: String? = null,
+    val findingIds: List<String> = emptyList(),
+    val relatedDocIds: List<String> = emptyList(),
     val state: State,
     val startTime: Instant,
     val endTime: Instant? = null,
     val lastNotificationTime: Instant? = null,
     val acknowledgedTime: Instant? = null,
     val errorMessage: String? = null,
-    val errorHistory: List<AlertError>,
+    val errorHistory: List<AlertError> = emptyList(),
     val severity: String,
-    val actionExecutionResults: List<ActionExecutionResult>,
-    val aggregationResultBucket: AggregationResultBucket? = null
+    val actionExecutionResults: List<ActionExecutionResult> = emptyList(),
+    val aggregationResultBucket: AggregationResultBucket? = null,
+    val workflowExecutionId : String? = null,
+    val chainedAlertName: String? = null
 ) : Writeable, ToXContent {
 
     init {
@@ -56,13 +59,32 @@ data class Alert(
         errorMessage: String? = null,
         errorHistory: List<AlertError> = mutableListOf(),
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
-        schemaVersion: Int = NO_SCHEMA_VERSION
+        schemaVersion: Int = NO_SCHEMA_VERSION,
+        workflowExecutionId: String? = null
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
-        aggregationResultBucket = null, findingIds = emptyList(), relatedDocIds = emptyList()
+        aggregationResultBucket = null, findingIds = emptyList(), relatedDocIds = emptyList(), workflowExecutionId = workflowExecutionId
+    )
+
+    //Chained Alert created from workflow
+    constructor(
+        startTime: Instant,
+        lastNotificationTime: Instant?,
+        state: State = State.ACTIVE,
+        errorMessage: String? = null,
+        schemaVersion: Int = NO_SCHEMA_VERSION,
+        severity: String,
+        workflowExecutionId: String,
+        chainedAlertName: String
+    ) : this(
+        state = state, startTime = startTime,
+        lastNotificationTime = lastNotificationTime, errorMessage = errorMessage,
+        schemaVersion = schemaVersion, workflowExecutionId = workflowExecutionId, chainedAlertName = chainedAlertName,
+        severity = severity, errorHistory = emptyList(),
+        monitorId = null, monitorName = null, monitorVersion = NO_VERSION, monitorUser = null,
     )
 
     constructor(
@@ -75,13 +97,15 @@ data class Alert(
         errorHistory: List<AlertError> = mutableListOf(),
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
-        findingIds: List<String> = emptyList()
+        findingIds: List<String> = emptyList(),
+        workflowExecutionId: String? = null
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
-        aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = emptyList()
+        aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = emptyList(),
+        workflowExecutionId = workflowExecutionId
     )
 
     constructor(
@@ -95,13 +119,15 @@ data class Alert(
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
         aggregationResultBucket: AggregationResultBucket,
-        findingIds: List<String> = emptyList()
+        findingIds: List<String> = emptyList(),
+        workflowExecutionId: String? = null
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
-        aggregationResultBucket = aggregationResultBucket, findingIds = findingIds, relatedDocIds = emptyList()
+        aggregationResultBucket = aggregationResultBucket, findingIds = findingIds, relatedDocIds = emptyList(),
+        workflowExecutionId = workflowExecutionId
     )
 
     constructor(
@@ -116,13 +142,15 @@ data class Alert(
         errorMessage: String? = null,
         errorHistory: List<AlertError> = mutableListOf(),
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
-        schemaVersion: Int = NO_SCHEMA_VERSION
+        schemaVersion: Int = NO_SCHEMA_VERSION,
+        workflowExecutionId: String? = null
     ) : this(
         id = id, monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
-        aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = relatedDocIds
+        aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = relatedDocIds,
+        workflowExecutionId = workflowExecutionId
     )
 
     enum class State {
@@ -153,7 +181,10 @@ data class Alert(
         errorHistory = sin.readList(::AlertError),
         severity = sin.readString(),
         actionExecutionResults = sin.readList(::ActionExecutionResult),
-        aggregationResultBucket = if (sin.readBoolean()) AggregationResultBucket(sin) else null
+        aggregationResultBucket = if (sin.readBoolean()) AggregationResultBucket(sin) else null,
+        workflowExecutionId = sin.readOptionalString(),
+        chainedAlertName = sin.readOptionalString(),
+
     )
 
     fun isAcknowledged(): Boolean = (state == State.ACKNOWLEDGED)
@@ -187,6 +218,8 @@ data class Alert(
         } else {
             out.writeBoolean(false)
         }
+        out.writeOptionalString(workflowExecutionId)
+        out.writeOptionalString(chainedAlertName)
     }
 
     companion object {
@@ -211,6 +244,8 @@ data class Alert(
         const val ALERT_HISTORY_FIELD = "alert_history"
         const val SEVERITY_FIELD = "severity"
         const val ACTION_EXECUTION_RESULTS_FIELD = "action_execution_results"
+        const val WORKFLOW_EXECUTION_ID_FIELD = "workflow_execution_id"
+        const val CHAINED_ALERT_NAME_FIELD = "chained_alert_name"
         const val BUCKET_KEYS = AggregationResultBucket.BUCKET_KEYS
         const val PARENTS_BUCKET_PATH = AggregationResultBucket.PARENTS_BUCKET_PATH
         const val NO_ID = ""
@@ -236,6 +271,8 @@ data class Alert(
             var lastNotificationTime: Instant? = null
             var acknowledgedTime: Instant? = null
             var errorMessage: String? = null
+            var workflowExecutionId: String? = null
+            var chainedAlertName: String? = null
             val errorHistory: MutableList<AlertError> = mutableListOf()
             val actionExecutionResults: MutableList<ActionExecutionResult> = mutableListOf()
             var aggAlertBucket: AggregationResultBucket? = null
@@ -270,6 +307,8 @@ data class Alert(
                     LAST_NOTIFICATION_TIME_FIELD -> lastNotificationTime = xcp.instant()
                     ACKNOWLEDGED_TIME_FIELD -> acknowledgedTime = xcp.instant()
                     ERROR_MESSAGE_FIELD -> errorMessage = xcp.textOrNull()
+                    WORKFLOW_EXECUTION_ID_FIELD -> workflowExecutionId = xcp.textOrNull()
+                    CHAINED_ALERT_NAME_FIELD -> chainedAlertName = xcp.textOrNull()
                     ALERT_HISTORY_FIELD -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
@@ -305,7 +344,8 @@ data class Alert(
                 lastNotificationTime = lastNotificationTime, acknowledgedTime = acknowledgedTime,
                 errorMessage = errorMessage, errorHistory = errorHistory, severity = severity,
                 actionExecutionResults = actionExecutionResults, aggregationResultBucket = aggAlertBucket, findingIds = findingIds,
-                relatedDocIds = relatedDocIds
+                relatedDocIds = relatedDocIds, workflowExecutionId = workflowExecutionId,
+                chainedAlertName = chainedAlertName
             )
         }
 
@@ -331,6 +371,8 @@ data class Alert(
             .field(SCHEMA_VERSION_FIELD, schemaVersion)
             .field(MONITOR_VERSION_FIELD, monitorVersion)
             .field(MONITOR_NAME_FIELD, monitorName)
+            .field(WORKFLOW_EXECUTION_ID_FIELD, workflowExecutionId)
+            .field(CHAINED_ALERT_NAME_FIELD, chainedAlertName)
 
         if (!secure) {
             builder.optionalUserField(MONITOR_USER_FIELD, monitorUser)
@@ -361,6 +403,8 @@ data class Alert(
             ALERT_VERSION_FIELD to version,
             END_TIME_FIELD to endTime?.toEpochMilli(),
             ERROR_MESSAGE_FIELD to errorMessage,
+            WORKFLOW_EXECUTION_ID_FIELD to workflowExecutionId,
+            CHAINED_ALERT_NAME_FIELD to chainedAlertName,
             LAST_NOTIFICATION_TIME_FIELD to lastNotificationTime?.toEpochMilli(),
             SEVERITY_FIELD to severity,
             START_TIME_FIELD to startTime.toEpochMilli(),
