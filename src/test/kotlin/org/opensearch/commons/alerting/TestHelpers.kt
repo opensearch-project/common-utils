@@ -29,6 +29,7 @@ import org.opensearch.commons.alerting.model.Finding
 import org.opensearch.commons.alerting.model.Input
 import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Monitor
+import org.opensearch.commons.alerting.model.NoOpTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTrigger
 import org.opensearch.commons.alerting.model.Schedule
 import org.opensearch.commons.alerting.model.SearchInput
@@ -395,7 +396,8 @@ fun xContentRegistry(): NamedXContentRegistry {
             DocLevelMonitorInput.XCONTENT_REGISTRY,
             QueryLevelTrigger.XCONTENT_REGISTRY,
             BucketLevelTrigger.XCONTENT_REGISTRY,
-            DocumentLevelTrigger.XCONTENT_REGISTRY
+            DocumentLevelTrigger.XCONTENT_REGISTRY,
+            NoOpTrigger.XCONTENT_REGISTRY
         ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
     )
 }
