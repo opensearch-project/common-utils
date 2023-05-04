@@ -181,6 +181,16 @@ class XContentTests {
     }
 
     @Test
+    fun `test no-op trigger parsing`() {
+        val trigger = NoOpTrigger()
+
+        val triggerString = trigger.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedTrigger = Trigger.parse(parser(triggerString))
+
+        Assertions.assertEquals(trigger, parsedTrigger, "Round tripping BucketLevelTrigger doesn't work")
+    }
+
+    @Test
     fun `test creating a monitor with duplicate trigger ids fails`() {
         try {
             val repeatedTrigger = randomQueryLevelTrigger()

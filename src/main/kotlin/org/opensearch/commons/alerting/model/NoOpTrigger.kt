@@ -26,7 +26,9 @@ data class NoOpTrigger(
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         builder.startObject()
             .startObject(NOOP_TRIGGER_FIELD)
+            .field(ID_FIELD, id)
             .endObject()
+        .endObject()
         return builder
     }
 
@@ -43,6 +45,7 @@ data class NoOpTrigger(
     }
 
     companion object {
+        const val ID_FIELD = "id"
         const val NOOP_TRIGGER_FIELD = "noop_trigger"
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             Trigger::class.java, ParseField(NOOP_TRIGGER_FIELD),
@@ -51,19 +54,17 @@ data class NoOpTrigger(
 
         @JvmStatic @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): NoOpTrigger {
-            if (xcp.currentToken() != XContentParser.Token.START_OBJECT && xcp.currentToken() != XContentParser.Token.FIELD_NAME) {
-                XContentParserUtils.throwUnknownToken(xcp.currentToken(), xcp.tokenLocation)
-            }
-
-            // If the parser began on START_OBJECT, move to the next token so that the while loop enters on
-            // the fieldName (or END_OBJECT if it's empty).
+            var id = ""
             if (xcp.currentToken() == XContentParser.Token.START_OBJECT) xcp.nextToken()
-            if (xcp.currentToken() != XContentParser.Token.END_OBJECT) {
-                XContentParserUtils.throwUnknownToken(xcp.currentToken(), xcp.tokenLocation)
-            } else {
+            if (xcp.currentName() == ID_FIELD) {
+                xcp.nextToken()
+                id = xcp.text()
                 xcp.nextToken()
             }
-            return NoOpTrigger()
+            if (xcp.currentToken() != XContentParser.Token.END_OBJECT || id == "") {
+                XContentParserUtils.throwUnknownToken(xcp.currentToken(), xcp.tokenLocation)
+            }
+            return NoOpTrigger(id = id)
         }
 
         @JvmStatic
