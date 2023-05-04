@@ -50,6 +50,9 @@ data class Monitor(
         // Ensure that trigger ids are unique within a monitor
         val triggerIds = mutableSetOf<String>()
         triggers.forEach { trigger ->
+            // NoOpTrigger is only used in "Monitor Error Alerts" as a placeholder
+            require(trigger !is NoOpTrigger)
+
             require(triggerIds.add(trigger.id)) { "Duplicate trigger id: ${trigger.id}. Trigger ids must be unique." }
             // Verify Trigger type based on Monitor type
             when (monitorType) {
