@@ -30,6 +30,7 @@ import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.index.query.QueryBuilders
 import org.opensearch.search.builder.SearchSourceBuilder
 import org.opensearch.test.OpenSearchTestCase
+import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.test.assertFailsWith
 
@@ -177,6 +178,16 @@ class XContentTests {
         val parsedTrigger = Trigger.parse(parser(triggerString))
 
         Assertions.assertEquals(trigger, parsedTrigger, "Round tripping BucketLevelTrigger doesn't work")
+    }
+
+    @Test
+    fun `test no-op trigger parsing`() {
+        val trigger = NoOpTrigger()
+
+        val triggerString = trigger.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedTrigger = Trigger.parse(parser(triggerString))
+
+        Assertions.assertEquals(trigger, parsedTrigger, "Round tripping NoOpTrigger doesn't work")
     }
 
     @Test
@@ -355,6 +366,16 @@ class XContentTests {
         val parsedAlert = Alert.parse(parser(alertString))
 
         assertEquals("Round tripping alert doesn't work", alert, parsedAlert)
+    }
+
+    @Test
+    fun `test alert parsing with noop trigger`() {
+        val monitor = randomQueryLevelMonitor()
+        val alert = Alert(
+            monitor = monitor, trigger = NoOpTrigger(), startTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            errorMessage = "some error", lastNotificationTime = Instant.now()
+        )
+        assertEquals("Round tripping alert doesn't work", alert.triggerName, "NoOp trigger")
     }
 
     @Test

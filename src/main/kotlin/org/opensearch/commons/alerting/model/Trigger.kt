@@ -12,7 +12,8 @@ interface Trigger : BaseModel {
     enum class Type(val value: String) {
         DOCUMENT_LEVEL_TRIGGER(DocumentLevelTrigger.DOCUMENT_LEVEL_TRIGGER_FIELD),
         QUERY_LEVEL_TRIGGER(QueryLevelTrigger.QUERY_LEVEL_TRIGGER_FIELD),
-        BUCKET_LEVEL_TRIGGER(BucketLevelTrigger.BUCKET_LEVEL_TRIGGER_FIELD);
+        BUCKET_LEVEL_TRIGGER(BucketLevelTrigger.BUCKET_LEVEL_TRIGGER_FIELD),
+        NOOP_TRIGGER(NoOpTrigger.NOOP_TRIGGER_FIELD);
 
         override fun toString(): String {
             return value

@@ -125,6 +125,24 @@ data class Alert(
         aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = relatedDocIds
     )
 
+    constructor(
+        id: String = NO_ID,
+        monitor: Monitor,
+        trigger: NoOpTrigger,
+        startTime: Instant,
+        lastNotificationTime: Instant?,
+        state: State = State.ERROR,
+        errorMessage: String,
+        errorHistory: List<AlertError> = mutableListOf(),
+        schemaVersion: Int = NO_SCHEMA_VERSION
+    ) : this(
+        id = id, monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
+        triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
+        lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
+        severity = trigger.severity, actionExecutionResults = listOf(), schemaVersion = schemaVersion,
+        aggregationResultBucket = null, findingIds = listOf(), relatedDocIds = listOf()
+    )
+
     enum class State {
         ACTIVE, ACKNOWLEDGED, COMPLETED, ERROR, DELETED
     }
