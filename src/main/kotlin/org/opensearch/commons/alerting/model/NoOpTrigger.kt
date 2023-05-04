@@ -28,7 +28,7 @@ data class NoOpTrigger(
             .startObject(NOOP_TRIGGER_FIELD)
             .field(ID_FIELD, id)
             .endObject()
-        .endObject()
+            .endObject()
         return builder
     }
 
