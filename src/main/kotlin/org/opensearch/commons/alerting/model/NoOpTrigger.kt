@@ -54,14 +54,14 @@ data class NoOpTrigger(
 
         @JvmStatic @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): NoOpTrigger {
-            var id = ""
+            var id = UUIDs.base64UUID()
             if (xcp.currentToken() == XContentParser.Token.START_OBJECT) xcp.nextToken()
             if (xcp.currentName() == ID_FIELD) {
                 xcp.nextToken()
                 id = xcp.text()
                 xcp.nextToken()
             }
-            if (xcp.currentToken() != XContentParser.Token.END_OBJECT || id == "") {
+            if (xcp.currentToken() != XContentParser.Token.END_OBJECT) {
                 XContentParserUtils.throwUnknownToken(xcp.currentToken(), xcp.tokenLocation)
             }
             return NoOpTrigger(id = id)

@@ -187,7 +187,7 @@ class XContentTests {
         val triggerString = trigger.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
         val parsedTrigger = Trigger.parse(parser(triggerString))
 
-        Assertions.assertEquals(trigger, parsedTrigger, "Round tripping BucketLevelTrigger doesn't work")
+        Assertions.assertEquals(trigger, parsedTrigger, "Round tripping NoOpTrigger doesn't work")
     }
 
     @Test
