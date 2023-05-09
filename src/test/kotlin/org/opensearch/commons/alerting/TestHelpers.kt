@@ -21,6 +21,7 @@ import org.opensearch.commons.alerting.model.ActionExecutionResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
+import org.opensearch.commons.alerting.model.ChainedAlertTrigger
 import org.opensearch.commons.alerting.model.ChainedMonitorFindings
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
 import org.opensearch.commons.alerting.model.CompositeInput
@@ -170,6 +171,7 @@ fun randomWorkflow(
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() },
 ): Workflow {
     val delegates = mutableListOf<Delegate>()
     if (!monitorIds.isNullOrEmpty()) {
@@ -192,6 +194,7 @@ fun randomWorkflow(
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
         schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+        triggers = triggers
     )
 }
 
@@ -203,10 +206,12 @@ fun randomWorkflowWithDelegates(
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() },
 ): Workflow {
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
         schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+        triggers = triggers
     )
 }
 
@@ -282,6 +287,25 @@ fun randomDocumentLevelTrigger(
         actions = if (actions.isEmpty() && destinationId.isNotBlank())
             (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
         else actions
+    )
+}
+
+fun randomChainedAlertTrigger(
+    id: String = UUIDs.base64UUID(),
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    severity: String = "1",
+    condition: Script = randomScript(),
+    actions: List<Action> = mutableListOf(),
+    destinationId: String = ""
+): ChainedAlertTrigger {
+    return ChainedAlertTrigger(
+        id = id,
+        name = name,
+        severity = severity,
+        condition = condition,
+        actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
+            (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
+        } else actions
     )
 }
 
