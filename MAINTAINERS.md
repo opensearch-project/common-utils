@@ -12,5 +12,11 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Bowen Lan        | [bowenlan-amzn](https://github.com/bowenlan-amzn) | Amazon      |
 | Rishabh Maurya   | [rishabhmaurya](https://github.com/rishabhmaurya) | Amazon      |
 | Tianli Feng      | [tlfeng](https://github.com/tlfeng)               | Amazon      |
-| Annie Lee        | [leeyun-amzn](https://github.com/leeyun-amzn)     | Amazon      |
 | Saurabh Singh    | [getsaurabh02](https://github.com/getsaurabh02)   | Amazon      |
+
+## Emeritus
+
+| Maintainer       | GitHub ID                                         | Affiliation |
+| ---------------- | ------------------------------------------------- | ----------- |
+| Annie Lee        | [leeyun-amzn](https://github.com/leeyun-amzn)     | Amazon      |
+
