@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
+import org.opensearch.commons.notifications.model.MicrosoftTeams
 import org.opensearch.commons.notifications.model.NotificationConfig
 import org.opensearch.commons.notifications.model.NotificationConfigInfo
 import org.opensearch.commons.notifications.model.NotificationConfigSearchResult
@@ -79,11 +80,23 @@ internal class GetNotificationConfigResponseTests {
             Instant.now(),
             sampleConfig2
         )
+        val sampleConfig3 = NotificationConfig(
+            "name",
+            "description",
+            ConfigType.MICROSOFT_TEAMS,
+            configData = MicrosoftTeams("https://domain.com/sample_url#1234567890")
+        )
+        val configInfo3 = NotificationConfigInfo(
+            "config_id3",
+            Instant.now(),
+            Instant.now(),
+            sampleConfig3
+        )
         val searchResult = NotificationConfigSearchResult(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
-            listOf(configInfo1, configInfo2)
+            listOf(configInfo1, configInfo2, configInfo3)
         )
         val searchResponse = GetNotificationConfigResponse(searchResult)
         val recreatedObject = recreateObject(searchResponse) { GetNotificationConfigResponse(it) }
@@ -142,11 +155,23 @@ internal class GetNotificationConfigResponseTests {
             createdTimeMs,
             sampleConfig2
         )
+        val sampleConfig3 = NotificationConfig(
+            "name",
+            "description",
+            ConfigType.MICROSOFT_TEAMS,
+            configData = MicrosoftTeams("https://domain.com/sample_url#1234567890")
+        )
+        val configInfo3 = NotificationConfigInfo(
+            "config_id3",
+            lastUpdatedTimeMs,
+            createdTimeMs,
+            sampleConfig3
+        )
         val searchResult = NotificationConfigSearchResult(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
-            listOf(configInfo1, configInfo2)
+            listOf(configInfo1, configInfo2, configInfo3)
         )
         val searchResponse = GetNotificationConfigResponse(searchResult)
         val jsonString = getJsonString(searchResponse)

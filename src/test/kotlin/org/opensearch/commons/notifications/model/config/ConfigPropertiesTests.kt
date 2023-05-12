@@ -22,6 +22,7 @@ internal class ConfigPropertiesTests {
     fun `Validate config property reader slack`() {
         assertEquals(getReaderForConfigType(ConfigType.SLACK), Slack.reader)
     }
+
     @Test
     fun `Validate config property reader Microsoft Teams`() {
         assertEquals(getReaderForConfigType(ConfigType.MICROSOFT_TEAMS), MicrosoftTeams.reader)

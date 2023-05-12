@@ -321,17 +321,17 @@ internal class CreateNotificationConfigRequestTests {
         )
 
         val jsonString = """
-    {
-        "config_id":"config_id1",
-        "config":{
-            "name":"name",
-            "description":"description",
-            "config_type":"microsoft_teams",
-            "is_enabled":true,
-            "microsoft_teams":{"url":"https://domain.com/sample_microsoft_teams_url#1234567890"}
+        {
+            "config_id":"config_id1",
+            "config":{
+                "name":"name",
+                "description":"description",
+                "config_type":"microsoft_teams",
+                "is_enabled":true,
+                "microsoft_teams":{"url":"https://domain.com/sample_microsoft_teams_url#1234567890"}
+            }
         }
-    }
-    """.trimIndent()
+        """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { CreateNotificationConfigRequest.parse(it) }
         assertEquals(config, recreatedObject.notificationConfig)
     }
