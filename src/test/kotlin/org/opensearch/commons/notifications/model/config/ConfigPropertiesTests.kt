@@ -53,7 +53,7 @@ internal class ConfigPropertiesTests {
     }
 
     @Test
-    fun `Validate config data parse  slack`() {
+    fun `Validate config data parse slack`() {
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
         val jsonString = getJsonString(sampleSlack)
         val recreatedObject = createObjectFromJsonString(jsonString) { createConfigData(ConfigType.SLACK, it) }

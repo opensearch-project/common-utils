@@ -35,7 +35,6 @@ internal object ConfigDataProperties {
         Pair(ConfigType.WEBHOOK, ConfigProperty(Webhook.reader, Webhook.xParser)),
         Pair(ConfigType.EMAIL, ConfigProperty(Email.reader, Email.xParser)),
         Pair(ConfigType.SNS, ConfigProperty(Sns.reader, Sns.xParser)),
-        Pair(ConfigType.MICROSOFT_TEAMS, ConfigProperty(MicrosoftTeams.reader, MicrosoftTeams.xParser)),
         Pair(ConfigType.SES_ACCOUNT, ConfigProperty(SesAccount.reader, SesAccount.xParser)),
         Pair(ConfigType.EMAIL_GROUP, ConfigProperty(EmailGroup.reader, EmailGroup.xParser)),
         Pair(ConfigType.SMTP_ACCOUNT, ConfigProperty(SmtpAccount.reader, SmtpAccount.xParser)),

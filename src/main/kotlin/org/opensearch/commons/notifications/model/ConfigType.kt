@@ -45,11 +45,6 @@ enum class ConfigType(val tag: String) {
             return tag
         }
     },
-    MICROSOFT_TEAMS("microsoft_teams") {
-        override fun toString(): String {
-            return tag
-        }
-    },
     SMTP_ACCOUNT("smtp_account") {
         override fun toString(): String {
             return tag
