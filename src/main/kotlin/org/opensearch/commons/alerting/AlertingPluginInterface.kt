@@ -24,10 +24,10 @@ import org.opensearch.commons.alerting.action.GetWorkflowRequest
 import org.opensearch.commons.alerting.action.GetWorkflowResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
-import org.opensearch.commons.alerting.action.PublishFindingsRequest
-import org.opensearch.commons.alerting.action.SubscribeFindingsResponse
 import org.opensearch.commons.alerting.action.IndexWorkflowRequest
 import org.opensearch.commons.alerting.action.IndexWorkflowResponse
+import org.opensearch.commons.alerting.action.PublishFindingsRequest
+import org.opensearch.commons.alerting.action.SubscribeFindingsResponse
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.utils.recreateObject
 
