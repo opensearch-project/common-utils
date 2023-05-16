@@ -499,6 +499,7 @@ fun xContentRegistry(): NamedXContentRegistry {
             QueryLevelTrigger.XCONTENT_REGISTRY,
             BucketLevelTrigger.XCONTENT_REGISTRY,
             DocumentLevelTrigger.XCONTENT_REGISTRY,
+            ChainedAlertTrigger.XCONTENT_REGISTRY,
             NoOpTrigger.XCONTENT_REGISTRY
         ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
     )
