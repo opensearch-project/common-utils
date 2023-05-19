@@ -14,10 +14,10 @@ import java.util.StringJoiner;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.opensearch.common.Strings;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
 import org.opensearch.commons.authuser.User;
+import org.opensearch.core.common.Strings;
 
 /**
  * For background jobs usage only. User or Roles injection can be done using transport layer only.
