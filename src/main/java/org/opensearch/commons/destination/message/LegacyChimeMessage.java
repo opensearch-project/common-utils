@@ -7,8 +7,8 @@ package org.opensearch.commons.destination.message;
 
 import java.io.IOException;
 
-import org.opensearch.common.Strings;
 import org.opensearch.common.io.stream.StreamInput;
+import org.opensearch.core.common.Strings;
 
 /**
  * This class holds the contents of an Chime message
