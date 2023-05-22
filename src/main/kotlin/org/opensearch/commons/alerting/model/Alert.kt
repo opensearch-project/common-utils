@@ -56,9 +56,9 @@ data class Alert(
         schemaVersion: Int = NO_SCHEMA_VERSION,
         executionId: String,
         chainedAlertTrigger: ChainedAlertTrigger,
-        user: User
+        workflow: Workflow
     ) : this(
-        monitorId = NO_ID, monitorName = "", monitorVersion = NO_VERSION, monitorUser = user,
+        monitorId = NO_ID, monitorName = "", monitorVersion = NO_VERSION, monitorUser = workflow.user,
         triggerId = chainedAlertTrigger.id, triggerName = chainedAlertTrigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = emptyList(),
         severity = chainedAlertTrigger.severity, actionExecutionResults = emptyList(), schemaVersion = schemaVersion,
