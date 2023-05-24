@@ -16,15 +16,20 @@ import org.opensearch.common.io.stream.NamedWriteableRegistry
 import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
+import org.opensearch.commons.alerting.action.DeleteWorkflowRequest
+import org.opensearch.commons.alerting.action.DeleteWorkflowResponse
 import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
 import org.opensearch.commons.alerting.action.GetFindingsResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
+import org.opensearch.commons.alerting.action.IndexWorkflowRequest
+import org.opensearch.commons.alerting.action.IndexWorkflowResponse
 import org.opensearch.commons.alerting.model.FindingDocument
 import org.opensearch.commons.alerting.model.FindingWithDocs
 import org.opensearch.commons.alerting.model.Monitor
+import org.opensearch.commons.alerting.model.Workflow
 import org.opensearch.index.seqno.SequenceNumbers
 import org.opensearch.rest.RestStatus
 import org.opensearch.search.SearchModule
@@ -52,6 +57,31 @@ internal class AlertingPluginInterfaceTests {
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
         AlertingPluginInterface.indexMonitor(client, request, namedWriteableRegistry, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
+    fun indexWorkflow() {
+        val workflow = randomWorkflow()
+
+        val request = mock(IndexWorkflowRequest::class.java)
+        val response = IndexWorkflowResponse(
+            Workflow.NO_ID,
+            Workflow.NO_VERSION,
+            SequenceNumbers.UNASSIGNED_SEQ_NO,
+            SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
+            workflow
+        )
+        val listener: ActionListener<IndexWorkflowResponse> =
+            mock(ActionListener::class.java) as ActionListener<IndexWorkflowResponse>
+        val namedWriteableRegistry = NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)
+
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<IndexWorkflowResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+
+        AlertingPluginInterface.indexWorkflow(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 
@@ -87,6 +117,21 @@ internal class AlertingPluginInterfaceTests {
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
         AlertingPluginInterface.deleteMonitor(client, request, listener)
+    }
+
+    @Test
+    fun deleteWorkflow() {
+        val request = mock(DeleteWorkflowRequest::class.java)
+        val response = DeleteWorkflowResponse(Workflow.NO_ID, Workflow.NO_VERSION)
+        val listener: ActionListener<DeleteWorkflowResponse> =
+            mock(ActionListener::class.java) as ActionListener<DeleteWorkflowResponse>
+
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<DeleteWorkflowResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+
+        AlertingPluginInterface.deleteWorkflow(client, request, listener)
     }
 
     @Test
