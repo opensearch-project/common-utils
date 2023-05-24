@@ -22,6 +22,7 @@ import org.opensearch.commons.alerting.randomQueryLevelTrigger
 import org.opensearch.commons.alerting.randomThrottle
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
+import org.opensearch.commons.alerting.randomWorkflow
 import org.opensearch.commons.alerting.toJsonString
 import org.opensearch.commons.alerting.toJsonStringWithUser
 import org.opensearch.commons.alerting.util.string
@@ -158,6 +159,14 @@ class XContentTests {
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
         Assertions.assertEquals(monitor, parsedMonitor, "Round tripping BucketLevelMonitor doesn't work")
+    }
+
+    @Test
+    fun `test composite workflow parsing`() {
+        val workflow = randomWorkflow()
+        val monitorString = workflow.toJsonStringWithUser()
+        val parsedMonitor = Workflow.parse(parser(monitorString))
+        Assertions.assertEquals(workflow, parsedMonitor, "Round tripping BucketLevelMonitor doesn't work")
     }
 
     @Test
