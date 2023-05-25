@@ -16,6 +16,7 @@ import org.opensearch.commons.alerting.randomQueryLevelTrigger
 import org.opensearch.commons.alerting.randomThrottle
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
+import org.opensearch.commons.alerting.randomWorkflow
 import org.opensearch.commons.authuser.User
 import org.opensearch.search.builder.SearchSourceBuilder
 
@@ -79,6 +80,16 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newMonitor = Monitor(sin)
         Assertions.assertEquals(monitor, newMonitor, "Round tripping QueryLevelMonitor doesn't work")
+    }
+
+    @Test
+    fun `test workflow as stream`() {
+        val workflow = randomWorkflow(monitorIds = listOf("1", "2", "3", "4"))
+        val out = BytesStreamOutput()
+        workflow.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newWorkflow = Workflow(sin)
+        Assertions.assertEquals(newWorkflow, workflow, "Round tripping Workflow failed")
     }
 
     @Test

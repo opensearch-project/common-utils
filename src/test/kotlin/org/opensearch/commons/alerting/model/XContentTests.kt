@@ -239,6 +239,15 @@ class XContentTests {
     }
 
     @Test
+    fun `test workflow parsing`() {
+        val workflow = randomWorkflow(monitorIds = listOf("1", "2", "3"))
+
+        val monitorString = workflow.toJsonString()
+        val parsedWorkflow = Workflow.parse(parser(monitorString))
+        Assertions.assertEquals(workflow, parsedWorkflow, "Round tripping workflow failed")
+    }
+
+    @Test
     fun `test old monitor format parsing`() {
         val monitorString = """
             {

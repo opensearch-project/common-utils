@@ -1,7 +1,7 @@
 package org.opensearch.commons.alerting.action
 
 import org.junit.Assert
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.io.stream.StreamInput
 

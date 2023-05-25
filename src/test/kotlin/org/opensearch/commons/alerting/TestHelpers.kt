@@ -376,6 +376,11 @@ fun randomClusterMetricsInput(
     return ClusterMetricsInput(path, pathParams, url)
 }
 
+fun Workflow.toJsonString(): String {
+    val builder = XContentFactory.jsonBuilder()
+    return this.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS).string()
+}
+
 fun Monitor.toJsonString(): String {
     val builder = XContentFactory.jsonBuilder()
     return this.toXContent(builder, ToXContent.EMPTY_PARAMS).string()

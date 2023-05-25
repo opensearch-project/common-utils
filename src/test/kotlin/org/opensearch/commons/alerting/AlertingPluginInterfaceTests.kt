@@ -14,6 +14,8 @@ import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
 import org.opensearch.common.io.stream.NamedWriteableRegistry
 import org.opensearch.common.settings.Settings
+import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
+import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
 import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
 import org.opensearch.commons.alerting.action.DeleteWorkflowRequest
@@ -22,10 +24,14 @@ import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
 import org.opensearch.commons.alerting.action.GetFindingsResponse
+import org.opensearch.commons.alerting.action.GetWorkflowRequest
+import org.opensearch.commons.alerting.action.GetWorkflowResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.alerting.action.IndexWorkflowRequest
 import org.opensearch.commons.alerting.action.IndexWorkflowResponse
+import org.opensearch.commons.alerting.action.PublishFindingsRequest
+import org.opensearch.commons.alerting.action.SubscribeFindingsResponse
 import org.opensearch.commons.alerting.model.FindingDocument
 import org.opensearch.commons.alerting.model.FindingWithDocs
 import org.opensearch.commons.alerting.model.Monitor
@@ -135,6 +141,23 @@ internal class AlertingPluginInterfaceTests {
     }
 
     @Test
+    fun getWorkflow() {
+        val request = mock(GetWorkflowRequest::class.java)
+        val response = GetWorkflowResponse(
+            id = "id", version = 1, seqNo = 1, primaryTerm = 1, status = RestStatus.OK, workflow = randomWorkflow()
+        )
+        val listener: ActionListener<GetWorkflowResponse> =
+            mock(ActionListener::class.java) as ActionListener<GetWorkflowResponse>
+
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<GetWorkflowResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+
+        AlertingPluginInterface.getWorkflow(client, request, listener)
+    }
+
+    @Test
     fun getAlerts() {
         val monitor = randomQueryLevelMonitor()
         val alert = randomAlert(monitor)
@@ -172,6 +195,35 @@ internal class AlertingPluginInterfaceTests {
                 .onResponse(response)
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.getFindings(client, request, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
+    fun publishFindings() {
+        val request = mock(PublishFindingsRequest::class.java)
+        val response = SubscribeFindingsResponse(status = RestStatus.OK)
+        val listener: ActionListener<SubscribeFindingsResponse> =
+            mock(ActionListener::class.java) as ActionListener<SubscribeFindingsResponse>
+
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<SubscribeFindingsResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        AlertingPluginInterface.publishFinding(client, request, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
+    fun acknowledgeAlerts() {
+        val request = mock(AcknowledgeAlertRequest::class.java)
+        val response = AcknowledgeAlertResponse(acknowledged = listOf(), failed = listOf(), missing = listOf())
+        val listener: ActionListener<AcknowledgeAlertResponse> =
+            mock(ActionListener::class.java) as ActionListener<AcknowledgeAlertResponse>
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<AcknowledgeAlertResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        AlertingPluginInterface.acknowledgeAlerts(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 }
