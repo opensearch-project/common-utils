@@ -21,7 +21,10 @@ import org.opensearch.commons.alerting.model.ActionExecutionResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
+import org.opensearch.commons.alerting.model.ChainedMonitorFindings
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
+import org.opensearch.commons.alerting.model.CompositeInput
+import org.opensearch.commons.alerting.model.Delegate
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.DocumentLevelTrigger
@@ -33,7 +36,10 @@ import org.opensearch.commons.alerting.model.NoOpTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTrigger
 import org.opensearch.commons.alerting.model.Schedule
 import org.opensearch.commons.alerting.model.SearchInput
+import org.opensearch.commons.alerting.model.Sequence
 import org.opensearch.commons.alerting.model.Trigger
+import org.opensearch.commons.alerting.model.Workflow
+import org.opensearch.commons.alerting.model.WorkflowInput
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
 import org.opensearch.commons.alerting.model.action.ActionExecutionScope
@@ -154,6 +160,73 @@ fun randomDocumentLevelMonitor(
         schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
         uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
+}
+
+fun randomWorkflow(
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    user: User? = randomUser(),
+    monitorIds: List<String>? = null,
+    schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
+    enabled: Boolean = Random().nextBoolean(),
+    enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
+    lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+): Workflow {
+    val delegates = mutableListOf<Delegate>()
+    if (!monitorIds.isNullOrEmpty()) {
+        delegates.add(Delegate(1, monitorIds[0]))
+        for (i in 1 until monitorIds.size) {
+            // Order of monitors in workflow will be the same like forwarded meaning that the first monitorId will be used as second monitor chained finding
+            delegates.add(Delegate(i + 1, monitorIds [i], ChainedMonitorFindings(monitorIds[i - 1])))
+        }
+    }
+    var input = listOf(CompositeInput(Sequence(delegates)))
+    if (input == null) {
+        input = listOf(
+            CompositeInput(
+                Sequence(
+                    listOf(Delegate(1, "delegate1"))
+                )
+            )
+        )
+    }
+    return Workflow(
+        name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
+        schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+    )
+}
+
+fun randomWorkflowWithDelegates(
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    user: User? = randomUser(),
+    input: List<WorkflowInput>,
+    schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
+    enabled: Boolean = Random().nextBoolean(),
+    enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
+    lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+): Workflow {
+    return Workflow(
+        name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
+        schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+    )
+}
+
+fun Workflow.toJsonStringWithUser(): String {
+    val builder = XContentFactory.jsonBuilder()
+    return this.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS).string()
+}
+
+fun randomSequence(
+    delegates: List<Delegate> = listOf(randomDelegate())
+): Sequence {
+    return Sequence(delegates)
+}
+
+fun randomDelegate(
+    order: Int = 1,
+    monitorId: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    chainedMonitorFindings: ChainedMonitorFindings? = null
+): Delegate {
+    return Delegate(order, monitorId, chainedMonitorFindings)
 }
 
 fun randomQueryLevelTrigger(
@@ -301,6 +374,11 @@ fun randomClusterMetricsInput(
     url: String = ""
 ): ClusterMetricsInput {
     return ClusterMetricsInput(path, pathParams, url)
+}
+
+fun Workflow.toJsonString(): String {
+    val builder = XContentFactory.jsonBuilder()
+    return this.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS).string()
 }
 
 fun Monitor.toJsonString(): String {
