@@ -64,6 +64,7 @@ import org.opensearch.search.builder.SearchSourceBuilder
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Random
+import java.util.UUID
 
 const val ALL_ACCESS_ROLE = "all_access"
 
@@ -171,7 +172,7 @@ fun randomWorkflow(
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() },
+    triggers: List<Trigger> = listOf(randomChainedAlertTrigger()),
 ): Workflow {
     val delegates = mutableListOf<Delegate>()
     if (!monitorIds.isNullOrEmpty()) {
@@ -520,6 +521,21 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     return Alert(
         monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
         actionExecutionResults = actionExecutionResults
+    )
+}
+
+fun randomChainedAlert(
+    workflow: Workflow = randomWorkflow(),
+    trigger: ChainedAlertTrigger = randomChainedAlertTrigger(),
+): Alert {
+    return Alert(
+        startTime = Instant.now(),
+        lastNotificationTime = Instant.now(),
+        state = Alert.State.ACTIVE,
+        errorMessage = null,
+        executionId = UUID.randomUUID().toString(),
+        chainedAlertTrigger = trigger,
+        workflow = workflow
     )
 }
 

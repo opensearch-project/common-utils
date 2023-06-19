@@ -10,6 +10,7 @@ import org.opensearch.commons.alerting.model.action.Throttle
 import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
+import org.opensearch.commons.alerting.randomChainedAlertTrigger
 import org.opensearch.commons.alerting.randomDocumentLevelTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
@@ -119,6 +120,16 @@ class WriteableTests {
         trigger.writeTo(out)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newTrigger = DocumentLevelTrigger.readFrom(sin)
+        Assertions.assertEquals(trigger, newTrigger, "Round tripping DocumentLevelTrigger doesn't work")
+    }
+
+    @Test
+    fun `test chained alert trigger as stream`() {
+        val trigger = randomChainedAlertTrigger()
+        val out = BytesStreamOutput()
+        trigger.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newTrigger = ChainedAlertTrigger.readFrom(sin)
         Assertions.assertEquals(trigger, newTrigger, "Round tripping DocumentLevelTrigger doesn't work")
     }
 

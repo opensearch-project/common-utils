@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.opensearch.commons.alerting.model.Alert
+import kotlin.test.assertTrue
 
 class AlertTests {
     @Test
@@ -57,5 +58,14 @@ class AlertTests {
 
         val activeAlert = randomAlert().copy(state = Alert.State.ACTIVE)
         Assertions.assertFalse(activeAlert.isAcknowledged(), "Alert is acknowledged")
+    }
+
+    @Test
+    fun `test chained alert`() {
+        val workflow = randomWorkflow()
+        val trigger = randomChainedAlertTrigger()
+        val alert = randomChainedAlert(workflow = workflow, trigger = trigger)
+        assertEquals(alert.monitorId, "")
+        assertEquals(alert.id, "")
     }
 }

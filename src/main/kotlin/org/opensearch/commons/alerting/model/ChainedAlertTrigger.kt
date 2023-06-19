@@ -92,7 +92,6 @@ data class ChainedAlertTrigger(
             lateinit var name: String
             lateinit var severity: String
             lateinit var condition: Script
-            val queryIds: MutableList<String> = mutableListOf()
             val actions: MutableList<Action> = mutableListOf()
 
             if (xcp.currentToken() != XContentParser.Token.START_OBJECT && xcp.currentToken() != XContentParser.Token.FIELD_NAME) {
@@ -118,16 +117,6 @@ data class ChainedAlertTrigger(
                             "Invalid script language. Allowed languages are [${Script.DEFAULT_SCRIPT_LANG}]"
                         }
                         xcp.nextToken()
-                    }
-                    QUERY_IDS_FIELD -> {
-                        XContentParserUtils.ensureExpectedToken(
-                            XContentParser.Token.START_ARRAY,
-                            xcp.currentToken(),
-                            xcp
-                        )
-                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
-                            queryIds.add(xcp.text())
-                        }
                     }
                     ACTIONS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
