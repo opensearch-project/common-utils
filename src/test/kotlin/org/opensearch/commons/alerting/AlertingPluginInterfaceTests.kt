@@ -74,7 +74,6 @@ internal class AlertingPluginInterfaceTests {
         )
         val listener: ActionListener<IndexWorkflowResponse> =
             mock(ActionListener::class.java) as ActionListener<IndexWorkflowResponse>
-        val namedWriteableRegistry = NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)
 
         Mockito.doAnswer {
             (it.getArgument(2) as ActionListener<IndexWorkflowResponse>)
