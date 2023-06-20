@@ -35,7 +35,8 @@ data class Workflow(
     val user: User?,
     val schemaVersion: Int = NO_SCHEMA_VERSION,
     val inputs: List<WorkflowInput>,
-    val owner: String? = DEFAULT_OWNER
+    val owner: String? = DEFAULT_OWNER,
+    val triggers: List<Trigger>
 ) : ScheduledJob {
     override val type = WORKFLOW_TYPE
 
@@ -46,6 +47,11 @@ data class Workflow(
             require(enabledTime == null)
         }
         require(inputs.size <= WORKFLOW_MAX_INPUTS) { "Workflows can only have $WORKFLOW_MAX_INPUTS search input." }
+        triggers.forEach { trigger ->
+            run {
+                require(trigger is ChainedAlertTrigger) { "Incompatible trigger [${trigger.name}] for workflow. " }
+            }
+        }
     }
 
     @Throws(IOException::class)
@@ -63,7 +69,8 @@ data class Workflow(
         } else null,
         schemaVersion = sin.readInt(),
         inputs = sin.readList((WorkflowInput)::readFrom),
-        owner = sin.readOptionalString()
+        owner = sin.readOptionalString(),
+        triggers = sin.readList((Trigger)::readFrom)
     )
 
     // This enum classifies different workflows
@@ -109,6 +116,7 @@ data class Workflow(
             .optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
             .field(SCHEDULE_FIELD, schedule)
             .field(INPUTS_FIELD, inputs.toTypedArray())
+            .field(TRIGGERS_FIELD, triggers.toTypedArray())
             .optionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
         builder.field(OWNER_FIELD, owner)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
@@ -143,11 +151,17 @@ data class Workflow(
         }
         // Outputting type with each Trigger so that the generic Trigger.readFrom() can read it
         out.writeOptionalString(owner)
+        out.writeVInt(triggers.size)
+        triggers.forEach {
+            when (it) {
+                is ChainedAlertTrigger -> out.writeEnum(Trigger.Type.CHAINED_ALERT_TRIGGER)
+                else -> throw IOException("Unsupported trigger type for workflow")
+            }
+            it.writeTo(out)
+        }
     }
 
     companion object {
-        const val WORKFLOW_DELEGATE_PATH = "workflow.inputs.composite_input.sequence.delegates"
-        const val WORKFLOW_MONITOR_PATH = "workflow.inputs.composite_input.sequence.delegates.monitor_id"
         const val WORKFLOW_TYPE = "workflow"
         const val TYPE_FIELD = "type"
         const val WORKFLOW_TYPE_FIELD = "workflow_type"
@@ -161,6 +175,7 @@ data class Workflow(
         const val INPUTS_FIELD = "inputs"
         const val LAST_UPDATE_TIME_FIELD = "last_update_time"
         const val ENABLED_TIME_FIELD = "enabled_time"
+        const val TRIGGERS_FIELD = "triggers"
         const val OWNER_FIELD = "owner"
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
@@ -184,6 +199,7 @@ data class Workflow(
             var enabled = true
             var schemaVersion = NO_SCHEMA_VERSION
             val inputs: MutableList<WorkflowInput> = mutableListOf()
+            val triggers: MutableList<Trigger> = mutableListOf()
             var owner = DEFAULT_OWNER
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -206,6 +222,16 @@ data class Workflow(
                     }
                     ENABLED_FIELD -> enabled = xcp.booleanValue()
                     SCHEDULE_FIELD -> schedule = Schedule.parse(xcp)
+                    Monitor.TRIGGERS_FIELD -> {
+                        XContentParserUtils.ensureExpectedToken(
+                            XContentParser.Token.START_ARRAY,
+                            xcp.currentToken(),
+                            xcp
+                        )
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
+                            triggers.add(Trigger.parse(xcp))
+                        }
+                    }
                     INPUTS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
@@ -245,7 +271,8 @@ data class Workflow(
                 user,
                 schemaVersion,
                 inputs.toList(),
-                owner
+                owner,
+                triggers
             )
         }
 

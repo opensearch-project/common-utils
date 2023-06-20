@@ -21,6 +21,7 @@ import org.opensearch.commons.alerting.model.ActionExecutionResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
+import org.opensearch.commons.alerting.model.ChainedAlertTrigger
 import org.opensearch.commons.alerting.model.ChainedMonitorFindings
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
 import org.opensearch.commons.alerting.model.CompositeInput
@@ -63,6 +64,7 @@ import org.opensearch.search.builder.SearchSourceBuilder
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Random
+import java.util.UUID
 
 const val ALL_ACCESS_ROLE = "all_access"
 
@@ -170,6 +172,7 @@ fun randomWorkflow(
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    triggers: List<Trigger> = listOf(randomChainedAlertTrigger()),
 ): Workflow {
     val delegates = mutableListOf<Delegate>()
     if (!monitorIds.isNullOrEmpty()) {
@@ -192,6 +195,7 @@ fun randomWorkflow(
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
         schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+        triggers = triggers
     )
 }
 
@@ -203,10 +207,12 @@ fun randomWorkflowWithDelegates(
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() },
 ): Workflow {
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
         schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+        triggers = triggers
     )
 }
 
@@ -275,6 +281,25 @@ fun randomDocumentLevelTrigger(
     destinationId: String = ""
 ): DocumentLevelTrigger {
     return DocumentLevelTrigger(
+        id = id,
+        name = name,
+        severity = severity,
+        condition = condition,
+        actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
+            (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
+        } else actions
+    )
+}
+
+fun randomChainedAlertTrigger(
+    id: String = UUIDs.base64UUID(),
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    severity: String = "1",
+    condition: Script = randomScript(),
+    actions: List<Action> = mutableListOf(),
+    destinationId: String = ""
+): ChainedAlertTrigger {
+    return ChainedAlertTrigger(
         id = id,
         name = name,
         severity = severity,
@@ -470,6 +495,7 @@ fun xContentRegistry(): NamedXContentRegistry {
             QueryLevelTrigger.XCONTENT_REGISTRY,
             BucketLevelTrigger.XCONTENT_REGISTRY,
             DocumentLevelTrigger.XCONTENT_REGISTRY,
+            ChainedAlertTrigger.XCONTENT_REGISTRY,
             NoOpTrigger.XCONTENT_REGISTRY
         ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
     )
@@ -493,6 +519,21 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
         Instant.now().truncatedTo(ChronoUnit.MILLIS),
         null,
         actionExecutionResults = actionExecutionResults
+    )
+}
+
+fun randomChainedAlert(
+    workflow: Workflow = randomWorkflow(),
+    trigger: ChainedAlertTrigger = randomChainedAlertTrigger(),
+): Alert {
+    return Alert(
+        startTime = Instant.now(),
+        lastNotificationTime = Instant.now(),
+        state = Alert.State.ACTIVE,
+        errorMessage = null,
+        executionId = UUID.randomUUID().toString(),
+        chainedAlertTrigger = trigger,
+        workflow = workflow
     )
 }
 
