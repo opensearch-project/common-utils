@@ -13,7 +13,8 @@ interface Trigger : BaseModel {
         DOCUMENT_LEVEL_TRIGGER(DocumentLevelTrigger.DOCUMENT_LEVEL_TRIGGER_FIELD),
         QUERY_LEVEL_TRIGGER(QueryLevelTrigger.QUERY_LEVEL_TRIGGER_FIELD),
         BUCKET_LEVEL_TRIGGER(BucketLevelTrigger.BUCKET_LEVEL_TRIGGER_FIELD),
-        NOOP_TRIGGER(NoOpTrigger.NOOP_TRIGGER_FIELD);
+        NOOP_TRIGGER(NoOpTrigger.NOOP_TRIGGER_FIELD),
+        CHAINED_ALERT_TRIGGER(ChainedAlertTrigger.CHAINED_ALERT_TRIGGER_FIELD);
 
         override fun toString(): String {
             return value
@@ -53,6 +54,7 @@ interface Trigger : BaseModel {
                 Type.QUERY_LEVEL_TRIGGER -> QueryLevelTrigger(sin)
                 Type.BUCKET_LEVEL_TRIGGER -> BucketLevelTrigger(sin)
                 Type.DOCUMENT_LEVEL_TRIGGER -> DocumentLevelTrigger(sin)
+                Type.CHAINED_ALERT_TRIGGER -> ChainedAlertTrigger(sin)
                 // This shouldn't be reachable but ensuring exhaustiveness as Kotlin warns
                 // enum can be null in Java
                 else -> throw IllegalStateException("Unexpected input [$type] when reading Trigger")
