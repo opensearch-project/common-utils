@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.opensearch.commons.alerting.model.Alert
-import kotlin.test.assertTrue
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class AlertTests {
     @Test
@@ -58,6 +59,15 @@ class AlertTests {
 
         val activeAlert = randomAlert().copy(state = Alert.State.ACTIVE)
         Assertions.assertFalse(activeAlert.isAcknowledged(), "Alert is acknowledged")
+    }
+
+    @Test
+    fun `test alert in audit state`() {
+        val auditAlert = Alert(
+            randomQueryLevelMonitor(), randomQueryLevelTrigger(), Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            null, actionExecutionResults = listOf(randomActionExecutionResult())
+        )
+        Assertions.assertFalse(auditAlert.isAcknowledged(), "Alert should not be in acknowledged state")
     }
 
     @Test
