@@ -173,6 +173,7 @@ fun randomWorkflow(
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
     triggers: List<Trigger> = listOf(randomChainedAlertTrigger()),
+    withMetadata: Boolean = Random().nextBoolean()
 ): Workflow {
     val delegates = mutableListOf<Delegate>()
     if (!monitorIds.isNullOrEmpty()) {
@@ -195,7 +196,7 @@ fun randomWorkflow(
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
         schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        triggers = triggers
+        triggers = triggers, uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
 }
 
@@ -208,11 +209,12 @@ fun randomWorkflowWithDelegates(
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
     triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() },
+    withMetadata: Boolean = Random().nextBoolean()
 ): Workflow {
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
         schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        triggers = triggers
+        triggers = triggers, uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
 }
 
