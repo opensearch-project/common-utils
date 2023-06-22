@@ -79,14 +79,14 @@ data class Alert(
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
         executionId: String? = null,
-        workflow: Workflow? = null,
+        workflowId: String? = null,
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
         aggregationResultBucket = null, findingIds = emptyList(), relatedDocIds = emptyList(),
-        executionId = executionId, workflowId = workflow?.id ?: ""
+        executionId = executionId, workflowId = workflowId ?: ""
     )
 
     constructor(
@@ -101,14 +101,14 @@ data class Alert(
         schemaVersion: Int = NO_SCHEMA_VERSION,
         findingIds: List<String> = emptyList(),
         executionId: String? = null,
-        workflow: Workflow? = null,
+        workflowId: String? = null,
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
         aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = emptyList(),
-        executionId = executionId, workflowId = workflow?.id ?: ""
+        executionId = executionId, workflowId = workflowId ?: ""
     )
 
     constructor(
@@ -124,14 +124,14 @@ data class Alert(
         aggregationResultBucket: AggregationResultBucket,
         findingIds: List<String> = emptyList(),
         executionId: String? = null,
-        workflow: Workflow? = null,
+        workflowId: String? = null,
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
         aggregationResultBucket = aggregationResultBucket, findingIds = findingIds, relatedDocIds = emptyList(),
-        executionId = executionId, workflowId = workflow?.id ?: ""
+        executionId = executionId, workflowId = workflowId ?: ""
     )
 
     constructor(
@@ -148,14 +148,14 @@ data class Alert(
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
         executionId: String? = null,
-        workflow: Workflow? = null,
+        workflowId: String? = null,
     ) : this(
         id = id, monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
         aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = relatedDocIds,
-        executionId = executionId, workflowId = workflow?.id ?: ""
+        executionId = executionId, workflowId = workflowId ?: ""
     )
 
     constructor(
@@ -168,14 +168,14 @@ data class Alert(
         errorMessage: String,
         errorHistory: List<AlertError> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
-        workflow: Workflow? = null,
+        workflowId: String? = null,
     ) : this(
         id = id, monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = listOf(), schemaVersion = schemaVersion,
         aggregationResultBucket = null, findingIds = listOf(), relatedDocIds = listOf(),
-        workflowId = workflow?.id ?: ""
+        workflowId = workflowId ?: ""
     )
 
     enum class State {
