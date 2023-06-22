@@ -22,6 +22,7 @@ data class Alert(
     val version: Long = NO_VERSION,
     val schemaVersion: Int = NO_SCHEMA_VERSION,
     val monitorId: String,
+    val workflowId: String,
     val monitorName: String,
     val monitorVersion: Long,
     val monitorUser: User?,
@@ -48,6 +49,7 @@ data class Alert(
         }
     }
 
+    // constructor for chained alerts.
     constructor(
         startTime: Instant,
         lastNotificationTime: Instant?,
@@ -63,7 +65,7 @@ data class Alert(
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = emptyList(),
         severity = chainedAlertTrigger.severity, actionExecutionResults = emptyList(), schemaVersion = schemaVersion,
         aggregationResultBucket = null, findingIds = emptyList(), relatedDocIds = emptyList(),
-        executionId = executionId
+        executionId = executionId, workflowId = workflow.id
     )
 
     constructor(
@@ -76,14 +78,15 @@ data class Alert(
         errorHistory: List<AlertError> = mutableListOf(),
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
-        executionId: String? = null
+        executionId: String? = null,
+        workflow: Workflow? = null,
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
         aggregationResultBucket = null, findingIds = emptyList(), relatedDocIds = emptyList(),
-        executionId = executionId
+        executionId = executionId, workflowId = workflow?.id ?: ""
     )
 
     constructor(
@@ -97,14 +100,15 @@ data class Alert(
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
         findingIds: List<String> = emptyList(),
-        executionId: String? = null
+        executionId: String? = null,
+        workflow: Workflow? = null,
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
         aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = emptyList(),
-        executionId = executionId
+        executionId = executionId, workflowId = workflow?.id ?: ""
     )
 
     constructor(
@@ -119,14 +123,15 @@ data class Alert(
         schemaVersion: Int = NO_SCHEMA_VERSION,
         aggregationResultBucket: AggregationResultBucket,
         findingIds: List<String> = emptyList(),
-        executionId: String? = null
+        executionId: String? = null,
+        workflow: Workflow? = null,
     ) : this(
         monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
         aggregationResultBucket = aggregationResultBucket, findingIds = findingIds, relatedDocIds = emptyList(),
-        executionId = executionId
+        executionId = executionId, workflowId = workflow?.id ?: ""
     )
 
     constructor(
@@ -142,14 +147,15 @@ data class Alert(
         errorHistory: List<AlertError> = mutableListOf(),
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
-        executionId: String? = null
+        executionId: String? = null,
+        workflow: Workflow? = null,
     ) : this(
         id = id, monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = actionExecutionResults, schemaVersion = schemaVersion,
         aggregationResultBucket = null, findingIds = findingIds, relatedDocIds = relatedDocIds,
-        executionId = executionId
+        executionId = executionId, workflowId = workflow?.id ?: ""
     )
 
     constructor(
@@ -161,13 +167,15 @@ data class Alert(
         state: State = State.ERROR,
         errorMessage: String,
         errorHistory: List<AlertError> = mutableListOf(),
-        schemaVersion: Int = NO_SCHEMA_VERSION
+        schemaVersion: Int = NO_SCHEMA_VERSION,
+        workflow: Workflow? = null,
     ) : this(
         id = id, monitorId = monitor.id, monitorName = monitor.name, monitorVersion = monitor.version, monitorUser = monitor.user,
         triggerId = trigger.id, triggerName = trigger.name, state = state, startTime = startTime,
         lastNotificationTime = lastNotificationTime, errorMessage = errorMessage, errorHistory = errorHistory,
         severity = trigger.severity, actionExecutionResults = listOf(), schemaVersion = schemaVersion,
-        aggregationResultBucket = null, findingIds = listOf(), relatedDocIds = listOf()
+        aggregationResultBucket = null, findingIds = listOf(), relatedDocIds = listOf(),
+        workflowId = workflow?.id ?: ""
     )
 
     enum class State {
@@ -185,6 +193,7 @@ data class Alert(
         version = sin.readLong(),
         schemaVersion = sin.readInt(),
         monitorId = sin.readString(),
+        workflowId = sin.readString(),
         monitorName = sin.readString(),
         monitorVersion = sin.readLong(),
         monitorUser = if (sin.readBoolean()) {
@@ -215,6 +224,7 @@ data class Alert(
         out.writeLong(version)
         out.writeInt(schemaVersion)
         out.writeString(monitorId)
+        out.writeString(workflowId)
         out.writeString(monitorName)
         out.writeLong(monitorVersion)
         out.writeBoolean(monitorUser != null)
@@ -247,6 +257,7 @@ data class Alert(
         const val SCHEMA_VERSION_FIELD = "schema_version"
         const val ALERT_VERSION_FIELD = "version"
         const val MONITOR_ID_FIELD = "monitor_id"
+        const val WORKFLOW_ID_FIELD = "workflow_id"
         const val MONITOR_VERSION_FIELD = "monitor_version"
         const val MONITOR_NAME_FIELD = "monitor_name"
         const val MONITOR_USER_FIELD = "monitor_user"
@@ -274,6 +285,7 @@ data class Alert(
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): Alert {
 
             lateinit var monitorId: String
+            var workflowId = ""
             var schemaVersion = NO_SCHEMA_VERSION
             lateinit var monitorName: String
             var monitorVersion: Long = Versions.NOT_FOUND
@@ -300,6 +312,7 @@ data class Alert(
 
                 when (fieldName) {
                     MONITOR_ID_FIELD -> monitorId = xcp.text()
+                    WORKFLOW_ID_FIELD -> workflowId = xcp.text()
                     SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
                     MONITOR_NAME_FIELD -> monitorName = xcp.text()
                     MONITOR_VERSION_FIELD -> monitorVersion = xcp.longValue()
@@ -360,7 +373,7 @@ data class Alert(
                 lastNotificationTime = lastNotificationTime, acknowledgedTime = acknowledgedTime,
                 errorMessage = errorMessage, errorHistory = errorHistory, severity = severity,
                 actionExecutionResults = actionExecutionResults, aggregationResultBucket = aggAlertBucket, findingIds = findingIds,
-                relatedDocIds = relatedDocIds, executionId = executionId
+                relatedDocIds = relatedDocIds, executionId = executionId, workflowId = workflowId
             )
         }
 
@@ -383,6 +396,7 @@ data class Alert(
             .field(ALERT_ID_FIELD, id)
             .field(ALERT_VERSION_FIELD, version)
             .field(MONITOR_ID_FIELD, monitorId)
+            .field(WORKFLOW_ID_FIELD, workflowId)
             .field(SCHEMA_VERSION_FIELD, schemaVersion)
             .field(MONITOR_VERSION_FIELD, monitorVersion)
             .field(MONITOR_NAME_FIELD, monitorName)
