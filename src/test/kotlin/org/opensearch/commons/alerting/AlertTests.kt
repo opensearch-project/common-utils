@@ -77,5 +77,6 @@ class AlertTests {
         val alert = randomChainedAlert(workflow = workflow, trigger = trigger)
         assertEquals(alert.monitorId, "")
         assertEquals(alert.id, "")
+        assertEquals(workflow.id, alert.workflowId)
     }
 }
