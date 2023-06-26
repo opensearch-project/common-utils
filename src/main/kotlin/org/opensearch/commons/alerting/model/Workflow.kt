@@ -36,7 +36,8 @@ data class Workflow(
     val schemaVersion: Int = NO_SCHEMA_VERSION,
     val inputs: List<WorkflowInput>,
     val owner: String? = DEFAULT_OWNER,
-    val triggers: List<Trigger>
+    val triggers: List<Trigger>,
+    val uiMetadata: Map<String, Any>,
 ) : ScheduledJob {
     override val type = WORKFLOW_TYPE
 
@@ -69,8 +70,9 @@ data class Workflow(
         } else null,
         schemaVersion = sin.readInt(),
         inputs = sin.readList((WorkflowInput)::readFrom),
+        uiMetadata = Monitor.suppressWarning(sin.readMap()),
         owner = sin.readOptionalString(),
-        triggers = sin.readList((Trigger)::readFrom)
+        triggers = sin.readList((Trigger)::readFrom),
     )
 
     // This enum classifies different workflows
@@ -118,6 +120,7 @@ data class Workflow(
             .field(INPUTS_FIELD, inputs.toTypedArray())
             .field(TRIGGERS_FIELD, triggers.toTypedArray())
             .optionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
+        if (uiMetadata.isNotEmpty()) builder.field(UI_METADATA_FIELD, uiMetadata)
         builder.field(OWNER_FIELD, owner)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
@@ -149,6 +152,7 @@ data class Workflow(
             if (it is CompositeInput) out.writeEnum(WorkflowInput.Type.COMPOSITE_INPUT)
             it.writeTo(out)
         }
+        out.writeMap(uiMetadata)
         // Outputting type with each Trigger so that the generic Trigger.readFrom() can read it
         out.writeOptionalString(owner)
         out.writeVInt(triggers.size)
@@ -176,6 +180,7 @@ data class Workflow(
         const val LAST_UPDATE_TIME_FIELD = "last_update_time"
         const val ENABLED_TIME_FIELD = "enabled_time"
         const val TRIGGERS_FIELD = "triggers"
+        const val UI_METADATA_FIELD = "ui_metadata"
         const val OWNER_FIELD = "owner"
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
@@ -200,6 +205,7 @@ data class Workflow(
             var schemaVersion = NO_SCHEMA_VERSION
             val inputs: MutableList<WorkflowInput> = mutableListOf()
             val triggers: MutableList<Trigger> = mutableListOf()
+            var uiMetadata: Map<String, Any> = mapOf()
             var owner = DEFAULT_OWNER
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -222,7 +228,7 @@ data class Workflow(
                     }
                     ENABLED_FIELD -> enabled = xcp.booleanValue()
                     SCHEDULE_FIELD -> schedule = Schedule.parse(xcp)
-                    Monitor.TRIGGERS_FIELD -> {
+                    TRIGGERS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
@@ -245,6 +251,7 @@ data class Workflow(
                     }
                     ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
+                    UI_METADATA_FIELD -> uiMetadata = xcp.map()
                     OWNER_FIELD -> {
                         owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
                     }
@@ -272,7 +279,8 @@ data class Workflow(
                 schemaVersion,
                 inputs.toList(),
                 owner,
-                triggers
+                triggers,
+                uiMetadata
             )
         }
 

@@ -32,7 +32,8 @@ class IndexWorkflowResponseTests {
             user = randomUser(),
             schemaVersion = 0,
             inputs = mutableListOf(),
-            triggers = listOf(randomChainedAlertTrigger())
+            triggers = listOf(randomChainedAlertTrigger()),
+            uiMetadata = mutableMapOf(Pair("test", "test"))
         )
         val req = IndexWorkflowResponse("1234", 1L, 2L, 0L, workflow)
         Assertions.assertNotNull(req)
@@ -57,5 +58,6 @@ class IndexWorkflowResponseTests {
             (newReq.workflow.triggers.get(0) as ChainedAlertTrigger).condition.lang,
             (req.workflow.triggers.get(0) as ChainedAlertTrigger).condition.lang
         )
+        Assertions.assertEquals(newReq.workflow.uiMetadata, req.workflow.uiMetadata)
     }
 }
