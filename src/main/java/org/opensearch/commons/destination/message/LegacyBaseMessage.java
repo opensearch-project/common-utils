@@ -11,10 +11,10 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.apache.hc.core5.net.URIBuilder;
-import org.opensearch.common.Strings;
 import org.opensearch.common.io.stream.StreamInput;
 import org.opensearch.common.io.stream.StreamOutput;
 import org.opensearch.common.io.stream.Writeable;
+import org.opensearch.core.common.Strings;
 
 /**
  * This class holds the generic parameters required for a

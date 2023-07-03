@@ -36,6 +36,7 @@ class GetAlertsResponseTests {
             0L,
             0,
             "monitorId",
+            "workflowId",
             "monitorName",
             0L,
             randomUser(),
@@ -64,6 +65,7 @@ class GetAlertsResponseTests {
         assertEquals(1, newReq.alerts.size)
         assertEquals(alert, newReq.alerts[0])
         assertEquals(1, newReq.totalAlerts)
+        assertEquals(newReq.alerts[0].workflowId, "workflowId")
     }
 
     @Test
@@ -75,6 +77,7 @@ class GetAlertsResponseTests {
             0L,
             0,
             "monitorId",
+            "workflowId",
             "monitorName",
             0L,
             null,
@@ -96,8 +99,8 @@ class GetAlertsResponseTests {
         val req = GetAlertsResponse(listOf(alert), 1)
         var actualXContentString = req.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
         val expectedXContentString = "{\"alerts\":[{\"id\":\"id\",\"version\":0,\"monitor_id\":\"monitorId\"," +
-            "\"schema_version\":0,\"monitor_version\":0,\"monitor_name\":\"monitorName\"," +
-            "\"trigger_id\":\"triggerId\",\"trigger_name\":\"triggerName\"," +
+            "\"workflow_id\":\"workflowId\",\"schema_version\":0,\"monitor_version\":0,\"monitor_name\":\"monitorName\"," +
+            "\"execution_id\":null,\"trigger_id\":\"triggerId\",\"trigger_name\":\"triggerName\"," +
             "\"finding_ids\":[],\"related_doc_ids\":[],\"state\":\"ACKNOWLEDGED\",\"error_message\":null,\"alert_history\":[]," +
             "\"severity\":\"severity\",\"action_execution_results\":[],\"start_time\":" + now.toEpochMilli() +
             ",\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}],\"totalAlerts\":1}"

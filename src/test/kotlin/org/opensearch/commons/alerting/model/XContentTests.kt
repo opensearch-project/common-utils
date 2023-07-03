@@ -22,6 +22,7 @@ import org.opensearch.commons.alerting.randomQueryLevelTrigger
 import org.opensearch.commons.alerting.randomThrottle
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
+import org.opensearch.commons.alerting.randomWorkflow
 import org.opensearch.commons.alerting.toJsonString
 import org.opensearch.commons.alerting.toJsonStringWithUser
 import org.opensearch.commons.alerting.util.string
@@ -161,6 +162,14 @@ class XContentTests {
     }
 
     @Test
+    fun `test composite workflow parsing`() {
+        val workflow = randomWorkflow()
+        val monitorString = workflow.toJsonStringWithUser()
+        val parsedMonitor = Workflow.parse(parser(monitorString))
+        Assertions.assertEquals(workflow, parsedMonitor, "Round tripping BucketLevelMonitor doesn't work")
+    }
+
+    @Test
     fun `test query-level trigger parsing`() {
         val trigger = randomQueryLevelTrigger()
 
@@ -227,6 +236,15 @@ class XContentTests {
         val parsedMonitor = Monitor.parse(parser(monitorString))
         Assertions.assertEquals(monitor, parsedMonitor, "Round tripping QueryLevelMonitor doesn't work")
         Assertions.assertNull(parsedMonitor.user)
+    }
+
+    @Test
+    fun `test workflow parsing`() {
+        val workflow = randomWorkflow(monitorIds = listOf("1", "2", "3"))
+
+        val monitorString = workflow.toJsonString()
+        val parsedWorkflow = Workflow.parse(parser(monitorString))
+        Assertions.assertEquals(workflow, parsedWorkflow, "Round tripping workflow failed")
     }
 
     @Test

@@ -21,7 +21,11 @@ import org.opensearch.commons.alerting.model.ActionExecutionResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
+import org.opensearch.commons.alerting.model.ChainedAlertTrigger
+import org.opensearch.commons.alerting.model.ChainedMonitorFindings
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
+import org.opensearch.commons.alerting.model.CompositeInput
+import org.opensearch.commons.alerting.model.Delegate
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.DocumentLevelTrigger
@@ -33,7 +37,10 @@ import org.opensearch.commons.alerting.model.NoOpTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTrigger
 import org.opensearch.commons.alerting.model.Schedule
 import org.opensearch.commons.alerting.model.SearchInput
+import org.opensearch.commons.alerting.model.Sequence
 import org.opensearch.commons.alerting.model.Trigger
+import org.opensearch.commons.alerting.model.Workflow
+import org.opensearch.commons.alerting.model.WorkflowInput
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
 import org.opensearch.commons.alerting.model.action.ActionExecutionScope
@@ -57,6 +64,7 @@ import org.opensearch.search.builder.SearchSourceBuilder
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Random
+import java.util.UUID
 
 const val ALL_ACCESS_ROLE = "all_access"
 
@@ -156,6 +164,77 @@ fun randomDocumentLevelMonitor(
     )
 }
 
+fun randomWorkflow(
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    user: User? = randomUser(),
+    monitorIds: List<String>? = null,
+    schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
+    enabled: Boolean = Random().nextBoolean(),
+    enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
+    lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    triggers: List<Trigger> = listOf(randomChainedAlertTrigger()),
+): Workflow {
+    val delegates = mutableListOf<Delegate>()
+    if (!monitorIds.isNullOrEmpty()) {
+        delegates.add(Delegate(1, monitorIds[0]))
+        for (i in 1 until monitorIds.size) {
+            // Order of monitors in workflow will be the same like forwarded meaning that the first monitorId will be used as second monitor chained finding
+            delegates.add(Delegate(i + 1, monitorIds [i], ChainedMonitorFindings(monitorIds[i - 1])))
+        }
+    }
+    var input = listOf(CompositeInput(Sequence(delegates)))
+    if (input == null) {
+        input = listOf(
+            CompositeInput(
+                Sequence(
+                    listOf(Delegate(1, "delegate1"))
+                )
+            )
+        )
+    }
+    return Workflow(
+        name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
+        schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+        triggers = triggers
+    )
+}
+
+fun randomWorkflowWithDelegates(
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    user: User? = randomUser(),
+    input: List<WorkflowInput>,
+    schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
+    enabled: Boolean = Random().nextBoolean(),
+    enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
+    lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() },
+): Workflow {
+    return Workflow(
+        name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
+        schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+        triggers = triggers
+    )
+}
+
+fun Workflow.toJsonStringWithUser(): String {
+    val builder = XContentFactory.jsonBuilder()
+    return this.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS).string()
+}
+
+fun randomSequence(
+    delegates: List<Delegate> = listOf(randomDelegate())
+): Sequence {
+    return Sequence(delegates)
+}
+
+fun randomDelegate(
+    order: Int = 1,
+    monitorId: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    chainedMonitorFindings: ChainedMonitorFindings? = null
+): Delegate {
+    return Delegate(order, monitorId, chainedMonitorFindings)
+}
+
 fun randomQueryLevelTrigger(
     id: String = UUIDs.base64UUID(),
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
@@ -209,6 +288,25 @@ fun randomDocumentLevelTrigger(
         actions = if (actions.isEmpty() && destinationId.isNotBlank())
             (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
         else actions
+    )
+}
+
+fun randomChainedAlertTrigger(
+    id: String = UUIDs.base64UUID(),
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    severity: String = "1",
+    condition: Script = randomScript(),
+    actions: List<Action> = mutableListOf(),
+    destinationId: String = ""
+): ChainedAlertTrigger {
+    return ChainedAlertTrigger(
+        id = id,
+        name = name,
+        severity = severity,
+        condition = condition,
+        actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
+            (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
+        } else actions
     )
 }
 
@@ -301,6 +399,11 @@ fun randomClusterMetricsInput(
     url: String = ""
 ): ClusterMetricsInput {
     return ClusterMetricsInput(path, pathParams, url)
+}
+
+fun Workflow.toJsonString(): String {
+    val builder = XContentFactory.jsonBuilder()
+    return this.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS).string()
 }
 
 fun Monitor.toJsonString(): String {
@@ -397,6 +500,7 @@ fun xContentRegistry(): NamedXContentRegistry {
             QueryLevelTrigger.XCONTENT_REGISTRY,
             BucketLevelTrigger.XCONTENT_REGISTRY,
             DocumentLevelTrigger.XCONTENT_REGISTRY,
+            ChainedAlertTrigger.XCONTENT_REGISTRY,
             NoOpTrigger.XCONTENT_REGISTRY
         ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
     )
@@ -417,6 +521,21 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     return Alert(
         monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
         actionExecutionResults = actionExecutionResults
+    )
+}
+
+fun randomChainedAlert(
+    workflow: Workflow = randomWorkflow(),
+    trigger: ChainedAlertTrigger = randomChainedAlertTrigger(),
+): Alert {
+    return Alert(
+        startTime = Instant.now(),
+        lastNotificationTime = Instant.now(),
+        state = Alert.State.ACTIVE,
+        errorMessage = null,
+        executionId = UUID.randomUUID().toString(),
+        chainedAlertTrigger = trigger,
+        workflow = workflow
     )
 }
 
