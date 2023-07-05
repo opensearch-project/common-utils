@@ -9,65 +9,54 @@ import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.commons.alerting.model.Table
 
-internal class GetAlertsRequestTests {
+internal class GetWorkflowAlertsRequestTests {
 
     @Test
     fun `test get alerts request`() {
 
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetAlertsRequest(
+        val req = GetWorkflowAlertsRequest(
             table = table,
             severityLevel = "1",
             alertState = "active",
-            monitorId = null,
-            alertIndex = null,
-            monitorIds = listOf("1", "2"),
-            alertIds = listOf("alert1", "alert2"),
+            getAssociatedAlerts = true,
             workflowIds = listOf("w1", "w2"),
+            alertIds = emptyList(),
+            alertIndex = null,
+            monitorIds = emptyList()
         )
         assertNotNull(req)
 
         val out = BytesStreamOutput()
         req.writeTo(out)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
-        val newReq = GetAlertsRequest(sin)
+        val newReq = GetWorkflowAlertsRequest(sin)
 
         assertEquals("1", newReq.severityLevel)
         assertEquals("active", newReq.alertState)
-        assertNull(newReq.monitorId)
         assertEquals(table, newReq.table)
-        assertTrue(newReq.monitorIds!!.contains("1"))
-        assertTrue(newReq.monitorIds!!.contains("2"))
-        assertTrue(newReq.alertIds!!.contains("alert1"))
-        assertTrue(newReq.alertIds!!.contains("alert2"))
         assertTrue(newReq.workflowIds!!.contains("w1"))
         assertTrue(newReq.workflowIds!!.contains("w2"))
-    }
-
-    @Test
-    fun `test get alerts request with filter`() {
-
-        val table = Table("asc", "sortString", null, 1, 0, "")
-        val req = GetAlertsRequest(table, "1", "active", null, null)
-        assertNotNull(req)
-
-        val out = BytesStreamOutput()
-        req.writeTo(out)
-        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
-        val newReq = GetAlertsRequest(sin)
-
-        assertEquals("1", newReq.severityLevel)
-        assertEquals("active", newReq.alertState)
-        assertNull(newReq.monitorId)
-        assertEquals(table, newReq.table)
+        assertTrue(newReq.alertIds!!.isEmpty())
+        assertTrue(newReq.monitorIds!!.isEmpty())
+        assertNull(newReq.alertIndex)
+        assertTrue(newReq.getAssociatedAlerts)
     }
 
     @Test
     fun `test validate returns null`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetAlertsRequest(table, "1", "active", null, null)
+        val req = GetWorkflowAlertsRequest(
+            table = table,
+            severityLevel = "1",
+            alertState = "active",
+            getAssociatedAlerts = true,
+            workflowIds = listOf("w1, w2"),
+            alertIds = emptyList(),
+            alertIndex = null
+        )
         assertNotNull(req)
         assertNull(req.validate())
     }

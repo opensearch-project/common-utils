@@ -11,7 +11,7 @@ import org.opensearch.common.io.stream.NamedWriteableRegistry
 import org.opensearch.common.io.stream.Writeable
 import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
 import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
-import org.opensearch.commons.alerting.action.AcknowledgeWorkflowAlertRequest
+import org.opensearch.commons.alerting.action.AcknowledgeChainedAlertRequest
 import org.opensearch.commons.alerting.action.AlertingActions
 import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
@@ -21,6 +21,7 @@ import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
 import org.opensearch.commons.alerting.action.GetFindingsResponse
+import org.opensearch.commons.alerting.action.GetWorkflowAlertsRequest
 import org.opensearch.commons.alerting.action.GetWorkflowAlertsResponse
 import org.opensearch.commons.alerting.action.GetWorkflowRequest
 import org.opensearch.commons.alerting.action.GetWorkflowResponse
@@ -157,7 +158,7 @@ object AlertingPluginInterface {
      */
     fun getWorkflowAlerts(
         client: NodeClient,
-        request: GetAlertsRequest,
+        request: GetWorkflowAlertsRequest,
         listener: ActionListener<GetWorkflowAlertsResponse>
     ) {
         client.execute(
@@ -271,7 +272,7 @@ object AlertingPluginInterface {
      */
     fun acknowledgeChainedAlerts(
         client: NodeClient,
-        request: AcknowledgeWorkflowAlertRequest,
+        request: AcknowledgeChainedAlertRequest,
         listener: ActionListener<AcknowledgeAlertResponse>
     ) {
         client.execute(
