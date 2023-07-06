@@ -17,7 +17,7 @@ import java.util.Objects;
 import org.apache.http.util.EntityUtils;
 import org.opensearch.client.Response;
 import org.opensearch.common.Nullable;
-import org.opensearch.common.Strings;
+import org.opensearch.core.common.Strings;
 import org.opensearch.common.inject.internal.ToStringBuilder;
 import org.opensearch.common.io.stream.StreamInput;
 import org.opensearch.common.io.stream.StreamOutput;

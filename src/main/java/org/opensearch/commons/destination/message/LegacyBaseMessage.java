@@ -11,7 +11,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.opensearch.common.Strings;
+import org.opensearch.core.common.Strings;
 import org.opensearch.common.io.stream.StreamInput;
 import org.opensearch.common.io.stream.StreamOutput;
 import org.opensearch.common.io.stream.Writeable;
