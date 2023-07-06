@@ -6,6 +6,7 @@ package org.opensearch.commons.alerting
 
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionResponse
+import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
 import org.opensearch.common.io.stream.NamedWriteableRegistry
 import org.opensearch.common.io.stream.Writeable
@@ -16,6 +17,8 @@ import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
 import org.opensearch.commons.alerting.action.DeleteWorkflowRequest
 import org.opensearch.commons.alerting.action.DeleteWorkflowResponse
+import org.opensearch.commons.alerting.action.EventListenerRequest
+import org.opensearch.commons.alerting.action.EventListenerResponse
 import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
@@ -73,6 +76,24 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     DeleteMonitorResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    fun addEventListener(
+        client: NodeClient,
+        request: EventListenerRequest,
+        listener: ActionListener<EventListenerResponse>
+    ) {
+        client.execute(
+            AlertingActions.EVENT_LISTENER_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    EventListenerResponse(
                         it
                     )
                 }
@@ -226,6 +247,25 @@ object AlertingPluginInterface {
     ) {
         client.execute(
             AlertingActions.SUBSCRIBE_FINDINGS_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    SubscribeFindingsResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    fun publishFinding(
+        client: NodeClient,
+        actionType: ActionType<SubscribeFindingsResponse>,
+        request: PublishFindingsRequest,
+        listener: ActionListener<SubscribeFindingsResponse>
+    ) {
+        client.execute(
+            actionType,
             request,
             wrapActionListener(listener) { response ->
                 recreateObject(response) {

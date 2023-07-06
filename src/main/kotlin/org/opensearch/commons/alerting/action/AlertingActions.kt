@@ -16,6 +16,7 @@ object AlertingActions {
     const val GET_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/get"
     const val ACKNOWLEDGE_ALERTS_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/ack"
     const val SUBSCRIBE_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/subscribe"
+    const val EVENT_LISTENER_ACTION_NAME = "cluster:admin/opensearch/alerting/event/listener"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -45,4 +46,7 @@ object AlertingActions {
     @JvmField
     val SUBSCRIBE_FINDINGS_ACTION_TYPE =
         ActionType(SUBSCRIBE_FINDINGS_ACTION_NAME, ::SubscribeFindingsResponse)
+    @JvmField
+    val EVENT_LISTENER_ACTION_TYPE =
+        ActionType(EVENT_LISTENER_ACTION_NAME, ::EventListenerResponse)
 }

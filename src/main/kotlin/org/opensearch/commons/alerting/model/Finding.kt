@@ -86,7 +86,10 @@ class Finding(
             .field(INDEX_FIELD, index)
             .field(QUERIES_FIELD, docLevelQueries.toTypedArray())
             .field(TIMESTAMP_FIELD, timestamp.toEpochMilli())
-            .field(EXECUTION_ID_FIELD, executionId)
+
+        if (executionId != null) {
+            builder.field(EXECUTION_ID_FIELD, executionId)
+        }
         builder.endObject()
         return builder
     }
