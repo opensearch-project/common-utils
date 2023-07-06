@@ -57,6 +57,7 @@ object AlertingActions {
     val SUBSCRIBE_FINDINGS_ACTION_TYPE =
         ActionType(SUBSCRIBE_FINDINGS_ACTION_NAME, ::SubscribeFindingsResponse)
 
+    @JvmField
     val ACKNOWLEDGE_CHAINED_ALERTS_ACTION_TYPE =
         ActionType(ACKNOWLEDGE_CHAINED_ALERTS_ACTION_NAME, ::AcknowledgeAlertResponse)
 }
