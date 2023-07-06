@@ -11,6 +11,7 @@ import org.opensearch.common.io.stream.NamedWriteableRegistry
 import org.opensearch.common.io.stream.Writeable
 import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
 import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
+import org.opensearch.commons.alerting.action.AcknowledgeChainedAlertRequest
 import org.opensearch.commons.alerting.action.AlertingActions
 import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
@@ -20,6 +21,8 @@ import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
 import org.opensearch.commons.alerting.action.GetFindingsResponse
+import org.opensearch.commons.alerting.action.GetWorkflowAlertsRequest
+import org.opensearch.commons.alerting.action.GetWorkflowAlertsResponse
 import org.opensearch.commons.alerting.action.GetWorkflowRequest
 import org.opensearch.commons.alerting.action.GetWorkflowResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
@@ -148,6 +151,30 @@ object AlertingPluginInterface {
     }
 
     /**
+     * Get Workflow Alerts interface.
+     * @param client Node client for making transport action
+     * @param request The request object
+     * @param listener The listener for getting response
+     */
+    fun getWorkflowAlerts(
+        client: NodeClient,
+        request: GetWorkflowAlertsRequest,
+        listener: ActionListener<GetWorkflowAlertsResponse>
+    ) {
+        client.execute(
+            AlertingActions.GET_WORKFLOW_ALERTS_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    GetWorkflowAlertsResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    /**
      * Get Workflow interface.
      * @param client Node client for making transport action
      * @param request The request object
@@ -230,6 +257,30 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     SubscribeFindingsResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    /**
+     * Acknowledge Chained Alerts interface.
+     * @param client Node client for making transport action
+     * @param request The request object
+     * @param listener The listener for getting response
+     */
+    fun acknowledgeChainedAlerts(
+        client: NodeClient,
+        request: AcknowledgeChainedAlertRequest,
+        listener: ActionListener<AcknowledgeAlertResponse>
+    ) {
+        client.execute(
+            AlertingActions.ACKNOWLEDGE_CHAINED_ALERTS_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    AcknowledgeAlertResponse(
                         it
                     )
                 }

@@ -18,18 +18,60 @@ class AcknowledgeAlertResponseTests {
 
         val acknowledged = mutableListOf(
             Alert(
-                "1234", 0L, 1, "monitor-1234", "", "test-monitor", 0L, randomUser(),
-                "trigger-14", "test-trigger", ArrayList(), ArrayList(), Alert.State.ACKNOWLEDGED,
-                Instant.now(), Instant.now(), Instant.now(), Instant.now(), null, ArrayList(),
-                "sev-2", ArrayList(), null
+                id = "1234",
+                version = 0L,
+                schemaVersion = 1,
+                monitorId = "monitor-1234",
+                workflowId = "",
+                workflowName = "",
+                monitorName = "test-monitor",
+                monitorVersion = 0L,
+                monitorUser = randomUser(),
+                triggerId = "trigger-14",
+                triggerName = "test-trigger",
+                findingIds = ArrayList(),
+                relatedDocIds = ArrayList(),
+                state = Alert.State.ACKNOWLEDGED,
+                startTime = Instant.now(),
+                endTime = Instant.now(),
+                lastNotificationTime = Instant.now(),
+                acknowledgedTime = Instant.now(),
+                errorMessage = null,
+                errorHistory = ArrayList(),
+                severity = "sev-2",
+                actionExecutionResults = ArrayList(),
+                aggregationResultBucket = null,
+                executionId = null,
+                associatedAlertIds = emptyList()
             )
         )
         val failed = mutableListOf(
             Alert(
-                "1234", 0L, 1, "monitor-1234", "", "test-monitor", 0L, randomUser(),
-                "trigger-14", "test-trigger", ArrayList(), ArrayList(), Alert.State.ERROR, Instant.now(), Instant.now(),
-                Instant.now(), Instant.now(), null, mutableListOf(AlertError(Instant.now(), "Error msg")),
-                "sev-2", mutableListOf(ActionExecutionResult("7890", null, 0)), null
+                id = "1234",
+                version = 0L,
+                schemaVersion = 1,
+                monitorId = "monitor-1234",
+                workflowId = "",
+                workflowName = "",
+                monitorName = "test-monitor",
+                monitorVersion = 0L,
+                monitorUser = randomUser(),
+                triggerId = "trigger-14",
+                triggerName = "test-trigger",
+                findingIds = ArrayList(),
+                relatedDocIds = ArrayList(),
+                state = Alert.State.ERROR,
+                startTime = Instant.now(),
+                endTime = Instant.now(),
+                lastNotificationTime = Instant.now(),
+                acknowledgedTime = Instant.now(),
+                errorMessage = null,
+                errorHistory = mutableListOf(AlertError(Instant.now(), "Error msg")),
+                severity = "sev-2",
+                actionExecutionResults = mutableListOf(ActionExecutionResult("7890", null, 0)),
+                aggregationResultBucket = null,
+                executionId = null,
+                associatedAlertIds = emptyList()
             )
         )
         val missing = mutableListOf("1", "2", "3", "4")
