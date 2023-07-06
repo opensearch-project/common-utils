@@ -4,7 +4,6 @@
  */
 package org.opensearch.commons.notifications.model
 
-import org.opensearch.common.Strings
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
@@ -18,6 +17,7 @@ import org.opensearch.commons.notifications.model.config.ConfigDataProperties.ge
 import org.opensearch.commons.notifications.model.config.ConfigDataProperties.validateConfigData
 import org.opensearch.commons.utils.fieldIfNotNull
 import org.opensearch.commons.utils.logger
+import org.opensearch.core.common.Strings
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
