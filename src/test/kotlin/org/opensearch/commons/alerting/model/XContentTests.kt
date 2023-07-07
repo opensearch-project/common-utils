@@ -96,7 +96,13 @@ class XContentTests {
         val throttleString = throttle.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
         val wrongThrottleString = throttleString.replace("MINUTES", "wrongunit")
 
-        assertFailsWith<IllegalArgumentException>("Only support MINUTES throttle unit") { Throttle.parse(parser(wrongThrottleString)) }
+        assertFailsWith<IllegalArgumentException>("Only support MINUTES throttle unit") {
+            Throttle.parse(
+                parser(
+                    wrongThrottleString
+                )
+            )
+        }
     }
 
     @Test
@@ -104,7 +110,13 @@ class XContentTests {
         val throttle = randomThrottle().copy(value = -1)
         val throttleString = throttle.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
 
-        assertFailsWith<IllegalArgumentException>("Can only set positive throttle period") { Throttle.parse(parser(throttleString)) }
+        assertFailsWith<IllegalArgumentException>("Can only set positive throttle period") {
+            Throttle.parse(
+                parser(
+                    throttleString
+                )
+            )
+        }
     }
 
     fun `test query-level monitor parsing`() {
@@ -132,7 +144,13 @@ class XContentTests {
             }
         """.trimIndent()
 
-        assertFailsWith<IllegalArgumentException>("Monitor name is null") { Monitor.parse(parser(monitorStringWithoutName)) }
+        assertFailsWith<IllegalArgumentException>("Monitor name is null") {
+            Monitor.parse(
+                parser(
+                    monitorStringWithoutName
+                )
+            )
+        }
     }
 
     @Test
@@ -381,8 +399,14 @@ class XContentTests {
     fun `test alert parsing with noop trigger`() {
         val monitor = randomQueryLevelMonitor()
         val alert = Alert(
-            monitor = monitor, trigger = NoOpTrigger(), startTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-            errorMessage = "some error", lastNotificationTime = Instant.now()
+            id = "",
+            monitor = monitor,
+            trigger = NoOpTrigger(),
+            startTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            errorMessage = "some error",
+            lastNotificationTime = Instant.now(),
+            workflowId = "",
+            executionId = ""
         )
         assertEquals("Round tripping alert doesn't work", alert.triggerName, "NoOp trigger")
     }
@@ -401,12 +425,13 @@ class XContentTests {
 
     @Test
     fun `test alert parsing with user as null`() {
-        val alertStr = "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1,\"monitor_user\":null," +
-            "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
-            "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
-            ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
-            "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+        val alertStr =
+            "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1,\"monitor_user\":null," +
+                "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
+                "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
+                ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
+                "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
+                "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }

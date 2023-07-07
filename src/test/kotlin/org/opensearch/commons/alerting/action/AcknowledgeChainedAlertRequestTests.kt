@@ -7,6 +7,7 @@ package org.opensearch.commons.alerting.action
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.io.stream.StreamInput
@@ -23,5 +24,6 @@ class AcknowledgeChainedAlertRequestTests {
         val newReq = AcknowledgeChainedAlertRequest(sin)
         assertEquals("1234", newReq.workflowId)
         assertEquals(4, newReq.alertIds.size)
+        assertNull(newReq.validate())
     }
 }
