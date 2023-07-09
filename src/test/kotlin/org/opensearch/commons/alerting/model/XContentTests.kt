@@ -188,6 +188,14 @@ class XContentTests {
     }
 
     @Test
+    fun `test composite workflow parsing with auditDelegateMonitorAlerts flag disabled`() {
+        val workflow = randomWorkflow(auditDelegateMonitorAlerts = false)
+        val monitorString = workflow.toJsonStringWithUser()
+        val parsedMonitor = Workflow.parse(parser(monitorString))
+        Assertions.assertEquals(workflow, parsedMonitor, "Round tripping BucketLevelMonitor doesn't work")
+    }
+
+    @Test
     fun `test query-level trigger parsing`() {
         val trigger = randomQueryLevelTrigger()
 

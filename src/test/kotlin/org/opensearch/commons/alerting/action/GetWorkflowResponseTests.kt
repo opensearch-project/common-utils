@@ -11,7 +11,7 @@ class GetWorkflowResponseTests {
 
     @Test
     fun testGetWorkflowRequest() {
-        val workflow = randomWorkflow()
+        val workflow = randomWorkflow(auditDelegateMonitorAlerts = false)
         val response = GetWorkflowResponse(
             id = "id", version = 1, seqNo = 1, primaryTerm = 1, status = RestStatus.OK, workflow = workflow
         )
@@ -20,6 +20,7 @@ class GetWorkflowResponseTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newRes = GetWorkflowResponse(sin)
         Assertions.assertEquals("id", newRes.id)
+        Assertions.assertFalse(newRes.workflow!!.auditDelegateMonitorAlerts!!)
         Assertions.assertEquals(workflow.name, newRes.workflow!!.name)
         Assertions.assertEquals(workflow.owner, newRes.workflow!!.owner)
     }
