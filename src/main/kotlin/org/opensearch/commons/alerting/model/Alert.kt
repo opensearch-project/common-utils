@@ -46,7 +46,7 @@ data class Alert(
 ) : Writeable, ToXContent {
 
     init {
-        if (errorMessage != null) require(state == State.DELETED || state == State.ERROR || state == State.DELETED) {
+        if (errorMessage != null) require(state == State.DELETED || state == State.ERROR || state == State.AUDIT) {
             "Attempt to create an alert with an error in state: $state"
         }
     }
