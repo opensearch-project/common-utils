@@ -29,7 +29,7 @@ class IndexWorkflowRequestTests {
 
         val req = IndexWorkflowRequest(
             "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.POST,
-            randomWorkflow()
+            randomWorkflow(auditDelegateMonitorAlerts = false)
         )
         Assertions.assertNotNull(req)
 
@@ -42,6 +42,7 @@ class IndexWorkflowRequestTests {
         Assertions.assertEquals(2L, newReq.primaryTerm)
         Assertions.assertEquals(RestRequest.Method.POST, newReq.method)
         Assertions.assertNotNull(newReq.workflow)
+        Assertions.assertFalse(newReq.workflow.auditDelegateMonitorAlerts!!)
     }
 
     @Test
