@@ -46,7 +46,7 @@ data class Alert(
 ) : Writeable, ToXContent {
 
     init {
-        if (errorMessage != null) require(state == State.DELETED || state == State.ERROR) {
+        if (errorMessage != null) require(state == State.DELETED || state == State.ERROR || state == State.AUDIT) {
             "Attempt to create an alert with an error in state: $state"
         }
     }
@@ -421,7 +421,9 @@ data class Alert(
                     SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
                     MONITOR_NAME_FIELD -> monitorName = xcp.text()
                     MONITOR_VERSION_FIELD -> monitorVersion = xcp.longValue()
-                    MONITOR_USER_FIELD -> monitorUser = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else User.parse(xcp)
+                    MONITOR_USER_FIELD ->
+                        monitorUser = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null
+                        else User.parse(xcp)
                     TRIGGER_ID_FIELD -> triggerId = xcp.text()
                     FINDING_IDS -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
