@@ -395,7 +395,10 @@ fun randomDocLevelMonitorInput(
 }
 
 fun randomClusterMetricsInput(
-    path: String = ClusterMetricsInput.ClusterMetricType.CLUSTER_HEALTH.defaultPath,
+    path: String = ClusterMetricsInput.ClusterMetricType.values()
+        .filter { it.defaultPath.isNotBlank() && !it.requiresPathParams }
+        .random()
+        .defaultPath,
     pathParams: String = "",
     url: String = ""
 ): ClusterMetricsInput {

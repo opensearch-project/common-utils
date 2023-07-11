@@ -261,6 +261,13 @@ data class ClusterMetricsInput(
         val requiresPathParams: Boolean
     ) {
         BLANK("", "", "", false, false),
+        CAT_INDICES(
+            "/_cat/indices",
+            "/_cat/indices",
+            "",
+            true,
+            false
+        ),
         CAT_PENDING_TASKS(
             "/_cat/pending_tasks",
             "/_cat/pending_tasks",
@@ -271,6 +278,13 @@ data class ClusterMetricsInput(
         CAT_RECOVERY(
             "/_cat/recovery",
             "/_cat/recovery",
+            "",
+            true,
+            false
+        ),
+        CAT_SHARDS(
+            "/_cat/shards",
+            "/_cat/shards",
             "",
             true,
             false
