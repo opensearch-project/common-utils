@@ -12,6 +12,7 @@ class GetWorkflowAlertsRequest : ActionRequest {
     val severityLevel: String
     val alertState: String
     val alertIndex: String?
+    val associatedAlertsIndex: String?
     val monitorIds: List<String>?
     val workflowIds: List<String>?
     val alertIds: List<String>?
@@ -22,15 +23,17 @@ class GetWorkflowAlertsRequest : ActionRequest {
         severityLevel: String,
         alertState: String,
         alertIndex: String?,
+        associatedAlertsIndex: String?,
         monitorIds: List<String>? = null,
         workflowIds: List<String>? = null,
         alertIds: List<String>? = null,
-        getAssociatedAlerts: Boolean
+        getAssociatedAlerts: Boolean,
     ) : super() {
         this.table = table
         this.severityLevel = severityLevel
         this.alertState = alertState
         this.alertIndex = alertIndex
+        this.associatedAlertsIndex = associatedAlertsIndex
         this.monitorIds = monitorIds
         this.workflowIds = workflowIds
         this.alertIds = alertIds
@@ -43,6 +46,7 @@ class GetWorkflowAlertsRequest : ActionRequest {
         severityLevel = sin.readString(),
         alertState = sin.readString(),
         alertIndex = sin.readOptionalString(),
+        associatedAlertsIndex = sin.readOptionalString(),
         monitorIds = sin.readOptionalStringList(),
         workflowIds = sin.readOptionalStringList(),
         alertIds = sin.readOptionalStringList(),
@@ -59,6 +63,7 @@ class GetWorkflowAlertsRequest : ActionRequest {
         out.writeString(severityLevel)
         out.writeString(alertState)
         out.writeOptionalString(alertIndex)
+        out.writeOptionalString(associatedAlertsIndex)
         out.writeOptionalStringCollection(monitorIds)
         out.writeOptionalStringCollection(workflowIds)
         out.writeOptionalStringCollection(alertIds)
