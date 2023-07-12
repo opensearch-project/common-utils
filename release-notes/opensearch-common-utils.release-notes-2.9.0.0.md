@@ -1,6 +1,6 @@
-## Version 2.8.0.0 2023-05-26
+## Version 2.9.0.0 2023-07-11
 
-Compatible with OpenSearch 2.8.0
+Compatible with OpenSearch 2.9.0
 
 ### Maintenance
 * Increment version to 2.9.0-SNAPSHOT. ([#444](https://github.com/opensearch-project/common-utils/pull/444))
