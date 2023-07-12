@@ -23,4 +23,4 @@ Compatible with OpenSearch 2.8.0
 * Pass workflow id in alert constructors. ([#465](https://github.com/opensearch-project/common-utils/pull/465))
 
 ### Documentation
-* Added 2.9 release notes. ([#]())
+* Added 2.9 release notes. ([#482](https://github.com/opensearch-project/common-utils/pull/482))
