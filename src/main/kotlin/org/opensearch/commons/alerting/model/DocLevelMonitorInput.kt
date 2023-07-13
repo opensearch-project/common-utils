@@ -1,14 +1,14 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
+import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.core.xcontent.XContentParserUtils
-import org.opensearch.core.ParseField
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 data class DocLevelMonitorInput(

@@ -7,8 +7,8 @@ package org.opensearch.commons.notifications.action
 
 import org.opensearch.action.ActionResponse
 import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.xcontent.ToXContentObject
 import org.opensearch.core.rest.RestStatus
+import org.opensearch.core.xcontent.ToXContentObject
 import java.io.IOException
 
 /**

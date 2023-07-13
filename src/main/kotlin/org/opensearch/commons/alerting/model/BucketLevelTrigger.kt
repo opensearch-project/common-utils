@@ -2,8 +2,6 @@ package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
 import org.opensearch.common.UUIDs
-import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
 import org.opensearch.commons.alerting.model.Trigger.Companion.ACTIONS_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.ID_FIELD
@@ -11,6 +9,8 @@ import org.opensearch.commons.alerting.model.Trigger.Companion.NAME_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.SEVERITY_FIELD
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.core.ParseField
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder

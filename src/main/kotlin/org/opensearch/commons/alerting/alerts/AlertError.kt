@@ -1,14 +1,14 @@
 package org.opensearch.commons.alerting.alerts
 
+import org.opensearch.commons.alerting.util.instant
+import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.common.io.stream.Writeable
-import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
-import org.opensearch.commons.alerting.util.instant
-import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
 import java.time.Instant
 

@@ -4,20 +4,20 @@
  */
 package org.opensearch.commons.notifications.model
 
-import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.common.xcontent.XContentHelper
-import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.notifications.NotificationConstants.EVENT_SOURCE_TAG
 import org.opensearch.commons.notifications.NotificationConstants.STATUS_LIST_TAG
 import org.opensearch.commons.utils.logger
 import org.opensearch.commons.utils.objectList
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.ToXContent.EMPTY_PARAMS
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 /**

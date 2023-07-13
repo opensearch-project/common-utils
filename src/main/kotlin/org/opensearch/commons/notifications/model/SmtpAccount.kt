@@ -4,10 +4,6 @@
  */
 package org.opensearch.commons.notifications.model
 
-import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.core.common.io.stream.Writeable
-import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.FROM_ADDRESS_TAG
 import org.opensearch.commons.notifications.NotificationConstants.HOST_TAG
 import org.opensearch.commons.notifications.NotificationConstants.METHOD_TAG
@@ -15,9 +11,13 @@ import org.opensearch.commons.notifications.NotificationConstants.PORT_TAG
 import org.opensearch.commons.utils.logger
 import org.opensearch.commons.utils.validateEmail
 import org.opensearch.core.common.Strings
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 /**
