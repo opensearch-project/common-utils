@@ -1,7 +1,7 @@
 package org.opensearch.commons.alerting.action
 
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.util.IndexUtils
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.core.xcontent.ToXContent

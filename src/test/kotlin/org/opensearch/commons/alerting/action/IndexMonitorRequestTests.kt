@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.action.support.WriteRequest
 import org.opensearch.common.io.stream.BytesStreamOutput
-import org.opensearch.common.io.stream.NamedWriteableAwareStreamInput
-import org.opensearch.common.io.stream.NamedWriteableRegistry
-import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.NamedWriteableAwareStreamInput
+import org.opensearch.core.common.io.stream.NamedWriteableRegistry
+import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.model.SearchInput
 import org.opensearch.commons.alerting.randomBucketLevelMonitor

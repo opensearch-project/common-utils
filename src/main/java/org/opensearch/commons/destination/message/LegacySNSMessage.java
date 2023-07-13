@@ -7,8 +7,8 @@ package org.opensearch.commons.destination.message;
 
 import java.io.IOException;
 
-import org.opensearch.common.io.stream.StreamInput;
-import org.opensearch.common.io.stream.StreamOutput;
+import org.opensearch.core.common.io.stream.StreamInput;
+import org.opensearch.core.common.io.stream.StreamOutput;
 import org.opensearch.commons.destination.util.Util;
 import org.opensearch.core.common.Strings;
 

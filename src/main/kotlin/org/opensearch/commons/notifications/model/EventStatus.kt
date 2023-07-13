@@ -5,10 +5,10 @@
 
 package org.opensearch.commons.notifications.model
 
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_ID_TAG
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_NAME_TAG
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_TYPE_TAG

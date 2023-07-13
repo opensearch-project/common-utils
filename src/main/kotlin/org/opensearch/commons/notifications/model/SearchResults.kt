@@ -9,10 +9,10 @@ import org.apache.lucene.search.TotalHits.Relation
 import org.apache.lucene.search.TotalHits.Relation.EQUAL_TO
 import org.apache.lucene.search.TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO
 import org.opensearch.action.search.SearchResponse
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.START_INDEX_TAG
 import org.opensearch.commons.notifications.NotificationConstants.TOTAL_HITS_TAG
 import org.opensearch.commons.notifications.NotificationConstants.TOTAL_HIT_RELATION_TAG

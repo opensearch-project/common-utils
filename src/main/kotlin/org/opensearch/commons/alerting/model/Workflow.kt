@@ -1,9 +1,9 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.WORKFLOW_MAX_INPUTS
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID

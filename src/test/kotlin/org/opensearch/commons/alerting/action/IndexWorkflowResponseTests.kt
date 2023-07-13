@@ -3,7 +3,7 @@ package org.opensearch.commons.alerting.action
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
-import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.commons.alerting.model.ChainedAlertTrigger
 import org.opensearch.commons.alerting.model.CronSchedule
 import org.opensearch.commons.alerting.model.Workflow

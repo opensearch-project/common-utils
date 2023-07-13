@@ -5,8 +5,8 @@
 
 package org.opensearch.commons.utils
 
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.common.xcontent.XContentType
 import org.opensearch.core.xcontent.DeprecationHandler
 import org.opensearch.core.xcontent.NamedXContentRegistry

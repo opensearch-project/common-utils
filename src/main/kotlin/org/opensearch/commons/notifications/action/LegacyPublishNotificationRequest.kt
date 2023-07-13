@@ -7,9 +7,9 @@ package org.opensearch.commons.notifications.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.io.stream.Writeable
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.commons.destination.message.LegacyBaseMessage
 import org.opensearch.commons.destination.message.LegacyChimeMessage
 import org.opensearch.commons.destination.message.LegacyCustomWebhookMessage

@@ -3,12 +3,12 @@ package org.opensearch.commons.alerting.action
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
-import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.Finding
 import org.opensearch.commons.alerting.model.FindingDocument
 import org.opensearch.commons.alerting.model.FindingWithDocs
-import org.opensearch.rest.RestStatus
+import org.opensearch.core.rest.RestStatus
 import java.time.Instant
 
 internal class GetFindingsResponseTests {

@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
-import org.opensearch.common.io.stream.StreamInput;
-import org.opensearch.common.io.stream.StreamOutput;
+import org.opensearch.core.common.io.stream.StreamInput;
+import org.opensearch.core.common.io.stream.StreamOutput;
 import org.opensearch.commons.notifications.model.MethodType;
 import org.opensearch.core.common.Strings;
 

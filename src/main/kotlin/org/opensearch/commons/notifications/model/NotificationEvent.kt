@@ -4,11 +4,11 @@
  */
 package org.opensearch.commons.notifications.model
 
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.io.stream.Writeable
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.common.xcontent.XContentHelper
-import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.notifications.NotificationConstants.EVENT_SOURCE_TAG
 import org.opensearch.commons.notifications.NotificationConstants.STATUS_LIST_TAG

@@ -4,7 +4,7 @@
  */
 package org.opensearch.commons.notifications.model.config
 
-import org.opensearch.common.io.stream.Writeable.Reader
+import org.opensearch.core.common.io.stream.Writeable.Reader
 import org.opensearch.commons.notifications.model.BaseConfigData
 import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType

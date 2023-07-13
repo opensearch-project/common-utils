@@ -1,10 +1,10 @@
 package org.opensearch.commons.alerting.util
 
-import org.opensearch.common.bytes.BytesReference
-import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.settings.SupportedClusterMetricsSettings
 import org.opensearch.commons.authuser.User
+import org.opensearch.core.common.bytes.BytesReference
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import java.time.Instant
