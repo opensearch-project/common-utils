@@ -116,7 +116,7 @@ class Finding(
         const val EXECUTION_ID_FIELD = "execution_id"
         const val NO_ID = ""
 
-        @JvmStatic @JvmOverloads
+        @JvmStatic
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): Finding {
             var id: String = NO_ID
