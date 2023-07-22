@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
-import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.commons.alerting.model.Table
+import org.opensearch.core.common.io.stream.StreamInput
 
 internal class GetFindingsRequestTests {
 
