@@ -1,9 +1,9 @@
 package org.opensearch.commons.alerting.aggregation.bucketselectorext
 
 import org.apache.lucene.util.BytesRef
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder.Companion.NAME
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.script.BucketAggregationSelectorScript
 import org.opensearch.script.Script
 import org.opensearch.search.DocValueFormat
@@ -33,7 +33,7 @@ class BucketSelectorExtAggregator : SiblingPipelineAggregator {
         script: Script,
         gapPolicy: BucketHelpers.GapPolicy,
         filter: BucketSelectorExtFilter?,
-        metadata: Map<String, Any>?
+        metadata: Map<String, Any>?,
     ) : super(name, bucketsPathsMap.values.toTypedArray(), metadata) {
         this.bucketsPathsMap = bucketsPathsMap
         this.parentBucketPath = parentBucketPath
@@ -132,7 +132,7 @@ class BucketSelectorExtAggregator : SiblingPipelineAggregator {
             name(),
             parentBucketPath,
             selectedBucketsIndex,
-            originalAgg.metadata
+            originalAgg.metadata,
         )
     }
 
