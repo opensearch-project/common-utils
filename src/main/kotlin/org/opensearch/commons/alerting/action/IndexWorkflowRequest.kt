@@ -4,10 +4,10 @@ import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.ValidateActions
 import org.opensearch.action.support.WriteRequest
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.model.CompositeInput
 import org.opensearch.commons.alerting.model.Workflow
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
 import java.io.IOException
 import java.util.stream.Collectors
@@ -105,17 +105,17 @@ class IndexWorkflowRequest : ActionRequest {
         val monitorIdOrderMap: Map<String, Int> = delegates.associate { it.monitorId to it.order }
         delegates.forEach {
             if (it.chainedMonitorFindings != null) {
-                if (monitorIdOrderMap.containsKey(it.chainedMonitorFindings!!.monitorId) == false) {
+                if (monitorIdOrderMap.containsKey(it.chainedMonitorFindings.monitorId) == false) {
                     validationException = ValidateActions.addValidationError(
-                        "Chained Findings Monitor ${it.chainedMonitorFindings!!.monitorId} doesn't exist in sequence",
+                        "Chained Findings Monitor ${it.chainedMonitorFindings.monitorId} doesn't exist in sequence",
                         validationException
                     )
                     // Break the flow because next check will generate the NPE
                     return validationException
                 }
-                if (it.order <= monitorIdOrderMap[it.chainedMonitorFindings!!.monitorId]!!) {
+                if (it.order <= monitorIdOrderMap[it.chainedMonitorFindings.monitorId]!!) {
                     validationException = ValidateActions.addValidationError(
-                        "Chained Findings Monitor ${it.chainedMonitorFindings!!.monitorId} should be executed before monitor ${it.monitorId}",
+                        "Chained Findings Monitor ${it.chainedMonitorFindings.monitorId} should be executed before monitor ${it.monitorId}",
                         validationException
                     )
                 }

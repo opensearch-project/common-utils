@@ -173,6 +173,7 @@ fun randomWorkflow(
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
     triggers: List<Trigger> = listOf(randomChainedAlertTrigger()),
+    auditDelegateMonitorAlerts: Boolean? = true
 ): Workflow {
     val delegates = mutableListOf<Delegate>()
     if (!monitorIds.isNullOrEmpty()) {
@@ -195,7 +196,7 @@ fun randomWorkflow(
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
         schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        triggers = triggers
+        triggers = triggers, auditDelegateMonitorAlerts = auditDelegateMonitorAlerts
     )
 }
 
@@ -394,7 +395,10 @@ fun randomDocLevelMonitorInput(
 }
 
 fun randomClusterMetricsInput(
-    path: String = ClusterMetricsInput.ClusterMetricType.CLUSTER_HEALTH.defaultPath,
+    path: String = ClusterMetricsInput.ClusterMetricType.values()
+        .filter { it.defaultPath.isNotBlank() && !it.requiresPathParams }
+        .random()
+        .defaultPath,
     pathParams: String = "",
     url: String = ""
 ): ClusterMetricsInput {
@@ -535,7 +539,8 @@ fun randomChainedAlert(
         errorMessage = null,
         executionId = UUID.randomUUID().toString(),
         chainedAlertTrigger = trigger,
-        workflow = workflow
+        workflow = workflow,
+        associatedAlertIds = listOf("a1")
     )
 }
 

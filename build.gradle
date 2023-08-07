@@ -9,7 +9,7 @@ buildscript {
         opensearch_version = System.getProperty("opensearch.version", "3.0.0-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
-        kotlin_version = System.getProperty("kotlin.version", "1.6.10")
+        kotlin_version = System.getProperty("kotlin.version", "1.8.21")
     }
 
     repositories {
@@ -114,7 +114,7 @@ spotless {
     buildUponDefaultConfig = true
 }*/
 
-task ktlint(type: JavaExec, group: "verification") {
+tasks.register('ktlint', JavaExec) {
     description = "Check Kotlin code style."
     main = "com.pinterest.ktlint.Main"
     classpath = configurations.ktlint
@@ -126,10 +126,12 @@ task ktlint(type: JavaExec, group: "verification") {
 
 check.dependsOn ktlint
 
-task ktlintFormat(type: JavaExec, group: "formatting") {
+tasks.register('ktlintFormat', JavaExec) {
     description = "Fix Kotlin code style deviations."
-    main = "com.pinterest.ktlint.Main"
     classpath = configurations.ktlint
+    // https://github.com/pinterest/ktlint/issues/1391#issuecomment-1251287020
+    jvmArgs "--add-opens=java.base/java.lang=ALL-UNNAMED"
+    setProperty("mainClass", "com.pinterest.ktlint.Main")
     args "-F", "src/**/*.kt"
 }
 

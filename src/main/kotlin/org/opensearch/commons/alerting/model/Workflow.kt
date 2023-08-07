@@ -1,9 +1,6 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.WORKFLOW_MAX_INPUTS
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
@@ -13,10 +10,13 @@ import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.commons.alerting.util.optionalUserField
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.ParseField
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
 import java.util.Locale
@@ -36,7 +36,8 @@ data class Workflow(
     val schemaVersion: Int = NO_SCHEMA_VERSION,
     val inputs: List<WorkflowInput>,
     val owner: String? = DEFAULT_OWNER,
-    val triggers: List<Trigger>
+    val triggers: List<Trigger>,
+    val auditDelegateMonitorAlerts: Boolean? = true,
 ) : ScheduledJob {
     override val type = WORKFLOW_TYPE
 
@@ -70,7 +71,8 @@ data class Workflow(
         schemaVersion = sin.readInt(),
         inputs = sin.readList((WorkflowInput)::readFrom),
         owner = sin.readOptionalString(),
-        triggers = sin.readList((Trigger)::readFrom)
+        triggers = sin.readList((Trigger)::readFrom),
+        auditDelegateMonitorAlerts = sin.readOptionalBoolean()
     )
 
     // This enum classifies different workflows
@@ -99,7 +101,7 @@ data class Workflow(
     private fun createXContentBuilder(
         builder: XContentBuilder,
         params: ToXContent.Params,
-        secure: Boolean
+        secure: Boolean,
     ): XContentBuilder {
         builder.startObject()
         if (params.paramAsBoolean("with_type", false)) builder.startObject(type)
@@ -119,6 +121,9 @@ data class Workflow(
             .field(TRIGGERS_FIELD, triggers.toTypedArray())
             .optionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
         builder.field(OWNER_FIELD, owner)
+        if (auditDelegateMonitorAlerts != null) {
+            builder.field(AUDIT_DELEGATE_MONITOR_ALERTS_FIELD, auditDelegateMonitorAlerts)
+        }
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
     }
@@ -159,6 +164,7 @@ data class Workflow(
             }
             it.writeTo(out)
         }
+        out.writeOptionalBoolean(auditDelegateMonitorAlerts)
     }
 
     companion object {
@@ -177,6 +183,7 @@ data class Workflow(
         const val ENABLED_TIME_FIELD = "enabled_time"
         const val TRIGGERS_FIELD = "triggers"
         const val OWNER_FIELD = "owner"
+        const val AUDIT_DELEGATE_MONITOR_ALERTS_FIELD = "audit_delegate_monitor_alerts"
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
         // the different subclasses and creating circular dependencies
@@ -201,6 +208,7 @@ data class Workflow(
             val inputs: MutableList<WorkflowInput> = mutableListOf()
             val triggers: MutableList<Trigger> = mutableListOf()
             var owner = DEFAULT_OWNER
+            var auditDelegateMonitorAlerts = true
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -245,6 +253,7 @@ data class Workflow(
                     }
                     ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
+                    AUDIT_DELEGATE_MONITOR_ALERTS_FIELD -> auditDelegateMonitorAlerts = xcp.booleanValue()
                     OWNER_FIELD -> {
                         owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
                     }
@@ -272,7 +281,8 @@ data class Workflow(
                 schemaVersion,
                 inputs.toList(),
                 owner,
-                triggers
+                triggers,
+                auditDelegateMonitorAlerts
             )
         }
 

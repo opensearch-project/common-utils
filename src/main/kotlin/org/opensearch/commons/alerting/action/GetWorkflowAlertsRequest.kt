@@ -7,34 +7,37 @@ import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 
-class GetAlertsRequest : ActionRequest {
+class GetWorkflowAlertsRequest : ActionRequest {
     val table: Table
     val severityLevel: String
     val alertState: String
-    val monitorId: String?
     val alertIndex: String?
+    val associatedAlertsIndex: String?
     val monitorIds: List<String>?
     val workflowIds: List<String>?
     val alertIds: List<String>?
+    val getAssociatedAlerts: Boolean
 
     constructor(
         table: Table,
         severityLevel: String,
         alertState: String,
-        monitorId: String?,
         alertIndex: String?,
+        associatedAlertsIndex: String?,
         monitorIds: List<String>? = null,
         workflowIds: List<String>? = null,
-        alertIds: List<String>? = null
+        alertIds: List<String>? = null,
+        getAssociatedAlerts: Boolean,
     ) : super() {
         this.table = table
         this.severityLevel = severityLevel
         this.alertState = alertState
-        this.monitorId = monitorId
         this.alertIndex = alertIndex
+        this.associatedAlertsIndex = associatedAlertsIndex
         this.monitorIds = monitorIds
         this.workflowIds = workflowIds
         this.alertIds = alertIds
+        this.getAssociatedAlerts = getAssociatedAlerts
     }
 
     @Throws(IOException::class)
@@ -42,11 +45,12 @@ class GetAlertsRequest : ActionRequest {
         table = Table.readFrom(sin),
         severityLevel = sin.readString(),
         alertState = sin.readString(),
-        monitorId = sin.readOptionalString(),
         alertIndex = sin.readOptionalString(),
+        associatedAlertsIndex = sin.readOptionalString(),
         monitorIds = sin.readOptionalStringList(),
         workflowIds = sin.readOptionalStringList(),
-        alertIds = sin.readOptionalStringList()
+        alertIds = sin.readOptionalStringList(),
+        getAssociatedAlerts = sin.readBoolean()
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -58,10 +62,11 @@ class GetAlertsRequest : ActionRequest {
         table.writeTo(out)
         out.writeString(severityLevel)
         out.writeString(alertState)
-        out.writeOptionalString(monitorId)
         out.writeOptionalString(alertIndex)
+        out.writeOptionalString(associatedAlertsIndex)
         out.writeOptionalStringCollection(monitorIds)
         out.writeOptionalStringCollection(workflowIds)
         out.writeOptionalStringCollection(alertIds)
+        out.writeBoolean(getAssociatedAlerts)
     }
 }

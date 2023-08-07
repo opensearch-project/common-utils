@@ -1,13 +1,13 @@
 package org.opensearch.commons.alerting.model
 
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.XContentParserUtils.ensureExpectedToken
 import org.opensearch.commons.alerting.util.instant
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
 import java.time.Instant
 
@@ -116,7 +116,7 @@ class Finding(
         const val EXECUTION_ID_FIELD = "execution_id"
         const val NO_ID = ""
 
-        @JvmStatic @JvmOverloads
+        @JvmStatic
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): Finding {
             var id: String = NO_ID

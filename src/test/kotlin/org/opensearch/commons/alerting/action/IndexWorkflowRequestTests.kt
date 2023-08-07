@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.action.support.WriteRequest
 import org.opensearch.common.io.stream.BytesStreamOutput
-import org.opensearch.common.io.stream.NamedWriteableAwareStreamInput
-import org.opensearch.common.io.stream.NamedWriteableRegistry
-import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.model.ChainedMonitorFindings
 import org.opensearch.commons.alerting.model.CompositeInput
@@ -16,6 +13,9 @@ import org.opensearch.commons.alerting.model.Sequence
 import org.opensearch.commons.alerting.randomWorkflow
 import org.opensearch.commons.alerting.randomWorkflowWithDelegates
 import org.opensearch.commons.utils.recreateObject
+import org.opensearch.core.common.io.stream.NamedWriteableAwareStreamInput
+import org.opensearch.core.common.io.stream.NamedWriteableRegistry
+import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.rest.RestRequest
 import org.opensearch.search.SearchModule
 import java.lang.Exception
@@ -29,7 +29,7 @@ class IndexWorkflowRequestTests {
 
         val req = IndexWorkflowRequest(
             "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.POST,
-            randomWorkflow()
+            randomWorkflow(auditDelegateMonitorAlerts = false)
         )
         Assertions.assertNotNull(req)
 
@@ -42,6 +42,7 @@ class IndexWorkflowRequestTests {
         Assertions.assertEquals(2L, newReq.primaryTerm)
         Assertions.assertEquals(RestRequest.Method.POST, newReq.method)
         Assertions.assertNotNull(newReq.workflow)
+        Assertions.assertFalse(newReq.workflow.auditDelegateMonitorAlerts!!)
     }
 
     @Test

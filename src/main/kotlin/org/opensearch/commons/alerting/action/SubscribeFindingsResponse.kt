@@ -1,11 +1,11 @@
 package org.opensearch.commons.alerting.action
 
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.commons.notifications.action.BaseResponse
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.rest.RestStatus
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
-import org.opensearch.rest.RestStatus
 import java.io.IOException
 
 class SubscribeFindingsResponse : BaseResponse {

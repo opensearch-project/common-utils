@@ -12,10 +12,10 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
-import org.opensearch.common.io.stream.NamedWriteableRegistry
 import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
 import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
+import org.opensearch.commons.alerting.action.AcknowledgeChainedAlertRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
 import org.opensearch.commons.alerting.action.DeleteWorkflowRequest
@@ -24,6 +24,8 @@ import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
 import org.opensearch.commons.alerting.action.GetFindingsResponse
+import org.opensearch.commons.alerting.action.GetWorkflowAlertsRequest
+import org.opensearch.commons.alerting.action.GetWorkflowAlertsResponse
 import org.opensearch.commons.alerting.action.GetWorkflowRequest
 import org.opensearch.commons.alerting.action.GetWorkflowResponse
 import org.opensearch.commons.alerting.action.IndexMonitorRequest
@@ -36,8 +38,9 @@ import org.opensearch.commons.alerting.model.FindingDocument
 import org.opensearch.commons.alerting.model.FindingWithDocs
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.Workflow
+import org.opensearch.core.common.io.stream.NamedWriteableRegistry
+import org.opensearch.core.rest.RestStatus
 import org.opensearch.index.seqno.SequenceNumbers
-import org.opensearch.rest.RestStatus
 import org.opensearch.search.SearchModule
 
 @Suppress("UNCHECKED_CAST")
@@ -52,7 +55,13 @@ internal class AlertingPluginInterfaceTests {
         val monitor = randomQueryLevelMonitor()
 
         val request = mock(IndexMonitorRequest::class.java)
-        val response = IndexMonitorResponse(Monitor.NO_ID, Monitor.NO_VERSION, SequenceNumbers.UNASSIGNED_SEQ_NO, SequenceNumbers.UNASSIGNED_PRIMARY_TERM, monitor)
+        val response = IndexMonitorResponse(
+            Monitor.NO_ID,
+            Monitor.NO_VERSION,
+            SequenceNumbers.UNASSIGNED_SEQ_NO,
+            SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
+            monitor
+        )
         val listener: ActionListener<IndexMonitorResponse> =
             mock(ActionListener::class.java) as ActionListener<IndexMonitorResponse>
         val namedWriteableRegistry = NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)
@@ -95,7 +104,13 @@ internal class AlertingPluginInterfaceTests {
         val monitor = randomBucketLevelMonitor()
 
         val request = mock(IndexMonitorRequest::class.java)
-        val response = IndexMonitorResponse(Monitor.NO_ID, Monitor.NO_VERSION, SequenceNumbers.UNASSIGNED_SEQ_NO, SequenceNumbers.UNASSIGNED_PRIMARY_TERM, monitor)
+        val response = IndexMonitorResponse(
+            Monitor.NO_ID,
+            Monitor.NO_VERSION,
+            SequenceNumbers.UNASSIGNED_SEQ_NO,
+            SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
+            monitor
+        )
         val listener: ActionListener<IndexMonitorResponse> =
             mock(ActionListener::class.java) as ActionListener<IndexMonitorResponse>
         val namedWriteableRegistry = NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)
@@ -174,6 +189,21 @@ internal class AlertingPluginInterfaceTests {
     }
 
     @Test
+    fun getWorkflowAlerts() {
+        val request = mock(GetWorkflowAlertsRequest::class.java)
+        val response = GetWorkflowAlertsResponse(listOf(randomChainedAlert()), emptyList(), 1)
+        val listener: ActionListener<GetWorkflowAlertsResponse> =
+            mock(ActionListener::class.java) as ActionListener<GetWorkflowAlertsResponse>
+
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<GetWorkflowAlertsResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        AlertingPluginInterface.getWorkflowAlerts(client, request, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
     fun getFindings() {
         val finding = randomFinding()
         val documentIds = finding.relatedDocIds
@@ -223,6 +253,20 @@ internal class AlertingPluginInterfaceTests {
                 .onResponse(response)
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.acknowledgeAlerts(client, request, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
+    fun acknowledgeChainedAlerts() {
+        val request = mock(AcknowledgeChainedAlertRequest::class.java)
+        val response = AcknowledgeAlertResponse(acknowledged = listOf(), failed = listOf(), missing = listOf())
+        val listener: ActionListener<AcknowledgeAlertResponse> =
+            mock(ActionListener::class.java) as ActionListener<AcknowledgeAlertResponse>
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<AcknowledgeAlertResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        AlertingPluginInterface.acknowledgeChainedAlerts(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 }

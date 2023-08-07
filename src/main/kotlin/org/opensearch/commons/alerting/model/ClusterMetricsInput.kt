@@ -3,14 +3,14 @@ package org.opensearch.commons.alerting.model
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.hc.core5.net.URIBuilder
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.core.ParseField
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.net.URI
 import java.net.URISyntaxException
@@ -261,6 +261,13 @@ data class ClusterMetricsInput(
         val requiresPathParams: Boolean
     ) {
         BLANK("", "", "", false, false),
+        CAT_INDICES(
+            "/_cat/indices",
+            "/_cat/indices",
+            "",
+            true,
+            false
+        ),
         CAT_PENDING_TASKS(
             "/_cat/pending_tasks",
             "/_cat/pending_tasks",
@@ -271,6 +278,13 @@ data class ClusterMetricsInput(
         CAT_RECOVERY(
             "/_cat/recovery",
             "/_cat/recovery",
+            "",
+            true,
+            false
+        ),
+        CAT_SHARDS(
+            "/_cat/shards",
+            "/_cat/shards",
             "",
             true,
             false
