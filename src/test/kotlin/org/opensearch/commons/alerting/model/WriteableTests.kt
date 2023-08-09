@@ -18,7 +18,7 @@ import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
 import org.opensearch.commons.alerting.randomWorkflow
 import org.opensearch.commons.authuser.User
-import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.search.builder.SearchSourceBuilder
 
 class WriteableTests {

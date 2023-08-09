@@ -37,7 +37,7 @@ import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.EventSource
 import org.opensearch.commons.utils.SecureClientWrapper
 import org.opensearch.commons.utils.recreateObject
-import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.common.io.stream.Writeable
 
 /**
  * All the transport action plugin interfaces for the Notification plugin

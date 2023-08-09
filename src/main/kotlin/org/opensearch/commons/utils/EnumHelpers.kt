@@ -4,10 +4,10 @@
  */
 package org.opensearch.commons.utils
 
-import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.common.io.stream.StreamOutput
+import org.opensearch.common.io.stream.Writeable
 import org.opensearch.core.xcontent.XContentParser
-import org.opensearch.core.xcontent.XContentParserUtils
+import org.opensearch.common.xcontent.XContentParserUtils
 import java.util.EnumSet
 
 inline fun <reified E : Enum<E>> XContentParser.enumSet(enumParser: EnumParser<E>): EnumSet<E> {

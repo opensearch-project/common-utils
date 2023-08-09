@@ -2,9 +2,9 @@ package org.opensearch.commons.alerting.aggregation.bucketselectorext
 
 import org.opensearch.commons.notifications.model.BaseModel
 import org.opensearch.core.ParseField
-import org.opensearch.core.common.ParsingException
-import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.common.ParsingException
+import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser

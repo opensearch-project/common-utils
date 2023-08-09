@@ -38,8 +38,8 @@ import org.opensearch.commons.alerting.model.FindingDocument
 import org.opensearch.commons.alerting.model.FindingWithDocs
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.Workflow
-import org.opensearch.core.common.io.stream.NamedWriteableRegistry
-import org.opensearch.core.rest.RestStatus
+import org.opensearch.common.io.stream.NamedWriteableRegistry
+import org.opensearch.rest.RestStatus
 import org.opensearch.index.seqno.SequenceNumbers
 import org.opensearch.search.SearchModule
 

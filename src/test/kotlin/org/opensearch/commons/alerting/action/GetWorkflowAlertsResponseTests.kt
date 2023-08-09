@@ -11,7 +11,7 @@ import org.opensearch.commons.alerting.randomAlert
 import org.opensearch.commons.alerting.randomChainedAlert
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.util.string
-import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.core.xcontent.ToXContent
 import java.time.Instant
 import java.util.Collections

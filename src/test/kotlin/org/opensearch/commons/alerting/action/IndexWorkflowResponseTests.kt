@@ -8,7 +8,7 @@ import org.opensearch.commons.alerting.model.CronSchedule
 import org.opensearch.commons.alerting.model.Workflow
 import org.opensearch.commons.alerting.randomChainedAlertTrigger
 import org.opensearch.commons.alerting.randomUser
-import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamInput
 import java.time.Instant
 import java.time.ZoneId
 

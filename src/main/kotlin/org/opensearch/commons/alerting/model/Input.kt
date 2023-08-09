@@ -4,9 +4,9 @@ import org.opensearch.commons.alerting.model.ClusterMetricsInput.Companion.URI_F
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput.Companion.DOC_LEVEL_INPUT_FIELD
 import org.opensearch.commons.alerting.model.SearchInput.Companion.SEARCH_FIELD
 import org.opensearch.commons.notifications.model.BaseModel
-import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.core.xcontent.XContentParser
-import org.opensearch.core.xcontent.XContentParserUtils
+import org.opensearch.common.xcontent.XContentParserUtils
 import java.io.IOException
 
 interface Input : BaseModel {

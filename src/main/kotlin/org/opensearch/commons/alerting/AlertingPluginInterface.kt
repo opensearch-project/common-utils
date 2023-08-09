@@ -31,8 +31,8 @@ import org.opensearch.commons.alerting.action.PublishFindingsRequest
 import org.opensearch.commons.alerting.action.SubscribeFindingsResponse
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.utils.recreateObject
-import org.opensearch.core.common.io.stream.NamedWriteableRegistry
-import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.common.io.stream.NamedWriteableRegistry
+import org.opensearch.common.io.stream.Writeable
 
 /**
  * All the transport action plugin interfaces for the Alerting plugin

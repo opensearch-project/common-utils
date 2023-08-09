@@ -14,9 +14,9 @@ import org.opensearch.commons.destination.message.LegacyDestinationType
 import org.opensearch.commons.destination.message.LegacyEmailMessage
 import org.opensearch.commons.destination.message.LegacySNSMessage
 import org.opensearch.commons.destination.message.LegacySlackMessage
-import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamOutput
+import org.opensearch.common.io.stream.Writeable
 import java.io.IOException
 
 /**

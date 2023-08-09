@@ -1,7 +1,7 @@
 package org.opensearch.commons.alerting.aggregation.bucketselectorext
 
 import org.apache.lucene.util.BytesRef
-import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.script.BucketAggregationSelectorScript
 import org.opensearch.script.Script
 import org.opensearch.search.DocValueFormat

@@ -6,8 +6,8 @@ import org.opensearch.action.ValidateActions
 import org.opensearch.action.support.WriteRequest
 import org.opensearch.commons.alerting.model.CompositeInput
 import org.opensearch.commons.alerting.model.Workflow
-import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
 import java.io.IOException
 import java.util.stream.Collectors

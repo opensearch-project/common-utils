@@ -9,8 +9,8 @@ import org.opensearch.commons.alerting.model.Workflow
 import org.opensearch.commons.alerting.randomDelegate
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomWorkflow
-import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.rest.RestStatus
+import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.rest.RestStatus
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 

@@ -7,8 +7,8 @@ import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.Finding
 import org.opensearch.commons.alerting.model.FindingDocument
 import org.opensearch.commons.alerting.model.FindingWithDocs
-import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.rest.RestStatus
+import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.rest.RestStatus
 import java.time.Instant
 
 internal class GetFindingsResponseTests {

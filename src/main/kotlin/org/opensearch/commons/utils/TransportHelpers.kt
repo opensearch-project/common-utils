@@ -5,13 +5,13 @@
 
 package org.opensearch.commons.utils
 
-import org.opensearch.core.common.io.stream.InputStreamStreamInput
-import org.opensearch.core.common.io.stream.NamedWriteableAwareStreamInput
-import org.opensearch.core.common.io.stream.NamedWriteableRegistry
-import org.opensearch.core.common.io.stream.OutputStreamStreamOutput
-import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.common.io.stream.InputStreamStreamInput
+import org.opensearch.common.io.stream.NamedWriteableAwareStreamInput
+import org.opensearch.common.io.stream.NamedWriteableRegistry
+import org.opensearch.common.io.stream.OutputStreamStreamOutput
+import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamOutput
+import org.opensearch.common.io.stream.Writeable
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
