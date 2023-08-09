@@ -3,10 +3,10 @@ package org.opensearch.commons.alerting.action
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
+import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.commons.alerting.model.CronSchedule
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.randomUser
-import org.opensearch.common.io.stream.StreamInput
 import java.time.Instant
 import java.time.ZoneId
 

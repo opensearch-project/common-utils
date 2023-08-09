@@ -3,6 +3,7 @@ package org.opensearch.commons.alerting.model
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
+import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
 import org.opensearch.commons.alerting.model.action.Throttle
@@ -18,7 +19,6 @@ import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
 import org.opensearch.commons.alerting.randomWorkflow
 import org.opensearch.commons.authuser.User
-import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.search.builder.SearchSourceBuilder
 
 class WriteableTests {

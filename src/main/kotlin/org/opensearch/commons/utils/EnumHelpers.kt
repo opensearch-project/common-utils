@@ -6,8 +6,8 @@ package org.opensearch.commons.utils
 
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
-import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.xcontent.XContentParser
 import java.util.EnumSet
 
 inline fun <reified E : Enum<E>> XContentParser.enumSet(enumParser: EnumParser<E>): EnumSet<E> {

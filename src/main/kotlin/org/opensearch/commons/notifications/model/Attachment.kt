@@ -5,19 +5,19 @@
 
 package org.opensearch.commons.notifications.model
 
+import org.opensearch.common.io.stream.StreamInput
+import org.opensearch.common.io.stream.StreamOutput
+import org.opensearch.common.io.stream.Writeable
+import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.FILE_CONTENT_TYPE_TAG
 import org.opensearch.commons.notifications.NotificationConstants.FILE_DATA_TAG
 import org.opensearch.commons.notifications.NotificationConstants.FILE_ENCODING_TAG
 import org.opensearch.commons.notifications.NotificationConstants.FILE_NAME_TAG
 import org.opensearch.commons.utils.fieldIfNotNull
 import org.opensearch.commons.utils.logger
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.io.stream.Writeable
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
-import org.opensearch.common.xcontent.XContentParserUtils
 
 /**
  * Data class for storing attachment of channel message.

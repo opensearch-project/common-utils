@@ -5,10 +5,10 @@
 
 package org.opensearch.commons.notifications.action
 
-import org.opensearch.commons.destination.response.LegacyDestinationResponse
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
+import org.opensearch.commons.destination.response.LegacyDestinationResponse
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException

@@ -1,9 +1,9 @@
 package org.opensearch.commons.alerting.action
 
-import org.opensearch.commons.alerting.model.Alert
-import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
+import org.opensearch.commons.alerting.model.Alert
+import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException

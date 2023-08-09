@@ -4,10 +4,10 @@ import org.apache.logging.log4j.LogManager
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
+import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
-import org.opensearch.common.xcontent.XContentParserUtils
 import java.io.IOException
 
 private val log = LogManager.getLogger(Finding::class.java)

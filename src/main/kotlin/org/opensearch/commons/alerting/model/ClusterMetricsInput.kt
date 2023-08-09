@@ -3,14 +3,14 @@ package org.opensearch.commons.alerting.model
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.hc.core5.net.URIBuilder
 import org.opensearch.common.CheckedFunction
-import org.opensearch.core.ParseField
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
+import org.opensearch.common.xcontent.XContentParserUtils
+import org.opensearch.core.ParseField
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
-import org.opensearch.common.xcontent.XContentParserUtils
 import java.io.IOException
 import java.net.URI
 import java.net.URISyntaxException

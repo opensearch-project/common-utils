@@ -3,13 +3,13 @@ package org.opensearch.commons.alerting.action
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
+import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.commons.alerting.model.CompositeInput
 import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Workflow
 import org.opensearch.commons.alerting.randomDelegate
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomWorkflow
-import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.rest.RestStatus
 import java.time.Instant
 import java.time.temporal.ChronoUnit

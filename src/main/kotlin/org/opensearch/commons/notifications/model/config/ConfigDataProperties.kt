@@ -4,6 +4,7 @@
  */
 package org.opensearch.commons.notifications.model.config
 
+import org.opensearch.common.io.stream.Writeable.Reader
 import org.opensearch.commons.notifications.model.BaseConfigData
 import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
@@ -15,7 +16,6 @@ import org.opensearch.commons.notifications.model.SmtpAccount
 import org.opensearch.commons.notifications.model.Sns
 import org.opensearch.commons.notifications.model.Webhook
 import org.opensearch.commons.notifications.model.XParser
-import org.opensearch.common.io.stream.Writeable.Reader
 import org.opensearch.core.xcontent.XContentParser
 
 internal object ConfigDataProperties {

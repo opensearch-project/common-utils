@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
+import org.opensearch.common.io.stream.NamedWriteableRegistry
 import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
 import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
@@ -38,9 +39,8 @@ import org.opensearch.commons.alerting.model.FindingDocument
 import org.opensearch.commons.alerting.model.FindingWithDocs
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.Workflow
-import org.opensearch.common.io.stream.NamedWriteableRegistry
-import org.opensearch.rest.RestStatus
 import org.opensearch.index.seqno.SequenceNumbers
+import org.opensearch.rest.RestStatus
 import org.opensearch.search.SearchModule
 
 @Suppress("UNCHECKED_CAST")

@@ -1,11 +1,11 @@
 package org.opensearch.commons.alerting.alerts
 
-import org.opensearch.commons.alerting.util.instant
-import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.common.io.stream.Writeable
 import org.opensearch.common.xcontent.XContentParserUtils.ensureExpectedToken
+import org.opensearch.commons.alerting.util.instant
+import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
