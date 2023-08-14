@@ -4,8 +4,6 @@
  */
 package org.opensearch.commons.alerting
 
-import org.opensearch.action.ActionListener
-import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
 import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
@@ -31,6 +29,8 @@ import org.opensearch.commons.alerting.action.PublishFindingsRequest
 import org.opensearch.commons.alerting.action.SubscribeFindingsResponse
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.utils.recreateObject
+import org.opensearch.core.action.ActionListener
+import org.opensearch.core.action.ActionResponse
 import org.opensearch.core.common.io.stream.NamedWriteableRegistry
 import org.opensearch.core.common.io.stream.Writeable
 
