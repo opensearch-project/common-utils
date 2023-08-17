@@ -4,8 +4,6 @@
  */
 package org.opensearch.commons.notifications
 
-import org.opensearch.action.ActionListener
-import org.opensearch.action.ActionResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT
 import org.opensearch.commons.notifications.action.BaseResponse
@@ -37,6 +35,8 @@ import org.opensearch.commons.notifications.model.ChannelMessage
 import org.opensearch.commons.notifications.model.EventSource
 import org.opensearch.commons.utils.SecureClientWrapper
 import org.opensearch.commons.utils.recreateObject
+import org.opensearch.core.action.ActionListener
+import org.opensearch.core.action.ActionResponse
 import org.opensearch.core.common.io.stream.Writeable
 
 /**

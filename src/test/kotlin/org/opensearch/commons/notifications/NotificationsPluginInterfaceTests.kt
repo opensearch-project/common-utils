@@ -17,7 +17,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
-import org.opensearch.action.ActionListener
 import org.opensearch.action.ActionType
 import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.destination.response.LegacyDestinationResponse
@@ -49,6 +48,7 @@ import org.opensearch.commons.notifications.model.NotificationConfigSearchResult
 import org.opensearch.commons.notifications.model.NotificationEvent
 import org.opensearch.commons.notifications.model.SeverityType
 import org.opensearch.commons.notifications.model.Slack
+import org.opensearch.core.action.ActionListener
 import org.opensearch.core.rest.RestStatus
 import java.time.Instant
 
