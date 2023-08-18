@@ -61,7 +61,7 @@ data class AlertError(val timestamp: Instant, var message: String) : Writeable, 
 
         fun obfuscateIPAddresses(exceptionMessage: String): String {
             val ipAddressPattern = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"
-            val obfuscatedMessage = exceptionMessage.replace(ipAddressPattern.toRegex(), "X.X.X.X")
+            val obfuscatedMessage = exceptionMessage.replace(ipAddressPattern.toRegex(), "x.x.x.x")
             return obfuscatedMessage
         }
     }
