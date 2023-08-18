@@ -15,6 +15,7 @@ import org.opensearch.commons.notifications.model.Email
 import org.opensearch.commons.notifications.model.EmailGroup
 import org.opensearch.commons.notifications.model.EmailRecipient
 import org.opensearch.commons.notifications.model.MethodType
+import org.opensearch.commons.notifications.model.MicrosoftTeams
 import org.opensearch.commons.notifications.model.NotificationConfig
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.commons.notifications.model.SmtpAccount
@@ -54,6 +55,16 @@ internal class CreateNotificationConfigRequestTests {
             "description",
             ConfigType.CHIME,
             configData = sampleChime,
+            isEnabled = true
+        )
+    }
+    private fun createMicrosoftTeamsContentConfigObject(): NotificationConfig {
+        val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_microsoft_teams_url#1234567890")
+        return NotificationConfig(
+            "name",
+            "description",
+            ConfigType.MICROSOFT_TEAMS,
+            configData = sampleMicrosoftTeams,
             isEnabled = true
         )
     }
@@ -104,6 +115,20 @@ internal class CreateNotificationConfigRequestTests {
     fun `Create config serialize and deserialize transport object should be equal webhook`() {
         val configRequest = CreateNotificationConfigRequest(
             createWebhookContentConfigObject()
+        )
+        val recreatedObject =
+            recreateObject(configRequest) {
+                CreateNotificationConfigRequest(
+                    it
+                )
+            }
+        assertNull(recreatedObject.validate())
+        assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
+    }
+    @Test
+    fun `Create config serialize and deserialize transport object should be equal microsoft teams`() {
+        val configRequest = CreateNotificationConfigRequest(
+            createMicrosoftTeamsContentConfigObject()
         )
         val recreatedObject =
             recreateObject(configRequest) {
@@ -189,6 +214,15 @@ internal class CreateNotificationConfigRequestTests {
         assertNull(recreatedObject.validate())
         assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
     }
+    @Test
+    fun `Create config serialize and deserialize using json object should be equal microsoft teams`() {
+        val configRequest = CreateNotificationConfigRequest(
+            createMicrosoftTeamsContentConfigObject()
+        )
+        val jsonString = getJsonString(configRequest)
+        val recreatedObject = createObjectFromJsonString(jsonString) { CreateNotificationConfigRequest.parse(it) }
+        assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
+    }
 
     @Test
     fun `Create config serialize and deserialize using json object should be equal`() {
@@ -269,6 +303,32 @@ internal class CreateNotificationConfigRequestTests {
                 "config_type":"slack",
                 "is_enabled":true,
                 "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
+            }
+        }
+        """.trimIndent()
+        val recreatedObject = createObjectFromJsonString(jsonString) { CreateNotificationConfigRequest.parse(it) }
+        assertEquals(config, recreatedObject.notificationConfig)
+    }
+    @Test
+    fun `Create config should deserialize json object using parser microsoft teams`() {
+        val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_microsoft_teams_url#1234567890")
+        val config = NotificationConfig(
+            "name",
+            "description",
+            ConfigType.MICROSOFT_TEAMS,
+            configData = sampleMicrosoftTeams,
+            isEnabled = true
+        )
+
+        val jsonString = """
+        {
+            "config_id":"config_id1",
+            "config":{
+                "name":"name",
+                "description":"description",
+                "config_type":"microsoft_teams",
+                "is_enabled":true,
+                "microsoft_teams":{"url":"https://domain.com/sample_microsoft_teams_url#1234567890"}
             }
         }
         """.trimIndent()
