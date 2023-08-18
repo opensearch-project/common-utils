@@ -7,6 +7,7 @@ import org.opensearch.commons.notifications.model.Email
 import org.opensearch.commons.notifications.model.EmailGroup
 import org.opensearch.commons.notifications.model.EmailRecipient
 import org.opensearch.commons.notifications.model.MethodType
+import org.opensearch.commons.notifications.model.MicrosoftTeams
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.commons.notifications.model.SmtpAccount
 import org.opensearch.commons.notifications.model.Webhook
@@ -20,6 +21,11 @@ internal class ConfigPropertiesTests {
     @Test
     fun `Validate config property reader slack`() {
         assertEquals(getReaderForConfigType(ConfigType.SLACK), Slack.reader)
+    }
+
+    @Test
+    fun `Validate config property reader Microsoft Teams`() {
+        assertEquals(getReaderForConfigType(ConfigType.MICROSOFT_TEAMS), MicrosoftTeams.reader)
     }
 
     @Test
@@ -48,7 +54,7 @@ internal class ConfigPropertiesTests {
     }
 
     @Test
-    fun `Validate config data parse  slack`() {
+    fun `Validate config data parse slack`() {
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
         val jsonString = getJsonString(sampleSlack)
         val recreatedObject = createObjectFromJsonString(jsonString) { createConfigData(ConfigType.SLACK, it) }
@@ -70,7 +76,13 @@ internal class ConfigPropertiesTests {
         val recreatedObject = createObjectFromJsonString(jsonString) { createConfigData(ConfigType.WEBHOOK, it) }
         assertEquals(sampleWebhook, recreatedObject)
     }
-
+    @Test
+    fun `Validate config data parse Microsoft Teams`() {
+        val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_url#1234567890")
+        val jsonString = getJsonString(sampleMicrosoftTeams)
+        val recreatedObject = createObjectFromJsonString(jsonString) { createConfigData(ConfigType.MICROSOFT_TEAMS, it) }
+        assertEquals(sampleMicrosoftTeams, recreatedObject)
+    }
     @Test
     fun `Validate config data parse EmailGroup`() {
         val sampleEmailGroup = EmailGroup(listOf(EmailRecipient("email1@email.com"), EmailRecipient("email2@email.com")))

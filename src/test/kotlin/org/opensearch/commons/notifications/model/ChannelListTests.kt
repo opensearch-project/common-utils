@@ -55,12 +55,19 @@ internal class ChannelListTests {
             ConfigType.CHIME,
             true
         )
-        val channelList = ChannelList(listOf(channel1, channel2))
+        val channel3 = Channel(
+            "configId3",
+            "name3",
+            "description3",
+            ConfigType.MICROSOFT_TEAMS,
+            true
+        )
+        val channelList = ChannelList(listOf(channel1, channel2, channel3))
         val expectedResult = ChannelList(
             0,
-            2,
+            3,
             TotalHits.Relation.EQUAL_TO,
-            listOf(channel1, channel2)
+            listOf(channel1, channel2, channel3)
         )
         val recreatedObject = recreateObject(channelList) { ChannelList(it) }
         assertSearchResultEquals(expectedResult, recreatedObject)
@@ -82,11 +89,18 @@ internal class ChannelListTests {
             ConfigType.CHIME,
             true
         )
+        val channel3 = Channel(
+            "configId3",
+            "name3",
+            "description3",
+            ConfigType.MICROSOFT_TEAMS,
+            true
+        )
         val channelList = ChannelList(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
-            listOf(channel1, channel2)
+            listOf(channel1, channel2, channel3)
         )
         val recreatedObject = recreateObject(channelList) { ChannelList(it) }
         assertSearchResultEquals(channelList, recreatedObject)
@@ -123,11 +137,18 @@ internal class ChannelListTests {
             ConfigType.CHIME,
             true
         )
+        val channel3 = Channel(
+            "configId3",
+            "name3",
+            "description3",
+            ConfigType.MICROSOFT_TEAMS,
+            true
+        )
         val channelList = ChannelList(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
-            listOf(channel1, channel2)
+            listOf(channel1, channel2, channel3)
         )
         val jsonString = getJsonString(channelList)
         val recreatedObject = createObjectFromJsonString(jsonString) { ChannelList(it) }
