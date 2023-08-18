@@ -67,6 +67,33 @@ internal class NotificationConfigTests {
     }
 
     @Test
+    fun `Config serialize and deserialize with microsoft teams object should be equal`() {
+        val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_url#1234567890")
+        val sampleConfig = NotificationConfig(
+            "name",
+            "description",
+            ConfigType.MICROSOFT_TEAMS,
+            configData = sampleMicrosoftTeams
+        )
+        val recreatedObject = recreateObject(sampleConfig) { NotificationConfig(it) }
+        assertEquals(sampleConfig, recreatedObject)
+    }
+
+    @Test
+    fun `Config serialize and deserialize with json microsoft teams object should be equal`() {
+        val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_url#1234567890")
+        val sampleConfig = NotificationConfig(
+            "name",
+            "description",
+            ConfigType.MICROSOFT_TEAMS,
+            configData = sampleMicrosoftTeams
+        )
+        val jsonString = getJsonString(sampleConfig)
+        val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfig.parse(it) }
+        assertEquals(sampleConfig, recreatedObject)
+    }
+
+    @Test
     fun `Config serialize and deserialize with webhook object should be equal`() {
         val sampleWebhook = Webhook("https://domain.com/sample_url#1234567890")
         val sampleConfig = NotificationConfig(
