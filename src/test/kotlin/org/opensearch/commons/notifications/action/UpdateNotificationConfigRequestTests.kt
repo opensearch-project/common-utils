@@ -15,6 +15,7 @@ import org.opensearch.commons.notifications.model.Email
 import org.opensearch.commons.notifications.model.EmailGroup
 import org.opensearch.commons.notifications.model.EmailRecipient
 import org.opensearch.commons.notifications.model.MethodType
+import org.opensearch.commons.notifications.model.MicrosoftTeams
 import org.opensearch.commons.notifications.model.NotificationConfig
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.commons.notifications.model.SmtpAccount
@@ -35,7 +36,16 @@ internal class UpdateNotificationConfigRequestTests {
             isEnabled = true
         )
     }
-
+    private fun createMicrosoftTeamsContentConfigObject(): NotificationConfig {
+        val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_microsoft_teams_url#1234567890")
+        return NotificationConfig(
+            "name",
+            "description",
+            ConfigType.MICROSOFT_TEAMS,
+            configData = sampleMicrosoftTeams,
+            isEnabled = true
+        )
+    }
     private fun createSlackContentConfigObject(): NotificationConfig {
         val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
         return NotificationConfig(
@@ -109,6 +119,15 @@ internal class UpdateNotificationConfigRequestTests {
         assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
         assertEquals("config_id", recreatedObject.configId)
     }
+    @Test
+    fun `Update config serialize and deserialize transport object should be equal Microsoft Teams`() {
+        val configRequest = UpdateNotificationConfigRequest("config_id", createMicrosoftTeamsContentConfigObject())
+        val recreatedObject =
+            recreateObject(configRequest) { UpdateNotificationConfigRequest(it) }
+        assertNull(recreatedObject.validate())
+        assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
+        assertEquals("config_id", recreatedObject.configId)
+    }
 
     @Test
     fun `Update config serialize and deserialize transport object should be equal Slack`() {
@@ -163,6 +182,14 @@ internal class UpdateNotificationConfigRequestTests {
     @Test
     fun `Update config serialize and deserialize using json object should be equal webhook`() {
         val configRequest = UpdateNotificationConfigRequest("config_id", createWebhookContentConfigObject())
+        val jsonString = getJsonString(configRequest)
+        val recreatedObject = createObjectFromJsonString(jsonString) { UpdateNotificationConfigRequest.parse(it) }
+        assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
+        assertEquals("config_id", recreatedObject.configId)
+    }
+    @Test
+    fun `Update config serialize and deserialize using json object should be equal microsoft Teams`() {
+        val configRequest = UpdateNotificationConfigRequest("config_id", createMicrosoftTeamsContentConfigObject())
         val jsonString = getJsonString(configRequest)
         val recreatedObject = createObjectFromJsonString(jsonString) { UpdateNotificationConfigRequest.parse(it) }
         assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)

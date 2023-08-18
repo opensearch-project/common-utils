@@ -119,6 +119,17 @@ internal class EventStatusTests {
     }
 
     @Test
+    fun `Event throw exception if deliveryStatus is empty for config type MicrosoftTeams`() {
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            EventStatus(
+                "config_id",
+                "name",
+                ConfigType.MICROSOFT_TEAMS
+            )
+        }
+    }
+
+    @Test
     fun `Event throw exception if deliveryStatus is empty for config type Webhook`() {
         Assertions.assertThrows(IllegalArgumentException::class.java) {
             EventStatus(
