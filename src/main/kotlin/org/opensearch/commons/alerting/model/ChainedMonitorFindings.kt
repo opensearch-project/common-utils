@@ -75,8 +75,8 @@ data class ChainedMonitorFindings(
 
                 when (fieldName) {
                     MONITOR_ID_FIELD -> {
-                        if(!xcp.currentToken().equals(XContentParser.Token.VALUE_NULL))
-                        monitorId = xcp.text()
+                        if (!xcp.currentToken().equals(XContentParser.Token.VALUE_NULL))
+                            monitorId = xcp.text()
                     }
 
                     MONITOR_IDS_FIELD -> {
