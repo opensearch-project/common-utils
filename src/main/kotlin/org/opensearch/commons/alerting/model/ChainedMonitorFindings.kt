@@ -24,7 +24,7 @@ data class ChainedMonitorFindings(
         require(!(monitorId.isNullOrBlank() && monitorIds.isEmpty())) {
             "at least one of fields, 'monitorIds' and 'monitorId' should be provided"
         }
-        if(monitorId!= null && monitorId.isBlank()) {
+        if (monitorId != null && monitorId.isBlank()) {
             validateId(monitorId)
         } else {
             monitorIds.forEach { validateId(it) }
@@ -66,7 +66,7 @@ data class ChainedMonitorFindings(
         @JvmStatic
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): ChainedMonitorFindings {
-            lateinit var monitorId: String
+            var monitorId: String? = null
             val monitorIds = mutableListOf<String>()
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -75,8 +75,8 @@ data class ChainedMonitorFindings(
 
                 when (fieldName) {
                     MONITOR_ID_FIELD -> {
+                        if(!xcp.currentToken().equals(XContentParser.Token.VALUE_NULL))
                         monitorId = xcp.text()
-                        validateId(monitorId)
                     }
 
                     MONITOR_IDS_FIELD -> {
