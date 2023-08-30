@@ -21,6 +21,9 @@ import org.opensearch.search.SearchModule
 import java.lang.Exception
 import java.lang.IllegalArgumentException
 import java.util.UUID
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class IndexWorkflowRequestTests {
 
@@ -196,6 +199,21 @@ class IndexWorkflowRequestTests {
         delegates = listOf(
             Delegate(1, "monitor-1")
         )
+
+        // Chained finding list of monitors valid
+        delegates = listOf(
+            Delegate(1, "monitor-1"),
+            Delegate(2, "monitor-2"),
+            Delegate(3, "monitor-3", ChainedMonitorFindings(null, listOf("monitor-1", "monitor-2"))),
+
+        )
+        val req7 = IndexWorkflowRequest(
+            "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.PUT,
+            randomWorkflowWithDelegates(
+                input = listOf(CompositeInput(Sequence(delegates = delegates)))
+            )
+        )
+        assertNull(req7.validate())
         try {
             IndexWorkflowRequest(
                 "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.PUT,
@@ -207,5 +225,21 @@ class IndexWorkflowRequestTests {
             Assert.assertTrue(ex is IllegalArgumentException)
             Assert.assertTrue(ex.message!!.contains("Workflows can only have 1 search input."))
         }
+
+        // Chained finding list of monitors invalid order and old field null
+        delegates = listOf(
+            Delegate(1, "monitor-1"),
+            Delegate(3, "monitor-2"),
+            Delegate(2, "monitor-3", ChainedMonitorFindings(null, listOf("monitor-1", "monitor-2"))),
+
+        )
+        val req8 = IndexWorkflowRequest(
+            "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.PUT,
+            randomWorkflowWithDelegates(
+                input = listOf(CompositeInput(Sequence(delegates = delegates)))
+            )
+        )
+        assertNotNull(req8.validate())
+        assertTrue(req8.validate()!!.message!!.contains("should be executed before monitor"))
     }
 }

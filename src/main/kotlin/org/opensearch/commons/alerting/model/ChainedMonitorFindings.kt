@@ -9,50 +9,65 @@ import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
+import java.util.Collections
 
 /**
- * Context passed in delegate monitor to filter data queried by a monitor based on the findings of the given monitor id.
+ * Context passed in delegate monitor to filter data matched by a list of monitors based on the findings of the given monitor ids.
  */
 // TODO - Remove the class and move the monitorId to Delegate (as a chainedMonitorId property) if this class won't be updated by adding new properties
 data class ChainedMonitorFindings(
-    val monitorId: String
+    val monitorId: String? = null,
+    val monitorIds: List<String> = emptyList(), // if monitorId field is non-null it would be given precendence for BWC
 ) : BaseModel {
 
     init {
-        validateId(monitorId)
+        require(!(monitorId.isNullOrBlank() && monitorIds.isEmpty())) {
+            "at least one of fields, 'monitorIds' and 'monitorId' should be provided"
+        }
+        if(monitorId!= null && monitorId.isBlank()) {
+            validateId(monitorId)
+        } else {
+            monitorIds.forEach { validateId(it) }
+        }
     }
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        sin.readString(), // monitorId
+        sin.readOptionalString(), // monitorId
+        Collections.unmodifiableList(sin.readStringList())
     )
 
+    @Suppress("UNCHECKED_CAST")
     fun asTemplateArg(): Map<String, Any> {
         return mapOf(
             MONITOR_ID_FIELD to monitorId,
-        )
+            MONITOR_IDS_FIELD to monitorIds
+        ) as Map<String, Any>
     }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
-        out.writeString(monitorId)
+        out.writeOptionalString(monitorId)
+        out.writeStringCollection(monitorIds)
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         builder.startObject()
             .field(MONITOR_ID_FIELD, monitorId)
+            .field(MONITOR_IDS_FIELD, monitorIds)
             .endObject()
         return builder
     }
 
     companion object {
         const val MONITOR_ID_FIELD = "monitor_id"
+        const val MONITOR_IDS_FIELD = "monitor_ids"
 
         @JvmStatic
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): ChainedMonitorFindings {
             lateinit var monitorId: String
-
+            val monitorIds = mutableListOf<String>()
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = xcp.currentName()
@@ -63,9 +78,20 @@ data class ChainedMonitorFindings(
                         monitorId = xcp.text()
                         validateId(monitorId)
                     }
+
+                    MONITOR_IDS_FIELD -> {
+                        XContentParserUtils.ensureExpectedToken(
+                            XContentParser.Token.START_ARRAY,
+                            xcp.currentToken(),
+                            xcp
+                        )
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
+                            monitorIds.add(xcp.text())
+                        }
+                    }
                 }
             }
-            return ChainedMonitorFindings(monitorId)
+            return ChainedMonitorFindings(monitorId, monitorIds)
         }
 
         @JvmStatic

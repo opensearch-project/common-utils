@@ -405,6 +405,11 @@ fun randomClusterMetricsInput(
     return ClusterMetricsInput(path, pathParams, url)
 }
 
+fun ChainedMonitorFindings.toJsonString(): String {
+    val builder = XContentFactory.jsonBuilder()
+    return this.toXContent(builder, ToXContent.EMPTY_PARAMS).string()
+}
+
 fun Workflow.toJsonString(): String {
     val builder = XContentFactory.jsonBuilder()
     return this.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS).string()
