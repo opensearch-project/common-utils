@@ -267,10 +267,25 @@ class XContentTests {
     @Test
     fun `test workflow parsing`() {
         val workflow = randomWorkflow(monitorIds = listOf("1", "2", "3"))
-
         val monitorString = workflow.toJsonString()
         val parsedWorkflow = Workflow.parse(parser(monitorString))
         Assertions.assertEquals(workflow, parsedWorkflow, "Round tripping workflow failed")
+    }
+
+    @Test
+    fun `test chainedMonitorFindings parsing`() {
+        val cmf1 = ChainedMonitorFindings(monitorId = "m1")
+        val cmf1String = cmf1.toJsonString()
+        Assertions.assertEquals(
+            ChainedMonitorFindings.parse(parser(cmf1String)), cmf1,
+            "Round tripping chained monitor findings failed"
+        )
+        val cmf2 = ChainedMonitorFindings(monitorIds = listOf("m1", "m2"))
+        val cmf2String = cmf2.toJsonString()
+        Assertions.assertEquals(
+            ChainedMonitorFindings.parse(parser(cmf2String)), cmf2,
+            "Round tripping chained monitor findings failed"
+        )
     }
 
     @Test
