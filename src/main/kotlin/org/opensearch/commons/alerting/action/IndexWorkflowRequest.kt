@@ -30,7 +30,7 @@ class IndexWorkflowRequest : ActionRequest {
         refreshPolicy: WriteRequest.RefreshPolicy,
         method: RestRequest.Method,
         workflow: Workflow,
-        rbacRoles: List<String>? = null,
+        rbacRoles: List<String>? = null
     ) : super() {
         this.workflowId = workflowId
         this.seqNo = seqNo
