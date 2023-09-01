@@ -70,9 +70,24 @@ class CompositeInputTests {
     }
 
     @Test
-    fun `test create Chained Findings with illegal monitorId value`() {
+    fun `test create Chained Findings with illegal monitorId value and empty monitorIds list`() {
         try {
             ChainedMonitorFindings("")
+            Assertions.fail("Expecting an illegal argument exception")
+        } catch (e: IllegalArgumentException) {
+            e.message?.let {
+                Assertions.assertTrue(
+                    it.contains("at least one of fields, 'monitorIds' and 'monitorId' should be provided")
+
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `test create Chained Findings with null monitorId value and  monitorIds list with blank monitorIds`() {
+        try {
+            ChainedMonitorFindings("", listOf("", ""))
             Assertions.fail("Expecting an illegal argument exception")
         } catch (e: IllegalArgumentException) {
             e.message?.let {
