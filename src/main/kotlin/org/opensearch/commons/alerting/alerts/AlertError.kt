@@ -12,7 +12,10 @@ import org.opensearch.core.xcontent.XContentParser
 import java.io.IOException
 import java.time.Instant
 
-data class AlertError(val timestamp: Instant, val message: String) : Writeable, ToXContent {
+data class AlertError(val timestamp: Instant, var message: String) : Writeable, ToXContent {
+    init {
+        this.message = obfuscateIPAddresses(message)
+    }
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
@@ -53,6 +56,12 @@ data class AlertError(val timestamp: Instant, val message: String) : Writeable, 
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): AlertError {
             return AlertError(sin)
+        }
+
+        fun obfuscateIPAddresses(exceptionMessage: String): String {
+            val ipAddressPattern = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"
+            val obfuscatedMessage = exceptionMessage.replace(ipAddressPattern.toRegex(), "x.x.x.x")
+            return obfuscatedMessage
         }
     }
 
