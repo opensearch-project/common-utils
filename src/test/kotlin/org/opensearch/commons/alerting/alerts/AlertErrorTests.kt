@@ -16,10 +16,10 @@ class AlertErrorTests {
         val alertError = AlertError(Instant.now(), message = message)
         Assert.assertEquals(
             alertError.message,
-            "AlertingException[[5f32db4e2a4fa94f6778cb895dae7a24][X.X.X.X:9300][indices:admin/create]]; " +
-                "nested: Exception[org.opensearch.transport.RemoteTransportException: [5f32db4e2a4fa94f6778cb895dae7a24][X.X.X.X:9300]" +
+            "AlertingException[[5f32db4e2a4fa94f6778cb895dae7a24][x.x.x.x:9300][indices:admin/create]]; " +
+                "nested: Exception[org.opensearch.transport.RemoteTransportException: [5f32db4e2a4fa94f6778cb895dae7a24][x.x.x.x:9300]" +
                 "[indices:admin/create]];; java.lang.Exception: org.opensearch.transport.RemoteTransportException: " +
-                "[5f32db4e2a4fa94f6778cb895dae7a24][X.X.X.X:9300][indices:admin/create]"
+                "[5f32db4e2a4fa94f6778cb895dae7a24][x.x.x.x:9300][indices:admin/create]"
         )
     }
 }
