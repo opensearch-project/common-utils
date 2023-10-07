@@ -383,7 +383,7 @@ fun randomDocLevelQuery(
     name: String = "${RandomNumbers.randomIntBetween(Random(), 0, 5)}",
     tags: List<String> = mutableListOf(0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { RandomStrings.randomAsciiLettersOfLength(Random(), 10) }
 ): DocLevelQuery {
-    return DocLevelQuery(id = id, query = query, name = name, tags = tags)
+    return DocLevelQuery(id = id, query = query, name = name, tags = tags, fields = listOf("*"))
 }
 
 fun randomDocLevelMonitorInput(
