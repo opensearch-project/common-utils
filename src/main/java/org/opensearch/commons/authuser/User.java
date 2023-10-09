@@ -10,6 +10,7 @@ import static org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedTok
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,8 +20,10 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.opensearch.client.Response;
 import org.opensearch.common.Nullable;
 import org.opensearch.common.inject.internal.ToStringBuilder;
+import org.opensearch.common.settings.Settings;
 import org.opensearch.common.xcontent.XContentHelper;
 import org.opensearch.common.xcontent.json.JsonXContent;
+import org.opensearch.commons.ConfigConstants;
 import org.opensearch.core.common.Strings;
 import org.opensearch.core.common.io.stream.StreamInput;
 import org.opensearch.core.common.io.stream.StreamOutput;
@@ -249,5 +252,10 @@ final public class User implements Writeable, ToXContent {
     @Nullable
     public String getRequestedTenant() {
         return requestedTenant;
+    }
+
+    public static boolean isSuperUser(User user, Settings settings) {
+        List<String> adminDns = settings.getAsList(ConfigConstants.OPENSEARCH_SECURITY_AUTHCZ_ADMIN_DN, Collections.emptyList());
+        return adminDns.contains(user.getName());
     }
 }
