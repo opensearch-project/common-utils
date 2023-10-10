@@ -238,4 +238,12 @@ public class UserTest {
         User user = User.parse(str);
         assertFalse(User.isSuperUser(user, settings));
     }
+
+    @Test
+    public void testUserOrSettingsAreNull() {
+        Settings settings = Settings.EMPTY;
+        User user = User.parse("username|backend_role1|role1");
+        assertFalse(User.isSuperUser(null, settings));
+        assertFalse(User.isSuperUser(user, null));
+    }
 }
