@@ -254,11 +254,11 @@ final public class User implements Writeable, ToXContent {
         return requestedTenant;
     }
 
-    public static boolean isSuperUser(User user, Settings settings) {
-        if (user == null || settings == null) {
+    public boolean isSuperUser(Settings settings) {
+        if (settings == null) {
             return false;
         }
         List<String> adminDns = settings.getAsList(ConfigConstants.OPENSEARCH_SECURITY_AUTHCZ_ADMIN_DN, Collections.emptyList());
-        return adminDns.contains(user.getName());
+        return adminDns.contains(this.name);
     }
 }

@@ -219,7 +219,7 @@ public class UserTest {
             );
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
-        assertTrue(User.isSuperUser(user, settings));
+        assertTrue(user.isSuperUser(settings));
     }
 
     @Test
@@ -236,14 +236,14 @@ public class UserTest {
             );
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
-        assertFalse(User.isSuperUser(user, settings));
+        assertFalse(user.isSuperUser(settings));
     }
 
     @Test
-    public void testUserOrSettingsAreNull() {
+    public void testUserOrSettingsAreNullOrEmpty() {
         Settings settings = Settings.EMPTY;
         User user = User.parse("username|backend_role1|role1");
-        assertFalse(User.isSuperUser(null, settings));
-        assertFalse(User.isSuperUser(user, null));
+        assertFalse(user.isSuperUser(null));
+        assertFalse(user.isSuperUser(settings));
     }
 }
