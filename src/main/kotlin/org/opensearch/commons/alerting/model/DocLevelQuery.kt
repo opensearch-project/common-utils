@@ -14,6 +14,7 @@ import java.util.UUID
 data class DocLevelQuery(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
+    val fields: List<String>,
     val query: String,
     val tags: List<String> = mutableListOf()
 ) : BaseModel {
@@ -30,6 +31,7 @@ data class DocLevelQuery(
     constructor(sin: StreamInput) : this(
         sin.readString(), // id
         sin.readString(), // name
+        sin.readStringList(), // fields
         sin.readString(), // query
         sin.readStringList() // tags
     )
@@ -38,6 +40,7 @@ data class DocLevelQuery(
         return mapOf(
             QUERY_ID_FIELD to id,
             NAME_FIELD to name,
+            FIELDS_FIELD to fields,
             QUERY_FIELD to query,
             TAGS_FIELD to tags
         )
@@ -47,6 +50,7 @@ data class DocLevelQuery(
     override fun writeTo(out: StreamOutput) {
         out.writeString(id)
         out.writeString(name)
+        out.writeStringCollection(fields)
         out.writeString(query)
         out.writeStringCollection(tags)
     }
@@ -64,6 +68,7 @@ data class DocLevelQuery(
     companion object {
         const val QUERY_ID_FIELD = "id"
         const val NAME_FIELD = "name"
+        const val FIELDS_FIELD = "fields"
         const val QUERY_FIELD = "query"
         const val TAGS_FIELD = "tags"
         const val NO_ID = ""
@@ -76,6 +81,7 @@ data class DocLevelQuery(
             lateinit var query: String
             lateinit var name: String
             val tags: MutableList<String> = mutableListOf()
+            val fields: MutableList<String> = mutableListOf()
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -101,12 +107,24 @@ data class DocLevelQuery(
                             tags.add(tag)
                         }
                     }
+                    FIELDS_FIELD -> {
+                        XContentParserUtils.ensureExpectedToken(
+                            XContentParser.Token.START_ARRAY,
+                            xcp.currentToken(),
+                            xcp
+                        )
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
+                            val field = xcp.text()
+                            fields.add(field)
+                        }
+                    }
                 }
             }
 
             return DocLevelQuery(
                 id = id,
                 name = name,
+                fields = fields,
                 query = query,
                 tags = tags
             )
