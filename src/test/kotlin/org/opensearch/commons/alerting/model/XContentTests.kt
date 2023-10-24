@@ -418,6 +418,18 @@ class XContentTests {
     }
 
     @Test
+    fun `test doc level query toXcontent`() {
+        val dlq = DocLevelQuery("id", "name", listOf("f1", "f2"), "query", listOf("t1", "t2"))
+        val dlqString = dlq.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedDlq = DocLevelQuery.parse(parser(dlqString))
+        Assertions.assertEquals(
+            dlq,
+            parsedDlq,
+            "Round tripping Doc level query doesn't work"
+        )
+    }
+
+    @Test
     fun `test alert parsing`() {
         val alert = randomAlert()
 
