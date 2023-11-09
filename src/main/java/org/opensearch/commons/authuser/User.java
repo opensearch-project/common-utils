@@ -254,7 +254,7 @@ final public class User implements Writeable, ToXContent {
         return requestedTenant;
     }
 
-    public boolean isSuperUser(Settings settings) {
+    public boolean isAdminDn(Settings settings) {
         if (settings == null) {
             return false;
         }

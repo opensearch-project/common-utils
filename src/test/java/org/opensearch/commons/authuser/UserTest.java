@@ -206,7 +206,7 @@ public class UserTest {
     }
 
     @Test
-    public void testUserIsSuperUserTrue() {
+    public void testUserIsAdminDnTrue() {
         Settings settings = Settings
             .builder()
             .putList(ConfigConstants.OPENSEARCH_SECURITY_AUTHCZ_ADMIN_DN, List.of("CN=kirk,OU=client,O=client,L=test, C=de"))
@@ -219,11 +219,11 @@ public class UserTest {
             );
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
-        assertTrue(user.isSuperUser(settings));
+        assertTrue(user.isAdminDn(settings));
     }
 
     @Test
-    public void testUserIsSuperUserFalse() {
+    public void testUserIsAdminDnFalse() {
         Settings settings = Settings
             .builder()
             .putList(ConfigConstants.OPENSEARCH_SECURITY_AUTHCZ_ADMIN_DN, List.of("CN=spock,OU=client,O=client,L=test, C=de"))
@@ -236,14 +236,14 @@ public class UserTest {
             );
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
-        assertFalse(user.isSuperUser(settings));
+        assertFalse(user.isAdminDn(settings));
     }
 
     @Test
     public void testUserOrSettingsAreNullOrEmpty() {
         Settings settings = Settings.EMPTY;
         User user = User.parse("username|backend_role1|role1");
-        assertFalse(user.isSuperUser(null));
-        assertFalse(user.isSuperUser(settings));
+        assertFalse(user.isAdminDn(null));
+        assertFalse(user.isAdminDn(settings));
     }
 }
