@@ -13,11 +13,13 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_IN
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.opensearch.common.io.stream.BytesStreamOutput;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
+import org.opensearch.commons.ConfigConstants;
 import org.opensearch.core.common.Strings;
 import org.opensearch.core.common.io.stream.StreamInput;
 
@@ -201,5 +203,47 @@ public class UserTest {
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
         assertNull(user);
+    }
+
+    @Test
+    public void testUserIsAdminDnTrue() {
+        Settings settings = Settings
+            .builder()
+            .putList(ConfigConstants.OPENSEARCH_SECURITY_AUTHCZ_ADMIN_DN, List.of("CN=kirk,OU=client,O=client,L=test, C=de"))
+            .build();
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc
+            .putTransient(
+                OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT,
+                "CN=kirk,OU=client,O=client,L=test, C=de|backendrole1,backendrole2|role1,role2"
+            );
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+        assertTrue(user.isAdminDn(settings));
+    }
+
+    @Test
+    public void testUserIsAdminDnFalse() {
+        Settings settings = Settings
+            .builder()
+            .putList(ConfigConstants.OPENSEARCH_SECURITY_AUTHCZ_ADMIN_DN, List.of("CN=spock,OU=client,O=client,L=test, C=de"))
+            .build();
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc
+            .putTransient(
+                OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT,
+                "CN=kirk,OU=client,O=client,L=test, C=de|backendrole1,backendrole2|role1,role2"
+            );
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+        assertFalse(user.isAdminDn(settings));
+    }
+
+    @Test
+    public void testUserOrSettingsAreNullOrEmpty() {
+        Settings settings = Settings.EMPTY;
+        User user = User.parse("username|backend_role1|role1");
+        assertFalse(user.isAdminDn(null));
+        assertFalse(user.isAdminDn(settings));
     }
 }
