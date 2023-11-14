@@ -54,5 +54,7 @@ public class ConfigConstants {
     public static final String INJECTED_USER = "injected_user";
     public static final String OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS = "plugins.security_use_injected_user_for_plugins";
     public static final String OPENSEARCH_SECURITY_SSL_HTTP_ENABLED = "plugins.security.ssl.http.enabled";
+    public static final String OPENSEARCH_SECURITY_AUTHCZ_ADMIN_DN = "plugins.security.authcz.admin_dn";
     public static final String OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT = "_opendistro_security_user_info";
+
 }
