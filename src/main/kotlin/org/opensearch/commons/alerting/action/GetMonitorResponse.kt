@@ -10,22 +10,19 @@ import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._PRIMARY_TERM
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._SEQ_NO
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
-import org.opensearch.core.action.ActionResponse
+import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.core.rest.RestStatus
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.ToXContentFragment
-import org.opensearch.core.xcontent.ToXContentObject
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
 
-class GetMonitorResponse : ActionResponse, ToXContentObject {
+class GetMonitorResponse : BaseResponse {
     var id: String
     var version: Long
     var seqNo: Long
     var primaryTerm: Long
-    var status: RestStatus
     var monitor: Monitor?
     var associatedWorkflows: List<AssociatedWorkflow>?
 
@@ -34,7 +31,6 @@ class GetMonitorResponse : ActionResponse, ToXContentObject {
         version: Long,
         seqNo: Long,
         primaryTerm: Long,
-        status: RestStatus,
         monitor: Monitor?,
         associatedCompositeMonitors: List<AssociatedWorkflow>?,
     ) : super() {
@@ -42,7 +38,6 @@ class GetMonitorResponse : ActionResponse, ToXContentObject {
         this.version = version
         this.seqNo = seqNo
         this.primaryTerm = primaryTerm
-        this.status = status
         this.monitor = monitor
         this.associatedWorkflows = associatedCompositeMonitors ?: emptyList()
     }
@@ -53,7 +48,6 @@ class GetMonitorResponse : ActionResponse, ToXContentObject {
         version = sin.readLong(), // version
         seqNo = sin.readLong(), // seqNo
         primaryTerm = sin.readLong(), // primaryTerm
-        status = sin.readEnum(RestStatus::class.java), // RestStatus
         monitor = if (sin.readBoolean()) {
             Monitor.readFrom(sin) // monitor
         } else null,
@@ -66,7 +60,6 @@ class GetMonitorResponse : ActionResponse, ToXContentObject {
         out.writeLong(version)
         out.writeLong(seqNo)
         out.writeLong(primaryTerm)
-        out.writeEnum(status)
         if (monitor != null) {
             out.writeBoolean(true)
             monitor?.writeTo(out)

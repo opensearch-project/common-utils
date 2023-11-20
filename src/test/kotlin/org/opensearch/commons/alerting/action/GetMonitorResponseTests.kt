@@ -10,7 +10,6 @@ import org.opensearch.commons.alerting.model.CronSchedule
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.rest.RestStatus
 import org.opensearch.test.OpenSearchTestCase
 import java.time.Instant
 import java.time.ZoneId
@@ -18,7 +17,7 @@ import java.time.ZoneId
 class GetMonitorResponseTests : OpenSearchTestCase() {
 
     fun `test get monitor response`() {
-        val req = GetMonitorResponse("1234", 1L, 2L, 0L, RestStatus.OK, null, null)
+        val req = GetMonitorResponse("1234", 1L, 2L, 0L, null, null)
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -27,7 +26,6 @@ class GetMonitorResponseTests : OpenSearchTestCase() {
         val newReq = GetMonitorResponse(sin)
         assertEquals("1234", newReq.id)
         assertEquals(1L, newReq.version)
-        assertEquals(RestStatus.OK, newReq.status)
         assertEquals(null, newReq.monitor)
     }
 
@@ -51,7 +49,7 @@ class GetMonitorResponseTests : OpenSearchTestCase() {
             triggers = mutableListOf(),
             uiMetadata = mutableMapOf()
         )
-        val req = GetMonitorResponse("1234", 1L, 2L, 0L, RestStatus.OK, monitor, null)
+        val req = GetMonitorResponse("1234", 1L, 2L, 0L, monitor, null)
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -60,7 +58,6 @@ class GetMonitorResponseTests : OpenSearchTestCase() {
         val newReq = GetMonitorResponse(sin)
         assertEquals("1234", newReq.id)
         assertEquals(1L, newReq.version)
-        assertEquals(RestStatus.OK, newReq.status)
         assertNotNull(newReq.monitor)
     }
 }

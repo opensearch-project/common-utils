@@ -17,6 +17,8 @@ import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
 import org.opensearch.commons.alerting.action.GetFindingsResponse
+import org.opensearch.commons.alerting.action.GetMonitorRequest
+import org.opensearch.commons.alerting.action.GetMonitorResponse
 import org.opensearch.commons.alerting.action.GetWorkflowAlertsRequest
 import org.opensearch.commons.alerting.action.GetWorkflowAlertsResponse
 import org.opensearch.commons.alerting.action.GetWorkflowRequest
@@ -281,6 +283,30 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     AcknowledgeAlertResponse(
+                        it
+                    )
+                }
+            }
+        )
+    }
+
+    /**
+     * Get Monitor interface.
+     * @param client Node client for making transport action
+     * @param request The request object
+     * @param listener The listener for getting response
+     */
+    fun getMonitor(
+        client: NodeClient,
+        request: GetMonitorRequest,
+        listener: ActionListener<GetMonitorResponse>
+    ) {
+        client.execute(
+            AlertingActions.GET_MONITOR_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    GetMonitorResponse(
                         it
                     )
                 }
