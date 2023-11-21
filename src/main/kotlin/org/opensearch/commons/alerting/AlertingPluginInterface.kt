@@ -4,6 +4,7 @@
  */
 package org.opensearch.commons.alerting
 
+import org.opensearch.action.search.SearchResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
 import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
@@ -28,6 +29,7 @@ import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.alerting.action.IndexWorkflowRequest
 import org.opensearch.commons.alerting.action.IndexWorkflowResponse
 import org.opensearch.commons.alerting.action.PublishFindingsRequest
+import org.opensearch.commons.alerting.action.SearchMonitorRequest
 import org.opensearch.commons.alerting.action.SubscribeFindingsResponse
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.utils.recreateObject
@@ -311,6 +313,27 @@ object AlertingPluginInterface {
                     )
                 }
             }
+        )
+    }
+
+    /**
+     * Search Monitors interface.
+     * @param client Node client for making transport action
+     * @param request The request object
+     * @param listener The listener for getting response
+     */
+    fun searchMonitors(
+        client: NodeClient,
+        request: SearchMonitorRequest,
+        listener: ActionListener<SearchResponse>
+    ) {
+        client.execute(
+            AlertingActions.SEARCH_MONITORS_ACTION_TYPE,
+            request,
+            // we do not use the wrapActionListener in this case since there is no need
+            // to recreate any object or specially handle onResponse / onFailure. It is
+            // simply returning a SearchResponse.
+            listener
         )
     }
 

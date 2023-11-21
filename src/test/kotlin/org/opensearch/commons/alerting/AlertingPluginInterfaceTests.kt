@@ -10,6 +10,7 @@ import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionType
+import org.opensearch.action.search.SearchResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
@@ -34,6 +35,7 @@ import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.alerting.action.IndexWorkflowRequest
 import org.opensearch.commons.alerting.action.IndexWorkflowResponse
 import org.opensearch.commons.alerting.action.PublishFindingsRequest
+import org.opensearch.commons.alerting.action.SearchMonitorRequest
 import org.opensearch.commons.alerting.action.SubscribeFindingsResponse
 import org.opensearch.commons.alerting.model.FindingDocument
 import org.opensearch.commons.alerting.model.FindingWithDocs
@@ -283,6 +285,20 @@ internal class AlertingPluginInterfaceTests {
                 .onResponse(response)
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.getMonitor(client, request, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
+    fun searchMonitors() {
+        val request = mock(SearchMonitorRequest::class.java)
+        val response = mock(SearchResponse::class.java)
+        val listener: ActionListener<SearchResponse> =
+            mock(ActionListener::class.java) as ActionListener<SearchResponse>
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<SearchResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        AlertingPluginInterface.searchMonitors(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 }

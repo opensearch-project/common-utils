@@ -5,6 +5,7 @@
 package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionType
+import org.opensearch.action.search.SearchResponse
 
 object AlertingActions {
     const val INDEX_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/write"
@@ -19,6 +20,7 @@ object AlertingActions {
     const val ACKNOWLEDGE_CHAINED_ALERTS_ACTION_NAME = "cluster:admin/opendistro/alerting/chained_alerts/ack"
     const val SUBSCRIBE_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/subscribe"
     const val GET_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/get"
+    const val SEARCH_MONITORS_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/search"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -65,4 +67,8 @@ object AlertingActions {
     @JvmField
     val GET_MONITOR_ACTION_TYPE =
         ActionType(GET_MONITOR_ACTION_NAME, ::GetMonitorResponse)
+
+    @JvmField
+    val SEARCH_MONITORS_ACTION_TYPE =
+        ActionType(SEARCH_MONITORS_ACTION_NAME, ::SearchResponse)
 }
