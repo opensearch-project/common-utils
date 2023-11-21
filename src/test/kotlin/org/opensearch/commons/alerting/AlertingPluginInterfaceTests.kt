@@ -23,6 +23,8 @@ import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
 import org.opensearch.commons.alerting.action.GetFindingsResponse
+import org.opensearch.commons.alerting.action.GetMonitorRequest
+import org.opensearch.commons.alerting.action.GetMonitorResponse
 import org.opensearch.commons.alerting.action.GetWorkflowAlertsRequest
 import org.opensearch.commons.alerting.action.GetWorkflowAlertsResponse
 import org.opensearch.commons.alerting.action.GetWorkflowRequest
@@ -267,6 +269,20 @@ internal class AlertingPluginInterfaceTests {
                 .onResponse(response)
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.acknowledgeChainedAlerts(client, request, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
+    fun getMonitor() {
+        val request = mock(GetMonitorRequest::class.java)
+        val response = GetMonitorResponse("test-id", 1, 1, 1, null, null)
+        val listener: ActionListener<GetMonitorResponse> =
+            mock(ActionListener::class.java) as ActionListener<GetMonitorResponse>
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<GetMonitorResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        AlertingPluginInterface.getMonitor(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 }
