@@ -9,6 +9,7 @@ import java.io.IOException
 
 class GetAlertsRequest : ActionRequest {
     val table: Table
+    val findingIds: List<String>?
     val severityLevel: String
     val alertState: String
     val monitorId: String?
@@ -19,6 +20,7 @@ class GetAlertsRequest : ActionRequest {
 
     constructor(
         table: Table,
+        findingIds: List<String>?,
         severityLevel: String,
         alertState: String,
         monitorId: String?,
@@ -28,6 +30,7 @@ class GetAlertsRequest : ActionRequest {
         alertIds: List<String>? = null
     ) : super() {
         this.table = table
+        this.findingIds = findingIds
         this.severityLevel = severityLevel
         this.alertState = alertState
         this.monitorId = monitorId
@@ -40,6 +43,7 @@ class GetAlertsRequest : ActionRequest {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         table = Table.readFrom(sin),
+        findingIds = sin.readOptionalStringList(),
         severityLevel = sin.readString(),
         alertState = sin.readString(),
         monitorId = sin.readOptionalString(),
@@ -56,6 +60,7 @@ class GetAlertsRequest : ActionRequest {
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         table.writeTo(out)
+        out.writeOptionalStringCollection(findingIds)
         out.writeString(severityLevel)
         out.writeString(alertState)
         out.writeOptionalString(monitorId)
