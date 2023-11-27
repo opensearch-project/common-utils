@@ -59,7 +59,6 @@ data class DocLevelQuery(
         builder.startObject()
             .field(QUERY_ID_FIELD, id)
             .field(NAME_FIELD, name)
-            .field(FIELDS_FIELD, fields.toTypedArray())
             .field(QUERY_FIELD, query)
             .field(TAGS_FIELD, tags.toTypedArray())
             .endObject()
