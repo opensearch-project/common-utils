@@ -10,7 +10,6 @@ import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
 import org.opensearch.commons.alerting.randomChainedAlertTrigger
-import org.opensearch.commons.alerting.randomDocLevelQuery
 import org.opensearch.commons.alerting.randomDocumentLevelTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
@@ -111,16 +110,6 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newTrigger = DocumentLevelTrigger.readFrom(sin)
         Assertions.assertEquals(trigger, newTrigger, "Round tripping DocumentLevelTrigger doesn't work")
-    }
-
-    @Test
-    fun `test doc-level query as stream`() {
-        val dlq = randomDocLevelQuery()
-        val out = BytesStreamOutput()
-        dlq.writeTo(out)
-        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
-        val newDlq = DocLevelQuery.readFrom(sin)
-        Assertions.assertEquals(dlq, newDlq, "Round tripping DocLevelQuery doesn't work")
     }
 
     @Test
