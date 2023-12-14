@@ -1,6 +1,6 @@
-package org.opensearch.commons.alerting.model;
+package org.opensearch.commons.alerting.model
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
 import kotlin.test.assertEquals
 
@@ -10,7 +10,6 @@ class BucketLevelTriggerTests {
     fun `test asTemplateArgs returns expected values`() {
         val bucketLevelTrigger = randomBucketLevelTrigger()
         val templateArg = bucketLevelTrigger.asTemplateArg()
-        System.out.println(templateArg)
 
         assertEquals(templateArg[Trigger.ID_FIELD], bucketLevelTrigger.id)
         assertEquals(templateArg[Trigger.NAME_FIELD], bucketLevelTrigger.name)
