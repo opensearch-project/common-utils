@@ -58,7 +58,13 @@ data class QueryLevelTrigger(
     fun asTemplateArg(): Map<String, Any> {
         return mapOf(
             ID_FIELD to id, NAME_FIELD to name, SEVERITY_FIELD to severity,
-            ACTIONS_FIELD to actions.map { it.asTemplateArg() }
+            ACTIONS_FIELD to actions.map { it.asTemplateArg() },
+            CONDITION_FIELD to mapOf(
+                SCRIPT_FIELD to mapOf(
+                    SOURCE_FIELD to condition.idOrCode,
+                    LANG_FIELD to condition.lang
+                )
+            )
         )
     }
 
@@ -75,6 +81,8 @@ data class QueryLevelTrigger(
         const val QUERY_LEVEL_TRIGGER_FIELD = "query_level_trigger"
         const val CONDITION_FIELD = "condition"
         const val SCRIPT_FIELD = "script"
+        const val SOURCE_FIELD = "source"
+        const val LANG_FIELD = "lang"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             Trigger::class.java, ParseField(QUERY_LEVEL_TRIGGER_FIELD),

@@ -143,6 +143,9 @@ sealed class Schedule : BaseModel {
     abstract fun getPeriodEndingAt(endTime: Instant?): Pair<Instant, Instant>
 
     abstract fun runningOnTime(lastExecutionTime: Instant?): Boolean
+
+    /** Returns a representation of the schedule suitable for passing into painless and mustache scripts. */
+    abstract fun asTemplateArg(): Map<String, Any>
 }
 
 /**
@@ -254,6 +257,14 @@ data class CronSchedule(
         out.writeString(expression)
         out.writeZoneId(timezone)
     }
+
+    override fun asTemplateArg(): Map<String, Any> =
+        mapOf(
+            CRON_FIELD to mapOf(
+                EXPRESSION_FIELD to expression,
+                TIMEZONE_FIELD to timezone.toString()
+            )
+        )
 }
 
 data class IntervalSchedule(
@@ -351,4 +362,12 @@ data class IntervalSchedule(
         out.writeInt(interval)
         out.writeEnum(unit)
     }
+
+    override fun asTemplateArg(): Map<String, Any> =
+        mapOf(
+            PERIOD_FIELD to mapOf(
+                INTERVAL_FIELD to interval,
+                UNIT_FIELD to unit.toString()
+            )
+        )
 }
