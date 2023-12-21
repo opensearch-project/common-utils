@@ -69,12 +69,17 @@ data class BucketLevelTrigger(
             NAME_FIELD to name,
             SEVERITY_FIELD to severity,
             ACTIONS_FIELD to actions.map { it.asTemplateArg() },
-            PARENT_BUCKET_PATH to getParentBucketPath()
+            PARENT_BUCKET_PATH to getParentBucketPath(),
+            CONDITION_FIELD to getCondition()
         )
     }
 
     fun getParentBucketPath(): String {
         return bucketSelector.parentBucketPath
+    }
+
+    fun getCondition(): String {
+        return bucketSelector.script.idOrCode
     }
 
     companion object {
