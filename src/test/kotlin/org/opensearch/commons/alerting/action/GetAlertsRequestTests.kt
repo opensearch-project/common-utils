@@ -18,6 +18,7 @@ internal class GetAlertsRequestTests {
 
         val req = GetAlertsRequest(
             table = table,
+            findingIds = listOf(),
             severityLevel = "1",
             alertState = "active",
             monitorId = null,
@@ -49,7 +50,7 @@ internal class GetAlertsRequestTests {
     fun `test get alerts request with filter`() {
 
         val table = Table("asc", "sortString", null, 1, 0, "")
-        val req = GetAlertsRequest(table, "1", "active", null, null)
+        val req = GetAlertsRequest(table, null, "1", "active", null, null)
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -67,7 +68,7 @@ internal class GetAlertsRequestTests {
     fun `test validate returns null`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetAlertsRequest(table, "1", "active", null, null)
+        val req = GetAlertsRequest(table, null, "1", "active", null, null)
         assertNotNull(req)
         assertNull(req.validate())
     }
