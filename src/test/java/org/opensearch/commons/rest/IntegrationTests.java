@@ -38,7 +38,7 @@ public class IntegrationTests {
 
     @Test
     public void testCreateRestClientWithUser() throws Exception {
-        RestClient client = new SecureRestClientBuilder("localhost", 9200, true, "admin", "admin").build();
+        RestClient client = new SecureRestClientBuilder("localhost", 9200, true, "admin", "myStrongPassword123").build();
         Response response = client.performRequest(createSampleRequest());
         String responseBody = EntityUtils.toString(response.getEntity());
         assertEquals(200, response.getStatusLine().getStatusCode());
