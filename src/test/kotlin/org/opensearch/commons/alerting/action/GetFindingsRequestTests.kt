@@ -16,7 +16,7 @@ internal class GetFindingsRequestTests {
 
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetFindingsRequest("2121", table, "1", "finding_index_name", listOf("1", "2"))
+        val req = GetFindingsRequest("2121", table, "1", "finding_index_name", listOf("1", "2"), "severity")
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -27,6 +27,7 @@ internal class GetFindingsRequestTests {
         assertEquals("1", newReq.monitorId)
         assertEquals("2121", newReq.findingId)
         assertEquals("finding_index_name", newReq.findingIndex)
+        assertEquals("severity", newReq.severity)
         assertEquals(table, newReq.table)
         assertTrue(newReq.monitorIds!!.contains("1"))
         assertTrue(newReq.monitorIds!!.contains("2"))
@@ -36,7 +37,7 @@ internal class GetFindingsRequestTests {
     fun `test validate returns null`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetFindingsRequest("2121", table, "1", "active")
+        val req = GetFindingsRequest("2121", table, "1", "active", listOf("1", "2"), "severity")
         assertNotNull(req)
         assertNull(req.validate())
     }
