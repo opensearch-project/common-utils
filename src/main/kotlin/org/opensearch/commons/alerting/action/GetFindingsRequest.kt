@@ -14,6 +14,7 @@ class GetFindingsRequest : ActionRequest {
     val monitorIds: List<String>?
     val findingIndex: String?
     val severity: String?
+    val detectionType: String?
 
     constructor(
         findingId: String?,
@@ -21,7 +22,8 @@ class GetFindingsRequest : ActionRequest {
         monitorId: String? = null,
         findingIndexName: String? = null,
         monitorIds: List<String>? = null,
-        severity: String? = null
+        severity: String? = null,
+        detectionType: String? = null
     ) : super() {
         this.findingId = findingId
         this.table = table
@@ -29,6 +31,7 @@ class GetFindingsRequest : ActionRequest {
         this.findingIndex = findingIndexName
         this.monitorIds = monitorIds
         this.severity = severity
+        this.detectionType = detectionType
     }
 
     @Throws(IOException::class)
@@ -38,7 +41,8 @@ class GetFindingsRequest : ActionRequest {
         monitorId = sin.readOptionalString(),
         findingIndexName = sin.readOptionalString(),
         monitorIds = sin.readOptionalStringList(),
-        severity = sin.readOptionalString()
+        severity = sin.readOptionalString(),
+        detectionType = sin.readOptionalString()
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -53,5 +57,6 @@ class GetFindingsRequest : ActionRequest {
         out.writeOptionalString(findingIndex)
         out.writeOptionalStringCollection(monitorIds)
         out.writeOptionalString(severity)
+        out.writeOptionalString(detectionType)
     }
 }
