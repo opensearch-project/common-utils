@@ -54,7 +54,7 @@ import org.opensearch.core.common.Strings;
  *
  * Other usage:
  *  RestClient restClient = new SecureRestClientBuilder("localhost", 9200, false)
- *                     .setUserPassword("admin", "admin")
+ *                     .setUserPassword("admin", "myStrongPassword123")
  *                     .setTrustCerts(trustStorePath)
  *                     .build();
  *
