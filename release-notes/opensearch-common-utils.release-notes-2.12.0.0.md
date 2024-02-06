@@ -8,6 +8,7 @@ Compatible with OpenSearch 2.12.0
 * Update Gradle to 8.4 ([#560](https://github.com/opensearch-project/common-utils/pull/560))
 * Add Java 11/17/21 matrix for build, test and integration checks ([#561](https://github.com/opensearch-project/common-utils/pull/561))
 * changed all usages of 'admin' as a password to something different ([#581](https://github.com/opensearch-project/common-utils/pull/581))
+* Update dependency com.pinterest:ktlint to 0.47.1 and fix CVE-2023-6378 ([#585](https://github.com/opensearch-project/common-utils/pull/585))
 
 ### Enhancement
 * add 'fields' parameter in doc level query object. ([#546](https://github.com/opensearch-project/common-utils/pull/546))
