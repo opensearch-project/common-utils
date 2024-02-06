@@ -9,6 +9,7 @@ import java.io.IOException
 class DeleteWorkflowRequest : ActionRequest {
 
     val workflowId: String
+
     /**
      * Flag that indicates whether the delegate monitors should be deleted or not.
      * If the flag is set to true, Delegate monitors will be deleted only in the case when they are part of the specified workflow and no other.

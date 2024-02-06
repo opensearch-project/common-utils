@@ -32,7 +32,7 @@ class GetMonitorResponse : BaseResponse {
         seqNo: Long,
         primaryTerm: Long,
         monitor: Monitor?,
-        associatedCompositeMonitors: List<AssociatedWorkflow>?,
+        associatedCompositeMonitors: List<AssociatedWorkflow>?
     ) : super() {
         this.id = id
         this.version = version
@@ -50,8 +50,10 @@ class GetMonitorResponse : BaseResponse {
         primaryTerm = sin.readLong(), // primaryTerm
         monitor = if (sin.readBoolean()) {
             Monitor.readFrom(sin) // monitor
-        } else null,
-        associatedCompositeMonitors = sin.readList((AssociatedWorkflow)::readFrom),
+        } else {
+            null
+        },
+        associatedCompositeMonitors = sin.readList((AssociatedWorkflow)::readFrom)
     )
 
     @Throws(IOException::class)

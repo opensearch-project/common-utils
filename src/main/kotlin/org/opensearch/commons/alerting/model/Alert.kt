@@ -43,12 +43,14 @@ data class Alert(
     val aggregationResultBucket: AggregationResultBucket? = null,
     val executionId: String? = null,
     val associatedAlertIds: List<String>,
-    val clusters: List<String>? = null,
+    val clusters: List<String>? = null
 ) : Writeable, ToXContent {
 
     init {
-        if (errorMessage != null) require(state == State.DELETED || state == State.ERROR || state == State.AUDIT) {
-            "Attempt to create an alert with an error in state: $state"
+        if (errorMessage != null) {
+            require(state == State.DELETED || state == State.ERROR || state == State.AUDIT) {
+                "Attempt to create an alert with an error in state: $state"
+            }
         }
     }
 
@@ -308,7 +310,9 @@ data class Alert(
         monitorVersion = sin.readLong(),
         monitorUser = if (sin.readBoolean()) {
             User(sin)
-        } else null,
+        } else {
+            null
+        },
         triggerId = sin.readString(),
         triggerName = sin.readString(),
         findingIds = sin.readStringList(),
@@ -402,7 +406,6 @@ data class Alert(
         @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): Alert {
-
             lateinit var monitorId: String
             var workflowId = ""
             var workflowName = ""
@@ -440,8 +443,11 @@ data class Alert(
                     MONITOR_NAME_FIELD -> monitorName = xcp.text()
                     MONITOR_VERSION_FIELD -> monitorVersion = xcp.longValue()
                     MONITOR_USER_FIELD ->
-                        monitorUser = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null
-                        else User.parse(xcp)
+                        monitorUser = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            User.parse(xcp)
+                        }
                     TRIGGER_ID_FIELD -> triggerId = xcp.text()
                     FINDING_IDS -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)

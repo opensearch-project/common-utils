@@ -57,19 +57,22 @@ class IndexWorkflowRequest : ActionRequest {
 
         if (workflow.inputs.isEmpty()) {
             validationException = ValidateActions.addValidationError(
-                "Input list can not be empty.", validationException
+                "Input list can not be empty.",
+                validationException
             )
             return validationException
         }
         if (workflow.inputs.size > 1) {
             validationException = ValidateActions.addValidationError(
-                "Input list can contain only one element.", validationException
+                "Input list can contain only one element.",
+                validationException
             )
             return validationException
         }
         if (workflow.inputs[0] !is CompositeInput) {
             validationException = ValidateActions.addValidationError(
-                "When creating a workflow input must be CompositeInput", validationException
+                "When creating a workflow input must be CompositeInput",
+                validationException
             )
         }
         val compositeInput = workflow.inputs[0] as CompositeInput
@@ -77,7 +80,8 @@ class IndexWorkflowRequest : ActionRequest {
 
         if (monitorIds.isNullOrEmpty()) {
             validationException = ValidateActions.addValidationError(
-                "Delegates list can not be empty.", validationException
+                "Delegates list can not be empty.",
+                validationException
             )
             // Break the flow because next checks are dependant on non-null monitorIds
             return validationException
@@ -85,27 +89,29 @@ class IndexWorkflowRequest : ActionRequest {
 
         if (monitorIds.size > MAX_DELEGATE_SIZE) {
             validationException = ValidateActions.addValidationError(
-                "Delegates list can not be larger then $MAX_DELEGATE_SIZE.", validationException
+                "Delegates list can not be larger then $MAX_DELEGATE_SIZE.",
+                validationException
             )
         }
 
         if (monitorIds.toSet().size != monitorIds.size) {
             validationException = ValidateActions.addValidationError(
-                "Duplicate delegates not allowed", validationException
+                "Duplicate delegates not allowed",
+                validationException
             )
         }
         val delegates = compositeInput.sequence.delegates
         val orderSet = delegates.stream().filter { it.order > 0 }.map { it.order }.collect(Collectors.toSet())
         if (orderSet.size != delegates.size) {
             validationException = ValidateActions.addValidationError(
-                "Sequence ordering of delegate monitor shouldn't contain duplicate order values", validationException
+                "Sequence ordering of delegate monitor shouldn't contain duplicate order values",
+                validationException
             )
         }
 
         val monitorIdOrderMap: Map<String, Int> = delegates.associate { it.monitorId to it.order }
         delegates.forEach {
             if (it.chainedMonitorFindings != null) {
-
                 if (it.chainedMonitorFindings.monitorId != null) {
                     if (monitorIdOrderMap.containsKey(it.chainedMonitorFindings.monitorId) == false) {
                         validationException = ValidateActions.addValidationError(
