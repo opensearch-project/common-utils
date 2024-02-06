@@ -91,7 +91,7 @@ dependencies {
     testImplementation "commons-validator:commons-validator:1.7"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 
-    ktlint "com.pinterest:ktlint:0.44.0"
+    ktlint "com.pinterest:ktlint:0.47.1"
 }
 
 test {
