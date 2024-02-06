@@ -89,7 +89,7 @@ class ClusterMetricsInputTests {
     @Test
     fun `test url field and URI component fields with path params create equal URI`() {
         // GIVEN
-        path = "/_cluster/health/"
+        path = "/_cluster/health"
         pathParams = "index1,index2,index3,index4,index5"
         url = "http://localhost:9200/_cluster/health/index1,index2,index3,index4,index5"
 
@@ -205,7 +205,7 @@ class ClusterMetricsInputTests {
     @Test
     fun `test parsePathParams with path params as URI field`() {
         // GIVEN
-        path = "/_cluster/health/"
+        path = "/_cluster/health"
         pathParams = "index1,index2,index3,index4,index5"
         val testUrl = "http://localhost:9200/_cluster/health/index1,index2,index3,index4,index5"
         val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
@@ -268,7 +268,7 @@ class ClusterMetricsInputTests {
 
             // WHEN + THEN
             assertFailsWith<IllegalArgumentException>(
-                "The provided path parameters contain invalid characters or spaces. Please omit: " + "${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")}"
+                "The provided path parameters contain invalid characters or spaces. Please omit: " + ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")
             ) {
                 clusterMetricsInput.parsePathParams()
             }
@@ -427,9 +427,9 @@ class ClusterMetricsInputTests {
     @Test
     fun `test parseEmptyFields populates empty url field when path and path_params are provided`() {
         // GIVEN
-        path = "/_cluster/health/"
+        path = "/_cluster/health"
         pathParams = "index1,index2,index3,index4,index5"
-        val testUrl = "http://localhost:9200$path$pathParams"
+        val testUrl = "http://localhost:9200$path/$pathParams"
 
         // WHEN
         val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
