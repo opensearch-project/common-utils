@@ -527,9 +527,11 @@ fun assertUserNull(monitor: Monitor) {
 fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     val trigger = randomQueryLevelTrigger()
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
+    val clusterCount = (-1..5).random()
+    val clusters = if (clusterCount == -1) null else (0..clusterCount).map { "index-$it" }
     return Alert(
         monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
-        actionExecutionResults = actionExecutionResults
+        actionExecutionResults = actionExecutionResults, clusters = clusters
     )
 }
 
