@@ -75,7 +75,8 @@ data class DocLevelQuery(
         const val NO_ID = ""
         val INVALID_CHARACTERS: List<String> = listOf(" ", "[", "]", "{", "}", "(", ")")
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parse(xcp: XContentParser): DocLevelQuery {
             var id: String = UUID.randomUUID().toString()
             lateinit var query: String
@@ -130,7 +131,8 @@ data class DocLevelQuery(
             )
         }
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun readFrom(sin: StreamInput): DocLevelQuery {
             return DocLevelQuery(sin)
         }

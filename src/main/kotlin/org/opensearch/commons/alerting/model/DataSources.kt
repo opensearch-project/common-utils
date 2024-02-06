@@ -88,7 +88,7 @@ data class DataSources(
             ALERTS_HISTORY_INDEX_FIELD to alertsHistoryIndex,
             ALERTS_HISTORY_INDEX_PATTERN_FIELD to alertsHistoryIndexPattern,
             QUERY_INDEX_MAPPINGS_BY_TYPE to queryIndexMappingsByType,
-            FINDINGS_ENABLED_FIELD to findingsEnabled,
+            FINDINGS_ENABLED_FIELD to findingsEnabled
         )
     }
 

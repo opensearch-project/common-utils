@@ -88,7 +88,8 @@ data class BucketLevelTrigger(
         const val PARENT_BUCKET_PATH = "parentBucketPath"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java, ParseField(BUCKET_LEVEL_TRIGGER_FIELD),
+            Trigger::class.java,
+            ParseField(BUCKET_LEVEL_TRIGGER_FIELD),
             CheckedFunction { parseInner(it) }
         )
 

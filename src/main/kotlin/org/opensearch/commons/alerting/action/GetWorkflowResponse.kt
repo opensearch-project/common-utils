@@ -51,7 +51,9 @@ class GetWorkflowResponse : BaseResponse {
         sin.readEnum(RestStatus::class.java), // RestStatus
         if (sin.readBoolean()) {
             Workflow.readFrom(sin) // monitor
-        } else null
+        } else {
+            null
+        }
     )
 
     @Throws(IOException::class)
@@ -76,8 +78,9 @@ class GetWorkflowResponse : BaseResponse {
             .field(_VERSION, version)
             .field(_SEQ_NO, seqNo)
             .field(_PRIMARY_TERM, primaryTerm)
-        if (workflow != null)
+        if (workflow != null) {
             builder.field("workflow", workflow)
+        }
 
         return builder.endObject()
     }

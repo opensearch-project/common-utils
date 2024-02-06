@@ -208,7 +208,7 @@ fun randomWorkflowWithDelegates(
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() },
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() }
 ): Workflow {
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
@@ -286,9 +286,11 @@ fun randomDocumentLevelTrigger(
         name = name,
         severity = severity,
         condition = condition,
-        actions = if (actions.isEmpty() && destinationId.isNotBlank())
+        actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
             (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
-        else actions
+        } else {
+            actions
+        }
     )
 }
 
@@ -307,7 +309,9 @@ fun randomChainedAlertTrigger(
         condition = condition,
         actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
             (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
-        } else actions
+        } else {
+            actions
+        }
     )
 }
 
@@ -530,14 +534,18 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     val clusterCount = (-1..5).random()
     val clusters = if (clusterCount == -1) null else (0..clusterCount).map { "index-$it" }
     return Alert(
-        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
-        actionExecutionResults = actionExecutionResults, clusters = clusters
+        monitor,
+        trigger,
+        Instant.now().truncatedTo(ChronoUnit.MILLIS),
+        null,
+        actionExecutionResults = actionExecutionResults,
+        clusters = clusters
     )
 }
 
 fun randomChainedAlert(
     workflow: Workflow = randomWorkflow(),
-    trigger: ChainedAlertTrigger = randomChainedAlertTrigger(),
+    trigger: ChainedAlertTrigger = randomChainedAlertTrigger()
 ): Alert {
     return Alert(
         startTime = Instant.now(),
@@ -561,7 +569,10 @@ fun randomAlertWithAggregationResultBucket(monitor: Monitor = randomBucketLevelM
     val trigger = randomBucketLevelTrigger()
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
     return Alert(
-        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
+        monitor,
+        trigger,
+        Instant.now().truncatedTo(ChronoUnit.MILLIS),
+        null,
         actionExecutionResults = actionExecutionResults,
         aggregationResultBucket = AggregationResultBucket(
             "parent_bucket_path_1",

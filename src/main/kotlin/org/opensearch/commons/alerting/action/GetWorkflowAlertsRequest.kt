@@ -27,7 +27,7 @@ class GetWorkflowAlertsRequest : ActionRequest {
         monitorIds: List<String>? = null,
         workflowIds: List<String>? = null,
         alertIds: List<String>? = null,
-        getAssociatedAlerts: Boolean,
+        getAssociatedAlerts: Boolean
     ) : super() {
         this.table = table
         this.severityLevel = severityLevel

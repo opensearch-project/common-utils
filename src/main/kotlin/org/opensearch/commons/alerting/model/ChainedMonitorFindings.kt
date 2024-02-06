@@ -17,7 +17,7 @@ import java.util.Collections
 // TODO - Remove the class and move the monitorId to Delegate (as a chainedMonitorId property) if this class won't be updated by adding new properties
 data class ChainedMonitorFindings(
     val monitorId: String? = null,
-    val monitorIds: List<String> = emptyList(), // if monitorId field is non-null it would be given precendence for BWC
+    val monitorIds: List<String> = emptyList() // if monitorId field is non-null it would be given precendence for BWC
 ) : BaseModel {
 
     init {
@@ -75,8 +75,9 @@ data class ChainedMonitorFindings(
 
                 when (fieldName) {
                     MONITOR_ID_FIELD -> {
-                        if (!xcp.currentToken().equals(XContentParser.Token.VALUE_NULL))
+                        if (!xcp.currentToken().equals(XContentParser.Token.VALUE_NULL)) {
                             monitorId = xcp.text()
+                        }
                     }
 
                     MONITOR_IDS_FIELD -> {

@@ -9,7 +9,6 @@ class DeleteWorkflowResponseTests {
 
     @Test
     fun `test delete workflow response`() {
-
         val res = DeleteWorkflowResponse(id = "w1", version = 1, nonDeletedMonitors = listOf("m1"))
         Assert.assertNotNull(res)
         Assert.assertEquals("w1", res.id)

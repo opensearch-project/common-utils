@@ -162,7 +162,12 @@ internal class AlertingPluginInterfaceTests {
     fun getWorkflow() {
         val request = mock(GetWorkflowRequest::class.java)
         val response = GetWorkflowResponse(
-            id = "id", version = 1, seqNo = 1, primaryTerm = 1, status = RestStatus.OK, workflow = randomWorkflow()
+            id = "id",
+            version = 1,
+            seqNo = 1,
+            primaryTerm = 1,
+            status = RestStatus.OK,
+            workflow = randomWorkflow()
         )
         val listener: ActionListener<GetWorkflowResponse> =
             mock(ActionListener::class.java) as ActionListener<GetWorkflowResponse>

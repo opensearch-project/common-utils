@@ -277,13 +277,15 @@ class XContentTests {
         val cmf1 = ChainedMonitorFindings(monitorId = "m1")
         val cmf1String = cmf1.toJsonString()
         Assertions.assertEquals(
-            ChainedMonitorFindings.parse(parser(cmf1String)), cmf1,
+            ChainedMonitorFindings.parse(parser(cmf1String)),
+            cmf1,
             "Round tripping chained monitor findings failed"
         )
         val cmf2 = ChainedMonitorFindings(monitorIds = listOf("m1", "m2"))
         val cmf2String = cmf2.toJsonString()
         Assertions.assertEquals(
-            ChainedMonitorFindings.parse(parser(cmf2String)), cmf2,
+            ChainedMonitorFindings.parse(parser(cmf2String)),
+            cmf2,
             "Round tripping chained monitor findings failed"
         )
     }

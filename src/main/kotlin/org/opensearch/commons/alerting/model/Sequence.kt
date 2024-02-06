@@ -21,7 +21,7 @@ data class Sequence(
 
     fun asTemplateArg(): Map<String, Any?> {
         return mapOf(
-            DELEGATES_FIELD to delegates,
+            DELEGATES_FIELD to delegates
         )
     }
 
