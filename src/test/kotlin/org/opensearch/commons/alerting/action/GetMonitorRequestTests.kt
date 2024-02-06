@@ -14,7 +14,6 @@ import org.opensearch.test.OpenSearchTestCase
 class GetMonitorRequestTests : OpenSearchTestCase() {
 
     fun `test get monitor request`() {
-
         val req = GetMonitorRequest("1234", 1L, RestRequest.Method.GET, FetchSourceContext.FETCH_SOURCE)
         assertNotNull(req)
 
@@ -29,7 +28,6 @@ class GetMonitorRequestTests : OpenSearchTestCase() {
     }
 
     fun `test get monitor request without src context`() {
-
         val req = GetMonitorRequest("1234", 1L, RestRequest.Method.GET, null)
         assertNotNull(req)
 
@@ -44,7 +42,6 @@ class GetMonitorRequestTests : OpenSearchTestCase() {
     }
 
     fun `test head monitor request`() {
-
         val req = GetMonitorRequest("1234", 2L, RestRequest.Method.HEAD, FetchSourceContext.FETCH_SOURCE)
         assertNotNull(req)
 

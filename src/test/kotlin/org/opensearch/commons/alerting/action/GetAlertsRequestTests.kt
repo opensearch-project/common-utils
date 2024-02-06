@@ -13,7 +13,6 @@ internal class GetAlertsRequestTests {
 
     @Test
     fun `test get alerts request`() {
-
         val table = Table("asc", "sortString", null, 1, 0, "")
 
         val req = GetAlertsRequest(
@@ -24,7 +23,7 @@ internal class GetAlertsRequestTests {
             alertIndex = null,
             monitorIds = listOf("1", "2"),
             alertIds = listOf("alert1", "alert2"),
-            workflowIds = listOf("w1", "w2"),
+            workflowIds = listOf("w1", "w2")
         )
         assertNotNull(req)
 
@@ -47,7 +46,6 @@ internal class GetAlertsRequestTests {
 
     @Test
     fun `test get alerts request with filter`() {
-
         val table = Table("asc", "sortString", null, 1, 0, "")
         val req = GetAlertsRequest(table, "1", "active", null, null)
         assertNotNull(req)

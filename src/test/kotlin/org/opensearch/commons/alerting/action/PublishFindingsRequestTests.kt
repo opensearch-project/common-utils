@@ -11,7 +11,6 @@ class PublishFindingsRequestTests {
 
     @Test
     fun `test delete monitor request`() {
-
         val finding = randomFinding()
         val monitorId = "mid"
         val req = PublishFindingsRequest(monitorId, finding)
