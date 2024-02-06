@@ -450,7 +450,8 @@ class XContentTests {
             errorMessage = "some error",
             lastNotificationTime = Instant.now(),
             workflowId = "",
-            executionId = ""
+            executionId = "",
+            clusters = listOf()
         )
         assertEquals("Round tripping alert doesn't work", alert.triggerName, "NoOp trigger")
     }
@@ -462,7 +463,8 @@ class XContentTests {
             "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
             ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
             "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
+            "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }
@@ -475,7 +477,8 @@ class XContentTests {
                 "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
                 ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
                 "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-                "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+                "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
+                "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }

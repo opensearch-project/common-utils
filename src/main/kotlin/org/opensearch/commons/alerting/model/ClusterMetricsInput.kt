@@ -23,7 +23,8 @@ val ILLEGAL_PATH_PARAMETER_CHARACTERS = arrayOf(':', '"', '+', '\\', '|', '?', '
 data class ClusterMetricsInput(
     var path: String,
     var pathParams: String = "",
-    var url: String
+    var url: String,
+    var clusters: List<String> = listOf()
 ) : Input {
     val clusterMetricType: ClusterMetricType
     val constructedUri: URI
@@ -74,6 +75,7 @@ data class ClusterMetricsInput(
             .field(PATH_FIELD, path)
             .field(PATH_PARAMS_FIELD, pathParams)
             .field(URL_FIELD, url)
+            .field(CLUSTERS_FIELD, clusters)
             .endObject()
             .endObject()
     }
@@ -87,6 +89,7 @@ data class ClusterMetricsInput(
         out.writeString(path)
         out.writeString(pathParams)
         out.writeString(url)
+        out.writeStringArray(clusters.toTypedArray())
     }
 
     companion object {
@@ -99,6 +102,7 @@ data class ClusterMetricsInput(
         const val PATH_PARAMS_FIELD = "path_params"
         const val URL_FIELD = "url"
         const val URI_FIELD = "uri"
+        const val CLUSTERS_FIELD = "clusters"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(Input::class.java, ParseField(URI_FIELD), CheckedFunction { parseInner(it) })
 
@@ -110,6 +114,7 @@ data class ClusterMetricsInput(
             var path = ""
             var pathParams = ""
             var url = ""
+            val clusters = mutableListOf<String>()
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
 
@@ -120,9 +125,17 @@ data class ClusterMetricsInput(
                     PATH_FIELD -> path = xcp.text()
                     PATH_PARAMS_FIELD -> pathParams = xcp.text()
                     URL_FIELD -> url = xcp.text()
+                    CLUSTERS_FIELD -> {
+                        XContentParserUtils.ensureExpectedToken(
+                            XContentParser.Token.START_ARRAY,
+                            xcp.currentToken(),
+                            xcp
+                        )
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) clusters.add(xcp.text())
+                    }
                 }
             }
-            return ClusterMetricsInput(path, pathParams, url)
+            return ClusterMetricsInput(path, pathParams, url, clusters)
         }
     }
 
@@ -164,7 +177,7 @@ data class ClusterMetricsInput(
             ILLEGAL_PATH_PARAMETER_CHARACTERS.forEach { character ->
                 if (pathParams.contains(character))
                     throw IllegalArgumentException(
-                        "The provided path parameters contain invalid characters or spaces. Please omit: " + "${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")}"
+                        "The provided path parameters contain invalid characters or spaces. Please omit: " + ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")
                     )
             }
         }
