@@ -37,7 +37,7 @@ data class Workflow(
     val inputs: List<WorkflowInput>,
     val owner: String? = DEFAULT_OWNER,
     val triggers: List<Trigger>,
-    val auditDelegateMonitorAlerts: Boolean? = true,
+    val auditDelegateMonitorAlerts: Boolean? = true
 ) : ScheduledJob {
     override val type = WORKFLOW_TYPE
 
@@ -67,7 +67,9 @@ data class Workflow(
         workflowType = sin.readEnum(WorkflowType::class.java),
         user = if (sin.readBoolean()) {
             User(sin)
-        } else null,
+        } else {
+            null
+        },
         schemaVersion = sin.readInt(),
         inputs = sin.readList((WorkflowInput)::readFrom),
         owner = sin.readOptionalString(),
@@ -101,7 +103,7 @@ data class Workflow(
     private fun createXContentBuilder(
         builder: XContentBuilder,
         params: ToXContent.Params,
-        secure: Boolean,
+        secure: Boolean
     ): XContentBuilder {
         builder.startObject()
         if (params.paramAsBoolean("with_type", false)) builder.startObject(type)
