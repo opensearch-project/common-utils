@@ -38,7 +38,9 @@ class GetMonitorRequest : ActionRequest {
         sin.readEnum(RestRequest.Method::class.java), // method
         if (sin.readBoolean()) {
             FetchSourceContext(sin) // srcContext
-        } else null
+        } else {
+            null
+        }
     )
 
     override fun validate(): ActionRequestValidationException? {

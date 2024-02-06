@@ -50,7 +50,7 @@ class AlertTests {
         assertEquals(
             templateArgs[Alert.PARENTS_BUCKET_PATH],
             alert.aggregationResultBucket?.parentBucketPath,
-            "Template args parentBucketPath does not match",
+            "Template args parentBucketPath does not match"
         )
     }
 
@@ -66,8 +66,11 @@ class AlertTests {
     @Test
     fun `test alert in audit state`() {
         val auditAlert = Alert(
-            randomQueryLevelMonitor(), randomQueryLevelTrigger(), Instant.now().truncatedTo(ChronoUnit.MILLIS),
-            null, actionExecutionResults = listOf(randomActionExecutionResult())
+            randomQueryLevelMonitor(),
+            randomQueryLevelTrigger(),
+            Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            null,
+            actionExecutionResults = listOf(randomActionExecutionResult())
         )
         Assertions.assertFalse(auditAlert.isAcknowledged(), "Alert should not be in acknowledged state")
     }

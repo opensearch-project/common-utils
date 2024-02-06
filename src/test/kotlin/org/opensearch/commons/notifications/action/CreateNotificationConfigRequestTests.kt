@@ -125,6 +125,7 @@ internal class CreateNotificationConfigRequestTests {
         assertNull(recreatedObject.validate())
         assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
     }
+
     @Test
     fun `Create config serialize and deserialize transport object should be equal microsoft teams`() {
         val configRequest = CreateNotificationConfigRequest(
@@ -214,6 +215,7 @@ internal class CreateNotificationConfigRequestTests {
         assertNull(recreatedObject.validate())
         assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
     }
+
     @Test
     fun `Create config serialize and deserialize using json object should be equal microsoft teams`() {
         val configRequest = CreateNotificationConfigRequest(
@@ -309,6 +311,7 @@ internal class CreateNotificationConfigRequestTests {
         val recreatedObject = createObjectFromJsonString(jsonString) { CreateNotificationConfigRequest.parse(it) }
         assertEquals(config, recreatedObject.notificationConfig)
     }
+
     @Test
     fun `Create config should deserialize json object using parser microsoft teams`() {
         val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_microsoft_teams_url#1234567890")
