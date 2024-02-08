@@ -531,15 +531,13 @@ fun assertUserNull(monitor: Monitor) {
 fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     val trigger = randomQueryLevelTrigger()
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
-    val clusterCount = (-1..5).random()
-    val clusters = if (clusterCount == -1) null else (0..clusterCount).map { "index-$it" }
     return Alert(
         monitor,
         trigger,
         Instant.now().truncatedTo(ChronoUnit.MILLIS),
         null,
         actionExecutionResults = actionExecutionResults,
-        clusters = clusters
+        clusters = randomAlertClustersList()
     )
 }
 
@@ -555,7 +553,8 @@ fun randomChainedAlert(
         executionId = UUID.randomUUID().toString(),
         chainedAlertTrigger = trigger,
         workflow = workflow,
-        associatedAlertIds = listOf("a1")
+        associatedAlertIds = listOf("a1"),
+        clusters = randomAlertClustersList()
     )
 }
 
@@ -578,7 +577,8 @@ fun randomAlertWithAggregationResultBucket(monitor: Monitor = randomBucketLevelM
             "parent_bucket_path_1",
             listOf("bucket_key_1"),
             mapOf("k1" to "val1", "k2" to "val2")
-        )
+        ),
+        clusters = randomAlertClustersList()
     )
 }
 
@@ -600,4 +600,16 @@ fun randomFinding(
         docLevelQueries = docLevelQueries,
         timestamp = timestamp
     )
+}
+
+/**
+ * In the [Alert] data model, [Alert.clusters] can be null, or a List<String>.
+ * @return This function will randomly return null, an empty list, or a list of 1-5 unique strings.
+ */
+fun randomAlertClustersList(): List<String>? {
+    return when (val clusterCount = (-1..5).random()) {
+        -1 -> null
+        0 -> emptyList()
+        else -> (0 until clusterCount).map { "cluster-$it" }
+    }
 }
