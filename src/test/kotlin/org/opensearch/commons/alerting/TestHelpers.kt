@@ -553,7 +553,8 @@ fun randomChainedAlert(
         executionId = UUID.randomUUID().toString(),
         chainedAlertTrigger = trigger,
         workflow = workflow,
-        associatedAlertIds = listOf("a1")
+        associatedAlertIds = listOf("a1"),
+        clusters = randomAlertClustersList()
     )
 }
 
@@ -606,9 +607,6 @@ fun randomFinding(
  * @return This function will randomly return null, an empty list, or a list of 1-5 unique strings.
  */
 fun randomAlertClustersList(): List<String>? {
-    return when (val clusterCount = (-1..5).random()) {
-        -1 -> null
-        0 -> emptyList()
-        else -> (0 until clusterCount).map { "cluster-$it" }
-    }
+    val clusterCount = (0..5).random()
+    return if (clusterCount < 1) null else (0 until clusterCount).map { "cluster-$it" }
 }
