@@ -604,7 +604,7 @@ fun randomFinding(
 
 /**
  * In the [Alert] data model, [Alert.clusters] can be null, or a List<String>.
- * @return This function will randomly return null, an empty list, or a list of 1-5 unique strings.
+ * @return This function will randomly return null, or a list of 1-5 unique strings.
  */
 fun randomAlertClustersList(): List<String>? {
     val clusterCount = (0..5).random()
