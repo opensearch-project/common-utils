@@ -553,8 +553,7 @@ fun randomChainedAlert(
         executionId = UUID.randomUUID().toString(),
         chainedAlertTrigger = trigger,
         workflow = workflow,
-        associatedAlertIds = listOf("a1"),
-        clusters = randomAlertClustersList()
+        associatedAlertIds = listOf("a1")
     )
 }
 

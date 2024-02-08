@@ -367,9 +367,7 @@ data class Alert(
         }
         out.writeOptionalString(executionId)
         out.writeStringCollection(associatedAlertIds)
-        if (!clusters.isNullOrEmpty()) {
-            out.writeOptionalStringArray(clusters.toTypedArray())
-        }
+        out.writeOptionalStringArray(clusters?.toTypedArray())
     }
 
     companion object {
