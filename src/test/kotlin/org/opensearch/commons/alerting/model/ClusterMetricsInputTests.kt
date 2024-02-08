@@ -5,9 +5,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ClusterMetricsInputTests {
-    private var path = "/_cluster/health"
+    private var path = ClusterMetricsInput.ClusterMetricType.CLUSTER_HEALTH.defaultPath
     private var pathParams = ""
     private var url = ""
+    private var clusters = listOf<String>()
 
     @Test
     fun `test valid ClusterMetricsInput creation using HTTP URI component fields`() {
@@ -21,6 +22,7 @@ class ClusterMetricsInputTests {
         assertEquals(path, clusterMetricsInput.path)
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(testUrl, clusterMetricsInput.url)
+        assertEquals(clusters, clusterMetricsInput.clusters)
     }
 
     @Test
@@ -84,6 +86,7 @@ class ClusterMetricsInputTests {
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(url, clusterMetricsInput.url)
         assertEquals(url, clusterMetricsInput.constructedUri.toString())
+        assertEquals(clusters, clusterMetricsInput.clusters)
     }
 
     @Test
@@ -101,6 +104,7 @@ class ClusterMetricsInputTests {
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(url, clusterMetricsInput.url)
         assertEquals(url, clusterMetricsInput.constructedUri.toString())
+        assertEquals(clusters, clusterMetricsInput.clusters)
     }
 
     @Test
@@ -422,6 +426,7 @@ class ClusterMetricsInputTests {
         assertEquals(testPath, clusterMetricsInput.path)
         assertEquals(testPathParams, clusterMetricsInput.pathParams)
         assertEquals(url, clusterMetricsInput.url)
+        assertEquals(clusters, clusterMetricsInput.clusters)
     }
 
     @Test
@@ -438,5 +443,61 @@ class ClusterMetricsInputTests {
         assertEquals(path, clusterMetricsInput.path)
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(testUrl, clusterMetricsInput.url)
+        assertEquals(clusters, clusterMetricsInput.clusters)
+    }
+
+    @Test
+    fun `test construct input empty clusters`() {
+        var testCount = 1 // Start off with count of 1 to account for ApiType.BLANK
+        ClusterMetricsInput.ClusterMetricType.values()
+            .filter { enum -> enum != ClusterMetricsInput.ClusterMetricType.BLANK }
+            .forEach { testApiType ->
+                // GIVEN
+                path = testApiType.defaultPath
+                pathParams = if (testApiType.supportsPathParams) "index1,index2,index3,index4,index5" else ""
+                url = "http://localhost:9200${testApiType.defaultPath}${if (testApiType.supportsPathParams) "/$pathParams" else ""}"
+
+                // WHEN
+                val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url, clusters)
+
+                // THEN
+                assertEquals(testApiType, clusterMetricsInput.clusterMetricType)
+                assertEquals(path, clusterMetricsInput.path)
+                assertEquals(pathParams, clusterMetricsInput.pathParams)
+                assertEquals(pathParams, clusterMetricsInput.parsePathParams())
+                assertEquals(clusters, clusterMetricsInput.clusters)
+                assertEquals(url, clusterMetricsInput.url)
+                assertEquals(url, clusterMetricsInput.constructedUri.toString())
+                testCount++
+            }
+        assertEquals(ClusterMetricsInput.ClusterMetricType.values().size, testCount)
+    }
+
+    @Test
+    fun `test construct input with non-empty clusters`() {
+        var testCount = 1 // Start off with count of 1 to account for ApiType.BLANK
+        ClusterMetricsInput.ClusterMetricType.values()
+            .filter { enum -> enum != ClusterMetricsInput.ClusterMetricType.BLANK }
+            .forEach { testApiType ->
+                // GIVEN
+                path = testApiType.defaultPath
+                pathParams = if (testApiType.supportsPathParams) "index1,index2,index3,index4,index5" else ""
+                url = "http://localhost:9200${testApiType.defaultPath}${if (testApiType.supportsPathParams) "/$pathParams" else ""}"
+                clusters = listOf("cluster-1", "cluster-2")
+
+                // WHEN
+                val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url, clusters)
+
+                // THEN
+                assertEquals(testApiType, clusterMetricsInput.clusterMetricType)
+                assertEquals(path, clusterMetricsInput.path)
+                assertEquals(pathParams, clusterMetricsInput.pathParams)
+                assertEquals(pathParams, clusterMetricsInput.parsePathParams())
+                assertEquals(clusters, clusterMetricsInput.clusters)
+                assertEquals(url, clusterMetricsInput.url)
+                assertEquals(url, clusterMetricsInput.constructedUri.toString())
+                testCount++
+            }
+        assertEquals(ClusterMetricsInput.ClusterMetricType.values().size, testCount)
     }
 }
