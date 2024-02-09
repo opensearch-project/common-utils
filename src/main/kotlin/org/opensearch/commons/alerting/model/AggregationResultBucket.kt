@@ -1,5 +1,6 @@
 package org.opensearch.commons.alerting.model
 
+import org.apache.logging.log4j.LogManager
 import org.opensearch.core.common.ParsingException
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -12,6 +13,8 @@ import org.opensearch.core.xcontent.XContentParser.Token
 import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
 import java.util.Locale
+
+private val logger = LogManager.getLogger(AggregationResultBucket::class.java)
 
 data class AggregationResultBucket(
     val parentBucketPath: String?,
@@ -35,12 +38,29 @@ data class AggregationResultBucket(
     }
 
     fun innerXContent(builder: XContentBuilder): XContentBuilder {
+        logger.info("hurneyt innerXContent::PARENTS_BUCKET_PATH = {}", parentBucketPath)
+        logger.info("hurneyt innerXContent::BUCKET_KEYS = {}", bucketKeys.toTypedArray())
+        logger.info("hurneyt innerXContent::BUCKET = {}", bucket)
         builder.startObject(CONFIG_NAME)
             .field(PARENTS_BUCKET_PATH, parentBucketPath)
             .field(BUCKET_KEYS, bucketKeys.toTypedArray())
             .field(BUCKET, bucket)
             .endObject()
         return builder
+    }
+
+    fun asTemplateArg(): Map<String, Any?> {
+        logger.info("hurneyt asTemplateArg START")
+        logger.info("hurneyt asTemplateArg::PARENTS_BUCKET_PATH = {}", parentBucketPath)
+        logger.info("hurneyt asTemplateArg::BUCKET_KEYS = {}", bucketKeys.toTypedArray())
+        logger.info("hurneyt asTemplateArg::BUCKET = {}", bucket)
+        val output = mapOf(
+            PARENTS_BUCKET_PATH to parentBucketPath,
+            BUCKET_KEYS to bucketKeys,
+            BUCKET to bucket
+        )
+        logger.info("hurneyt asTemplateArg END")
+        return output
     }
 
     companion object {
