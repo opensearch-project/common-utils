@@ -11,6 +11,7 @@ import org.opensearch.client.Response
 import org.opensearch.client.RestClient
 import org.opensearch.client.WarningsHandler
 import org.opensearch.common.UUIDs
+import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.settings.Settings
 import org.opensearch.common.xcontent.LoggingDeprecationHandler
 import org.opensearch.common.xcontent.XContentFactory
@@ -30,6 +31,7 @@ import org.opensearch.commons.alerting.model.DocLevelMonitorInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.DocumentLevelTrigger
 import org.opensearch.commons.alerting.model.Finding
+import org.opensearch.commons.alerting.model.IdDocPair
 import org.opensearch.commons.alerting.model.Input
 import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Monitor
@@ -173,7 +175,8 @@ fun randomWorkflow(
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
     triggers: List<Trigger> = listOf(randomChainedAlertTrigger()),
-    auditDelegateMonitorAlerts: Boolean? = true
+    auditDelegateMonitorAlerts: Boolean? = true,
+    streamingWorkflow: Boolean? = false
 ): Workflow {
     val delegates = mutableListOf<Delegate>()
     if (!monitorIds.isNullOrEmpty()) {
@@ -196,7 +199,7 @@ fun randomWorkflow(
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
         schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        triggers = triggers, auditDelegateMonitorAlerts = auditDelegateMonitorAlerts
+        triggers = triggers, auditDelegateMonitorAlerts = auditDelegateMonitorAlerts, streamingWorkflow = streamingWorkflow
     )
 }
 
@@ -593,4 +596,14 @@ fun randomFinding(
         docLevelQueries = docLevelQueries,
         timestamp = timestamp
     )
+}
+
+fun randomIdDocPair(
+    docId: String = UUIDs.base64UUID(),
+): IdDocPair {
+    val outputStream = BytesStreamOutput()
+    randomFinding().writeTo(outputStream)
+    val document = outputStream.copyBytes()
+
+    return IdDocPair(docId, document)
 }

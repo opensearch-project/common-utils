@@ -38,6 +38,7 @@ data class Workflow(
     val owner: String? = DEFAULT_OWNER,
     val triggers: List<Trigger>,
     val auditDelegateMonitorAlerts: Boolean? = true,
+    val streamingWorkflow: Boolean? = false,
 ) : ScheduledJob {
     override val type = WORKFLOW_TYPE
 
@@ -72,7 +73,8 @@ data class Workflow(
         inputs = sin.readList((WorkflowInput)::readFrom),
         owner = sin.readOptionalString(),
         triggers = sin.readList((Trigger)::readFrom),
-        auditDelegateMonitorAlerts = sin.readOptionalBoolean()
+        auditDelegateMonitorAlerts = sin.readOptionalBoolean(),
+        streamingWorkflow = sin.readOptionalBoolean()
     )
 
     // This enum classifies different workflows
@@ -124,6 +126,9 @@ data class Workflow(
         if (auditDelegateMonitorAlerts != null) {
             builder.field(AUDIT_DELEGATE_MONITOR_ALERTS_FIELD, auditDelegateMonitorAlerts)
         }
+        if (streamingWorkflow != null) {
+            builder.field(STREAMING_WORKFLOW_FIELD, streamingWorkflow)
+        }
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
     }
@@ -165,6 +170,7 @@ data class Workflow(
             it.writeTo(out)
         }
         out.writeOptionalBoolean(auditDelegateMonitorAlerts)
+        out.writeOptionalBoolean(streamingWorkflow)
     }
 
     companion object {
@@ -184,6 +190,7 @@ data class Workflow(
         const val TRIGGERS_FIELD = "triggers"
         const val OWNER_FIELD = "owner"
         const val AUDIT_DELEGATE_MONITOR_ALERTS_FIELD = "audit_delegate_monitor_alerts"
+        const val STREAMING_WORKFLOW_FIELD = "streaming_workflow"
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
         // the different subclasses and creating circular dependencies
@@ -209,6 +216,7 @@ data class Workflow(
             val triggers: MutableList<Trigger> = mutableListOf()
             var owner = DEFAULT_OWNER
             var auditDelegateMonitorAlerts = true
+            var streamingWorkflow = false
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -254,6 +262,7 @@ data class Workflow(
                     ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
                     AUDIT_DELEGATE_MONITOR_ALERTS_FIELD -> auditDelegateMonitorAlerts = xcp.booleanValue()
+                    STREAMING_WORKFLOW_FIELD -> streamingWorkflow = xcp.booleanValue()
                     OWNER_FIELD -> {
                         owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
                     }
@@ -282,7 +291,8 @@ data class Workflow(
                 inputs.toList(),
                 owner,
                 triggers,
-                auditDelegateMonitorAlerts
+                auditDelegateMonitorAlerts,
+                streamingWorkflow
             )
         }
 

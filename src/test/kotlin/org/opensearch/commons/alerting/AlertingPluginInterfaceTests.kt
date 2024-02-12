@@ -20,6 +20,8 @@ import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
 import org.opensearch.commons.alerting.action.DeleteWorkflowRequest
 import org.opensearch.commons.alerting.action.DeleteWorkflowResponse
+import org.opensearch.commons.alerting.action.ExecuteStreamingWorkflowRequest
+import org.opensearch.commons.alerting.action.ExecuteStreamingWorkflowResponse
 import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
@@ -280,6 +282,20 @@ internal class AlertingPluginInterfaceTests {
                 .onResponse(response)
         }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.searchMonitors(client, request, listener)
+        Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
+    }
+
+    @Test
+    fun executeStreamingWorkflow() {
+        val request = mock(ExecuteStreamingWorkflowRequest::class.java)
+        val response = mock(ExecuteStreamingWorkflowResponse::class.java)
+        val listener: ActionListener<ExecuteStreamingWorkflowResponse> =
+            mock(ActionListener::class.java) as ActionListener<ExecuteStreamingWorkflowResponse>
+        Mockito.doAnswer {
+            (it.getArgument(2) as ActionListener<ExecuteStreamingWorkflowResponse>)
+                .onResponse(response)
+        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        AlertingPluginInterface.executeStreamingWorkflow(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
 }

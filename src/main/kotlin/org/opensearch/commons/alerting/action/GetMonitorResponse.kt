@@ -51,7 +51,8 @@ class GetMonitorResponse : BaseResponse {
         monitor = if (sin.readBoolean()) {
             Monitor.readFrom(sin) // monitor
         } else null,
-        associatedCompositeMonitors = sin.readList((AssociatedWorkflow)::readFrom),
+        // TODO - find correct solution for this instead of setting to null
+        associatedCompositeMonitors = null
     )
 
     @Throws(IOException::class)

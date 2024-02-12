@@ -21,6 +21,7 @@ object AlertingActions {
     const val SUBSCRIBE_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/subscribe"
     const val GET_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/get"
     const val SEARCH_MONITORS_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/search"
+    const val EXECUTE_STREAMING_WORKFLOW_ACTION_NAME = "cluster:admin/opendistro/alerting/workflow/streaming/execute"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -71,4 +72,8 @@ object AlertingActions {
     @JvmField
     val SEARCH_MONITORS_ACTION_TYPE =
         ActionType(SEARCH_MONITORS_ACTION_NAME, ::SearchResponse)
+
+    @JvmField
+    val EXECUTE_STREAMING_WORKFLOW_ACTION_TYPE =
+        ActionType(EXECUTE_STREAMING_WORKFLOW_ACTION_NAME, ::ExecuteStreamingWorkflowResponse)
 }

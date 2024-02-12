@@ -46,6 +46,7 @@ class IndexWorkflowRequestTests {
         Assertions.assertEquals(RestRequest.Method.POST, newReq.method)
         Assertions.assertNotNull(newReq.workflow)
         Assertions.assertFalse(newReq.workflow.auditDelegateMonitorAlerts!!)
+        Assertions.assertFalse(newReq.workflow.streamingWorkflow!!)
     }
 
     @Test
@@ -105,6 +106,27 @@ class IndexWorkflowRequestTests {
         Assertions.assertEquals(2L, newReq.primaryTerm)
         Assertions.assertEquals(RestRequest.Method.PUT, newReq.method)
         Assertions.assertNotNull(newReq.workflow)
+    }
+
+    @Test
+    fun `test index workflow post request with streaming workflow`() {
+
+        val req = IndexWorkflowRequest(
+            "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.POST,
+            randomWorkflow(streamingWorkflow = true)
+        )
+        Assertions.assertNotNull(req)
+
+        val out = BytesStreamOutput()
+        req.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newReq = IndexWorkflowRequest(sin)
+        Assertions.assertEquals("1234", newReq.workflowId)
+        Assertions.assertEquals(1L, newReq.seqNo)
+        Assertions.assertEquals(2L, newReq.primaryTerm)
+        Assertions.assertEquals(RestRequest.Method.POST, newReq.method)
+        Assertions.assertNotNull(newReq.workflow)
+        Assertions.assertTrue(newReq.workflow.streamingWorkflow!!)
     }
 
     @Test

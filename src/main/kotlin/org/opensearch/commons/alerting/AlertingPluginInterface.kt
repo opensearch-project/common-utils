@@ -14,6 +14,8 @@ import org.opensearch.commons.alerting.action.DeleteMonitorRequest
 import org.opensearch.commons.alerting.action.DeleteMonitorResponse
 import org.opensearch.commons.alerting.action.DeleteWorkflowRequest
 import org.opensearch.commons.alerting.action.DeleteWorkflowResponse
+import org.opensearch.commons.alerting.action.ExecuteStreamingWorkflowRequest
+import org.opensearch.commons.alerting.action.ExecuteStreamingWorkflowResponse
 import org.opensearch.commons.alerting.action.GetAlertsRequest
 import org.opensearch.commons.alerting.action.GetAlertsResponse
 import org.opensearch.commons.alerting.action.GetFindingsRequest
@@ -334,6 +336,30 @@ object AlertingPluginInterface {
             // to recreate any object or specially handle onResponse / onFailure. It is
             // simply returning a SearchResponse.
             listener
+        )
+    }
+
+    /**
+     * Execute streaming Workflow interface.
+     * @param client Node client for making transport action
+     * @param request The request object
+     * @param listener The listener for getting response
+     */
+    fun executeStreamingWorkflow(
+        client: NodeClient,
+        request: ExecuteStreamingWorkflowRequest,
+        listener: ActionListener<ExecuteStreamingWorkflowResponse>
+    ) {
+        client.execute(
+            AlertingActions.EXECUTE_STREAMING_WORKFLOW_ACTION_TYPE,
+            request,
+            wrapActionListener(listener) { response ->
+                recreateObject(response) {
+                    ExecuteStreamingWorkflowResponse(
+                        it
+                    )
+                }
+            }
         )
     }
 
