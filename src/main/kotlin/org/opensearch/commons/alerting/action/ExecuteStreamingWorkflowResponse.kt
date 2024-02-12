@@ -12,7 +12,6 @@ import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
 
-// TODO - return more info so that it can be passed back to the client if there are failures?
 class ExecuteStreamingWorkflowResponse : BaseResponse {
     private var status: RestStatus
 
