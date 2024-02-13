@@ -13,6 +13,7 @@ import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.ToXContentFragment
 import org.opensearch.core.xcontent.XContentBuilder
@@ -51,8 +52,7 @@ class GetMonitorResponse : BaseResponse {
         monitor = if (sin.readBoolean()) {
             Monitor.readFrom(sin) // monitor
         } else null,
-        // TODO - find correct solution for this instead of setting to null
-        associatedCompositeMonitors = null
+        associatedCompositeMonitors = sin.readList((AssociatedWorkflow)::readFrom)
     )
 
     @Throws(IOException::class)
@@ -67,9 +67,7 @@ class GetMonitorResponse : BaseResponse {
         } else {
             out.writeBoolean(false)
         }
-        associatedWorkflows?.forEach {
-            it.writeTo(out)
-        }
+        out.writeList((associatedWorkflows?: emptyList()) as MutableList<AssociatedWorkflow>?)
     }
 
     @Throws(IOException::class)
@@ -88,7 +86,7 @@ class GetMonitorResponse : BaseResponse {
         return builder.endObject()
     }
 
-    class AssociatedWorkflow : ToXContentFragment {
+    class AssociatedWorkflow : ToXContentFragment, Writeable {
         val id: String
         val name: String
 
@@ -105,7 +103,7 @@ class GetMonitorResponse : BaseResponse {
             return builder
         }
 
-        fun writeTo(out: StreamOutput) {
+        override fun writeTo(out: StreamOutput) {
             out.writeString(id)
             out.writeString(name)
         }
