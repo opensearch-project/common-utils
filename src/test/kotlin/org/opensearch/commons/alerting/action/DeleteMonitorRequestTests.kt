@@ -11,7 +11,6 @@ class DeleteMonitorRequestTests {
 
     @Test
     fun `test delete monitor request`() {
-
         val req = DeleteMonitorRequest("1234", WriteRequest.RefreshPolicy.IMMEDIATE)
         assertNotNull(req)
         assertEquals("1234", req.monitorId)

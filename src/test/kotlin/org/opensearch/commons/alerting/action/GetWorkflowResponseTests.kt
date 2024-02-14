@@ -20,7 +20,12 @@ class GetWorkflowResponseTests {
     fun testGetWorkflowResponse() {
         val workflow = randomWorkflow(auditDelegateMonitorAlerts = false)
         val response = GetWorkflowResponse(
-            id = "id", version = 1, seqNo = 1, primaryTerm = 1, status = RestStatus.OK, workflow = workflow
+            id = "id",
+            version = 1,
+            seqNo = 1,
+            primaryTerm = 1,
+            status = RestStatus.OK,
+            workflow = workflow
         )
         val out = BytesStreamOutput()
         response.writeTo(out)
@@ -50,7 +55,12 @@ class GetWorkflowResponseTests {
             triggers = listOf()
         )
         val response = GetWorkflowResponse(
-            id = "id", version = 1, seqNo = 1, primaryTerm = 1, status = RestStatus.OK, workflow = workflow
+            id = "id",
+            version = 1,
+            seqNo = 1,
+            primaryTerm = 1,
+            status = RestStatus.OK,
+            workflow = workflow
         )
         val out = BytesStreamOutput()
         response.writeTo(out)

@@ -119,6 +119,7 @@ internal class UpdateNotificationConfigRequestTests {
         assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
         assertEquals("config_id", recreatedObject.configId)
     }
+
     @Test
     fun `Update config serialize and deserialize transport object should be equal Microsoft Teams`() {
         val configRequest = UpdateNotificationConfigRequest("config_id", createMicrosoftTeamsContentConfigObject())
@@ -187,6 +188,7 @@ internal class UpdateNotificationConfigRequestTests {
         assertEquals(configRequest.notificationConfig, recreatedObject.notificationConfig)
         assertEquals("config_id", recreatedObject.configId)
     }
+
     @Test
     fun `Update config serialize and deserialize using json object should be equal microsoft Teams`() {
         val configRequest = UpdateNotificationConfigRequest("config_id", createMicrosoftTeamsContentConfigObject())

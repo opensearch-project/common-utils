@@ -43,11 +43,14 @@ data class Alert(
     val aggregationResultBucket: AggregationResultBucket? = null,
     val executionId: String? = null,
     val associatedAlertIds: List<String>,
+    val clusters: List<String>? = null
 ) : Writeable, ToXContent {
 
     init {
-        if (errorMessage != null) require(state == State.DELETED || state == State.ERROR || state == State.AUDIT) {
-            "Attempt to create an alert with an error in state: $state"
+        if (errorMessage != null) {
+            require(state == State.DELETED || state == State.ERROR || state == State.AUDIT) {
+                "Attempt to create an alert with an error in state: $state"
+            }
         }
     }
 
@@ -61,6 +64,7 @@ data class Alert(
         chainedAlertTrigger: ChainedAlertTrigger,
         workflow: Workflow,
         associatedAlertIds: List<String>,
+        clusters: List<String>? = null
     ) : this(
         monitorId = NO_ID,
         monitorName = "",
@@ -82,7 +86,8 @@ data class Alert(
         executionId = executionId,
         workflowId = workflow.id,
         workflowName = workflow.name,
-        associatedAlertIds = associatedAlertIds
+        associatedAlertIds = associatedAlertIds,
+        clusters = clusters
     )
 
     constructor(
@@ -97,6 +102,7 @@ data class Alert(
         schemaVersion: Int = NO_SCHEMA_VERSION,
         executionId: String? = null,
         workflowId: String? = null,
+        clusters: List<String>? = null
     ) : this(
         monitorId = monitor.id,
         monitorName = monitor.name,
@@ -118,7 +124,8 @@ data class Alert(
         executionId = executionId,
         workflowId = workflowId ?: "",
         workflowName = "",
-        associatedAlertIds = emptyList()
+        associatedAlertIds = emptyList(),
+        clusters = clusters
     )
 
     constructor(
@@ -134,6 +141,7 @@ data class Alert(
         findingIds: List<String> = emptyList(),
         executionId: String? = null,
         workflowId: String? = null,
+        clusters: List<String>? = null
     ) : this(
         monitorId = monitor.id,
         monitorName = monitor.name,
@@ -155,7 +163,8 @@ data class Alert(
         executionId = executionId,
         workflowId = workflowId ?: "",
         workflowName = "",
-        associatedAlertIds = emptyList()
+        associatedAlertIds = emptyList(),
+        clusters = clusters
     )
 
     constructor(
@@ -172,6 +181,7 @@ data class Alert(
         findingIds: List<String> = emptyList(),
         executionId: String? = null,
         workflowId: String? = null,
+        clusters: List<String>? = null
     ) : this(
         monitorId = monitor.id,
         monitorName = monitor.name,
@@ -193,7 +203,8 @@ data class Alert(
         executionId = executionId,
         workflowId = workflowId ?: "",
         workflowName = "",
-        associatedAlertIds = emptyList()
+        associatedAlertIds = emptyList(),
+        clusters = clusters
     )
 
     constructor(
@@ -211,6 +222,7 @@ data class Alert(
         schemaVersion: Int = NO_SCHEMA_VERSION,
         executionId: String? = null,
         workflowId: String? = null,
+        clusters: List<String>? = null
     ) : this(
         id = id,
         monitorId = monitor.id,
@@ -233,7 +245,8 @@ data class Alert(
         executionId = executionId,
         workflowId = workflowId ?: "",
         workflowName = "",
-        associatedAlertIds = emptyList()
+        associatedAlertIds = emptyList(),
+        clusters = clusters
     )
 
     constructor(
@@ -248,6 +261,7 @@ data class Alert(
         schemaVersion: Int = NO_SCHEMA_VERSION,
         workflowId: String? = null,
         executionId: String?,
+        clusters: List<String>? = null
     ) : this(
         id = id,
         monitorId = monitor.id,
@@ -270,7 +284,8 @@ data class Alert(
         relatedDocIds = listOf(),
         workflowId = workflowId ?: "",
         executionId = executionId,
-        associatedAlertIds = emptyList()
+        associatedAlertIds = emptyList(),
+        clusters = clusters
     )
 
     enum class State {
@@ -295,7 +310,9 @@ data class Alert(
         monitorVersion = sin.readLong(),
         monitorUser = if (sin.readBoolean()) {
             User(sin)
-        } else null,
+        } else {
+            null
+        },
         triggerId = sin.readString(),
         triggerName = sin.readString(),
         findingIds = sin.readStringList(),
@@ -311,7 +328,8 @@ data class Alert(
         actionExecutionResults = sin.readList(::ActionExecutionResult),
         aggregationResultBucket = if (sin.readBoolean()) AggregationResultBucket(sin) else null,
         executionId = sin.readOptionalString(),
-        associatedAlertIds = sin.readStringList()
+        associatedAlertIds = sin.readStringList(),
+        clusters = sin.readOptionalStringList()
     )
 
     fun isAcknowledged(): Boolean = (state == State.ACKNOWLEDGED)
@@ -349,6 +367,7 @@ data class Alert(
         }
         out.writeOptionalString(executionId)
         out.writeStringCollection(associatedAlertIds)
+        out.writeOptionalStringArray(clusters?.toTypedArray())
     }
 
     companion object {
@@ -379,6 +398,7 @@ data class Alert(
         const val ASSOCIATED_ALERT_IDS_FIELD = "associated_alert_ids"
         const val BUCKET_KEYS = AggregationResultBucket.BUCKET_KEYS
         const val PARENTS_BUCKET_PATH = AggregationResultBucket.PARENTS_BUCKET_PATH
+        const val CLUSTERS_FIELD = "clusters"
         const val NO_ID = ""
         const val NO_VERSION = Versions.NOT_FOUND
 
@@ -386,7 +406,6 @@ data class Alert(
         @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): Alert {
-
             lateinit var monitorId: String
             var workflowId = ""
             var workflowName = ""
@@ -410,6 +429,7 @@ data class Alert(
             val actionExecutionResults: MutableList<ActionExecutionResult> = mutableListOf()
             var aggAlertBucket: AggregationResultBucket? = null
             val associatedAlertIds = mutableListOf<String>()
+            val clusters = mutableListOf<String>()
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = xcp.currentName()
@@ -423,8 +443,11 @@ data class Alert(
                     MONITOR_NAME_FIELD -> monitorName = xcp.text()
                     MONITOR_VERSION_FIELD -> monitorVersion = xcp.longValue()
                     MONITOR_USER_FIELD ->
-                        monitorUser = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null
-                        else User.parse(xcp)
+                        monitorUser = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            User.parse(xcp)
+                        }
                     TRIGGER_ID_FIELD -> triggerId = xcp.text()
                     FINDING_IDS -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
@@ -476,6 +499,12 @@ data class Alert(
                             AggregationResultBucket.parse(xcp)
                         }
                     }
+                    CLUSTERS_FIELD -> {
+                        ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
+                            clusters.add(xcp.text())
+                        }
+                    }
                 }
             }
 
@@ -504,7 +533,8 @@ data class Alert(
                 executionId = executionId,
                 workflowId = workflowId,
                 workflowName = workflowName,
-                associatedAlertIds = associatedAlertIds
+                associatedAlertIds = associatedAlertIds,
+                clusters = if (clusters.size > 0) clusters else null
             )
         }
 
@@ -554,6 +584,9 @@ data class Alert(
             .optionalTimeField(END_TIME_FIELD, endTime)
             .optionalTimeField(ACKNOWLEDGED_TIME_FIELD, acknowledgedTime)
         aggregationResultBucket?.innerXContent(builder)
+
+        if (!clusters.isNullOrEmpty()) builder.field(CLUSTERS_FIELD, clusters.toTypedArray())
+
         builder.endObject()
         return builder
     }
@@ -577,7 +610,8 @@ data class Alert(
             BUCKET_KEYS to aggregationResultBucket?.bucketKeys?.joinToString(","),
             PARENTS_BUCKET_PATH to aggregationResultBucket?.parentBucketPath,
             FINDING_IDS to findingIds.joinToString(","),
-            RELATED_DOC_IDS to relatedDocIds.joinToString(",")
+            RELATED_DOC_IDS to relatedDocIds.joinToString(","),
+            CLUSTERS_FIELD to clusters?.joinToString(",")
         )
     }
 }

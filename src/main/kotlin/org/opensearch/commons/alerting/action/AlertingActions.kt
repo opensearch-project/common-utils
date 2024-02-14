@@ -29,6 +29,7 @@ object AlertingActions {
     @JvmField
     val INDEX_WORKFLOW_ACTION_TYPE =
         ActionType(INDEX_WORKFLOW_ACTION_NAME, ::IndexWorkflowResponse)
+
     @JvmField
     val GET_ALERTS_ACTION_TYPE =
         ActionType(GET_ALERTS_ACTION_NAME, ::GetAlertsResponse)
@@ -48,6 +49,7 @@ object AlertingActions {
     @JvmField
     val DELETE_WORKFLOW_ACTION_TYPE =
         ActionType(DELETE_WORKFLOW_ACTION_NAME, ::DeleteWorkflowResponse)
+
     @JvmField
     val GET_FINDINGS_ACTION_TYPE =
         ActionType(GET_FINDINGS_ACTION_NAME, ::GetFindingsResponse)

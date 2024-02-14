@@ -76,6 +76,7 @@ internal class ConfigPropertiesTests {
         val recreatedObject = createObjectFromJsonString(jsonString) { createConfigData(ConfigType.WEBHOOK, it) }
         assertEquals(sampleWebhook, recreatedObject)
     }
+
     @Test
     fun `Validate config data parse Microsoft Teams`() {
         val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_url#1234567890")
@@ -83,6 +84,7 @@ internal class ConfigPropertiesTests {
         val recreatedObject = createObjectFromJsonString(jsonString) { createConfigData(ConfigType.MICROSOFT_TEAMS, it) }
         assertEquals(sampleMicrosoftTeams, recreatedObject)
     }
+
     @Test
     fun `Validate config data parse EmailGroup`() {
         val sampleEmailGroup = EmailGroup(listOf(EmailRecipient("email1@email.com"), EmailRecipient("email2@email.com")))

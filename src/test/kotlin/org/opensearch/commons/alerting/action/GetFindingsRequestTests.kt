@@ -13,7 +13,6 @@ internal class GetFindingsRequestTests {
 
     @Test
     fun `test get findings request`() {
-
         val table = Table("asc", "sortString", null, 1, 0, "")
 
         val req = GetFindingsRequest("2121", table, "1", "finding_index_name", listOf("1", "2"), "severity", "detectionType")

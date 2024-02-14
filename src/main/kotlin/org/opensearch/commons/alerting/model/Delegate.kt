@@ -42,13 +42,15 @@ data class Delegate(
         monitorId = sin.readString(),
         chainedMonitorFindings = if (sin.readBoolean()) {
             ChainedMonitorFindings(sin)
-        } else null,
+        } else {
+            null
+        }
     )
 
     fun asTemplateArg(): Map<String, Any> {
         return mapOf(
             ORDER_FIELD to order,
-            MONITOR_ID_FIELD to monitorId,
+            MONITOR_ID_FIELD to monitorId
         )
     }
 

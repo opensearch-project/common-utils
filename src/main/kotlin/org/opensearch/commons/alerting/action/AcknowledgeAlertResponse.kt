@@ -45,7 +45,6 @@ class AcknowledgeAlertResponse : BaseResponse {
 
     @Throws(IOException::class)
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-
         builder.startObject().startArray("success")
         acknowledged.forEach { builder.value(it.id) }
         builder.endArray().startArray("failed")
