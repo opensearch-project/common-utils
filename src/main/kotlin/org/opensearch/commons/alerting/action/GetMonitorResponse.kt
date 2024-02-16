@@ -67,7 +67,7 @@ class GetMonitorResponse : BaseResponse {
         } else {
             out.writeBoolean(false)
         }
-        out.writeList((associatedWorkflows ?: emptyList()) as MutableList<AssociatedWorkflow>?)
+        out.writeList((associatedWorkflows ?: emptyList<AssociatedWorkflow>()))
     }
 
     @Throws(IOException::class)
