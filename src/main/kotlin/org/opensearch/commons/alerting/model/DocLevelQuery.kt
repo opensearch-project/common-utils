@@ -17,7 +17,7 @@ data class DocLevelQuery(
     val fields: List<String>,
     val query: String,
     val tags: List<String> = mutableListOf(),
-    val queryFieldNames: List<String> = mutableListOf(),
+    val queryFieldNames: List<String> = mutableListOf()
 ) : BaseModel {
 
     init {
@@ -177,7 +177,7 @@ data class DocLevelQuery(
         name: String,
         fields: MutableList<String>,
         query: String,
-        tags: MutableList<String>,
+        tags: MutableList<String>
     ) : this(
         id = id,
         name = name,
