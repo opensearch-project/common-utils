@@ -3,20 +3,18 @@ package org.opensearch.commons.alerting.action
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
-import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.Finding
 import org.opensearch.commons.alerting.model.FindingDocument
 import org.opensearch.commons.alerting.model.FindingWithDocs
-import org.opensearch.rest.RestStatus
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.rest.RestStatus
 import java.time.Instant
-import java.util.List
 
 internal class GetFindingsResponseTests {
 
     @Test
     fun `test get findings response`() {
-
         // Alerting GetFindingsResponse mock #1
         val finding1 = Finding(
             "1",
@@ -25,7 +23,7 @@ internal class GetFindingsResponseTests {
             "monitor_id1",
             "monitor_name1",
             "test_index1",
-            listOf(DocLevelQuery("1", "myQuery", "fieldA:valABC", List.of())),
+            listOf(DocLevelQuery("1", "myQuery", listOf(), "fieldA:valABC", listOf())),
             Instant.now()
         )
         val findingDocument1 = FindingDocument("test_index1", "doc1", true, "document 1 payload")
@@ -44,7 +42,7 @@ internal class GetFindingsResponseTests {
             "monitor_id2",
             "monitor_name2",
             "test_index2",
-            listOf(DocLevelQuery("1", "myQuery", "fieldA:valABC", List.of())),
+            listOf(DocLevelQuery("1", "myQuery", listOf(), "fieldA:valABC", listOf())),
             Instant.now()
         )
         val findingDocument21 = FindingDocument("test_index2", "doc21", true, "document 21 payload")

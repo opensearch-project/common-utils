@@ -4,18 +4,19 @@
  */
 package org.opensearch.commons.notifications.model.config
 
-import org.opensearch.common.io.stream.Writeable.Reader
 import org.opensearch.commons.notifications.model.BaseConfigData
 import org.opensearch.commons.notifications.model.Chime
 import org.opensearch.commons.notifications.model.ConfigType
 import org.opensearch.commons.notifications.model.Email
 import org.opensearch.commons.notifications.model.EmailGroup
+import org.opensearch.commons.notifications.model.MicrosoftTeams
 import org.opensearch.commons.notifications.model.SesAccount
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.commons.notifications.model.SmtpAccount
 import org.opensearch.commons.notifications.model.Sns
 import org.opensearch.commons.notifications.model.Webhook
 import org.opensearch.commons.notifications.model.XParser
+import org.opensearch.core.common.io.stream.Writeable.Reader
 import org.opensearch.core.xcontent.XContentParser
 
 internal object ConfigDataProperties {
@@ -36,7 +37,8 @@ internal object ConfigDataProperties {
         Pair(ConfigType.SNS, ConfigProperty(Sns.reader, Sns.xParser)),
         Pair(ConfigType.SES_ACCOUNT, ConfigProperty(SesAccount.reader, SesAccount.xParser)),
         Pair(ConfigType.EMAIL_GROUP, ConfigProperty(EmailGroup.reader, EmailGroup.xParser)),
-        Pair(ConfigType.SMTP_ACCOUNT, ConfigProperty(SmtpAccount.reader, SmtpAccount.xParser))
+        Pair(ConfigType.SMTP_ACCOUNT, ConfigProperty(SmtpAccount.reader, SmtpAccount.xParser)),
+        Pair(ConfigType.MICROSOFT_TEAMS, ConfigProperty(MicrosoftTeams.reader, MicrosoftTeams.xParser))
     )
 
     /**
@@ -62,6 +64,7 @@ internal object ConfigDataProperties {
             ConfigType.CHIME -> configData is Chime
             ConfigType.SNS -> configData is Sns
             ConfigType.SES_ACCOUNT -> configData is SesAccount
+            ConfigType.MICROSOFT_TEAMS -> configData is MicrosoftTeams
             ConfigType.NONE -> true
         }
     }

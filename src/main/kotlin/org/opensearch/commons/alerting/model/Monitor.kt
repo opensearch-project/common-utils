@@ -1,9 +1,6 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.MONITOR_MAX_INPUTS
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.MONITOR_MAX_TRIGGERS
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
@@ -16,10 +13,13 @@ import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.commons.alerting.util.optionalUserField
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.ParseField
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
 import java.util.Locale
@@ -97,7 +97,9 @@ data class Monitor(
         monitorType = sin.readEnum(MonitorType::class.java),
         user = if (sin.readBoolean()) {
             User(sin)
-        } else null,
+        } else {
+            null
+        },
         schemaVersion = sin.readInt(),
         inputs = sin.readList((Input)::readFrom),
         triggers = sin.readList((Trigger)::readFrom),
@@ -184,8 +186,11 @@ data class Monitor(
         // Outputting type with each Input so that the generic Input.readFrom() can read it
         out.writeVInt(inputs.size)
         inputs.forEach {
-            if (it is SearchInput) out.writeEnum(Input.Type.SEARCH_INPUT)
-            else out.writeEnum(Input.Type.DOCUMENT_LEVEL_INPUT)
+            if (it is SearchInput) {
+                out.writeEnum(Input.Type.SEARCH_INPUT)
+            } else {
+                out.writeEnum(Input.Type.DOCUMENT_LEVEL_INPUT)
+            }
             it.writeTo(out)
         }
         // Outputting type with each Trigger so that the generic Trigger.readFrom() can read it
@@ -295,8 +300,11 @@ data class Monitor(
                     ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
                     UI_METADATA_FIELD -> uiMetadata = xcp.map()
-                    DATA_SOURCES_FIELD -> dataSources = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) DataSources()
-                    else DataSources.parse(xcp)
+                    DATA_SOURCES_FIELD -> dataSources = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                        DataSources()
+                    } else {
+                        DataSources.parse(xcp)
+                    }
                     OWNER_FIELD -> owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
                     else -> {
                         xcp.skipChildren()

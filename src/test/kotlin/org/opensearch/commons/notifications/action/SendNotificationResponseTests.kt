@@ -22,7 +22,6 @@ internal class SendNotificationResponseTests {
 
     @Test
     fun `Create response serialize and deserialize transport object should be equal`() {
-
         val sampleEvent = getSampleEvent()
 
         val recreatedObject = recreateObject(sampleEvent) { SendNotificationResponse(it) }
@@ -31,7 +30,6 @@ internal class SendNotificationResponseTests {
 
     @Test
     fun `Create response serialize and deserialize using json object should be equal`() {
-
         val sampleEvent = getSampleEvent()
 
         val jsonString = getJsonString(sampleEvent)

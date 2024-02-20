@@ -62,11 +62,17 @@ internal class GetChannelListResponseTests {
             "description3",
             ConfigType.WEBHOOK
         )
+        val sampleConfig4 = Channel(
+            "config_id5",
+            "name4",
+            "description4",
+            ConfigType.MICROSOFT_TEAMS
+        )
         val searchResult = ChannelList(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
-            listOf(sampleConfig1, sampleConfig2, sampleConfig3)
+            listOf(sampleConfig1, sampleConfig2, sampleConfig3, sampleConfig4)
         )
         val getResponse = GetChannelListResponse(searchResult)
         val recreatedObject = recreateObject(getResponse) { GetChannelListResponse(it) }
@@ -108,11 +114,17 @@ internal class GetChannelListResponseTests {
             "description3",
             ConfigType.WEBHOOK
         )
+        val sampleConfig4 = Channel(
+            "config_id5",
+            "name4",
+            "description4",
+            ConfigType.MICROSOFT_TEAMS
+        )
         val searchResult = ChannelList(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
-            listOf(sampleConfig1, sampleConfig2, sampleConfig3)
+            listOf(sampleConfig1, sampleConfig2, sampleConfig3, sampleConfig4)
         )
         val getResponse = GetChannelListResponse(searchResult)
         val jsonString = getJsonString(getResponse)

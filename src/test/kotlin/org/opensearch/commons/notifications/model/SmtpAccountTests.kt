@@ -71,7 +71,8 @@ internal class SmtpAccountTests {
     fun `SmtpAccount should safely ignore extra field in json object`() {
         val sampleSmtpAccount = SmtpAccount(
             "domain.com",
-            1234, MethodType.START_TLS,
+            1234,
+            MethodType.START_TLS,
             "from@domain.com"
         )
         val jsonString = """

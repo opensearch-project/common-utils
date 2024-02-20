@@ -3,16 +3,17 @@ package org.opensearch.commons.alerting.model
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.http.client.utils.URIBuilder
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.core.ParseField
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.net.URI
+import java.net.URISyntaxException
 
 val ILLEGAL_PATH_PARAMETER_CHARACTERS = arrayOf(':', '"', '+', '\\', '|', '?', '#', '>', '<', ' ')
 
@@ -22,7 +23,8 @@ val ILLEGAL_PATH_PARAMETER_CHARACTERS = arrayOf(':', '"', '+', '\\', '|', '?', '
 data class ClusterMetricsInput(
     var path: String,
     var pathParams: String = "",
-    var url: String
+    var url: String,
+    var clusters: List<String> = listOf()
 ) : Input {
     val clusterMetricType: ClusterMetricType
     val constructedUri: URI
@@ -74,6 +76,7 @@ data class ClusterMetricsInput(
             .field(PATH_FIELD, path)
             .field(PATH_PARAMS_FIELD, pathParams)
             .field(URL_FIELD, url)
+            .field(CLUSTERS_FIELD, clusters)
             .endObject()
             .endObject()
     }
@@ -87,6 +90,7 @@ data class ClusterMetricsInput(
         out.writeString(path)
         out.writeString(pathParams)
         out.writeString(url)
+        out.writeStringArray(clusters.toTypedArray())
     }
 
     companion object {
@@ -99,6 +103,7 @@ data class ClusterMetricsInput(
         const val PATH_PARAMS_FIELD = "path_params"
         const val URL_FIELD = "url"
         const val URI_FIELD = "uri"
+        const val CLUSTERS_FIELD = "clusters"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(Input::class.java, ParseField(URI_FIELD), CheckedFunction { parseInner(it) })
 
@@ -111,6 +116,7 @@ data class ClusterMetricsInput(
             var path = ""
             var pathParams = ""
             var url = ""
+            val clusters = mutableListOf<String>()
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
 
@@ -121,9 +127,17 @@ data class ClusterMetricsInput(
                     PATH_FIELD -> path = xcp.text()
                     PATH_PARAMS_FIELD -> pathParams = xcp.text()
                     URL_FIELD -> url = xcp.text()
+                    CLUSTERS_FIELD -> {
+                        XContentParserUtils.ensureExpectedToken(
+                            XContentParser.Token.START_ARRAY,
+                            xcp.currentToken(),
+                            xcp
+                        )
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) clusters.add(xcp.text())
+                    }
                 }
             }
-            return ClusterMetricsInput(path, pathParams, url)
+            return ClusterMetricsInput(path, pathParams, url, clusters)
         }
     }
 
@@ -165,7 +179,7 @@ data class ClusterMetricsInput(
             ILLEGAL_PATH_PARAMETER_CHARACTERS.forEach { character ->
                 if (pathParams.contains(character)) {
                     throw IllegalArgumentException(
-                        "The provided path parameters contain invalid characters or spaces. Please omit: " + "${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")}"
+                        "The provided path parameters contain invalid characters or spaces. Please omit: " + ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")
                     )
                 }
             }
@@ -207,12 +221,23 @@ data class ClusterMetricsInput(
      * @return The constructed [URI].
      */
     private fun constructUrlFromInputs(): URI {
-        val uriBuilder = URIBuilder()
-            .setScheme(SUPPORTED_SCHEME)
-            .setHost(SUPPORTED_HOST)
-            .setPort(SUPPORTED_PORT)
-            .setPath(path + pathParams)
-        return uriBuilder.build()
+        /**
+         * this try-catch block is required due to a httpcomponents 5.1.x library issue
+         * it auto encodes path params in the url.
+         */
+        return try {
+            val formattedPath = if (path.startsWith("/") || path.isBlank()) path else "/$path"
+            val formattedPathParams = if (pathParams.startsWith("/") || pathParams.isBlank()) pathParams else "/$pathParams"
+            val uriBuilder = URIBuilder("$SUPPORTED_SCHEME://$SUPPORTED_HOST:$SUPPORTED_PORT$formattedPath$formattedPathParams")
+            uriBuilder.build()
+        } catch (ex: URISyntaxException) {
+            val uriBuilder = URIBuilder()
+                .setScheme(SUPPORTED_SCHEME)
+                .setHost(SUPPORTED_HOST)
+                .setPort(SUPPORTED_PORT)
+                .setPath(path + pathParams)
+            uriBuilder.build()
+        }
     }
 
     /**
@@ -259,6 +284,13 @@ data class ClusterMetricsInput(
         val requiresPathParams: Boolean
     ) {
         BLANK("", "", "", false, false),
+        CAT_INDICES(
+            "/_cat/indices",
+            "/_cat/indices",
+            "",
+            true,
+            false
+        ),
         CAT_PENDING_TASKS(
             "/_cat/pending_tasks",
             "/_cat/pending_tasks",
@@ -269,6 +301,13 @@ data class ClusterMetricsInput(
         CAT_RECOVERY(
             "/_cat/recovery",
             "/_cat/recovery",
+            "",
+            true,
+            false
+        ),
+        CAT_SHARDS(
+            "/_cat/shards",
+            "/_cat/shards",
             "",
             true,
             false

@@ -7,8 +7,8 @@ package org.opensearch.commons.destination.util;
 
 import java.util.regex.Pattern;
 
-import org.opensearch.common.Strings;
 import org.opensearch.common.ValidationException;
+import org.opensearch.core.common.Strings;
 
 public class Util {
     private Util() {}

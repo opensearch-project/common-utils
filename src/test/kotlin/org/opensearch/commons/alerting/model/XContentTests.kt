@@ -96,7 +96,13 @@ class XContentTests {
         val throttleString = throttle.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
         val wrongThrottleString = throttleString.replace("MINUTES", "wrongunit")
 
-        assertFailsWith<IllegalArgumentException>("Only support MINUTES throttle unit") { Throttle.parse(parser(wrongThrottleString)) }
+        assertFailsWith<IllegalArgumentException>("Only support MINUTES throttle unit") {
+            Throttle.parse(
+                parser(
+                    wrongThrottleString
+                )
+            )
+        }
     }
 
     @Test
@@ -104,7 +110,13 @@ class XContentTests {
         val throttle = randomThrottle().copy(value = -1)
         val throttleString = throttle.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
 
-        assertFailsWith<IllegalArgumentException>("Can only set positive throttle period") { Throttle.parse(parser(throttleString)) }
+        assertFailsWith<IllegalArgumentException>("Can only set positive throttle period") {
+            Throttle.parse(
+                parser(
+                    throttleString
+                )
+            )
+        }
     }
 
     fun `test query-level monitor parsing`() {
@@ -132,7 +144,13 @@ class XContentTests {
             }
         """.trimIndent()
 
-        assertFailsWith<IllegalArgumentException>("Monitor name is null") { Monitor.parse(parser(monitorStringWithoutName)) }
+        assertFailsWith<IllegalArgumentException>("Monitor name is null") {
+            Monitor.parse(
+                parser(
+                    monitorStringWithoutName
+                )
+            )
+        }
     }
 
     @Test
@@ -164,6 +182,14 @@ class XContentTests {
     @Test
     fun `test composite workflow parsing`() {
         val workflow = randomWorkflow()
+        val monitorString = workflow.toJsonStringWithUser()
+        val parsedMonitor = Workflow.parse(parser(monitorString))
+        Assertions.assertEquals(workflow, parsedMonitor, "Round tripping BucketLevelMonitor doesn't work")
+    }
+
+    @Test
+    fun `test composite workflow parsing with auditDelegateMonitorAlerts flag disabled`() {
+        val workflow = randomWorkflow(auditDelegateMonitorAlerts = false)
         val monitorString = workflow.toJsonStringWithUser()
         val parsedMonitor = Workflow.parse(parser(monitorString))
         Assertions.assertEquals(workflow, parsedMonitor, "Round tripping BucketLevelMonitor doesn't work")
@@ -236,6 +262,32 @@ class XContentTests {
         val parsedMonitor = Monitor.parse(parser(monitorString))
         Assertions.assertEquals(monitor, parsedMonitor, "Round tripping QueryLevelMonitor doesn't work")
         Assertions.assertNull(parsedMonitor.user)
+    }
+
+    @Test
+    fun `test workflow parsing`() {
+        val workflow = randomWorkflow(monitorIds = listOf("1", "2", "3"))
+        val monitorString = workflow.toJsonString()
+        val parsedWorkflow = Workflow.parse(parser(monitorString))
+        Assertions.assertEquals(workflow, parsedWorkflow, "Round tripping workflow failed")
+    }
+
+    @Test
+    fun `test chainedMonitorFindings parsing`() {
+        val cmf1 = ChainedMonitorFindings(monitorId = "m1")
+        val cmf1String = cmf1.toJsonString()
+        Assertions.assertEquals(
+            ChainedMonitorFindings.parse(parser(cmf1String)),
+            cmf1,
+            "Round tripping chained monitor findings failed"
+        )
+        val cmf2 = ChainedMonitorFindings(monitorIds = listOf("m1", "m2"))
+        val cmf2String = cmf2.toJsonString()
+        Assertions.assertEquals(
+            ChainedMonitorFindings.parse(parser(cmf2String)),
+            cmf2,
+            "Round tripping chained monitor findings failed"
+        )
     }
 
     @Test
@@ -368,6 +420,18 @@ class XContentTests {
     }
 
     @Test
+    fun `test doc level query toXcontent`() {
+        val dlq = DocLevelQuery("id", "name", listOf("f1", "f2"), "query", listOf("t1", "t2"))
+        val dlqString = dlq.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedDlq = DocLevelQuery.parse(parser(dlqString))
+        Assertions.assertEquals(
+            dlq,
+            parsedDlq,
+            "Round tripping Doc level query doesn't work"
+        )
+    }
+
+    @Test
     fun `test alert parsing`() {
         val alert = randomAlert()
 
@@ -381,8 +445,15 @@ class XContentTests {
     fun `test alert parsing with noop trigger`() {
         val monitor = randomQueryLevelMonitor()
         val alert = Alert(
-            monitor = monitor, trigger = NoOpTrigger(), startTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-            errorMessage = "some error", lastNotificationTime = Instant.now()
+            id = "",
+            monitor = monitor,
+            trigger = NoOpTrigger(),
+            startTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            errorMessage = "some error",
+            lastNotificationTime = Instant.now(),
+            workflowId = "",
+            executionId = "",
+            clusters = listOf()
         )
         assertEquals("Round tripping alert doesn't work", alert.triggerName, "NoOp trigger")
     }
@@ -394,19 +465,22 @@ class XContentTests {
             "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
             ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
             "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
+            "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }
 
     @Test
     fun `test alert parsing with user as null`() {
-        val alertStr = "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1,\"monitor_user\":null," +
-            "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
-            "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
-            ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
-            "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+        val alertStr =
+            "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1,\"monitor_user\":null," +
+                "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
+                "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
+                ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
+                "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
+                "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
+                "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }

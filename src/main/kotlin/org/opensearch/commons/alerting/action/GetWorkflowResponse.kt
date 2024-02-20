@@ -5,17 +5,17 @@
 
 package org.opensearch.commons.alerting.action
 
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.model.Workflow
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._PRIMARY_TERM
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._SEQ_NO
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
 import org.opensearch.commons.notifications.action.BaseResponse
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.rest.RestStatus
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
-import org.opensearch.rest.RestStatus
 import java.io.IOException
 
 class GetWorkflowResponse : BaseResponse {
@@ -51,7 +51,9 @@ class GetWorkflowResponse : BaseResponse {
         sin.readEnum(RestStatus::class.java), // RestStatus
         if (sin.readBoolean()) {
             Workflow.readFrom(sin) // monitor
-        } else null
+        } else {
+            null
+        }
     )
 
     @Throws(IOException::class)
@@ -76,8 +78,9 @@ class GetWorkflowResponse : BaseResponse {
             .field(_VERSION, version)
             .field(_SEQ_NO, seqNo)
             .field(_PRIMARY_TERM, primaryTerm)
-        if (workflow != null)
+        if (workflow != null) {
             builder.field("workflow", workflow)
+        }
 
         return builder.endObject()
     }

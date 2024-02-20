@@ -24,7 +24,7 @@ internal class FindingTests {
         assertEquals(
             templateArgs[Finding.MONITOR_NAME_FIELD],
             finding.monitorName,
-            "Template args 'monitorName' field does not match:",
+            "Template args 'monitorName' field does not match:"
         )
         assertEquals(
             templateArgs[Finding.QUERIES_FIELD],

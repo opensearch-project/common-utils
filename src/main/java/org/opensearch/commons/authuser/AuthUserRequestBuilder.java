@@ -7,8 +7,8 @@ package org.opensearch.commons.authuser;
 
 import org.opensearch.client.Request;
 import org.opensearch.client.RequestOptions;
-import org.opensearch.common.Strings;
 import org.opensearch.commons.ConfigConstants;
+import org.opensearch.core.common.Strings;
 
 public class AuthUserRequestBuilder {
     private final String auth;

@@ -58,11 +58,17 @@ internal class FilterConfigListTests {
             "description3",
             ConfigType.WEBHOOK
         )
+        val sampleConfig4 = Channel(
+            "config_id4",
+            "name4",
+            "description4",
+            ConfigType.MICROSOFT_TEAMS
+        )
         val searchResult = ChannelList(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
-            listOf(sampleConfig1, sampleConfig2, sampleConfig3)
+            listOf(sampleConfig1, sampleConfig2, sampleConfig3, sampleConfig4)
         )
         val recreatedObject = recreateObject(searchResult) { ChannelList(it) }
         assertSearchResultEquals(searchResult, recreatedObject)
@@ -102,11 +108,17 @@ internal class FilterConfigListTests {
             "description3",
             ConfigType.WEBHOOK
         )
+        val sampleConfig4 = Channel(
+            "config_id4",
+            "name4",
+            "description4",
+            ConfigType.MICROSOFT_TEAMS
+        )
         val searchResult = ChannelList(
             100,
             1000,
             TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO,
-            listOf(sampleConfig1, sampleConfig2, sampleConfig3)
+            listOf(sampleConfig1, sampleConfig2, sampleConfig3, sampleConfig4)
         )
         val jsonString = getJsonString(searchResult)
         val recreatedObject = createObjectFromJsonString(jsonString) { ChannelList(it) }

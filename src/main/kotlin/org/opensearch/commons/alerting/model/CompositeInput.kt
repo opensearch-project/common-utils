@@ -1,18 +1,18 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.core.ParseField
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 data class CompositeInput(
-    val sequence: Sequence,
+    val sequence: Sequence
 ) : WorkflowInput {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
@@ -53,7 +53,8 @@ data class CompositeInput(
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             WorkflowInput::class.java,
-            ParseField(COMPOSITE_INPUT_FIELD), CheckedFunction { CompositeInput.parse(it) }
+            ParseField(COMPOSITE_INPUT_FIELD),
+            CheckedFunction { CompositeInput.parse(it) }
         )
 
         @JvmStatic

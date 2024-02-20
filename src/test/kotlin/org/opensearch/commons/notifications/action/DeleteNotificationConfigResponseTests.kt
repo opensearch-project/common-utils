@@ -11,7 +11,7 @@ import org.junit.jupiter.api.assertThrows
 import org.opensearch.commons.utils.createObjectFromJsonString
 import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
-import org.opensearch.rest.RestStatus
+import org.opensearch.core.rest.RestStatus
 
 internal class DeleteNotificationConfigResponseTests {
 

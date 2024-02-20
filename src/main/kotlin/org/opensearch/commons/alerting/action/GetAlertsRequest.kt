@@ -2,9 +2,9 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
 import org.opensearch.commons.alerting.model.Table
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 
 class GetAlertsRequest : ActionRequest {
@@ -14,6 +14,7 @@ class GetAlertsRequest : ActionRequest {
     val monitorId: String?
     val alertIndex: String?
     val monitorIds: List<String>?
+    val workflowIds: List<String>?
     val alertIds: List<String>?
 
     constructor(
@@ -23,6 +24,7 @@ class GetAlertsRequest : ActionRequest {
         monitorId: String?,
         alertIndex: String?,
         monitorIds: List<String>? = null,
+        workflowIds: List<String>? = null,
         alertIds: List<String>? = null
     ) : super() {
         this.table = table
@@ -31,6 +33,7 @@ class GetAlertsRequest : ActionRequest {
         this.monitorId = monitorId
         this.alertIndex = alertIndex
         this.monitorIds = monitorIds
+        this.workflowIds = workflowIds
         this.alertIds = alertIds
     }
 
@@ -42,6 +45,7 @@ class GetAlertsRequest : ActionRequest {
         monitorId = sin.readOptionalString(),
         alertIndex = sin.readOptionalString(),
         monitorIds = sin.readOptionalStringList(),
+        workflowIds = sin.readOptionalStringList(),
         alertIds = sin.readOptionalStringList()
     )
 
@@ -57,6 +61,7 @@ class GetAlertsRequest : ActionRequest {
         out.writeOptionalString(monitorId)
         out.writeOptionalString(alertIndex)
         out.writeOptionalStringCollection(monitorIds)
+        out.writeOptionalStringCollection(workflowIds)
         out.writeOptionalStringCollection(alertIds)
     }
 }

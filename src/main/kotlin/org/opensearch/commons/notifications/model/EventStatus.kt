@@ -5,11 +5,6 @@
 
 package org.opensearch.commons.notifications.model
 
-import org.opensearch.common.Strings
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.io.stream.Writeable
-import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_ID_TAG
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_NAME_TAG
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_TYPE_TAG
@@ -18,9 +13,14 @@ import org.opensearch.commons.notifications.NotificationConstants.EMAIL_RECIPIEN
 import org.opensearch.commons.utils.fieldIfNotNull
 import org.opensearch.commons.utils.logger
 import org.opensearch.commons.utils.objectList
+import org.opensearch.core.common.Strings
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 /**
@@ -43,6 +43,7 @@ data class EventStatus(
             ConfigType.SLACK -> requireNotNull(deliveryStatus)
             ConfigType.EMAIL -> require(emailRecipientStatus.isNotEmpty())
             ConfigType.SNS -> requireNotNull(deliveryStatus)
+            ConfigType.MICROSOFT_TEAMS -> requireNotNull(deliveryStatus)
             ConfigType.NONE -> log.info("Some config field not recognized")
             else -> {
                 log.info("non-allowed config type for Status")

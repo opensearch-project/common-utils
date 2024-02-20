@@ -1,13 +1,13 @@
 package org.opensearch.commons.alerting.model
 
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.notifications.model.BaseModel
 import org.opensearch.commons.utils.validateId
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 /**
@@ -42,13 +42,15 @@ data class Delegate(
         monitorId = sin.readString(),
         chainedMonitorFindings = if (sin.readBoolean()) {
             ChainedMonitorFindings(sin)
-        } else null,
+        } else {
+            null
+        }
     )
 
     fun asTemplateArg(): Map<String, Any> {
         return mapOf(
             ORDER_FIELD to order,
-            MONITOR_ID_FIELD to monitorId,
+            MONITOR_ID_FIELD to monitorId
         )
     }
 

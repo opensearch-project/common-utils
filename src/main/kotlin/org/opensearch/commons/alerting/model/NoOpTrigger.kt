@@ -2,22 +2,22 @@ package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
 import org.opensearch.common.UUIDs
-import org.opensearch.common.io.stream.StreamInput
-import org.opensearch.common.io.stream.StreamOutput
-import org.opensearch.common.xcontent.XContentParserUtils
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.core.ParseField
+import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 data class NoOpTrigger(
     override val id: String = UUIDs.base64UUID(),
     override val name: String = "NoOp trigger",
     override val severity: String = "",
-    override val actions: List<Action> = listOf(),
+    override val actions: List<Action> = listOf()
 ) : Trigger {
 
     @Throws(IOException::class)
@@ -48,11 +48,13 @@ data class NoOpTrigger(
         const val ID_FIELD = "id"
         const val NOOP_TRIGGER_FIELD = "noop_trigger"
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java, ParseField(NOOP_TRIGGER_FIELD),
+            Trigger::class.java,
+            ParseField(NOOP_TRIGGER_FIELD),
             CheckedFunction { parseInner(it) }
         )
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): NoOpTrigger {
             var id = UUIDs.base64UUID()
             if (xcp.currentToken() == XContentParser.Token.START_OBJECT) xcp.nextToken()

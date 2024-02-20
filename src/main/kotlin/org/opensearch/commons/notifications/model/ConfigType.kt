@@ -54,6 +54,11 @@ enum class ConfigType(val tag: String) {
         override fun toString(): String {
             return tag
         }
+    },
+    MICROSOFT_TEAMS("microsoft_teams") {
+        override fun toString(): String {
+            return tag
+        }
     };
 
     companion object {

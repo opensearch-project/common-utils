@@ -6,10 +6,10 @@
 buildscript {
     ext {
         opensearch_group = "org.opensearch"
-        opensearch_version = System.getProperty("opensearch.version", "2.8.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "2.12.1-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
-        kotlin_version = System.getProperty("kotlin.version", "1.6.10")
+        kotlin_version = System.getProperty("kotlin.version", "1.8.21")
     }
 
     repositories {
@@ -30,7 +30,7 @@ buildscript {
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'com.diffplug.spotless' version '6.18.0'
+    id 'com.diffplug.spotless' version '6.22.0'
 }
 
 repositories {
@@ -66,7 +66,12 @@ apply plugin: 'opensearch.repositories'
 apply from: 'build-tools/opensearchplugin-coverage.gradle'
 
 configurations {
-    ktlint
+    ktlint {
+      resolutionStrategy {
+          force "ch.qos.logback:logback-classic:1.3.14"
+          force "ch.qos.logback:logback-core:1.3.14"
+      }
+   }
 }
 
 dependencies {
@@ -86,7 +91,7 @@ dependencies {
     testImplementation "commons-validator:commons-validator:1.7"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 
-    ktlint "com.pinterest:ktlint:0.44.0"
+    ktlint "com.pinterest:ktlint:0.47.1"
 }
 
 test {
@@ -114,7 +119,7 @@ spotless {
     buildUponDefaultConfig = true
 }*/
 
-task ktlint(type: JavaExec, group: "verification") {
+tasks.register('ktlint', JavaExec) {
     description = "Check Kotlin code style."
     main = "com.pinterest.ktlint.Main"
     classpath = configurations.ktlint
@@ -126,10 +131,12 @@ task ktlint(type: JavaExec, group: "verification") {
 
 check.dependsOn ktlint
 
-task ktlintFormat(type: JavaExec, group: "formatting") {
+tasks.register('ktlintFormat', JavaExec) {
     description = "Fix Kotlin code style deviations."
-    main = "com.pinterest.ktlint.Main"
     classpath = configurations.ktlint
+    // https://github.com/pinterest/ktlint/issues/1391#issuecomment-1251287020
+    jvmArgs "--add-opens=java.base/java.lang=ALL-UNNAMED"
+    setProperty("mainClass", "com.pinterest.ktlint.Main")
     args "-F", "src/**/*.kt"
 }
 

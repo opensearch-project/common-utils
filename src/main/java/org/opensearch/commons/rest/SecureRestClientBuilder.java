@@ -33,9 +33,9 @@ import org.opensearch.OpenSearchException;
 import org.opensearch.client.RestClient;
 import org.opensearch.client.RestClientBuilder;
 import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.common.Strings;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.commons.ConfigConstants;
+import org.opensearch.core.common.Strings;
 
 /**
  * Provides builder to create low-level and high-level REST client to make calls to OpenSearch.
@@ -46,7 +46,7 @@ import org.opensearch.commons.ConfigConstants;
  *
  * Other usage:
  *  RestClient restClient = new SecureRestClientBuilder("localhost", 9200, false)
- *                     .setUserPassword("admin", "admin")
+ *                     .setUserPassword("admin", "myStrongPassword123")
  *                     .setTrustCerts(trustStorePath)
  *                     .build();
  *
