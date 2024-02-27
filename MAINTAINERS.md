@@ -15,6 +15,7 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Subhobrata Dey        | [sbcd90](https://github.com/sbcd90)               | Amazon      |
 | Thomas Hurney         | [AWSHurneyt](https://github.com/AWSHurneyt)       | Amazon      |
 | Chase Engelbrecht     | [engechas](https://github.com/engechas)           | Amazon      |
+| Riya Saxena           | [riysaxen-amzn](https://github.com/riysaxen-amzn) | Amazon      |
 
 ## Emeritus
 
