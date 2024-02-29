@@ -6,6 +6,7 @@ import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
+import java.time.Instant
 
 class GetFindingsRequest : ActionRequest {
     val findingId: String?
@@ -15,6 +16,9 @@ class GetFindingsRequest : ActionRequest {
     val findingIndex: String?
     val severity: String?
     val detectionType: String?
+    val findingIds: List<String>?
+    val startTime: Instant?
+    val endTime: Instant?
 
     constructor(
         findingId: String?,
@@ -23,7 +27,10 @@ class GetFindingsRequest : ActionRequest {
         findingIndexName: String? = null,
         monitorIds: List<String>? = null,
         severity: String? = null,
-        detectionType: String? = null
+        detectionType: String? = null ,
+        findingIds: List<String>? = null,
+        startTime: Instant? = null,
+        endTime: Instant? = null
     ) : super() {
         this.findingId = findingId
         this.table = table
@@ -32,6 +39,9 @@ class GetFindingsRequest : ActionRequest {
         this.monitorIds = monitorIds
         this.severity = severity
         this.detectionType = detectionType
+        this.findingIds = findingIds
+        this.startTime = startTime
+        this.endTime = endTime
     }
 
     @Throws(IOException::class)
@@ -42,7 +52,10 @@ class GetFindingsRequest : ActionRequest {
         findingIndexName = sin.readOptionalString(),
         monitorIds = sin.readOptionalStringList(),
         severity = sin.readOptionalString(),
-        detectionType = sin.readOptionalString()
+        detectionType = sin.readOptionalString(),
+        findingIds = sin.readOptionalStringList(),
+        startTime = sin.readOptionalInstant(),
+        endTime = sin.readOptionalInstant()
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -58,5 +71,8 @@ class GetFindingsRequest : ActionRequest {
         out.writeOptionalStringCollection(monitorIds)
         out.writeOptionalString(severity)
         out.writeOptionalString(detectionType)
+        out.writeOptionalStringCollection(findingIds)
+        out.writeOptionalInstant(startTime)
+        out.writeOptionalInstant(endTime)
     }
 }
