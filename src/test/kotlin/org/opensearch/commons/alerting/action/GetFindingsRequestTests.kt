@@ -12,12 +12,10 @@ import java.time.Instant
 
 internal class GetFindingsRequestTests {
 
-
     @Test
     fun `test get findings request`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
-
-        val req = GetFindingsRequest("2121", table, "1", "finding_index_name", listOf("1", "2"), "severity", "detectionType", listOf("id1", "id2", ), Instant.now(), Instant.now().plusSeconds(30000))
+        val req = GetFindingsRequest("2121", table, "1", "finding_index_name", listOf("1", "2"), "severity", "detectionType", listOf("id1", "id2"), Instant.now(), Instant.now().plusSeconds(30000))
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -41,8 +39,7 @@ internal class GetFindingsRequestTests {
     @Test
     fun `test validate returns null`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
-
-        val req = GetFindingsRequest("2121", table, "1", "active", listOf("1", "2"), "severity", "detectionType", listOf("id1", "id2", ), Instant.now(), Instant.now().plusSeconds(30000))
+        val req = GetFindingsRequest("2121", table, "1", "active", listOf("1", "2"), "severity", "detectionType", listOf("id1", "id2"), Instant.now(), Instant.now().plusSeconds(30000))
         assertNotNull(req)
         assertNull(req.validate())
     }

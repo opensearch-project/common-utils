@@ -27,7 +27,7 @@ class GetFindingsRequest : ActionRequest {
         findingIndexName: String? = null,
         monitorIds: List<String>? = null,
         severity: String? = null,
-        detectionType: String? = null ,
+        detectionType: String? = null,
         findingIds: List<String>? = null,
         startTime: Instant? = null,
         endTime: Instant? = null
