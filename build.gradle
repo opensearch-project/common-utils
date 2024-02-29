@@ -78,7 +78,12 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 
-    ktlint "com.pinterest:ktlint:0.45.1"
+    add("ktlint", "com.pinterest:ktlint:0.45.1") {
+        exclude group: "ch.qos.logback", module: "logback-classic"
+        exclude group: "ch.qos.logback", module: "logback-core"
+    }
+    add("ktlint", "ch.qos.logback:logback-core:1.2.13")
+    add("ktlint", "ch.qos.logback:logback-classic:1.2.13")
 }
 
 test {
