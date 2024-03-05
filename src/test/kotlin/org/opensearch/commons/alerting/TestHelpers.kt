@@ -20,6 +20,7 @@ import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelec
 import org.opensearch.commons.alerting.model.ActionExecutionResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
+import org.opensearch.commons.alerting.model.AlertContext
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
 import org.opensearch.commons.alerting.model.ChainedAlertTrigger
 import org.opensearch.commons.alerting.model.ChainedMonitorFindings
@@ -599,5 +600,24 @@ fun randomFinding(
         index = index,
         docLevelQueries = docLevelQueries,
         timestamp = timestamp
+    )
+}
+
+fun randomAlertContext(
+    alert: Alert = randomAlert(),
+    associatedQueries: List<DocLevelQuery>? = (-1..2).random().takeIf { it != -1 }?.let {
+        (0..it).map { randomDocLevelQuery() }
+    },
+    sampleDocs: List<Map<String, Any?>>? = (-1..2).random().takeIf { it != -1 }?.let {
+        (0..it).map {
+            // Using 'randomFinding' to mimic documents in an index.
+            randomFinding().asTemplateArg()
+        }
+    }
+): AlertContext {
+    return AlertContext(
+        alert = alert,
+        associatedQueries = associatedQueries,
+        sampleDocs = sampleDocs
     )
 }

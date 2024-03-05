@@ -17,7 +17,7 @@ import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
 import java.time.Instant
 
-data class Alert(
+open class Alert(
     val id: String = NO_ID,
     val version: Long = NO_VERSION,
     val schemaVersion: Int = NO_SCHEMA_VERSION,
@@ -591,7 +591,7 @@ data class Alert(
         return builder
     }
 
-    fun asTemplateArg(): Map<String, Any?> {
+    open fun asTemplateArg(): Map<String, Any?> {
         return mapOf(
             ACKNOWLEDGED_TIME_FIELD to acknowledgedTime?.toEpochMilli(),
             ALERT_ID_FIELD to id,
@@ -613,5 +613,102 @@ data class Alert(
             RELATED_DOC_IDS to relatedDocIds.joinToString(","),
             CLUSTERS_FIELD to clusters?.joinToString(",")
         )
+    }
+
+    /**
+     * Creates a copy of an [Alert] with optionally modified properties
+     */
+    fun copy(
+        id: String = this.id,
+        version: Long = this.version,
+        schemaVersion: Int = this.schemaVersion,
+        monitorId: String = this.monitorId,
+        workflowId: String = this.workflowId,
+        workflowName: String = this.workflowName,
+        monitorName: String = this.monitorName,
+        monitorVersion: Long = this.monitorVersion,
+        monitorUser: User? = this.monitorUser,
+        triggerId: String = this.triggerId,
+        triggerName: String = this.triggerName,
+        findingIds: List<String> = this.findingIds,
+        relatedDocIds: List<String> = this.relatedDocIds,
+        state: State = this.state,
+        startTime: Instant = this.startTime,
+        endTime: Instant? = this.endTime,
+        lastNotificationTime: Instant? = this.lastNotificationTime,
+        acknowledgedTime: Instant? = this.acknowledgedTime,
+        errorMessage: String? = this.errorMessage,
+        errorHistory: List<AlertError> = this.errorHistory,
+        severity: String = this.severity,
+        actionExecutionResults: List<ActionExecutionResult> = this.actionExecutionResults,
+        aggregationResultBucket: AggregationResultBucket? = this.aggregationResultBucket,
+        executionId: String? = this.executionId,
+        associatedAlertIds: List<String> = this.associatedAlertIds,
+        clusters: List<String>? = this.clusters
+    ): Alert {
+        return Alert(
+            id = id,
+            version = version,
+            schemaVersion = schemaVersion,
+            monitorId = monitorId,
+            workflowId = workflowId,
+            workflowName = workflowName,
+            monitorName = monitorName,
+            monitorVersion = monitorVersion,
+            monitorUser = monitorUser,
+            triggerId = triggerId,
+            triggerName = triggerName,
+            findingIds = findingIds,
+            relatedDocIds = relatedDocIds,
+            state = state,
+            startTime = startTime,
+            endTime = endTime,
+            lastNotificationTime = lastNotificationTime,
+            acknowledgedTime = acknowledgedTime,
+            errorMessage = errorMessage,
+            errorHistory = errorHistory,
+            severity = severity,
+            actionExecutionResults = actionExecutionResults,
+            aggregationResultBucket = aggregationResultBucket,
+            executionId = executionId,
+            associatedAlertIds = associatedAlertIds,
+            clusters = clusters
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Alert
+
+        if (id != other.id) return false
+        if (version != other.version) return false
+        if (schemaVersion != other.schemaVersion) return false
+        if (monitorId != other.monitorId) return false
+        if (workflowId != other.workflowId) return false
+        if (workflowName != other.workflowName) return false
+        if (monitorName != other.monitorName) return false
+        if (monitorVersion != other.monitorVersion) return false
+        if (monitorUser != other.monitorUser) return false
+        if (triggerId != other.triggerId) return false
+        if (triggerName != other.triggerName) return false
+        if (findingIds != other.findingIds) return false
+        if (relatedDocIds != other.relatedDocIds) return false
+        if (state != other.state) return false
+        if (startTime != other.startTime) return false
+        if (endTime != other.endTime) return false
+        if (lastNotificationTime != other.lastNotificationTime) return false
+        if (acknowledgedTime != other.acknowledgedTime) return false
+        if (errorMessage != other.errorMessage) return false
+        if (errorHistory != other.errorHistory) return false
+        if (severity != other.severity) return false
+        if (actionExecutionResults != other.actionExecutionResults) return false
+        if (aggregationResultBucket != other.aggregationResultBucket) return false
+        if (executionId != other.executionId) return false
+        if (associatedAlertIds != other.associatedAlertIds) return false
+        if (clusters != other.clusters) return false
+
+        return true
     }
 }
