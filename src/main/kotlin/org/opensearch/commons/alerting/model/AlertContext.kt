@@ -62,7 +62,7 @@ data class AlertContext(
 
         // Add the non-null custom context fields to the alert templateArgs.
         customContextFields.forEach { (key, value) ->
-            if (value !== null) templateArgs[key] = value
+            value?.let { templateArgs[key] = it }
         }
         return templateArgs
     }
