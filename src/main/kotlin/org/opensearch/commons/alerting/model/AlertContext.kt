@@ -70,6 +70,5 @@ data class AlertContext(
     companion object {
         const val ASSOCIATED_QUERIES_FIELD = "associated_queries"
         const val SAMPLE_DOCS_FIELD = "sample_documents"
-
     }
 }
