@@ -13,36 +13,8 @@ data class AlertContext(
     val alert: Alert,
     val associatedQueries: List<DocLevelQuery>? = null,
     val sampleDocs: List<Map<String, Any?>>? = null
-) : Alert(
-    id = alert.id,
-    version = alert.version,
-    schemaVersion = alert.schemaVersion,
-    monitorId = alert.monitorId,
-    monitorName = alert.monitorName,
-    monitorVersion = alert.monitorVersion,
-    monitorUser = alert.monitorUser,
-    triggerId = alert.triggerId,
-    triggerName = alert.triggerName,
-    state = alert.state,
-    startTime = alert.startTime,
-    endTime = alert.endTime,
-    lastNotificationTime = alert.lastNotificationTime,
-    acknowledgedTime = alert.acknowledgedTime,
-    errorMessage = alert.errorMessage,
-    errorHistory = alert.errorHistory,
-    severity = alert.severity,
-    actionExecutionResults = alert.actionExecutionResults,
-    aggregationResultBucket = alert.aggregationResultBucket,
-    findingIds = alert.findingIds,
-    relatedDocIds = alert.relatedDocIds,
-    executionId = alert.executionId,
-    workflowId = alert.workflowId,
-    workflowName = alert.workflowName,
-    associatedAlertIds = alert.associatedAlertIds,
-    clusters = alert.clusters
 ) {
-
-    override fun asTemplateArg(): Map<String, Any?> {
+    fun asTemplateArg(): Map<String, Any?> {
         val queriesContext = associatedQueries?.map {
             mapOf(
                 DocLevelQuery.QUERY_ID_FIELD to it.id,
@@ -58,7 +30,7 @@ data class AlertContext(
         )
 
         // Get the alert template args
-        val templateArgs = super.asTemplateArg().toMutableMap()
+        val templateArgs = alert.asTemplateArg().toMutableMap()
 
         // Add the non-null custom context fields to the alert templateArgs.
         customContextFields.forEach { (key, value) ->
