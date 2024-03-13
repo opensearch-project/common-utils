@@ -208,7 +208,7 @@ fun randomWorkflowWithDelegates(
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() },
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() }
 ): Workflow {
     return Workflow(
         name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
@@ -288,7 +288,9 @@ fun randomDocumentLevelTrigger(
         condition = condition,
         actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
             (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
-        } else actions
+        } else {
+            actions
+        }
     )
 }
 
@@ -307,7 +309,9 @@ fun randomChainedAlertTrigger(
         condition = condition,
         actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
             (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
-        } else actions
+        } else {
+            actions
+        }
     )
 }
 
@@ -538,7 +542,7 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
 
 fun randomChainedAlert(
     workflow: Workflow = randomWorkflow(),
-    trigger: ChainedAlertTrigger = randomChainedAlertTrigger(),
+    trigger: ChainedAlertTrigger = randomChainedAlertTrigger()
 ): Alert {
     return Alert(
         startTime = Instant.now(),

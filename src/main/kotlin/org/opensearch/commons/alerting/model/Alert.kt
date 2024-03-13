@@ -42,12 +42,14 @@ data class Alert(
     val actionExecutionResults: List<ActionExecutionResult>,
     val aggregationResultBucket: AggregationResultBucket? = null,
     val executionId: String? = null,
-    val associatedAlertIds: List<String>,
+    val associatedAlertIds: List<String>
 ) : Writeable, ToXContent {
 
     init {
-        if (errorMessage != null) require(state == State.DELETED || state == State.ERROR || state == State.AUDIT) {
-            "Attempt to create an alert with an error in state: $state"
+        if (errorMessage != null) {
+            require(state == State.DELETED || state == State.ERROR || state == State.AUDIT) {
+                "Attempt to create an alert with an error in state: $state"
+            }
         }
     }
 
@@ -60,7 +62,7 @@ data class Alert(
         executionId: String,
         chainedAlertTrigger: ChainedAlertTrigger,
         workflow: Workflow,
-        associatedAlertIds: List<String>,
+        associatedAlertIds: List<String>
     ) : this(
         monitorId = NO_ID,
         monitorName = "",
@@ -96,7 +98,7 @@ data class Alert(
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
         executionId: String? = null,
-        workflowId: String? = null,
+        workflowId: String? = null
     ) : this(
         monitorId = monitor.id,
         monitorName = monitor.name,
@@ -133,7 +135,7 @@ data class Alert(
         schemaVersion: Int = NO_SCHEMA_VERSION,
         findingIds: List<String> = emptyList(),
         executionId: String? = null,
-        workflowId: String? = null,
+        workflowId: String? = null
     ) : this(
         monitorId = monitor.id,
         monitorName = monitor.name,
@@ -171,7 +173,7 @@ data class Alert(
         aggregationResultBucket: AggregationResultBucket,
         findingIds: List<String> = emptyList(),
         executionId: String? = null,
-        workflowId: String? = null,
+        workflowId: String? = null
     ) : this(
         monitorId = monitor.id,
         monitorName = monitor.name,
@@ -210,7 +212,7 @@ data class Alert(
         actionExecutionResults: List<ActionExecutionResult> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
         executionId: String? = null,
-        workflowId: String? = null,
+        workflowId: String? = null
     ) : this(
         id = id,
         monitorId = monitor.id,
@@ -247,7 +249,7 @@ data class Alert(
         errorHistory: List<AlertError> = mutableListOf(),
         schemaVersion: Int = NO_SCHEMA_VERSION,
         workflowId: String? = null,
-        executionId: String?,
+        executionId: String?
     ) : this(
         id = id,
         monitorId = monitor.id,
@@ -295,7 +297,9 @@ data class Alert(
         monitorVersion = sin.readLong(),
         monitorUser = if (sin.readBoolean()) {
             User(sin)
-        } else null,
+        } else {
+            null
+        },
         triggerId = sin.readString(),
         triggerName = sin.readString(),
         findingIds = sin.readStringList(),
@@ -422,8 +426,11 @@ data class Alert(
                     MONITOR_NAME_FIELD -> monitorName = xcp.text()
                     MONITOR_VERSION_FIELD -> monitorVersion = xcp.longValue()
                     MONITOR_USER_FIELD ->
-                        monitorUser = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null
-                        else User.parse(xcp)
+                        monitorUser = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            User.parse(xcp)
+                        }
                     TRIGGER_ID_FIELD -> triggerId = xcp.text()
                     FINDING_IDS -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)

@@ -12,7 +12,7 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 data class CompositeInput(
-    val sequence: Sequence,
+    val sequence: Sequence
 ) : WorkflowInput {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
@@ -53,7 +53,8 @@ data class CompositeInput(
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             WorkflowInput::class.java,
-            ParseField(COMPOSITE_INPUT_FIELD), CheckedFunction { CompositeInput.parse(it) }
+            ParseField(COMPOSITE_INPUT_FIELD),
+            CheckedFunction { CompositeInput.parse(it) }
         )
 
         @JvmStatic
