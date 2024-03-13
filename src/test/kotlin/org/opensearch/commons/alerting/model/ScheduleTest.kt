@@ -51,7 +51,8 @@ class ScheduleTest : XContentTestBase {
         val nextTimeToExecute = cronSchedule.getExpectedNextExecutionTime(enabledTimeInstance, null)
         assertNotNull(nextTimeToExecute, "There should be next execute time")
         assertEquals(
-            testInstance.plusSeconds(2L), nextTimeToExecute,
+            testInstance.plusSeconds(2L),
+            nextTimeToExecute,
             "nextTimeToExecute should be 2 seconds after test instance"
         )
     }
@@ -69,7 +70,8 @@ class ScheduleTest : XContentTestBase {
         val nextTimeToExecute = cronSchedule.getExpectedNextExecutionTime(enabledTimeInstance, previousExecutionTimeInstance)
         assertNotNull(nextTimeToExecute, "There should be next execute time")
         assertEquals(
-            previousExecutionTimeInstance.plusSeconds(2L), nextTimeToExecute,
+            previousExecutionTimeInstance.plusSeconds(2L),
+            nextTimeToExecute,
             "nextTimeToExecute should be 2 seconds after test instance"
         )
     }
@@ -87,7 +89,8 @@ class ScheduleTest : XContentTestBase {
         val nextTimeToExecute = intervalSchedule.getExpectedNextExecutionTime(enabledTimeInstance, null)
         assertNotNull(nextTimeToExecute, "There should be next execute time")
         assertEquals(
-            enabledTimeInstance.plusSeconds(120L), nextTimeToExecute,
+            enabledTimeInstance.plusSeconds(120L),
+            nextTimeToExecute,
             "nextTimeToExecute should be 120 seconds seconds after enabled time"
         )
     }
@@ -107,7 +110,8 @@ class ScheduleTest : XContentTestBase {
         val nextTimeToExecute = intervalSchedule.getExpectedNextExecutionTime(enabledTimeInstance, previousExecutionTimeInstance)
         assertNotNull(nextTimeToExecute, "There should be next execute time")
         assertEquals(
-            previousExecutionTimeInstance.plusSeconds(60L), nextTimeToExecute,
+            previousExecutionTimeInstance.plusSeconds(60L),
+            nextTimeToExecute,
             "nextTimeToExecute should be 60 seconds after previous execution time"
         )
     }

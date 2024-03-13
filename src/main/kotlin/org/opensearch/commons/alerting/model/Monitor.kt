@@ -94,7 +94,9 @@ data class Monitor(
         monitorType = sin.readEnum(MonitorType::class.java),
         user = if (sin.readBoolean()) {
             User(sin)
-        } else null,
+        } else {
+            null
+        },
         schemaVersion = sin.readInt(),
         inputs = sin.readList((Input)::readFrom),
         triggers = sin.readList((Trigger)::readFrom),
@@ -181,8 +183,11 @@ data class Monitor(
         // Outputting type with each Input so that the generic Input.readFrom() can read it
         out.writeVInt(inputs.size)
         inputs.forEach {
-            if (it is SearchInput) out.writeEnum(Input.Type.SEARCH_INPUT)
-            else out.writeEnum(Input.Type.DOCUMENT_LEVEL_INPUT)
+            if (it is SearchInput) {
+                out.writeEnum(Input.Type.SEARCH_INPUT)
+            } else {
+                out.writeEnum(Input.Type.DOCUMENT_LEVEL_INPUT)
+            }
             it.writeTo(out)
         }
         // Outputting type with each Trigger so that the generic Trigger.readFrom() can read it
@@ -273,8 +278,9 @@ data class Monitor(
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             val input = Input.parse(xcp)
-                            if (input is ClusterMetricsInput)
+                            if (input is ClusterMetricsInput) {
                                 supportedClusterMetricsSettings?.validateApiType(input)
+                            }
                             inputs.add(input)
                         }
                     }
@@ -291,8 +297,11 @@ data class Monitor(
                     ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
                     UI_METADATA_FIELD -> uiMetadata = xcp.map()
-                    DATA_SOURCES_FIELD -> dataSources = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) DataSources()
-                    else DataSources.parse(xcp)
+                    DATA_SOURCES_FIELD -> dataSources = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                        DataSources()
+                    } else {
+                        DataSources.parse(xcp)
+                    }
                     OWNER_FIELD -> owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
                     else -> {
                         xcp.skipChildren()

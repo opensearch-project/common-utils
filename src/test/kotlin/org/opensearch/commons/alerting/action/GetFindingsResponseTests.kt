@@ -16,7 +16,6 @@ internal class GetFindingsResponseTests {
 
     @Test
     fun `test get findings response`() {
-
         // Alerting GetFindingsResponse mock #1
         val finding1 = Finding(
             "1",

@@ -46,7 +46,7 @@ class AlertTests {
         assertEquals(
             templateArgs[Alert.PARENTS_BUCKET_PATH],
             alert.aggregationResultBucket?.parentBucketPath,
-            "Template args parentBucketPath does not match",
+            "Template args parentBucketPath does not match"
         )
     }
 

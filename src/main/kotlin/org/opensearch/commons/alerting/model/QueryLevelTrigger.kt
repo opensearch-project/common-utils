@@ -57,7 +57,9 @@ data class QueryLevelTrigger(
     /** Returns a representation of the trigger suitable for passing into painless and mustache scripts. */
     fun asTemplateArg(): Map<String, Any> {
         return mapOf(
-            ID_FIELD to id, NAME_FIELD to name, SEVERITY_FIELD to severity,
+            ID_FIELD to id,
+            NAME_FIELD to name,
+            SEVERITY_FIELD to severity,
             ACTIONS_FIELD to actions.map { it.asTemplateArg() }
         )
     }
@@ -77,7 +79,8 @@ data class QueryLevelTrigger(
         const val SCRIPT_FIELD = "script"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java, ParseField(QUERY_LEVEL_TRIGGER_FIELD),
+            Trigger::class.java,
+            ParseField(QUERY_LEVEL_TRIGGER_FIELD),
             CheckedFunction { parseInner(it) }
         )
 
@@ -113,7 +116,8 @@ data class QueryLevelTrigger(
          * It isn't typically conventional but this parse method will account for both START_OBJECT
          * and FIELD_NAME as the starting token to cover both cases.
          */
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): QueryLevelTrigger {
             var id = UUIDs.base64UUID() // assign a default triggerId if one is not specified
             lateinit var name: String

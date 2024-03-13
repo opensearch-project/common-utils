@@ -59,8 +59,10 @@ data class AggregationResultBucket(
                 throw ParsingException(
                     xcp.tokenLocation,
                     String.format(
-                        Locale.ROOT, "Failed to parse object: expecting token with name [%s] but found [%s]",
-                        CONFIG_NAME, xcp.currentName()
+                        Locale.ROOT,
+                        "Failed to parse object: expecting token with name [%s] but found [%s]",
+                        CONFIG_NAME,
+                        xcp.currentName()
                     )
                 )
             }

@@ -48,7 +48,6 @@ data class ChannelMessage(
         @JvmStatic
         @Throws(IOException::class)
         fun parse(parser: XContentParser): ChannelMessage {
-
             var textDescription: String? = null
             var htmlDescription: String? = null
             var attachment: Attachment? = null
