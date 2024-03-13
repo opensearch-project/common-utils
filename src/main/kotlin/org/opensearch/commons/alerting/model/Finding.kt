@@ -81,7 +81,8 @@ class Finding(
         const val TIMESTAMP_FIELD = "timestamp"
         const val NO_ID = ""
 
-        @JvmStatic @JvmOverloads
+        @JvmStatic
+        @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): Finding {
             var id: String = NO_ID

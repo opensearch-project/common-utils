@@ -205,9 +205,11 @@ fun randomDocumentLevelTrigger(
         name = name,
         severity = severity,
         condition = condition,
-        actions = if (actions.isEmpty() && destinationId.isNotBlank())
+        actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
             (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
-        else actions
+        } else {
+            actions
+        }
     )
 }
 
@@ -413,7 +415,10 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     val trigger = randomQueryLevelTrigger()
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
     return Alert(
-        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
+        monitor,
+        trigger,
+        Instant.now().truncatedTo(ChronoUnit.MILLIS),
+        null,
         actionExecutionResults = actionExecutionResults
     )
 }
@@ -428,7 +433,10 @@ fun randomAlertWithAggregationResultBucket(monitor: Monitor = randomBucketLevelM
     val trigger = randomBucketLevelTrigger()
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
     return Alert(
-        monitor, trigger, Instant.now().truncatedTo(ChronoUnit.MILLIS), null,
+        monitor,
+        trigger,
+        Instant.now().truncatedTo(ChronoUnit.MILLIS),
+        null,
         actionExecutionResults = actionExecutionResults,
         aggregationResultBucket = AggregationResultBucket(
             "parent_bucket_path_1",

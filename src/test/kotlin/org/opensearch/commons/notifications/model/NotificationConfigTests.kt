@@ -175,7 +175,6 @@ internal class NotificationConfigTests {
     }
 
     @Test
-
     fun `Config should safely ignore unknown config type in json object`() {
         val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
         val sampleConfig = NotificationConfig(

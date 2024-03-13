@@ -15,7 +15,6 @@ class AcknowledgeAlertResponseTests {
 
     @Test
     fun `test acknowledge alert response`() {
-
         val acknowledged = mutableListOf(
             Alert(
                 "1234", 0L, 1, "monitor-1234", "test-monitor", 0L, randomUser(),

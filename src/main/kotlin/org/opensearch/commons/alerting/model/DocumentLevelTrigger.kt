@@ -80,11 +80,13 @@ data class DocumentLevelTrigger(
         const val QUERY_IDS_FIELD = "query_ids"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java, ParseField(DOCUMENT_LEVEL_TRIGGER_FIELD),
+            Trigger::class.java,
+            ParseField(DOCUMENT_LEVEL_TRIGGER_FIELD),
             CheckedFunction { parseInner(it) }
         )
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): DocumentLevelTrigger {
             var id = UUIDs.base64UUID() // assign a default triggerId if one is not specified
             lateinit var name: String

@@ -52,7 +52,8 @@ class FindingDocument(
         const val NO_ID = ""
         const val NO_INDEX = ""
 
-        @JvmStatic @JvmOverloads
+        @JvmStatic
+        @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, index: String = NO_INDEX): FindingDocument {
             var found = false

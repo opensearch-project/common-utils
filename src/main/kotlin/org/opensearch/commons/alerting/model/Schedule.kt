@@ -33,7 +33,8 @@ sealed class Schedule : BaseModel {
 
         val cronParser = CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX))
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parse(xcp: XContentParser): Schedule {
             var expression: String? = null
             var timezone: ZoneId? = null
@@ -91,7 +92,8 @@ sealed class Schedule : BaseModel {
             return requireNotNull(schedule) { "Schedule is null." }
         }
 
-        @JvmStatic @Throws(IllegalArgumentException::class)
+        @JvmStatic
+        @Throws(IllegalArgumentException::class)
         private fun getTimeZone(timeZone: String): ZoneId {
             try {
                 return ZoneId.of(timeZone)
@@ -106,10 +108,11 @@ sealed class Schedule : BaseModel {
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): Schedule {
             val type = sin.readEnum(Schedule.TYPE::class.java)
-            if (type == Schedule.TYPE.CRON)
+            if (type == Schedule.TYPE.CRON) {
                 return CronSchedule(sin)
-            else
+            } else {
                 return IntervalSchedule(sin)
+            }
         }
     }
 

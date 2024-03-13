@@ -14,6 +14,7 @@ import java.io.IOException
 class BucketSelectorExtFilter : BaseModel {
     // used for composite aggregations
     val filtersMap: HashMap<String, IncludeExclude>?
+
     // used for filtering string term aggregation
     val filters: IncludeExclude?
 

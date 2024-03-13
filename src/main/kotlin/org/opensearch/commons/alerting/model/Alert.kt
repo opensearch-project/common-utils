@@ -42,8 +42,10 @@ data class Alert(
 ) : Writeable, ToXContent {
 
     init {
-        if (errorMessage != null) require(state == State.DELETED || state == State.ERROR) {
-            "Attempt to create an alert with an error in state: $state"
+        if (errorMessage != null) {
+            require(state == State.DELETED || state == State.ERROR) {
+                "Attempt to create an alert with an error in state: $state"
+            }
         }
     }
 
@@ -139,7 +141,9 @@ data class Alert(
         monitorVersion = sin.readLong(),
         monitorUser = if (sin.readBoolean()) {
             User(sin)
-        } else null,
+        } else {
+            null
+        },
         triggerId = sin.readString(),
         triggerName = sin.readString(),
         findingIds = sin.readStringList(),
@@ -216,10 +220,10 @@ data class Alert(
         const val NO_ID = ""
         const val NO_VERSION = Versions.NOT_FOUND
 
-        @JvmStatic @JvmOverloads
+        @JvmStatic
+        @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): Alert {
-
             lateinit var monitorId: String
             var schemaVersion = NO_SCHEMA_VERSION
             lateinit var monitorName: String

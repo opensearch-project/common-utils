@@ -33,7 +33,6 @@ data class AlertError(val timestamp: Instant, val message: String) : Writeable, 
         @JvmStatic
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): AlertError {
-
             lateinit var timestamp: Instant
             lateinit var message: String
 
