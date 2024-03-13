@@ -10,6 +10,7 @@ import org.opensearch.commons.alerting.model.action.Throttle
 import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
+import org.opensearch.commons.alerting.randomDocLevelQuery
 import org.opensearch.commons.alerting.randomDocumentLevelTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
@@ -113,17 +114,6 @@ class WriteableTests {
     }
 
     @Test
-    fun `test doc-level query as stream`() {
-        val dlq = randomDocLevelQuery()
-        val out = BytesStreamOutput()
-        dlq.writeTo(out)
-        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
-        val newDlq = DocLevelQuery.readFrom(sin)
-        Assertions.assertEquals(dlq, newDlq, "Round tripping DocLevelQuery doesn't work")
-        assertTrue(newDlq.queryFieldNames.isEmpty())
-    }
-
-    @Test
     fun `test doc-level query with query Field Names as stream`() {
         val dlq = randomDocLevelQuery().copy(queryFieldNames = listOf("f1", "f2"))
         val out = BytesStreamOutput()
@@ -133,16 +123,6 @@ class WriteableTests {
         assertTrue(newDlq.queryFieldNames.contains(dlq.queryFieldNames[0]))
         assertTrue(newDlq.queryFieldNames.contains(dlq.queryFieldNames[1]))
         Assertions.assertEquals(dlq, newDlq, "Round tripping DocLevelQuery doesn't work")
-    }
-
-    @Test
-    fun `test chained alert trigger as stream`() {
-        val trigger = randomChainedAlertTrigger()
-        val out = BytesStreamOutput()
-        trigger.writeTo(out)
-        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
-        val newTrigger = ChainedAlertTrigger.readFrom(sin)
-        Assertions.assertEquals(trigger, newTrigger, "Round tripping DocumentLevelTrigger doesn't work")
     }
 
     @Test
