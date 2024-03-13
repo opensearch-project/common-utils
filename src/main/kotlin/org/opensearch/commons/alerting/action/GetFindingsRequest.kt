@@ -21,7 +21,7 @@ class GetFindingsRequest : ActionRequest {
         monitorId: String? = null,
         findingIndexName: String? = null,
         monitorIds: List<String>? = null,
-        boolQueryBuilder: BoolQueryBuilder? = null,
+        boolQueryBuilder: BoolQueryBuilder? = null
     ) : super() {
         this.findingId = findingId
         this.table = table

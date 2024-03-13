@@ -9,7 +9,6 @@ import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.index.query.QueryBuilders
-import java.time.Instant
 
 internal class GetFindingsRequestTests {
 
@@ -31,14 +30,13 @@ internal class GetFindingsRequestTests {
         assertEquals(table, newReq.table)
         assertTrue(newReq.monitorIds!!.contains("1"))
         assertTrue(newReq.monitorIds!!.contains("2"))
-
     }
 
     @Test
     fun `test validate returns null`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
         val boolQueryBuilder = QueryBuilders.boolQuery()
-        val req = GetFindingsRequest("2121", table, "1", "active", listOf("1", "2"), boolQueryBuilder )
+        val req = GetFindingsRequest("2121", table, "1", "active", listOf("1", "2"), boolQueryBuilder)
         assertNotNull(req)
         assertNull(req.validate())
     }
