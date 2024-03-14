@@ -5,8 +5,8 @@ import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.index.query.BoolQueryBuilder
 import java.io.IOException
-import java.time.Instant
 
 class GetFindingsRequest : ActionRequest {
     val findingId: String?
@@ -14,34 +14,21 @@ class GetFindingsRequest : ActionRequest {
     val monitorId: String?
     val monitorIds: List<String>?
     val findingIndex: String?
-    val severity: String?
-    val detectionType: String?
-    val findingIds: List<String>?
-    val startTime: Instant?
-    val endTime: Instant?
-
+    val boolQueryBuilder: BoolQueryBuilder?
     constructor(
         findingId: String?,
         table: Table,
         monitorId: String? = null,
         findingIndexName: String? = null,
         monitorIds: List<String>? = null,
-        severity: String? = null,
-        detectionType: String? = null,
-        findingIds: List<String>? = null,
-        startTime: Instant? = null,
-        endTime: Instant? = null
+        boolQueryBuilder: BoolQueryBuilder? = null
     ) : super() {
         this.findingId = findingId
         this.table = table
         this.monitorId = monitorId
         this.findingIndex = findingIndexName
         this.monitorIds = monitorIds
-        this.severity = severity
-        this.detectionType = detectionType
-        this.findingIds = findingIds
-        this.startTime = startTime
-        this.endTime = endTime
+        this.boolQueryBuilder = boolQueryBuilder
     }
 
     @Throws(IOException::class)
@@ -51,11 +38,7 @@ class GetFindingsRequest : ActionRequest {
         monitorId = sin.readOptionalString(),
         findingIndexName = sin.readOptionalString(),
         monitorIds = sin.readOptionalStringList(),
-        severity = sin.readOptionalString(),
-        detectionType = sin.readOptionalString(),
-        findingIds = sin.readOptionalStringList(),
-        startTime = sin.readOptionalInstant(),
-        endTime = sin.readOptionalInstant()
+        boolQueryBuilder = BoolQueryBuilder(sin)
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -69,10 +52,6 @@ class GetFindingsRequest : ActionRequest {
         out.writeOptionalString(monitorId)
         out.writeOptionalString(findingIndex)
         out.writeOptionalStringCollection(monitorIds)
-        out.writeOptionalString(severity)
-        out.writeOptionalString(detectionType)
-        out.writeOptionalStringCollection(findingIds)
-        out.writeOptionalInstant(startTime)
-        out.writeOptionalInstant(endTime)
+        boolQueryBuilder?.writeTo(out)
     }
 }
