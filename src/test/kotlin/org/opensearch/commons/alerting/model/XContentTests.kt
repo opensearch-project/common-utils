@@ -277,13 +277,15 @@ class XContentTests {
         val cmf1 = ChainedMonitorFindings(monitorId = "m1")
         val cmf1String = cmf1.toJsonString()
         Assertions.assertEquals(
-            ChainedMonitorFindings.parse(parser(cmf1String)), cmf1,
+            ChainedMonitorFindings.parse(parser(cmf1String)),
+            cmf1,
             "Round tripping chained monitor findings failed"
         )
         val cmf2 = ChainedMonitorFindings(monitorIds = listOf("m1", "m2"))
         val cmf2String = cmf2.toJsonString()
         Assertions.assertEquals(
-            ChainedMonitorFindings.parse(parser(cmf2String)), cmf2,
+            ChainedMonitorFindings.parse(parser(cmf2String)),
+            cmf2,
             "Round tripping chained monitor findings failed"
         )
     }
@@ -414,6 +416,30 @@ class XContentTests {
             actionExecutionPolicy,
             parsedActionExecutionPolicy,
             "Round tripping ActionExecutionPolicy doesn't work"
+        )
+    }
+
+    @Test
+    fun `test doc level query toXcontent`() {
+        val dlq = DocLevelQuery("id", "name", "query", listOf("t1", "t2"))
+        val dlqString = dlq.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedDlq = DocLevelQuery.parse(parser(dlqString))
+        Assertions.assertEquals(
+            dlq,
+            parsedDlq,
+            "Round tripping Doc level query doesn't work"
+        )
+    }
+
+    @Test
+    fun `test doc level query toXcontent with query field names`() {
+        val dlq = DocLevelQuery("id", "name", "query", listOf("t1", "t2"), listOf("f1", "f2"))
+        val dlqString = dlq.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedDlq = DocLevelQuery.parse(parser(dlqString))
+        Assertions.assertEquals(
+            dlq,
+            parsedDlq,
+            "Round tripping Doc level query doesn't work"
         )
     }
 

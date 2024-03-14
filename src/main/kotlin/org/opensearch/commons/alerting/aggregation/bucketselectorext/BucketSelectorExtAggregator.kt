@@ -33,7 +33,7 @@ class BucketSelectorExtAggregator : SiblingPipelineAggregator {
         script: Script,
         gapPolicy: BucketHelpers.GapPolicy,
         filter: BucketSelectorExtFilter?,
-        metadata: Map<String, Any>?,
+        metadata: Map<String, Any>?
     ) : super(name, bucketsPathsMap.values.toTypedArray(), metadata) {
         this.bucketsPathsMap = bucketsPathsMap
         this.parentBucketPath = parentBucketPath
@@ -132,7 +132,7 @@ class BucketSelectorExtAggregator : SiblingPipelineAggregator {
             name(),
             parentBucketPath,
             selectedBucketsIndex,
-            originalAgg.metadata,
+            originalAgg.metadata
         )
     }
 

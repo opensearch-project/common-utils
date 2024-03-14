@@ -19,7 +19,7 @@ class AcknowledgeChainedAlertRequest : ActionRequest {
 
     constructor(
         workflowId: String,
-        alertIds: List<String>,
+        alertIds: List<String>
     ) : super() {
         this.workflowId = workflowId
         this.alertIds = alertIds
@@ -28,7 +28,7 @@ class AcknowledgeChainedAlertRequest : ActionRequest {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // workflowId
-        Collections.unmodifiableList(sin.readStringList()), // alertIds
+        Collections.unmodifiableList(sin.readStringList()) // alertIds
     )
 
     override fun validate(): ActionRequestValidationException? {

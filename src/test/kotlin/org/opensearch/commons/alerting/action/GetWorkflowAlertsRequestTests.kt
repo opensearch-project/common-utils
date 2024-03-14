@@ -13,7 +13,6 @@ internal class GetWorkflowAlertsRequestTests {
 
     @Test
     fun `test get alerts request`() {
-
         val table = Table("asc", "sortString", null, 1, 0, "")
 
         val req = GetWorkflowAlertsRequest(
@@ -48,7 +47,6 @@ internal class GetWorkflowAlertsRequestTests {
 
     @Test
     fun `test get alerts request with custom alerts and associated alerts indices`() {
-
         val table = Table("asc", "sortString", null, 1, 0, "")
 
         val req = GetWorkflowAlertsRequest(

@@ -27,7 +27,7 @@ class Finding(
      * Keeps the track of the workflow-monitor exact execution.
      * Used for filtering the data when chaining monitors in a workflow.
      */
-    val executionId: String? = null,
+    val executionId: String? = null
 ) : Writeable, ToXContent {
 
     constructor(
