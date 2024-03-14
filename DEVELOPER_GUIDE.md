@@ -28,6 +28,7 @@ To build from the command line, use `./gradlew`.
 ./gradlew clean
 ./gradlew build
 ./gradlew publishToMavenLocal
+./gradlew build --refresh-dependencies
 ```
 
 ### Using IntelliJ IDEA

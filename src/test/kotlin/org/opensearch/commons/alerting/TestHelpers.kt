@@ -208,7 +208,9 @@ fun randomDocumentLevelTrigger(
         condition = condition,
         actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
             (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
-        } else actions
+        } else {
+            actions
+        }
     )
 }
 
