@@ -3,13 +3,13 @@ package org.opensearch.commons.alerting.model
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
+import org.opensearch.common.io.stream.StreamInput
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
 import org.opensearch.commons.alerting.model.action.Throttle
 import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
-import org.opensearch.commons.alerting.randomChainedAlertTrigger
 import org.opensearch.commons.alerting.randomDocLevelQuery
 import org.opensearch.commons.alerting.randomDocumentLevelTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
@@ -18,7 +18,6 @@ import org.opensearch.commons.alerting.randomThrottle
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
 import org.opensearch.commons.authuser.User
-import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.search.builder.SearchSourceBuilder
 import kotlin.test.assertTrue
 
@@ -135,16 +134,6 @@ class WriteableTests {
         assertTrue(newDlq.queryFieldNames.contains(dlq.queryFieldNames[0]))
         assertTrue(newDlq.queryFieldNames.contains(dlq.queryFieldNames[1]))
         Assertions.assertEquals(dlq, newDlq, "Round tripping DocLevelQuery doesn't work")
-    }
-
-    @Test
-    fun `test chained alert trigger as stream`() {
-        val trigger = randomChainedAlertTrigger()
-        val out = BytesStreamOutput()
-        trigger.writeTo(out)
-        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
-        val newTrigger = ChainedAlertTrigger.readFrom(sin)
-        Assertions.assertEquals(trigger, newTrigger, "Round tripping DocumentLevelTrigger doesn't work")
     }
 
     @Test

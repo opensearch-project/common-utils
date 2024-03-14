@@ -24,7 +24,7 @@ internal class GetFindingsResponseTests {
             "monitor_id1",
             "monitor_name1",
             "test_index1",
-            listOf(DocLevelQuery("1", "myQuery", "fieldA:valABC", List.of())),
+            listOf(DocLevelQuery("1", "myQuery", listOf(), "fieldA:valABC", List.of(), List.of("*"))),
             Instant.now()
         )
         val findingDocument1 = FindingDocument("test_index1", "doc1", true, "document 1 payload")
@@ -43,7 +43,7 @@ internal class GetFindingsResponseTests {
             "monitor_id2",
             "monitor_name2",
             "test_index2",
-            listOf(DocLevelQuery("1", "myQuery", "fieldA:valABC", List.of())),
+            listOf(DocLevelQuery("1", "myQuery", listOf(), "fieldA:valABC", List.of())),
             Instant.now()
         )
         val findingDocument21 = FindingDocument("test_index2", "doc21", true, "document 21 payload")

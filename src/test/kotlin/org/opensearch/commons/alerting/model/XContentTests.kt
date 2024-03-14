@@ -377,6 +377,30 @@ class XContentTests {
     }
 
     @Test
+    fun `test doc level query toXcontent`() {
+        val dlq = DocLevelQuery("id", "name", listOf("f1", "f2"), "query", listOf("t1", "t2"))
+        val dlqString = dlq.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedDlq = DocLevelQuery.parse(parser(dlqString))
+        Assertions.assertEquals(
+            dlq,
+            parsedDlq,
+            "Round tripping Doc level query doesn't work"
+        )
+    }
+
+    @Test
+    fun `test doc level query toXcontent with query field names`() {
+        val dlq = DocLevelQuery("id", "name", listOf("f1", "f2"), "query", listOf("t1", "t2"), listOf("f1", "f2"))
+        val dlqString = dlq.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedDlq = DocLevelQuery.parse(parser(dlqString))
+        Assertions.assertEquals(
+            dlq,
+            parsedDlq,
+            "Round tripping Doc level query doesn't work"
+        )
+    }
+
+    @Test
     fun `test alert parsing`() {
         val alert = randomAlert()
 
@@ -387,38 +411,28 @@ class XContentTests {
     }
 
     @Test
-    fun `test alert parsing with noop trigger`() {
-        val monitor = randomQueryLevelMonitor()
-        val alert = Alert(
-            monitor = monitor,
-            trigger = NoOpTrigger(),
-            startTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-            errorMessage = "some error",
-            lastNotificationTime = Instant.now()
-        )
-        assertEquals("Round tripping alert doesn't work", alert.triggerName, "NoOp trigger")
-    }
-
-    @Test
     fun `test alert parsing without user`() {
         val alertStr = "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1," +
             "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
             "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
             ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
             "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
+            "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }
 
     @Test
     fun `test alert parsing with user as null`() {
-        val alertStr = "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1,\"monitor_user\":null," +
-            "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
-            "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
-            ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
-            "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+        val alertStr =
+            "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1,\"monitor_user\":null," +
+                "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
+                "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
+                ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
+                "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
+                "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
+                "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }
