@@ -42,8 +42,10 @@ data class Alert(
 ) : Writeable, ToXContent {
 
     init {
-        if (errorMessage != null) require(state == State.DELETED || state == State.ERROR) {
-            "Attempt to create an alert with an error in state: $state"
+        if (errorMessage != null) {
+            require(state == State.DELETED || state == State.ERROR) {
+                "Attempt to create an alert with an error in state: $state"
+            }
         }
     }
 
@@ -157,7 +159,9 @@ data class Alert(
         monitorVersion = sin.readLong(),
         monitorUser = if (sin.readBoolean()) {
             User(sin)
-        } else null,
+        } else {
+            null
+        },
         triggerId = sin.readString(),
         triggerName = sin.readString(),
         findingIds = sin.readStringList(),

@@ -17,7 +17,7 @@ data class NoOpTrigger(
     override val id: String = UUIDs.base64UUID(),
     override val name: String = "NoOp trigger",
     override val severity: String = "",
-    override val actions: List<Action> = listOf(),
+    override val actions: List<Action> = listOf()
 ) : Trigger {
 
     @Throws(IOException::class)
@@ -48,11 +48,13 @@ data class NoOpTrigger(
         const val ID_FIELD = "id"
         const val NOOP_TRIGGER_FIELD = "noop_trigger"
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java, ParseField(NOOP_TRIGGER_FIELD),
+            Trigger::class.java,
+            ParseField(NOOP_TRIGGER_FIELD),
             CheckedFunction { parseInner(it) }
         )
 
-        @JvmStatic @Throws(IOException::class)
+        @JvmStatic
+        @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): NoOpTrigger {
             var id = UUIDs.base64UUID()
             if (xcp.currentToken() == XContentParser.Token.START_OBJECT) xcp.nextToken()

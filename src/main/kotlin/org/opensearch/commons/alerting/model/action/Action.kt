@@ -130,7 +130,9 @@ data class Action(
                     NAME_FIELD -> name = xcp.textOrNull()
                     DESTINATION_ID_FIELD -> destinationId = xcp.textOrNull()
                     SUBJECT_TEMPLATE_FIELD -> {
-                        subjectTemplate = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else {
+                        subjectTemplate = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
                             Script.parse(xcp, Script.DEFAULT_TEMPLATE_LANG)
                         }
                     }

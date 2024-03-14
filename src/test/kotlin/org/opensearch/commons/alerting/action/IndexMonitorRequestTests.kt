@@ -20,9 +20,12 @@ class IndexMonitorRequestTests {
 
     @Test
     fun `test index monitor post request`() {
-
         val req = IndexMonitorRequest(
-            "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.POST,
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.POST,
             randomQueryLevelMonitor().copy(inputs = listOf(SearchInput(emptyList(), SearchSourceBuilder())))
         )
         Assertions.assertNotNull(req)
@@ -41,7 +44,11 @@ class IndexMonitorRequestTests {
     @Test
     fun `test index bucket monitor post request`() {
         val req = IndexMonitorRequest(
-            "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.POST,
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.POST,
             randomBucketLevelMonitor()
         )
         Assertions.assertNotNull(req)
@@ -61,7 +68,11 @@ class IndexMonitorRequestTests {
     @Test
     fun `Index bucket monitor serialize and deserialize transport object should be equal`() {
         val bucketLevelMonitorRequest = IndexMonitorRequest(
-            "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.POST,
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.POST,
             randomBucketLevelMonitor()
         )
 
@@ -80,9 +91,12 @@ class IndexMonitorRequestTests {
 
     @Test
     fun `test index monitor put request`() {
-
         val req = IndexMonitorRequest(
-            "1234", 1L, 2L, WriteRequest.RefreshPolicy.IMMEDIATE, RestRequest.Method.PUT,
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.PUT,
             randomQueryLevelMonitor().copy(inputs = listOf(SearchInput(emptyList(), SearchSourceBuilder())))
         )
         Assertions.assertNotNull(req)
