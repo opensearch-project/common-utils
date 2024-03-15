@@ -15,7 +15,8 @@ data class DocLevelQuery(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
     val query: String,
-    val tags: List<String> = mutableListOf()
+    val tags: List<String> = mutableListOf(),
+    val queryFieldNames: List<String> = mutableListOf()
 ) : BaseModel {
 
     init {
@@ -31,7 +32,8 @@ data class DocLevelQuery(
         sin.readString(), // id
         sin.readString(), // name
         sin.readString(), // query
-        sin.readStringList() // tags
+        sin.readStringList(), // tags,
+        sin.readStringList() // fieldsBeingQueried
     )
 
     fun asTemplateArg(): Map<String, Any> {
@@ -39,7 +41,8 @@ data class DocLevelQuery(
             QUERY_ID_FIELD to id,
             NAME_FIELD to name,
             QUERY_FIELD to query,
-            TAGS_FIELD to tags
+            TAGS_FIELD to tags,
+            QUERY_FIELD_NAMES_FIELD to queryFieldNames
         )
     }
 
@@ -49,6 +52,7 @@ data class DocLevelQuery(
         out.writeString(name)
         out.writeString(query)
         out.writeStringCollection(tags)
+        out.writeStringCollection(queryFieldNames)
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
@@ -57,6 +61,7 @@ data class DocLevelQuery(
             .field(NAME_FIELD, name)
             .field(QUERY_FIELD, query)
             .field(TAGS_FIELD, tags.toTypedArray())
+            .field(QUERY_FIELD_NAMES_FIELD, queryFieldNames.toTypedArray())
             .endObject()
         return builder
     }
@@ -66,6 +71,7 @@ data class DocLevelQuery(
         const val NAME_FIELD = "name"
         const val QUERY_FIELD = "query"
         const val TAGS_FIELD = "tags"
+        const val QUERY_FIELD_NAMES_FIELD = "query_field_names"
         const val NO_ID = ""
         val INVALID_CHARACTERS: List<String> = listOf(" ", "[", "]", "{", "}", "(", ")")
 
@@ -76,6 +82,7 @@ data class DocLevelQuery(
             lateinit var query: String
             lateinit var name: String
             val tags: MutableList<String> = mutableListOf()
+            val queryFieldNames: MutableList<String> = mutableListOf()
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -101,6 +108,18 @@ data class DocLevelQuery(
                             tags.add(tag)
                         }
                     }
+
+                    QUERY_FIELD_NAMES_FIELD -> {
+                        XContentParserUtils.ensureExpectedToken(
+                            XContentParser.Token.START_ARRAY,
+                            xcp.currentToken(),
+                            xcp
+                        )
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
+                            val field = xcp.text()
+                            queryFieldNames.add(field)
+                        }
+                    }
                 }
             }
 
@@ -108,7 +127,8 @@ data class DocLevelQuery(
                 id = id,
                 name = name,
                 query = query,
-                tags = tags
+                tags = tags,
+                queryFieldNames = queryFieldNames
             )
         }
 
@@ -129,4 +149,18 @@ data class DocLevelQuery(
             }
         }
     }
+
+    // constructor for java plugins' convenience to optionally avoid passing empty list for 'fieldsBeingQueried' field
+    constructor(
+        id: String,
+        name: String,
+        query: String,
+        tags: MutableList<String>
+    ) : this(
+        id = id,
+        name = name,
+        query = query,
+        tags = tags,
+        queryFieldNames = emptyList()
+    )
 }

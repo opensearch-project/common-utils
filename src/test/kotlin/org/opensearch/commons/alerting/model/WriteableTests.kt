@@ -10,6 +10,7 @@ import org.opensearch.commons.alerting.model.action.Throttle
 import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
+import org.opensearch.commons.alerting.randomDocLevelQuery
 import org.opensearch.commons.alerting.randomDocumentLevelTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
@@ -18,6 +19,7 @@ import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
 import org.opensearch.commons.authuser.User
 import org.opensearch.search.builder.SearchSourceBuilder
+import kotlin.test.assertTrue
 
 class WriteableTests {
 
@@ -119,6 +121,18 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newInput = SearchInput(sin)
         Assertions.assertEquals(input, newInput, "Round tripping MonitorRunResult doesn't work")
+    }
+
+    @Test
+    fun `test doc-level query with query Field Names as stream`() {
+        val dlq = randomDocLevelQuery().copy(queryFieldNames = listOf("f1", "f2"))
+        val out = BytesStreamOutput()
+        dlq.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newDlq = DocLevelQuery.readFrom(sin)
+        assertTrue(newDlq.queryFieldNames.contains(dlq.queryFieldNames[0]))
+        assertTrue(newDlq.queryFieldNames.contains(dlq.queryFieldNames[1]))
+        Assertions.assertEquals(dlq, newDlq, "Round tripping DocLevelQuery doesn't work")
     }
 
     @Test
