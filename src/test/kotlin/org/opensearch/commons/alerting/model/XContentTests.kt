@@ -95,7 +95,13 @@ class XContentTests {
         val throttleString = throttle.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
         val wrongThrottleString = throttleString.replace("MINUTES", "wrongunit")
 
-        assertFailsWith<IllegalArgumentException>("Only support MINUTES throttle unit") { Throttle.parse(parser(wrongThrottleString)) }
+        assertFailsWith<IllegalArgumentException>("Only support MINUTES throttle unit") {
+            Throttle.parse(
+                parser(
+                    wrongThrottleString
+                )
+            )
+        }
     }
 
     @Test
@@ -103,7 +109,13 @@ class XContentTests {
         val throttle = randomThrottle().copy(value = -1)
         val throttleString = throttle.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
 
-        assertFailsWith<IllegalArgumentException>("Can only set positive throttle period") { Throttle.parse(parser(throttleString)) }
+        assertFailsWith<IllegalArgumentException>("Can only set positive throttle period") {
+            Throttle.parse(
+                parser(
+                    throttleString
+                )
+            )
+        }
     }
 
     fun `test query-level monitor parsing`() {
@@ -131,7 +143,13 @@ class XContentTests {
             }
         """.trimIndent()
 
-        assertFailsWith<IllegalArgumentException>("Monitor name is null") { Monitor.parse(parser(monitorStringWithoutName)) }
+        assertFailsWith<IllegalArgumentException>("Monitor name is null") {
+            Monitor.parse(
+                parser(
+                    monitorStringWithoutName
+                )
+            )
+        }
     }
 
     @Test
