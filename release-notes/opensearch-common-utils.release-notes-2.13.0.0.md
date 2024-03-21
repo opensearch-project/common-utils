@@ -13,4 +13,4 @@ Compatible with OpenSearch 2.13.0
 * Feature findings enhancemnt (#[596](https://github.com/opensearch-project/common-utils/pull/596)) (#[606](https://github.com/opensearch-project/common-utils/pull/606))
 
 ### Documentation
-* Added 2.13.0.0 release notes ([#585](https://github.com/opensearch-project/common-utils/pull/585))
+* Added 2.13.0.0 release notes ([#622](https://github.com/opensearch-project/common-utils/pull/622))
