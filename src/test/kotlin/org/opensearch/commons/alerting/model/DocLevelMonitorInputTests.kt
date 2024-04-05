@@ -42,14 +42,19 @@ class DocLevelMonitorInputTests {
     }
 
     @Test
-    fun `test create Doc Level Query with invalid characters for name`() {
-        val badString = "query with space"
+    fun `test create Doc Level Query with invalid name length`() {
+        val stringBuilder = StringBuilder()
+        repeat(256) {
+            stringBuilder.append("a")
+        }
+        val badString = stringBuilder.toString() + "b".repeat(256)
+
         try {
             randomDocLevelQuery(name = badString)
             Assertions.fail("Expecting an illegal argument exception")
         } catch (e: IllegalArgumentException) {
             Assertions.assertEquals(
-                "They query name or tag, $badString, contains an invalid character: [' ','[',']','{','}','(',')']",
+                "The query name, $badString, can be max 256 characters.",
                 e.message
             )
         }
@@ -64,7 +69,7 @@ class DocLevelMonitorInputTests {
             Assertions.fail("Expecting an illegal argument exception")
         } catch (e: IllegalArgumentException) {
             Assertions.assertEquals(
-                "They query name or tag, $badString, contains an invalid character: [' ','[',']','{','}','(',')']",
+                "The query tag, $badString, contains an invalid character: [' ','[',']','{','}','(',')']",
                 e.message
             )
         }
