@@ -80,7 +80,7 @@ data class DocLevelQuery(
         const val QUERY_FIELD_NAMES_FIELD = "query_field_names"
         const val NO_ID = ""
         val INVALID_CHARACTERS: List<String> = listOf(" ", "[", "]", "{", "}", "(", ")")
-        val QUERY_NAME_REGEX = "^.{1,256}$".toRegex() // regex to restrict string length to 1-256 chars
+        val QUERY_NAME_REGEX = "^.{0,256}$".toRegex() // regex to restrict string length 256 chars
 
         @JvmStatic
         @Throws(IOException::class)
