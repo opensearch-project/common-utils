@@ -44,10 +44,10 @@ class DocLevelMonitorInputTests {
     @Test
     fun `test create Doc Level Query with invalid name length`() {
         val stringBuilder = StringBuilder()
-        repeat(256) {
+        repeat(257) {
             stringBuilder.append("a")
         }
-        val badString = stringBuilder.toString() + "b".repeat(256)
+        val badString = stringBuilder.toString()
 
         try {
             randomDocLevelQuery(name = badString)
