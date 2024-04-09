@@ -5,11 +5,7 @@ import com.carrotsearch.randomizedtesting.generators.RandomStrings
 import junit.framework.TestCase.assertNull
 import org.apache.hc.core5.http.Header
 import org.apache.hc.core5.http.HttpEntity
-import org.opensearch.client.Request
-import org.opensearch.client.RequestOptions
-import org.opensearch.client.Response
-import org.opensearch.client.RestClient
-import org.opensearch.client.WarningsHandler
+import org.opensearch.client.*
 import org.opensearch.common.UUIDs
 import org.opensearch.common.settings.Settings
 import org.opensearch.common.xcontent.LoggingDeprecationHandler
@@ -17,37 +13,8 @@ import org.opensearch.common.xcontent.XContentFactory
 import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtFilter
-import org.opensearch.commons.alerting.model.ActionExecutionResult
-import org.opensearch.commons.alerting.model.AggregationResultBucket
-import org.opensearch.commons.alerting.model.Alert
-import org.opensearch.commons.alerting.model.BucketLevelTrigger
-import org.opensearch.commons.alerting.model.ChainedAlertTrigger
-import org.opensearch.commons.alerting.model.ChainedMonitorFindings
-import org.opensearch.commons.alerting.model.ClusterMetricsInput
-import org.opensearch.commons.alerting.model.CompositeInput
-import org.opensearch.commons.alerting.model.Delegate
-import org.opensearch.commons.alerting.model.DocLevelMonitorInput
-import org.opensearch.commons.alerting.model.DocLevelQuery
-import org.opensearch.commons.alerting.model.DocumentLevelTrigger
-import org.opensearch.commons.alerting.model.Finding
-import org.opensearch.commons.alerting.model.Input
-import org.opensearch.commons.alerting.model.IntervalSchedule
-import org.opensearch.commons.alerting.model.Monitor
-import org.opensearch.commons.alerting.model.NoOpTrigger
-import org.opensearch.commons.alerting.model.QueryLevelTrigger
-import org.opensearch.commons.alerting.model.Schedule
-import org.opensearch.commons.alerting.model.SearchInput
-import org.opensearch.commons.alerting.model.Sequence
-import org.opensearch.commons.alerting.model.Trigger
-import org.opensearch.commons.alerting.model.Workflow
-import org.opensearch.commons.alerting.model.WorkflowInput
-import org.opensearch.commons.alerting.model.action.Action
-import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
-import org.opensearch.commons.alerting.model.action.ActionExecutionScope
-import org.opensearch.commons.alerting.model.action.AlertCategory
-import org.opensearch.commons.alerting.model.action.PerAlertActionScope
-import org.opensearch.commons.alerting.model.action.PerExecutionActionScope
-import org.opensearch.commons.alerting.model.action.Throttle
+import org.opensearch.commons.alerting.model.*
+import org.opensearch.commons.alerting.model.action.*
 import org.opensearch.commons.alerting.util.string
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.xcontent.NamedXContentRegistry
@@ -63,8 +30,7 @@ import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder
 import org.opensearch.search.builder.SearchSourceBuilder
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.Random
-import java.util.UUID
+import java.util.*
 
 const val ALL_ACCESS_ROLE = "all_access"
 
@@ -599,5 +565,59 @@ fun randomFinding(
         index = index,
         docLevelQueries = docLevelQueries,
         timestamp = timestamp
+    )
+}
+
+fun randomCorrelationAlert (
+   id: String,
+   state: Alert.State
+) : CorrelationAlert {
+    val correlatedFindingIds = listOf("finding1", "finding2")
+    val correlationRuleId = "rule1"
+    val correlationRuleName = "Rule 1"
+    val id = id
+    val version = 1L
+    val schemaVersion = 1
+    val user = randomUser()
+    val triggerName = "Trigger 1"
+    val state = state
+    val startTime = Instant.now()
+    val endTime: Instant? = null
+    val acknowledgedTime: Instant? = null
+    val errorMessage: String? = null
+    val severity = "high"
+    val actionExecutionResults = listOf(randomActionExecutionResult())
+
+    return CorrelationAlert(
+        correlatedFindingIds, correlationRuleId, correlationRuleName,
+        id, version, schemaVersion, user, triggerName, state,
+        startTime, endTime, acknowledgedTime, errorMessage, severity,
+        actionExecutionResults
+    )
+}
+
+fun createUnifiedAlertTemplateArgs(unifiedAlert: UnifiedAlert): Map<String, Any?> {
+    return mapOf(
+        UnifiedAlert.ALERT_ID_FIELD to unifiedAlert.id,
+        UnifiedAlert.ALERT_VERSION_FIELD to unifiedAlert.version,
+        UnifiedAlert.SCHEMA_VERSION_FIELD to unifiedAlert.schemaVersion,
+        UnifiedAlert.USER_FIELD to unifiedAlert.user,
+        UnifiedAlert.TRIGGER_NAME_FIELD to unifiedAlert.triggerName,
+        UnifiedAlert.STATE_FIELD to unifiedAlert.state,
+        UnifiedAlert.START_TIME_FIELD to unifiedAlert.startTime,
+        UnifiedAlert.END_TIME_FIELD to unifiedAlert.endTime,
+        UnifiedAlert.ACKNOWLEDGED_TIME_FIELD to unifiedAlert.acknowledgedTime,
+        UnifiedAlert.ERROR_MESSAGE_FIELD to unifiedAlert.errorMessage,
+        UnifiedAlert.SEVERITY_FIELD to unifiedAlert.severity,
+        UnifiedAlert.ACTION_EXECUTION_RESULTS_FIELD to unifiedAlert.actionExecutionResults
+    )
+}
+
+fun createCorrelationAlertTemplateArgs(correlationAlert: CorrelationAlert): Map<String, Any?> {
+    val unifiedAlertTemplateArgs = createUnifiedAlertTemplateArgs(correlationAlert)
+    return unifiedAlertTemplateArgs + mapOf(
+        "correlatedFindingIds" to correlationAlert.correlatedFindingIds,
+        "correlationRuleId" to correlationAlert.correlationRuleId,
+        "correlationRuleName" to correlationAlert.correlationRuleName
     )
 }
