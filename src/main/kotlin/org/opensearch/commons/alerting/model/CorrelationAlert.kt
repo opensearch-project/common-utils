@@ -57,6 +57,7 @@ class CorrelationAlert : UnifiedAlert {
         correlationRuleId = sin.readString()
         correlationRuleName = sin.readString()
     }
+
     // Override to include CorrelationAlert specific fields
     fun toXContent(builder: XContentBuilder): XContentBuilder {
         builder.startObject()
@@ -92,10 +93,10 @@ class CorrelationAlert : UnifiedAlert {
         const val CORRELATED_FINDING_IDS = "correlatedFindingIds"
         const val CORRELATION_RULE_ID = "correlationRuleId"
         const val CORRELATION_RULE_NAME = "correlationRuleName"
+
         @JvmStatic
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): CorrelationAlert {
-
             // Parse additional CorrelationAlert-specific fields
             val correlatedFindingIds: MutableList<String> = mutableListOf()
             var correlationRuleId: String? = null
@@ -137,5 +138,4 @@ class CorrelationAlert : UnifiedAlert {
             )
         }
     }
-
 }

@@ -14,12 +14,12 @@ import org.opensearch.core.common.io.stream.InputStreamStreamInput
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import java.time.temporal.ChronoUnit
 
-class CorrelationAlertTest {
+class CorrelationAlertTests {
 
     @Test
     fun `test correlation alert as template args`() {
         // Create sample data for CorrelationAlert
-        val correlationAlert = randomCorrelationAlert("alertId1", Alert.State.ACTIVE);
+        val correlationAlert = randomCorrelationAlert("alertId1", Alert.State.ACTIVE)
 
         // Generate template args using asTemplateArg() function
         val templateArgs = createCorrelationAlertTemplateArgs(correlationAlert)
@@ -84,6 +84,7 @@ class CorrelationAlertTest {
         // Generate a random CorrelationAlert object
         val correlationAlert = randomCorrelationAlert("alertId1", Alert.State.ACTIVE)
         val correlationAlertString = getJsonString(correlationAlert)
+
         // Convert the JSON string to a BytesReference
         val serializedBytes: BytesReference = BytesArray(correlationAlertString.toByteArray(Charsets.UTF_8))
 
@@ -94,6 +95,7 @@ class CorrelationAlertTest {
                 CorrelationAlert.parse(parser)
             }
         }
+
         // Assert that the deserialized object matches the original object
         assertEquals(correlationAlert.correlatedFindingIds, recreatedAlert.correlatedFindingIds)
         assertEquals(correlationAlert.correlationRuleId, recreatedAlert.correlationRuleId)

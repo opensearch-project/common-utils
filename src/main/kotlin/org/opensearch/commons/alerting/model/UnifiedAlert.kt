@@ -25,6 +25,7 @@ open class UnifiedAlert(
     open val schemaVersion: Int = NO_SCHEMA_VERSION,
     open val user: User?,
     open val triggerName: String,
+
     // State will be later moved to this Class  (after `monitorBasedAlerts` extend this Class)
     open val state: Alert.State,
     open val startTime: Instant,
@@ -60,7 +61,7 @@ open class UnifiedAlert(
         acknowledgedTime = sin.readOptionalInstant(),
         errorMessage = sin.readOptionalString(),
         severity = sin.readString(),
-        actionExecutionResults = sin.readList(::ActionExecutionResult),
+        actionExecutionResults = sin.readList(::ActionExecutionResult)
     )
 
     fun isAcknowledged(): Boolean = (state == Alert.State.ACKNOWLEDGED)
@@ -201,7 +202,7 @@ open class UnifiedAlert(
             SEVERITY_FIELD to severity,
             START_TIME_FIELD to startTime.toEpochMilli(),
             STATE_FIELD to state.toString(),
-            TRIGGER_NAME_FIELD to triggerName,
+            TRIGGER_NAME_FIELD to triggerName
         )
     }
 }

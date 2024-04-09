@@ -5,7 +5,11 @@ import com.carrotsearch.randomizedtesting.generators.RandomStrings
 import junit.framework.TestCase.assertNull
 import org.apache.hc.core5.http.Header
 import org.apache.hc.core5.http.HttpEntity
-import org.opensearch.client.*
+import org.opensearch.client.Request
+import org.opensearch.client.RequestOptions
+import org.opensearch.client.Response
+import org.opensearch.client.RestClient
+import org.opensearch.client.WarningsHandler
 import org.opensearch.common.UUIDs
 import org.opensearch.common.settings.Settings
 import org.opensearch.common.xcontent.LoggingDeprecationHandler
@@ -13,8 +17,39 @@ import org.opensearch.common.xcontent.XContentFactory
 import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtFilter
-import org.opensearch.commons.alerting.model.*
-import org.opensearch.commons.alerting.model.action.*
+import org.opensearch.commons.alerting.model.ActionExecutionResult
+import org.opensearch.commons.alerting.model.AggregationResultBucket
+import org.opensearch.commons.alerting.model.Alert
+import org.opensearch.commons.alerting.model.BucketLevelTrigger
+import org.opensearch.commons.alerting.model.ChainedAlertTrigger
+import org.opensearch.commons.alerting.model.ChainedMonitorFindings
+import org.opensearch.commons.alerting.model.ClusterMetricsInput
+import org.opensearch.commons.alerting.model.CompositeInput
+import org.opensearch.commons.alerting.model.CorrelationAlert
+import org.opensearch.commons.alerting.model.Delegate
+import org.opensearch.commons.alerting.model.DocLevelMonitorInput
+import org.opensearch.commons.alerting.model.DocLevelQuery
+import org.opensearch.commons.alerting.model.DocumentLevelTrigger
+import org.opensearch.commons.alerting.model.Finding
+import org.opensearch.commons.alerting.model.Input
+import org.opensearch.commons.alerting.model.IntervalSchedule
+import org.opensearch.commons.alerting.model.Monitor
+import org.opensearch.commons.alerting.model.NoOpTrigger
+import org.opensearch.commons.alerting.model.QueryLevelTrigger
+import org.opensearch.commons.alerting.model.Schedule
+import org.opensearch.commons.alerting.model.SearchInput
+import org.opensearch.commons.alerting.model.Sequence
+import org.opensearch.commons.alerting.model.Trigger
+import org.opensearch.commons.alerting.model.UnifiedAlert
+import org.opensearch.commons.alerting.model.Workflow
+import org.opensearch.commons.alerting.model.WorkflowInput
+import org.opensearch.commons.alerting.model.action.Action
+import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
+import org.opensearch.commons.alerting.model.action.ActionExecutionScope
+import org.opensearch.commons.alerting.model.action.AlertCategory
+import org.opensearch.commons.alerting.model.action.PerAlertActionScope
+import org.opensearch.commons.alerting.model.action.PerExecutionActionScope
+import org.opensearch.commons.alerting.model.action.Throttle
 import org.opensearch.commons.alerting.util.string
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.xcontent.NamedXContentRegistry
@@ -30,7 +65,8 @@ import org.opensearch.search.aggregations.bucket.terms.TermsAggregationBuilder
 import org.opensearch.search.builder.SearchSourceBuilder
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Random
+import java.util.UUID
 
 const val ALL_ACCESS_ROLE = "all_access"
 
@@ -568,10 +604,10 @@ fun randomFinding(
     )
 }
 
-fun randomCorrelationAlert (
-   id: String,
-   state: Alert.State
-) : CorrelationAlert {
+fun randomCorrelationAlert(
+    id: String,
+    state: Alert.State
+): CorrelationAlert {
     val correlatedFindingIds = listOf("finding1", "finding2")
     val correlationRuleId = "rule1"
     val correlationRuleName = "Rule 1"
