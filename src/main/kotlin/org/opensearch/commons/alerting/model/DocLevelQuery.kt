@@ -160,7 +160,6 @@ data class DocLevelQuery(
             return DocLevelQuery(sin)
         }
 
-        // TODO: add test for this
         private fun validateQueryTag(stringVal: String) {
             for (inValidChar in INVALID_CHARACTERS) {
                 if (stringVal.contains(inValidChar)) {
