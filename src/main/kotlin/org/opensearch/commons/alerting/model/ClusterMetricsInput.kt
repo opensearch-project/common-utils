@@ -4,7 +4,7 @@ import org.apache.commons.validator.routines.UrlValidator
 import org.apache.hc.core5.net.URIBuilder
 import org.opensearch.common.CheckedFunction
 import org.opensearch.commons.alerting.util.CommonUtilsException
-import org.opensearch.commons.alerting.util.ValidationHelpers.Companion.CLUSTER_NAME_REGEX
+import org.opensearch.commons.utils.CLUSTER_NAME_REGEX
 import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
