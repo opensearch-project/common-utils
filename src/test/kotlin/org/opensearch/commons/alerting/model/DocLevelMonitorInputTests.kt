@@ -52,7 +52,7 @@ class DocLevelMonitorInputTests {
             Assertions.fail("Expecting an illegal argument exception")
         } catch (e: IllegalArgumentException) {
             Assertions.assertEquals(
-                "The query name, $emptyString, can be max 256 characters.",
+                "The query name, $emptyString, should be between 1 - 256 characters.",
                 e.message
             )
         }
@@ -68,7 +68,7 @@ class DocLevelMonitorInputTests {
             Assertions.fail("Expecting an illegal argument exception")
         } catch (e: IllegalArgumentException) {
             Assertions.assertEquals(
-                "The query name, $badString, can be max 256 characters.",
+                "The query name, $badString, should be between 1 - 256 characters.",
                 e.message
             )
         }

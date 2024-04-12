@@ -171,7 +171,7 @@ data class DocLevelQuery(
         }
         private fun validateQueryName(stringVal: String) {
             if (!stringVal.matches(QUERY_NAME_REGEX)) {
-                throw IllegalArgumentException("The query name, $stringVal, can be max 256 characters.")
+                throw IllegalArgumentException("The query name, $stringVal, should be between 1 - 256 characters.")
             }
         }
     }
