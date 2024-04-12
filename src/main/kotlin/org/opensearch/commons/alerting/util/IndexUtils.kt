@@ -11,6 +11,33 @@ import java.time.Instant
 
 class IndexUtils {
     companion object {
+        /**
+         * This regex asserts that the string:
+         *  The index does not start with an underscore _, hyphen -, or plus sign +
+         *  The index does not contain two consecutive periods (e.g., `..`)
+         *  The index does not contain any whitespace characters, commas, backslashes, forward slashes, asterisks,
+         *   question marks, double quotes, less than or greater than signs, pipes, colons, or periods.
+         *  The length of the index must be between 1 and 255 characters
+         */
+        val VALID_INDEX_NAME_REGEX = Regex("""^(?![_\-\+])(?!.*\.\.)[^\s,\\\/\*\?"<>|#:\.]{1,255}$""")
+
+        /**
+         * This regex asserts that the string:
+         *  The index pattern can start with an optional period
+         *  The index pattern can contain lowercase letters, digits, underscores, hyphens, asterisks, and periods
+         *  The length of the index pattern must be between 1 and 255 characters
+         */
+        val INDEX_PATTERN_REGEX = Regex("""^(?=.{1,255}$)\.?[a-z0-9_\-\*\.]+$""")
+
+        /**
+         * This regex asserts that the string:
+         *  Starts with a lowercase letter, digit, or asterisk
+         *  Contains a sequence of characters followed by an optional colon and another sequence of characters
+         *  The sequences of characters can include lowercase letters, uppercase letters, digits, underscores, asterisks, or hyphens
+         *  The total length of the string can range from 1 to 255 characters
+         */
+        val CLUSTER_PATTERN_REGEX = Regex("^(?=.{1,255}$)[a-z0-9*]([a-zA-Z0-9_*-]*:?[a-zA-Z0-9_*-]*)$")
+
         const val NO_SCHEMA_VERSION = 0
 
         const val MONITOR_MAX_INPUTS = 1
