@@ -22,9 +22,9 @@ data class DocLevelQuery(
 
     init {
         // Ensure the name and tags have valid characters
-        validateQuery(name)
+        validateQueryName(name)
         for (tag in tags) {
-            validateQuery(tag)
+            validateQueryTag(tag)
         }
     }
 
@@ -80,6 +80,7 @@ data class DocLevelQuery(
         const val QUERY_FIELD_NAMES_FIELD = "query_field_names"
         const val NO_ID = ""
         val INVALID_CHARACTERS: List<String> = listOf(" ", "[", "]", "{", "}", "(", ")")
+        val QUERY_NAME_REGEX = "^.{1,256}$".toRegex() // regex to restrict string length between 1 - 256 chars
 
         @JvmStatic
         @Throws(IOException::class)
@@ -100,7 +101,7 @@ data class DocLevelQuery(
                     QUERY_ID_FIELD -> id = xcp.text()
                     NAME_FIELD -> {
                         name = xcp.text()
-                        validateQuery(name)
+                        validateQueryName(name)
                     }
 
                     QUERY_FIELD -> query = xcp.text()
@@ -112,7 +113,7 @@ data class DocLevelQuery(
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             val tag = xcp.text()
-                            validateQuery(tag)
+                            validateQueryTag(tag)
                             tags.add(tag)
                         }
                     }
@@ -159,14 +160,18 @@ data class DocLevelQuery(
             return DocLevelQuery(sin)
         }
 
-        // TODO: add test for this
-        private fun validateQuery(stringVal: String) {
+        private fun validateQueryTag(stringVal: String) {
             for (inValidChar in INVALID_CHARACTERS) {
                 if (stringVal.contains(inValidChar)) {
                     throw IllegalArgumentException(
-                        "They query name or tag, $stringVal, contains an invalid character: [' ','[',']','{','}','(',')']"
+                        "The query tag, $stringVal, contains an invalid character: [' ','[',']','{','}','(',')']"
                     )
                 }
+            }
+        }
+        private fun validateQueryName(stringVal: String) {
+            if (!stringVal.matches(QUERY_NAME_REGEX)) {
+                throw IllegalArgumentException("The query name, $stringVal, should be between 1 - 256 characters.")
             }
         }
     }
