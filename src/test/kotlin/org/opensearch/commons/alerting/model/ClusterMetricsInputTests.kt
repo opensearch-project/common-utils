@@ -1,6 +1,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.junit.jupiter.api.Test
+import org.opensearch.commons.alerting.util.CommonUtilsException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -8,6 +9,26 @@ class ClusterMetricsInputTests {
     private var path = "/_cluster/health"
     private var pathParams = ""
     private var url = ""
+
+    private val validClusters = listOf(
+        "cluster-name",
+        "cluster:name"
+    )
+
+    private val invalidClusters = listOf(
+        // Character length less than 1 should return FALSE
+        "",
+
+        // Character length greater than 255 should return FALSE
+        (0..255).joinToString(separator = "") { "a" },
+
+        // Invalid characters should return FALSE
+        "cluster-#name",
+        "cluster:#name",
+
+        // More than 1 `:` character should return FALSE
+        "bad:cluster:name"
+    )
 
     @Test
     fun `test valid ClusterMetricsInput creation using HTTP URI component fields`() {
@@ -21,6 +42,7 @@ class ClusterMetricsInputTests {
         assertEquals(path, clusterMetricsInput.path)
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(testUrl, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -34,6 +56,7 @@ class ClusterMetricsInputTests {
 
         // THEN
         assertEquals(url, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -47,6 +70,7 @@ class ClusterMetricsInputTests {
 
         // THEN
         assertEquals(url, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -55,7 +79,7 @@ class ClusterMetricsInputTests {
         path = "///"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("Invalid URL.") {
+        assertFailsWith<CommonUtilsException>("Invalid URL.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -66,7 +90,7 @@ class ClusterMetricsInputTests {
         url = "///"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("Invalid URL.") {
+        assertFailsWith<CommonUtilsException>("Invalid URL.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -84,6 +108,7 @@ class ClusterMetricsInputTests {
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(url, clusterMetricsInput.url)
         assertEquals(url, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -101,6 +126,7 @@ class ClusterMetricsInputTests {
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(url, clusterMetricsInput.url)
         assertEquals(url, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -109,7 +135,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:9200/_cluster/stats"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The provided URL and URI fields form different URLs.") {
+        assertFailsWith<CommonUtilsException>("The provided URL and URI fields form different URLs.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -121,7 +147,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:9200/_cluster/stats/index1,index2,index3,index4,index5"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The provided URL and URI fields form different URLs.") {
+        assertFailsWith<CommonUtilsException>("The provided URL and URI fields form different URLs.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -134,7 +160,7 @@ class ClusterMetricsInputTests {
         url = ""
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
+        assertFailsWith<CommonUtilsException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -147,7 +173,7 @@ class ClusterMetricsInputTests {
         url = ""
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
+        assertFailsWith<CommonUtilsException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -159,7 +185,7 @@ class ClusterMetricsInputTests {
         url = "invalidScheme://localhost:9200/_cluster/health"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("Invalid URL.") {
+        assertFailsWith<CommonUtilsException>("Invalid URL.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -171,7 +197,7 @@ class ClusterMetricsInputTests {
         url = "http://127.0.0.1:9200/_cluster/health"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("Only host '${ClusterMetricsInput.SUPPORTED_HOST}' is supported.") {
+        assertFailsWith<CommonUtilsException>("Only host '${ClusterMetricsInput.SUPPORTED_HOST}' is supported.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -183,7 +209,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:${ClusterMetricsInput.SUPPORTED_PORT + 1}/_cluster/health"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("Only port '${ClusterMetricsInput.SUPPORTED_PORT}' is supported.") {
+        assertFailsWith<CommonUtilsException>("Only port '${ClusterMetricsInput.SUPPORTED_PORT}' is supported.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -200,6 +226,7 @@ class ClusterMetricsInputTests {
         // THEN
         assertEquals(pathParams, params)
         assertEquals(testUrl, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -216,6 +243,7 @@ class ClusterMetricsInputTests {
         // THEN
         assertEquals(pathParams, params)
         assertEquals(testUrl, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -232,6 +260,7 @@ class ClusterMetricsInputTests {
         // THEN
         assertEquals(testParams, params)
         assertEquals(url, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -240,7 +269,7 @@ class ClusterMetricsInputTests {
         path = "/_cat/snapshots"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The API requires path parameters.") {
+        assertFailsWith<CommonUtilsException>("The API requires path parameters.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -253,7 +282,7 @@ class ClusterMetricsInputTests {
         val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The API does not use path parameters.") {
+        assertFailsWith<CommonUtilsException>("The API does not use path parameters.") {
             clusterMetricsInput.parsePathParams()
         }
     }
@@ -267,8 +296,8 @@ class ClusterMetricsInputTests {
             val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
 
             // WHEN + THEN
-            assertFailsWith<IllegalArgumentException>(
-                "The provided path parameters contain invalid characters or spaces. Please omit: " + "${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")}"
+            assertFailsWith<CommonUtilsException>(
+                "The provided path parameters contain invalid characters or spaces. Please omit: " + ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")
             ) {
                 clusterMetricsInput.parsePathParams()
             }
@@ -365,7 +394,7 @@ class ClusterMetricsInputTests {
         path = "/_cat/paws"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
+        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -377,7 +406,7 @@ class ClusterMetricsInputTests {
         pathParams = "index1,index2,index3,index4,index5"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
+        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -389,7 +418,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:9200/_cat/paws"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
+        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -401,7 +430,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:9200/_cat/paws/index1,index2,index3,index4,index5"
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
+        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -422,6 +451,7 @@ class ClusterMetricsInputTests {
         assertEquals(testPath, clusterMetricsInput.path)
         assertEquals(testPathParams, clusterMetricsInput.pathParams)
         assertEquals(url, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -438,5 +468,92 @@ class ClusterMetricsInputTests {
         assertEquals(path, clusterMetricsInput.path)
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(testUrl, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
+    }
+
+    @Test
+    fun `test a single valid cluster`() {
+        validClusters.forEach {
+            // GIVEN
+            path = "/_cluster/health"
+            pathParams = "index1,index2,index3,index4,index5"
+            url = ""
+            val clusters = listOf(it)
+
+            // WHEN
+            val clusterMetricsInput = ClusterMetricsInput(
+                path = path,
+                pathParams = pathParams,
+                url = url,
+                clusters = clusters
+            )
+
+            // THEN
+            assertEquals(path, clusterMetricsInput.path)
+            assertEquals(pathParams, clusterMetricsInput.pathParams)
+            assertEquals(clusters, clusterMetricsInput.clusters)
+        }
+    }
+
+    @Test
+    fun `test multiple valid clusters`() {
+        // GIVEN
+        path = "/_cluster/health"
+        pathParams = "index1,index2,index3,index4,index5"
+        url = ""
+        val clusters = validClusters
+
+        // WHEN
+        val clusterMetricsInput = ClusterMetricsInput(
+            path = path,
+            pathParams = pathParams,
+            url = url,
+            clusters = clusters
+        )
+
+        // THEN
+        assertEquals(path, clusterMetricsInput.path)
+        assertEquals(pathParams, clusterMetricsInput.pathParams)
+        assertEquals(clusters, clusterMetricsInput.clusters)
+    }
+
+    @Test
+    fun `test a single invalid cluster`() {
+        invalidClusters.forEach {
+            // GIVEN
+            path = "/_cluster/health"
+            pathParams = "index1,index2,index3,index4,index5"
+            url = ""
+            val clusters = listOf(it)
+
+            // WHEN + THEN
+            assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
+                ClusterMetricsInput(
+                    path = path,
+                    pathParams = pathParams,
+                    url = url,
+                    clusters = clusters
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `test multiple invalid clusters`() {
+        // GIVEN
+        path = "/_cluster/health"
+        pathParams = "index1,index2,index3,index4,index5"
+        url = ""
+        val clusters = invalidClusters
+
+        // WHEN + THEN
+        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
+            ClusterMetricsInput(
+                path = path,
+                pathParams = pathParams,
+                url = url,
+                clusters = clusters
+            )
+        }
     }
 }
