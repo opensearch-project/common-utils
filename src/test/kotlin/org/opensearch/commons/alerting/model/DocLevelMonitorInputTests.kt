@@ -44,6 +44,20 @@ class DocLevelMonitorInputTests {
     @Test
     fun `test create Doc Level Query with invalid name length`() {
         val stringBuilder = StringBuilder()
+
+        // test empty string
+        val emptyString = stringBuilder.toString()
+        try {
+            randomDocLevelQuery(name = emptyString)
+            Assertions.fail("Expecting an illegal argument exception")
+        } catch (e: IllegalArgumentException) {
+            Assertions.assertEquals(
+                "The query name, $emptyString, can be max 256 characters.",
+                e.message
+            )
+        }
+
+        // test string with 257 chars
         repeat(257) {
             stringBuilder.append("a")
         }
