@@ -29,15 +29,6 @@ class IndexUtils {
          */
         val INDEX_PATTERN_REGEX = Regex("""^(?=.{1,255}$)\.?[a-z0-9_\-\*\.]+$""")
 
-        /**
-         * This regex asserts that the string:
-         *  Starts with a lowercase letter, digit, or asterisk
-         *  Contains a sequence of characters followed by an optional colon and another sequence of characters
-         *  The sequences of characters can include lowercase letters, uppercase letters, digits, underscores, asterisks, or hyphens
-         *  The total length of the string can range from 1 to 255 characters
-         */
-        val CLUSTER_PATTERN_REGEX = Regex("^(?=.{1,255}$)[a-z0-9*]([a-zA-Z0-9_*-]*:?[a-zA-Z0-9_*-]*)$")
-
         const val NO_SCHEMA_VERSION = 0
 
         const val MONITOR_MAX_INPUTS = 1

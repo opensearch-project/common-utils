@@ -4,6 +4,7 @@ import org.apache.commons.validator.routines.UrlValidator
 import org.apache.hc.core5.net.URIBuilder
 import org.opensearch.common.CheckedFunction
 import org.opensearch.commons.alerting.util.CommonUtilsException
+import org.opensearch.commons.alerting.util.ValidationHelpers.Companion.CLUSTER_NAME_REGEX
 import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -16,14 +17,6 @@ import java.io.IOException
 import java.net.URI
 import java.net.URISyntaxException
 
-/**
- * This regex asserts that the string:
- *  Starts with a lowercase letter, or digit
- *  Contains a sequence of characters followed by an optional colon and another sequence of characters
- *  The sequences of characters can include lowercase letters, uppercase letters, digits, underscores, or hyphens
- *  The total length of the string can range from 1 to 255 characters
- */
-val CLUSTER_NAME_REGEX = Regex("^(?=.{1,255}$)[a-z0-9]([a-zA-Z0-9_-]*:?[a-zA-Z0-9_-]*)$")
 val ILLEGAL_PATH_PARAMETER_CHARACTERS = arrayOf(':', '"', '+', '\\', '|', '?', '#', '>', '<', ' ')
 
 /**
