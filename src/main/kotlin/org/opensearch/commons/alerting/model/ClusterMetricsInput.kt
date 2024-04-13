@@ -3,6 +3,7 @@ package org.opensearch.commons.alerting.model
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.http.client.utils.URIBuilder
 import org.opensearch.common.CheckedFunction
+import org.opensearch.commons.utils.CLUSTER_NAME_REGEX
 import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -56,6 +57,12 @@ data class ClusterMetricsInput(
         }
         require(constructedUri.port == SUPPORTED_PORT) {
             "Only port '$SUPPORTED_PORT' is supported."
+        }
+
+        if (clusters.isNotEmpty()) {
+            require(clusters.all { CLUSTER_NAME_REGEX.matches(it) }) {
+                "Cluster names are not valid."
+            }
         }
 
         clusterMetricType = findApiType(constructedUri.path)
@@ -158,7 +165,7 @@ data class ClusterMetricsInput(
     /**
      * Isolates just the path parameters from the [ClusterMetricsInput] URI.
      * @return The path parameters portion of the [ClusterMetricsInput] URI.
-     * @throws IllegalArgumentException if the [ClusterMetricType] requires path parameters, but none are supplied;
+     * @throws [IllegalArgumentException] if the [ClusterMetricType] requires path parameters, but none are supplied;
      * or when path parameters are provided for an [ClusterMetricType] that does not use path parameters.
      */
     fun parsePathParams(): String {
@@ -199,7 +206,7 @@ data class ClusterMetricsInput(
      * Examines the path of a [ClusterMetricsInput] to determine which API is being called.
      * @param uriPath The path to examine.
      * @return The [ClusterMetricType] associated with the [ClusterMetricsInput] monitor.
-     * @throws IllegalArgumentException when the API to call cannot be determined from the URI.
+     * @throws [IllegalArgumentException] when the API to call cannot be determined from the URI.
      */
     private fun findApiType(uriPath: String): ClusterMetricType {
         var apiType = ClusterMetricType.BLANK
