@@ -1,7 +1,6 @@
 package org.opensearch.commons.alerting.model
 
 import org.junit.jupiter.api.Test
-import org.opensearch.commons.alerting.util.CommonUtilsException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -79,7 +78,7 @@ class ClusterMetricsInputTests {
         path = "///"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("Invalid URL.") {
+        assertFailsWith<IllegalArgumentException>("Invalid URL.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -90,7 +89,7 @@ class ClusterMetricsInputTests {
         url = "///"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("Invalid URL.") {
+        assertFailsWith<IllegalArgumentException>("Invalid URL.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -135,7 +134,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:9200/_cluster/stats"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The provided URL and URI fields form different URLs.") {
+        assertFailsWith<IllegalArgumentException>("The provided URL and URI fields form different URLs.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -147,7 +146,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:9200/_cluster/stats/index1,index2,index3,index4,index5"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The provided URL and URI fields form different URLs.") {
+        assertFailsWith<IllegalArgumentException>("The provided URL and URI fields form different URLs.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -160,7 +159,7 @@ class ClusterMetricsInputTests {
         url = ""
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
+        assertFailsWith<IllegalArgumentException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -173,7 +172,7 @@ class ClusterMetricsInputTests {
         url = ""
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
+        assertFailsWith<IllegalArgumentException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -185,7 +184,7 @@ class ClusterMetricsInputTests {
         url = "invalidScheme://localhost:9200/_cluster/health"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("Invalid URL.") {
+        assertFailsWith<IllegalArgumentException>("Invalid URL.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -197,7 +196,7 @@ class ClusterMetricsInputTests {
         url = "http://127.0.0.1:9200/_cluster/health"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("Only host '${ClusterMetricsInput.SUPPORTED_HOST}' is supported.") {
+        assertFailsWith<IllegalArgumentException>("Only host '${ClusterMetricsInput.SUPPORTED_HOST}' is supported.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -209,7 +208,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:${ClusterMetricsInput.SUPPORTED_PORT + 1}/_cluster/health"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("Only port '${ClusterMetricsInput.SUPPORTED_PORT}' is supported.") {
+        assertFailsWith<IllegalArgumentException>("Only port '${ClusterMetricsInput.SUPPORTED_PORT}' is supported.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -269,7 +268,7 @@ class ClusterMetricsInputTests {
         path = "/_cat/snapshots"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The API requires path parameters.") {
+        assertFailsWith<IllegalArgumentException>("The API requires path parameters.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -282,7 +281,7 @@ class ClusterMetricsInputTests {
         val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The API does not use path parameters.") {
+        assertFailsWith<IllegalArgumentException>("The API does not use path parameters.") {
             clusterMetricsInput.parsePathParams()
         }
     }
@@ -296,7 +295,7 @@ class ClusterMetricsInputTests {
             val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
 
             // WHEN + THEN
-            assertFailsWith<CommonUtilsException>(
+            assertFailsWith<IllegalArgumentException>(
                 "The provided path parameters contain invalid characters or spaces. Please omit: " + ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")
             ) {
                 clusterMetricsInput.parsePathParams()
@@ -394,7 +393,7 @@ class ClusterMetricsInputTests {
         path = "/_cat/paws"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
+        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -406,7 +405,7 @@ class ClusterMetricsInputTests {
         pathParams = "index1,index2,index3,index4,index5"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
+        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -418,7 +417,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:9200/_cat/paws"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
+        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -430,7 +429,7 @@ class ClusterMetricsInputTests {
         url = "http://localhost:9200/_cat/paws/index1,index2,index3,index4,index5"
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
+        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -527,7 +526,7 @@ class ClusterMetricsInputTests {
             val clusters = listOf(it)
 
             // WHEN + THEN
-            assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
+            assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
                 ClusterMetricsInput(
                     path = path,
                     pathParams = pathParams,
@@ -547,7 +546,7 @@ class ClusterMetricsInputTests {
         val clusters = invalidClusters
 
         // WHEN + THEN
-        assertFailsWith<CommonUtilsException>("The API could not be determined from the provided URI.") {
+        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
             ClusterMetricsInput(
                 path = path,
                 pathParams = pathParams,
