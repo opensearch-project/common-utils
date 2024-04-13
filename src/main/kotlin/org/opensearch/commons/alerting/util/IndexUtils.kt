@@ -11,6 +11,24 @@ import java.time.Instant
 
 class IndexUtils {
     companion object {
+        /**
+         * This regex asserts that the string:
+         *  The index does not start with an underscore _, hyphen -, or plus sign +
+         *  The index does not contain two consecutive periods (e.g., `..`)
+         *  The index does not contain any whitespace characters, commas, backslashes, forward slashes, asterisks,
+         *   question marks, double quotes, less than or greater than signs, pipes, colons, or periods.
+         *  The length of the index must be between 1 and 255 characters
+         */
+        val VALID_INDEX_NAME_REGEX = Regex("""^(?![_\-\+])(?!.*\.\.)[^\s,\\\/\*\?"<>|#:\.]{1,255}$""")
+
+        /**
+         * This regex asserts that the string:
+         *  The index pattern can start with an optional period
+         *  The index pattern can contain lowercase letters, digits, underscores, hyphens, asterisks, and periods
+         *  The length of the index pattern must be between 1 and 255 characters
+         */
+        val INDEX_PATTERN_REGEX = Regex("""^(?=.{1,255}$)\.?[a-z0-9_\-\*\.]+$""")
+
         const val NO_SCHEMA_VERSION = 0
 
         const val MONITOR_MAX_INPUTS = 1
