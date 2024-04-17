@@ -14,21 +14,24 @@ import java.io.IOException
 data class DocLevelMonitorInput(
     val description: String = NO_DESCRIPTION,
     val indices: List<String>,
-    val queries: List<DocLevelQuery>
+    val queries: List<DocLevelQuery>,
+    val iocFieldNames: List<String> = mutableListOf()
 ) : Input {
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // description
         sin.readStringList(), // indices
-        sin.readList(::DocLevelQuery) // docLevelQueries
+        sin.readList(::DocLevelQuery), // docLevelQueries,
+        sin.readStringList()
     )
 
     fun asTemplateArg(): Map<String, Any?> {
         return mapOf(
             DESCRIPTION_FIELD to description,
             INDICES_FIELD to indices,
-            QUERIES_FIELD to queries.map { it.asTemplateArg() }
+            QUERIES_FIELD to queries.map { it.asTemplateArg() },
+            IOC_FIELD_NAMES_FIELD to iocFieldNames
         )
     }
 
@@ -41,6 +44,7 @@ data class DocLevelMonitorInput(
         out.writeString(description)
         out.writeStringCollection(indices)
         out.writeCollection(queries)
+        out.writeStringCollection(iocFieldNames)
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
@@ -49,6 +53,7 @@ data class DocLevelMonitorInput(
             .field(DESCRIPTION_FIELD, description)
             .field(INDICES_FIELD, indices.toTypedArray())
             .field(QUERIES_FIELD, queries.toTypedArray())
+            .field(IOC_FIELD_NAMES_FIELD, iocFieldNames.toTypedArray())
             .endObject()
             .endObject()
         return builder
@@ -59,6 +64,7 @@ data class DocLevelMonitorInput(
         const val INDICES_FIELD = "indices"
         const val DOC_LEVEL_INPUT_FIELD = "doc_level_input"
         const val QUERIES_FIELD = "queries"
+        const val IOC_FIELD_NAMES_FIELD = "query_field_names"
 
         const val NO_DESCRIPTION = ""
 
@@ -74,6 +80,7 @@ data class DocLevelMonitorInput(
             var description: String = NO_DESCRIPTION
             val indices: MutableList<String> = mutableListOf()
             val docLevelQueries: MutableList<DocLevelQuery> = mutableListOf()
+            val iocFieldNames: MutableList<String> = mutableListOf()
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -92,6 +99,7 @@ data class DocLevelMonitorInput(
                             indices.add(xcp.text())
                         }
                     }
+
                     QUERIES_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
@@ -102,10 +110,22 @@ data class DocLevelMonitorInput(
                             docLevelQueries.add(DocLevelQuery.parse(xcp))
                         }
                     }
+
+                    IOC_FIELD_NAMES_FIELD -> {
+                        XContentParserUtils.ensureExpectedToken(
+                            XContentParser.Token.START_ARRAY,
+                            xcp.currentToken(),
+                            xcp
+                        )
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
+                            val field = xcp.text()
+                            iocFieldNames.add(field)
+                        }
+                    }
                 }
             }
 
-            return DocLevelMonitorInput(description = description, indices = indices, queries = docLevelQueries)
+            return DocLevelMonitorInput(description = description, indices = indices, queries = docLevelQueries, iocFieldNames = iocFieldNames)
         }
 
         @JvmStatic
@@ -114,4 +134,15 @@ data class DocLevelMonitorInput(
             return DocLevelMonitorInput(sin)
         }
     }
+
+    constructor(
+        description: String = NO_DESCRIPTION,
+        indices: List<String>,
+        queries: List<DocLevelQuery>
+    ) : this(
+        description,
+        indices,
+        queries,
+        emptyList()
+    )
 }
