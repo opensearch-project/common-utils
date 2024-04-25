@@ -158,7 +158,11 @@ data class ClusterMetricsInput(
         return if (url.isEmpty()) {
             constructUrlFromInputs()
         } else {
-            URIBuilder(url).build()
+            try {
+                URIBuilder(url).build()
+            } catch (e: URISyntaxException) {
+                throw IllegalArgumentException("Invalid URL syntax.")
+            }
         }
     }
 
@@ -243,7 +247,11 @@ data class ClusterMetricsInput(
                 .setHost(SUPPORTED_HOST)
                 .setPort(SUPPORTED_PORT)
                 .setPath(path + pathParams)
-            uriBuilder.build()
+            try {
+                uriBuilder.build()
+            } catch (e: URISyntaxException) {
+                throw IllegalArgumentException("Invalid URL syntax.")
+            }
         }
     }
 

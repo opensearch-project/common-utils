@@ -555,4 +555,40 @@ class ClusterMetricsInputTests {
             )
         }
     }
+
+    @Test
+    fun `test url field contains invalid characters`() {
+        // GIVEN
+        path = ""
+        pathParams = ""
+        url = "http://localhost:9200/${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString("")}"
+
+        // WHEN + THEN
+        assertFailsWith<IllegalArgumentException>("Invalid URL syntax.") {
+            ClusterMetricsInput(
+                path = path,
+                pathParams = pathParams,
+                url = url,
+                clusters = listOf()
+            )
+        }
+    }
+
+    @Test
+    fun `test URI fields provided and url contains invalid characters`() {
+        // GIVEN
+        path = "/_cluster/health"
+        pathParams = "index1,index2,index3,index4,index5"
+        url = "http://localhost:9200/${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString("")}"
+
+        // WHEN + THEN
+        assertFailsWith<IllegalArgumentException>("Invalid URL syntax.") {
+            ClusterMetricsInput(
+                path = path,
+                pathParams = pathParams,
+                url = url,
+                clusters = listOf()
+            )
+        }
+    }
 }
