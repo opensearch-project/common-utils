@@ -12,4 +12,4 @@ Compatible with OpenSearch 2.14.0
 * Wrapped URI syntax exception in IllegalArgument exception. ([#645](https://github.com/opensearch-project/common-utils/pull/645))
 
 ### Documentation
-* Added 2.14.0.0 release notes. ([#]())
+* Added 2.14.0.0 release notes. ([#648](https://github.com/opensearch-project/common-utils/pull/648))
