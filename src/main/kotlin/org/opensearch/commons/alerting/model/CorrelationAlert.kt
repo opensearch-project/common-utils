@@ -9,7 +9,7 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
 
-class CorrelationAlert : UnifiedAlert {
+class CorrelationAlert : BaseAlert {
 
     // CorrelationAlert-specific properties
     val correlatedFindingIds: List<String>
@@ -83,9 +83,9 @@ class CorrelationAlert : UnifiedAlert {
     override fun asTemplateArg(): Map<String, Any?> {
         val superTemplateArgs = super.asTemplateArg()
         val correlationSpecificArgs = mapOf(
-            "correlatedFindingIds" to correlatedFindingIds,
-            "correlationRuleId" to correlationRuleId,
-            "correlationRuleName" to correlationRuleName
+            CORRELATED_FINDING_IDS to correlatedFindingIds,
+            CORRELATION_RULE_ID to correlationRuleId,
+            CORRELATION_RULE_NAME to correlationRuleName
         )
         return superTemplateArgs + correlationSpecificArgs
     }

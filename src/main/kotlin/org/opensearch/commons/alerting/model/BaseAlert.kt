@@ -19,7 +19,7 @@ import java.time.Instant
 /** CorrelationAlert and Alert can extend the UnifiedAlert class to inherit the common fields and behavior
  * of UnifiedAlert class.
  */
-open class UnifiedAlert(
+open class BaseAlert(
     open val id: String = Alert.NO_ID,
     open val version: Long = Alert.NO_VERSION,
     open val schemaVersion: Int = NO_SCHEMA_VERSION,
@@ -102,7 +102,7 @@ open class UnifiedAlert(
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, version: Long = NO_VERSION): UnifiedAlert {
+        fun parse(xcp: XContentParser, version: Long = NO_VERSION): BaseAlert {
             lateinit var id: String
             var schemaVersion = NO_SCHEMA_VERSION
             var version: Long = Versions.NOT_FOUND
@@ -143,7 +143,7 @@ open class UnifiedAlert(
                 }
             }
 
-            return UnifiedAlert(
+            return BaseAlert(
                 id = id,
                 startTime = requireNotNull(startTime),
                 endTime = endTime,

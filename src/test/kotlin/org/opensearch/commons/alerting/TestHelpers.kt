@@ -40,7 +40,7 @@ import org.opensearch.commons.alerting.model.Schedule
 import org.opensearch.commons.alerting.model.SearchInput
 import org.opensearch.commons.alerting.model.Sequence
 import org.opensearch.commons.alerting.model.Trigger
-import org.opensearch.commons.alerting.model.UnifiedAlert
+import org.opensearch.commons.alerting.model.BaseAlert
 import org.opensearch.commons.alerting.model.Workflow
 import org.opensearch.commons.alerting.model.WorkflowInput
 import org.opensearch.commons.alerting.model.action.Action
@@ -632,20 +632,20 @@ fun randomCorrelationAlert(
     )
 }
 
-fun createUnifiedAlertTemplateArgs(unifiedAlert: UnifiedAlert): Map<String, Any?> {
+fun createUnifiedAlertTemplateArgs(unifiedAlert: BaseAlert): Map<String, Any?> {
     return mapOf(
-        UnifiedAlert.ALERT_ID_FIELD to unifiedAlert.id,
-        UnifiedAlert.ALERT_VERSION_FIELD to unifiedAlert.version,
-        UnifiedAlert.SCHEMA_VERSION_FIELD to unifiedAlert.schemaVersion,
-        UnifiedAlert.USER_FIELD to unifiedAlert.user,
-        UnifiedAlert.TRIGGER_NAME_FIELD to unifiedAlert.triggerName,
-        UnifiedAlert.STATE_FIELD to unifiedAlert.state,
-        UnifiedAlert.START_TIME_FIELD to unifiedAlert.startTime,
-        UnifiedAlert.END_TIME_FIELD to unifiedAlert.endTime,
-        UnifiedAlert.ACKNOWLEDGED_TIME_FIELD to unifiedAlert.acknowledgedTime,
-        UnifiedAlert.ERROR_MESSAGE_FIELD to unifiedAlert.errorMessage,
-        UnifiedAlert.SEVERITY_FIELD to unifiedAlert.severity,
-        UnifiedAlert.ACTION_EXECUTION_RESULTS_FIELD to unifiedAlert.actionExecutionResults
+        BaseAlert.ALERT_ID_FIELD to unifiedAlert.id,
+        BaseAlert.ALERT_VERSION_FIELD to unifiedAlert.version,
+        BaseAlert.SCHEMA_VERSION_FIELD to unifiedAlert.schemaVersion,
+        BaseAlert.USER_FIELD to unifiedAlert.user,
+        BaseAlert.TRIGGER_NAME_FIELD to unifiedAlert.triggerName,
+        BaseAlert.STATE_FIELD to unifiedAlert.state,
+        BaseAlert.START_TIME_FIELD to unifiedAlert.startTime,
+        BaseAlert.END_TIME_FIELD to unifiedAlert.endTime,
+        BaseAlert.ACKNOWLEDGED_TIME_FIELD to unifiedAlert.acknowledgedTime,
+        BaseAlert.ERROR_MESSAGE_FIELD to unifiedAlert.errorMessage,
+        BaseAlert.SEVERITY_FIELD to unifiedAlert.severity,
+        BaseAlert.ACTION_EXECUTION_RESULTS_FIELD to unifiedAlert.actionExecutionResults
     )
 }
 

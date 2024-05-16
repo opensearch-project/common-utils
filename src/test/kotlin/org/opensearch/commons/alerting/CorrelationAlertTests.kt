@@ -8,6 +8,7 @@ import org.opensearch.common.xcontent.XContentHelper
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.CorrelationAlert
 import org.opensearch.commons.utils.getJsonString
+import org.opensearch.commons.utils.recreateObject
 import org.opensearch.core.common.bytes.BytesArray
 import org.opensearch.core.common.bytes.BytesReference
 import org.opensearch.core.common.io.stream.InputStreamStreamInput
@@ -40,7 +41,7 @@ class CorrelationAlertTests {
             "Template args correlationRuleName does not match"
         )
 
-        // Verify inherited properties from UnifiedAlert
+        // Verify inherited properties from BaseAlert
         assertEquals(templateArgs["id"], correlationAlert.id, "alertId1")
         assertEquals(templateArgs["version"], correlationAlert.version, "Template args version does not match")
         assertEquals(templateArgs["user"], correlationAlert.user, "Template args user does not match")
@@ -97,6 +98,22 @@ class CorrelationAlertTests {
         }
 
         // Assert that the deserialized object matches the original object
+        assertEquals(correlationAlert.correlatedFindingIds, recreatedAlert.correlatedFindingIds)
+        assertEquals(correlationAlert.correlationRuleId, recreatedAlert.correlationRuleId)
+        assertEquals(correlationAlert.correlationRuleName, recreatedAlert.correlationRuleName)
+        assertEquals(correlationAlert.triggerName, recreatedAlert.triggerName)
+        assertEquals(correlationAlert.state, recreatedAlert.state)
+        val expectedStartTime = correlationAlert.startTime.truncatedTo(ChronoUnit.MILLIS)
+        val actualStartTime = recreatedAlert.startTime.truncatedTo(ChronoUnit.MILLIS)
+        assertEquals(expectedStartTime, actualStartTime)
+        assertEquals(correlationAlert.severity, recreatedAlert.severity)
+        assertEquals(correlationAlert.id, recreatedAlert.id)
+        assertEquals(correlationAlert.actionExecutionResults, recreatedAlert.actionExecutionResults)
+    }
+    @Test
+    fun `Feature Correlation Alert serialize and deserialize should be equal`() {
+        val correlationAlert = randomCorrelationAlert("alertId1", Alert.State.ACTIVE)
+        val recreatedAlert = recreateObject(correlationAlert) { CorrelationAlert(it) }
         assertEquals(correlationAlert.correlatedFindingIds, recreatedAlert.correlatedFindingIds)
         assertEquals(correlationAlert.correlationRuleId, recreatedAlert.correlationRuleId)
         assertEquals(correlationAlert.correlationRuleName, recreatedAlert.correlationRuleName)
