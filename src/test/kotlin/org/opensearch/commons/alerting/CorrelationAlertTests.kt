@@ -110,6 +110,7 @@ class CorrelationAlertTests {
         assertEquals(correlationAlert.id, recreatedAlert.id)
         assertEquals(correlationAlert.actionExecutionResults, recreatedAlert.actionExecutionResults)
     }
+
     @Test
     fun `Feature Correlation Alert serialize and deserialize should be equal`() {
         val correlationAlert = randomCorrelationAlert("alertId1", Alert.State.ACTIVE)

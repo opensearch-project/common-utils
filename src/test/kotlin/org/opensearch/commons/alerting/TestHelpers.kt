@@ -20,6 +20,7 @@ import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelec
 import org.opensearch.commons.alerting.model.ActionExecutionResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
+import org.opensearch.commons.alerting.model.BaseAlert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
 import org.opensearch.commons.alerting.model.ChainedAlertTrigger
 import org.opensearch.commons.alerting.model.ChainedMonitorFindings
@@ -40,7 +41,6 @@ import org.opensearch.commons.alerting.model.Schedule
 import org.opensearch.commons.alerting.model.SearchInput
 import org.opensearch.commons.alerting.model.Sequence
 import org.opensearch.commons.alerting.model.Trigger
-import org.opensearch.commons.alerting.model.BaseAlert
 import org.opensearch.commons.alerting.model.Workflow
 import org.opensearch.commons.alerting.model.WorkflowInput
 import org.opensearch.commons.alerting.model.action.Action
