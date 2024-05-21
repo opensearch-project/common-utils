@@ -20,11 +20,13 @@ import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelec
 import org.opensearch.commons.alerting.model.ActionExecutionResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
+import org.opensearch.commons.alerting.model.BaseAlert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
 import org.opensearch.commons.alerting.model.ChainedAlertTrigger
 import org.opensearch.commons.alerting.model.ChainedMonitorFindings
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
 import org.opensearch.commons.alerting.model.CompositeInput
+import org.opensearch.commons.alerting.model.CorrelationAlert
 import org.opensearch.commons.alerting.model.Delegate
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
@@ -599,5 +601,59 @@ fun randomFinding(
         index = index,
         docLevelQueries = docLevelQueries,
         timestamp = timestamp
+    )
+}
+
+fun randomCorrelationAlert(
+    id: String,
+    state: Alert.State
+): CorrelationAlert {
+    val correlatedFindingIds = listOf("finding1", "finding2")
+    val correlationRuleId = "rule1"
+    val correlationRuleName = "Rule 1"
+    val id = id
+    val version = 1L
+    val schemaVersion = 1
+    val user = randomUser()
+    val triggerName = "Trigger 1"
+    val state = state
+    val startTime = Instant.now()
+    val endTime: Instant? = null
+    val acknowledgedTime: Instant? = null
+    val errorMessage: String? = null
+    val severity = "high"
+    val actionExecutionResults = listOf(randomActionExecutionResult())
+
+    return CorrelationAlert(
+        correlatedFindingIds, correlationRuleId, correlationRuleName,
+        id, version, schemaVersion, user, triggerName, state,
+        startTime, endTime, acknowledgedTime, errorMessage, severity,
+        actionExecutionResults
+    )
+}
+
+fun createUnifiedAlertTemplateArgs(unifiedAlert: BaseAlert): Map<String, Any?> {
+    return mapOf(
+        BaseAlert.ALERT_ID_FIELD to unifiedAlert.id,
+        BaseAlert.ALERT_VERSION_FIELD to unifiedAlert.version,
+        BaseAlert.SCHEMA_VERSION_FIELD to unifiedAlert.schemaVersion,
+        BaseAlert.USER_FIELD to unifiedAlert.user,
+        BaseAlert.TRIGGER_NAME_FIELD to unifiedAlert.triggerName,
+        BaseAlert.STATE_FIELD to unifiedAlert.state,
+        BaseAlert.START_TIME_FIELD to unifiedAlert.startTime,
+        BaseAlert.END_TIME_FIELD to unifiedAlert.endTime,
+        BaseAlert.ACKNOWLEDGED_TIME_FIELD to unifiedAlert.acknowledgedTime,
+        BaseAlert.ERROR_MESSAGE_FIELD to unifiedAlert.errorMessage,
+        BaseAlert.SEVERITY_FIELD to unifiedAlert.severity,
+        BaseAlert.ACTION_EXECUTION_RESULTS_FIELD to unifiedAlert.actionExecutionResults
+    )
+}
+
+fun createCorrelationAlertTemplateArgs(correlationAlert: CorrelationAlert): Map<String, Any?> {
+    val unifiedAlertTemplateArgs = createUnifiedAlertTemplateArgs(correlationAlert)
+    return unifiedAlertTemplateArgs + mapOf(
+        "correlatedFindingIds" to correlationAlert.correlatedFindingIds,
+        "correlationRuleId" to correlationAlert.correlationRuleId,
+        "correlationRuleName" to correlationAlert.correlationRuleName
     )
 }
