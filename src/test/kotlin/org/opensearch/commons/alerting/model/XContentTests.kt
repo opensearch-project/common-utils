@@ -367,7 +367,7 @@ class XContentTests {
         """.trimIndent()
         val parsedMonitor = Monitor.parse(parser(monitorString))
         Assertions.assertEquals(
-            Monitor.MonitorType.QUERY_LEVEL_MONITOR,
+            Monitor.MonitorType.QUERY_LEVEL_MONITOR.value,
             parsedMonitor.monitorType,
             "Incorrect monitor type"
         )
