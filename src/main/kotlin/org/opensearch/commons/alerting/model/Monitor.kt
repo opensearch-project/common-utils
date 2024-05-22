@@ -22,7 +22,6 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
-import java.util.Locale
 import java.util.regex.Pattern
 
 data class Monitor(
@@ -56,14 +55,14 @@ data class Monitor(
 
             require(triggerIds.add(trigger.id)) { "Duplicate trigger id: ${trigger.id}. Trigger ids must be unique." }
             // Verify Trigger type based on Monitor type
-            when (MonitorType.valueOf(monitorType.uppercase(Locale.ROOT))) {
-                MonitorType.QUERY_LEVEL_MONITOR ->
+            when (monitorType) {
+                MonitorType.QUERY_LEVEL_MONITOR.value ->
                     require(trigger is QueryLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
-                MonitorType.BUCKET_LEVEL_MONITOR ->
+                MonitorType.BUCKET_LEVEL_MONITOR.value ->
                     require(trigger is BucketLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
-                MonitorType.CLUSTER_METRICS_MONITOR ->
+                MonitorType.CLUSTER_METRICS_MONITOR.value ->
                     require(trigger is QueryLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
-                MonitorType.DOC_LEVEL_MONITOR ->
+                MonitorType.DOC_LEVEL_MONITOR.value ->
                     require(trigger is DocumentLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
             }
         }
