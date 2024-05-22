@@ -5,6 +5,7 @@ import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.index.query.BoolQueryBuilder
 import java.io.IOException
 
 class GetAlertsRequest : ActionRequest {
@@ -16,6 +17,7 @@ class GetAlertsRequest : ActionRequest {
     val monitorIds: List<String>?
     val workflowIds: List<String>?
     val alertIds: List<String>?
+    val boolQueryBuilder: BoolQueryBuilder?
 
     constructor(
         table: Table,
@@ -25,7 +27,8 @@ class GetAlertsRequest : ActionRequest {
         alertIndex: String?,
         monitorIds: List<String>? = null,
         workflowIds: List<String>? = null,
-        alertIds: List<String>? = null
+        alertIds: List<String>? = null,
+        boolQueryBuilder: BoolQueryBuilder? = null
     ) : super() {
         this.table = table
         this.severityLevel = severityLevel
@@ -35,6 +38,7 @@ class GetAlertsRequest : ActionRequest {
         this.monitorIds = monitorIds
         this.workflowIds = workflowIds
         this.alertIds = alertIds
+        this.boolQueryBuilder = boolQueryBuilder
     }
 
     @Throws(IOException::class)
@@ -46,7 +50,8 @@ class GetAlertsRequest : ActionRequest {
         alertIndex = sin.readOptionalString(),
         monitorIds = sin.readOptionalStringList(),
         workflowIds = sin.readOptionalStringList(),
-        alertIds = sin.readOptionalStringList()
+        alertIds = sin.readOptionalStringList(),
+        boolQueryBuilder = if (sin.readOptionalBoolean() == true) BoolQueryBuilder(sin) else null
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -63,5 +68,11 @@ class GetAlertsRequest : ActionRequest {
         out.writeOptionalStringCollection(monitorIds)
         out.writeOptionalStringCollection(workflowIds)
         out.writeOptionalStringCollection(alertIds)
+        if (boolQueryBuilder != null) {
+            out.writeOptionalBoolean(true)
+            boolQueryBuilder.writeTo(out)
+        } else {
+            out.writeOptionalBoolean(false)
+        }
     }
 }
