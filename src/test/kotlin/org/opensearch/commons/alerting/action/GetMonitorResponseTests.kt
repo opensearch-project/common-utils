@@ -42,7 +42,7 @@ class GetMonitorResponseTests : OpenSearchTestCase() {
             schedule = cronSchedule,
             lastUpdateTime = Instant.now(),
             enabledTime = Instant.now(),
-            monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR,
+            monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR.value,
             user = randomUser(),
             schemaVersion = 0,
             inputs = mutableListOf(),
