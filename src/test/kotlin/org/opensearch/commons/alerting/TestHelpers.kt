@@ -80,7 +80,7 @@ fun randomQueryLevelMonitor(
     withMetadata: Boolean = false
 ): Monitor {
     return Monitor(
-        name = name, monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR, enabled = enabled, inputs = inputs,
+        name = name, monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
         schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
         uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
@@ -98,7 +98,7 @@ fun randomQueryLevelMonitorWithoutUser(
     withMetadata: Boolean = false
 ): Monitor {
     return Monitor(
-        name = name, monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR, enabled = enabled, inputs = inputs,
+        name = name, monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
         schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = null,
         uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
@@ -122,7 +122,7 @@ fun randomBucketLevelMonitor(
     withMetadata: Boolean = false
 ): Monitor {
     return Monitor(
-        name = name, monitorType = Monitor.MonitorType.BUCKET_LEVEL_MONITOR, enabled = enabled, inputs = inputs,
+        name = name, monitorType = Monitor.MonitorType.BUCKET_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
         schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
         uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
@@ -140,7 +140,7 @@ fun randomClusterMetricsMonitor(
     withMetadata: Boolean = false
 ): Monitor {
     return Monitor(
-        name = name, monitorType = Monitor.MonitorType.CLUSTER_METRICS_MONITOR, enabled = enabled, inputs = inputs,
+        name = name, monitorType = Monitor.MonitorType.CLUSTER_METRICS_MONITOR.value, enabled = enabled, inputs = inputs,
         schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
         uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
@@ -158,7 +158,7 @@ fun randomDocumentLevelMonitor(
     withMetadata: Boolean = false
 ): Monitor {
     return Monitor(
-        name = name, monitorType = Monitor.MonitorType.DOC_LEVEL_MONITOR, enabled = enabled, inputs = inputs,
+        name = name, monitorType = Monitor.MonitorType.DOC_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
         schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
         uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
