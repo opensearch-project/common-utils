@@ -55,6 +55,13 @@ fun XContentBuilder.optionalUserField(name: String, user: User?): XContentBuilde
     return this.field(name, user)
 }
 
+fun XContentBuilder.optionalUsernameField(name: String, user: User?): XContentBuilder {
+    if (user == null) {
+        return nullField(name)
+    }
+    return this.field(name, user.name)
+}
+
 fun XContentBuilder.optionalTimeField(name: String, instant: Instant?): XContentBuilder {
     if (instant == null) {
         return nullField(name)

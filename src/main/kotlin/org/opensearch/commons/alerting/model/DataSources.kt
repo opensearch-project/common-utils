@@ -31,6 +31,16 @@ data class DataSources(
     /** Configures a custom index pattern for alertHistoryIndex alias.*/
     val alertsHistoryIndexPattern: String? = "<.opendistro-alerting-alert-history-{now/d}-1>", // AlertIndices.ALERT_HISTORY_INDEX_PATTERN
 
+    /** Configures a custom index to store notes associated with an alert. Creates a new index if index with given name not present.
+     *  If index is pre-existing, mapping is updated. */
+    val notesIndex: String = ".opensearch-alerting-notes", // NotesIndices.NOTES_INDEX
+
+    /** Configures a custom index alias to store historical notes associated with historical alerts.*/
+    val notesHistoryIndex: String? = ".opensearch-alerting-notes-history-write", // AlertIndices.NOTES_HISTORY_WRITE_INDEX
+
+    /** Configures a custom index pattern for notesHistoryIndex alias.*/
+    val notesHistoryIndexPattern: String? = "<.opensearch-alerting-notes-history-{now/d}-1>", // AlertIndices.NOTES_HISTORY_INDEX_PATTERN
+
     /** Configures custom mappings by field type for query index.
      * Custom query index mappings are configurable, only if a custom query index is configured too. */
     val queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf(),
