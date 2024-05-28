@@ -3,6 +3,7 @@ package org.opensearch.commons.alerting.model
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.opensearch.common.xcontent.XContentFactory
 import org.opensearch.commons.alerting.builder
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
@@ -542,5 +543,19 @@ class XContentTests {
         val commentString = comment.toXContentWithUser(builder()).string()
         val parsedComment = Comment.parse(parser(commentString), "123")
         Assertions.assertEquals(comment, parsedComment, "Round tripping Comment doesn't work")
+    }
+
+    @Test
+    fun `test MonitorMetadata`() {
+        val monitorMetadata = MonitorMetadata(
+            id = "monitorId-metadata",
+            monitorId = "monitorId",
+            lastActionExecutionTimes = emptyList(),
+            lastRunContext = emptyMap(),
+            sourceToQueryIndexMapping = mutableMapOf()
+        )
+        val monitorMetadataString = monitorMetadata.toXContent(XContentFactory.jsonBuilder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedMonitorMetadata = MonitorMetadata.parse(parser(monitorMetadataString))
+        assertEquals("Round tripping MonitorMetadata doesn't work", monitorMetadata, parsedMonitorMetadata)
     }
 }
