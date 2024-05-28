@@ -1,5 +1,6 @@
 package org.opensearch.commons.alerting.util
 
+import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.settings.SupportedClusterMetricsSettings
 import org.opensearch.commons.authuser.User
@@ -86,3 +87,11 @@ fun Monitor.isMonitorOfStandardType(): Boolean {
     val standardMonitorTypes = Monitor.MonitorType.values().map { it.value.uppercase(Locale.ROOT) }.toSet()
     return standardMonitorTypes.contains(this.monitorType.uppercase(Locale.ROOT))
 }
+
+fun getBucketKeysHash(bucketKeys: List<String>): String = bucketKeys.joinToString(separator = "#")
+
+/**
+ * Since buckets can have multi-value keys, this converts the bucket key values to a string that can be used
+ * as the key for a HashMap to easily retrieve [AggregationResultBucket] based on the bucket key values.
+ */
+fun AggregationResultBucket.getBucketKeysHash(): String = getBucketKeysHash(this.bucketKeys)

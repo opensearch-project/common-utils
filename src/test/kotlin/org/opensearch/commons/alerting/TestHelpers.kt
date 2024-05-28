@@ -18,10 +18,12 @@ import org.opensearch.common.xcontent.XContentType
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtFilter
 import org.opensearch.commons.alerting.model.ActionExecutionResult
+import org.opensearch.commons.alerting.model.ActionRunResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.BaseAlert
 import org.opensearch.commons.alerting.model.BucketLevelTrigger
+import org.opensearch.commons.alerting.model.BucketLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.ChainedAlertTrigger
 import org.opensearch.commons.alerting.model.ChainedMonitorFindings
 import org.opensearch.commons.alerting.model.ClusterMetricsInput
@@ -31,12 +33,16 @@ import org.opensearch.commons.alerting.model.Delegate
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
 import org.opensearch.commons.alerting.model.DocLevelQuery
 import org.opensearch.commons.alerting.model.DocumentLevelTrigger
+import org.opensearch.commons.alerting.model.DocumentLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.Finding
 import org.opensearch.commons.alerting.model.Input
+import org.opensearch.commons.alerting.model.InputRunResults
 import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Monitor
+import org.opensearch.commons.alerting.model.MonitorRunResult
 import org.opensearch.commons.alerting.model.NoOpTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTrigger
+import org.opensearch.commons.alerting.model.QueryLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.Schedule
 import org.opensearch.commons.alerting.model.SearchInput
 import org.opensearch.commons.alerting.model.Sequence
@@ -50,6 +56,7 @@ import org.opensearch.commons.alerting.model.action.AlertCategory
 import org.opensearch.commons.alerting.model.action.PerAlertActionScope
 import org.opensearch.commons.alerting.model.action.PerExecutionActionScope
 import org.opensearch.commons.alerting.model.action.Throttle
+import org.opensearch.commons.alerting.util.getBucketKeysHash
 import org.opensearch.commons.alerting.util.string
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.xcontent.NamedXContentRegistry
@@ -655,5 +662,117 @@ fun createCorrelationAlertTemplateArgs(correlationAlert: CorrelationAlert): Map<
         "correlatedFindingIds" to correlationAlert.correlatedFindingIds,
         "correlationRuleId" to correlationAlert.correlationRuleId,
         "correlationRuleName" to correlationAlert.correlationRuleName
+    )
+}
+
+fun randomInputRunResults(): InputRunResults {
+    return InputRunResults(listOf(), null)
+}
+
+fun randomActionRunResult(): ActionRunResult {
+    val map = mutableMapOf<String, String>()
+    map.plus(Pair("key1", "val1"))
+    map.plus(Pair("key2", "val2"))
+    return ActionRunResult(
+        "1234",
+        "test-action",
+        map,
+        false,
+        Instant.now(),
+        null
+    )
+}
+
+fun randomDocumentLevelTriggerRunResult(): DocumentLevelTriggerRunResult {
+    val map = mutableMapOf<String, ActionRunResult>()
+    map.plus(Pair("key1", randomActionRunResult()))
+    map.plus(Pair("key2", randomActionRunResult()))
+    return DocumentLevelTriggerRunResult(
+        "trigger-name",
+        mutableListOf(UUIDs.randomBase64UUID().toString()),
+        null,
+        mutableMapOf(Pair("alertId", map))
+    )
+}
+fun randomDocumentLevelMonitorRunResult(): MonitorRunResult<DocumentLevelTriggerRunResult> {
+    val triggerResults = mutableMapOf<String, DocumentLevelTriggerRunResult>()
+    val triggerRunResult = randomDocumentLevelTriggerRunResult()
+    triggerResults.plus(Pair("test", triggerRunResult))
+
+    return MonitorRunResult(
+        "test-monitor",
+        Instant.now(),
+        Instant.now(),
+        null,
+        randomInputRunResults(),
+        triggerResults
+    )
+}
+
+fun randomBucketLevelTriggerRunResult(): BucketLevelTriggerRunResult {
+    val map = mutableMapOf<String, ActionRunResult>()
+    map.plus(Pair("key1", randomActionRunResult()))
+    map.plus(Pair("key2", randomActionRunResult()))
+
+    val aggBucket1 = AggregationResultBucket(
+        "parent_bucket_path_1",
+        listOf("bucket_key_1"),
+        mapOf("k1" to "val1", "k2" to "val2")
+    )
+    val aggBucket2 = AggregationResultBucket(
+        "parent_bucket_path_2",
+        listOf("bucket_key_2"),
+        mapOf("k1" to "val1", "k2" to "val2")
+    )
+
+    val actionResultsMap: MutableMap<String, MutableMap<String, ActionRunResult>> = mutableMapOf()
+    actionResultsMap[aggBucket1.getBucketKeysHash()] = map
+    actionResultsMap[aggBucket2.getBucketKeysHash()] = map
+
+    return BucketLevelTriggerRunResult(
+        "trigger-name",
+        null,
+        mapOf(
+            aggBucket1.getBucketKeysHash() to aggBucket1,
+            aggBucket2.getBucketKeysHash() to aggBucket2
+        ),
+        actionResultsMap
+    )
+}
+
+fun randomBucketLevelMonitorRunResult(): MonitorRunResult<BucketLevelTriggerRunResult> {
+    val triggerResults = mutableMapOf<String, BucketLevelTriggerRunResult>()
+    val triggerRunResult = randomBucketLevelTriggerRunResult()
+    triggerResults.plus(Pair("test", triggerRunResult))
+
+    return MonitorRunResult(
+        "test-monitor",
+        Instant.now(),
+        Instant.now(),
+        null,
+        randomInputRunResults(),
+        triggerResults
+    )
+}
+
+fun randomQueryLevelTriggerRunResult(): QueryLevelTriggerRunResult {
+    val map = mutableMapOf<String, ActionRunResult>()
+    map.plus(Pair("key1", randomActionRunResult()))
+    map.plus(Pair("key2", randomActionRunResult()))
+    return QueryLevelTriggerRunResult("trigger-name", true, null, map)
+}
+
+fun randomQueryLevelMonitorRunResult(): MonitorRunResult<QueryLevelTriggerRunResult> {
+    val triggerResults = mutableMapOf<String, QueryLevelTriggerRunResult>()
+    val triggerRunResult = randomQueryLevelTriggerRunResult()
+    triggerResults.plus(Pair("test", triggerRunResult))
+
+    return MonitorRunResult(
+        "test-monitor",
+        Instant.now(),
+        Instant.now(),
+        null,
+        randomInputRunResults(),
+        triggerResults
     )
 }
