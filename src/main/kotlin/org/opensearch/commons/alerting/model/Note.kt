@@ -19,7 +19,7 @@ import org.opensearch.commons.authuser.User
 
 data class Note(
     val id: String = NO_ID,
-    val alertId: String = NO_ID,
+    val entityId: String = NO_ID,
     val content: String,
     val createdTime: Instant,
     val lastUpdatedTime: Instant?,
@@ -29,7 +29,7 @@ data class Note(
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         id = sin.readString(),
-        alertId = sin.readString(),
+        entityId = sin.readString(),
         content = sin.readString(),
         createdTime = sin.readInstant(),
         lastUpdatedTime = sin.readOptionalInstant(),
@@ -41,12 +41,12 @@ data class Note(
     )
 
     constructor(
-        alertId: String,
+        entityId: String,
         content: String,
         createdTime: Instant,
         user: User?
     ) : this (
-        alertId = alertId,
+        entityId = entityId,
         content = content,
         createdTime = createdTime,
         lastUpdatedTime = null,
@@ -56,7 +56,7 @@ data class Note(
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         out.writeString(id)
-        out.writeString(alertId)
+        out.writeString(entityId)
         out.writeString(content)
         out.writeInstant(createdTime)
         out.writeOptionalInstant(lastUpdatedTime)
@@ -67,7 +67,7 @@ data class Note(
     fun asTemplateArg(): Map<String, Any?> {
         return mapOf<String, Any?>(
             _ID to id,
-            ALERT_ID_FIELD to alertId,
+            ENTITY_ID_FIELD to entityId,
             NOTE_CONTENT_FIELD to content,
             NOTE_CREATED_TIME_FIELD to createdTime,
             NOTE_LAST_UPDATED_TIME_FIELD to lastUpdatedTime,
@@ -87,7 +87,7 @@ data class Note(
 
     private fun createXContentBuilder(builder: XContentBuilder, includeFullUser: Boolean): XContentBuilder {
         builder.startObject()
-            .field(ALERT_ID_FIELD, alertId)
+            .field(ENTITY_ID_FIELD, entityId)
             .field(NOTE_CONTENT_FIELD, content)
             .optionalTimeField(NOTE_CREATED_TIME_FIELD, createdTime)
             .optionalTimeField(NOTE_LAST_UPDATED_TIME_FIELD, lastUpdatedTime)
@@ -105,7 +105,7 @@ data class Note(
     }
 
     companion object {
-        const val ALERT_ID_FIELD = "alert_id"
+        const val ENTITY_ID_FIELD = "entity_id"
         const val NOTE_CONTENT_FIELD = "content"
         const val NOTE_CREATED_TIME_FIELD = "created_time"
         const val NOTE_LAST_UPDATED_TIME_FIELD = "last_updated_time"
@@ -116,7 +116,7 @@ data class Note(
         @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID): Note {
-            lateinit var alertId: String
+            lateinit var entityId: String
             var content = ""
             lateinit var createdTime: Instant
             var lastUpdatedTime: Instant? = null
@@ -128,7 +128,7 @@ data class Note(
                 xcp.nextToken()
 
                 when (fieldName) {
-                    ALERT_ID_FIELD -> alertId = xcp.text()
+                    ENTITY_ID_FIELD -> entityId = xcp.text()
                     NOTE_CONTENT_FIELD -> content = xcp.text()
                     NOTE_CREATED_TIME_FIELD -> createdTime = requireNotNull(xcp.instant())
                     NOTE_LAST_UPDATED_TIME_FIELD -> lastUpdatedTime = xcp.instant()
@@ -143,7 +143,7 @@ data class Note(
 
             return Note(
                 id = id,
-                alertId = requireNotNull(alertId) { "Alert ID is null" },
+                entityId = entityId,
                 content = content,
                 createdTime = createdTime,
                 lastUpdatedTime = lastUpdatedTime,

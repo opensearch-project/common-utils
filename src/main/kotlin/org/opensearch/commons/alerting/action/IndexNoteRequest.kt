@@ -8,7 +8,7 @@ import org.opensearch.rest.RestRequest
 import java.io.IOException
 
 class IndexNoteRequest : ActionRequest {
-    val alertId: String
+    val entityId: String
     val noteId: String
     val seqNo: Long
     val primaryTerm: Long
@@ -16,14 +16,14 @@ class IndexNoteRequest : ActionRequest {
     var content: String
 
     constructor(
-        alertId: String,
+        entityId: String,
         noteId: String,
         seqNo: Long,
         primaryTerm: Long,
         method: RestRequest.Method,
         content: String
     ) : super() {
-        this.alertId = alertId
+        this.entityId = entityId
         this.noteId = noteId
         this.seqNo = seqNo
         this.primaryTerm = primaryTerm
@@ -33,7 +33,7 @@ class IndexNoteRequest : ActionRequest {
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        alertId = sin.readString(),
+        entityId = sin.readString(),
         noteId = sin.readString(),
         seqNo = sin.readLong(),
         primaryTerm = sin.readLong(),
@@ -47,7 +47,7 @@ class IndexNoteRequest : ActionRequest {
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
-        out.writeString(alertId)
+        out.writeString(entityId)
         out.writeString(noteId)
         out.writeLong(seqNo)
         out.writeLong(primaryTerm)
