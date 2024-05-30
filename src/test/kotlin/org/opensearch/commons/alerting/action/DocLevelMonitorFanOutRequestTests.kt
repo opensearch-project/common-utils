@@ -5,6 +5,8 @@
 
 package org.opensearch.commons.alerting.action
 
+import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.commons.alerting.model.ActionExecutionTime
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
@@ -21,13 +23,13 @@ import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.index.shard.ShardId
 import org.opensearch.index.seqno.SequenceNumbers
 import org.opensearch.script.Script
-import org.opensearch.test.OpenSearchTestCase
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
-class DocLevelMonitorFanOutRequestTests : OpenSearchTestCase() {
+class DocLevelMonitorFanOutRequestTests {
 
+    @Test
     fun `test doc level monitor fan out request as stream`() {
         val docQuery = DocLevelQuery(query = "test_field:\"us-west-2\"", fields = listOf(), name = "3")
         val docLevelInput = DocLevelMonitorInput("description", listOf("test-index"), listOf(docQuery))

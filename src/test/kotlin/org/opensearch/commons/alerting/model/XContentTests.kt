@@ -3,12 +3,16 @@ package org.opensearch.commons.alerting.model
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.xcontent.XContentFactory
+import org.opensearch.common.xcontent.json.JsonXContent
 import org.opensearch.commons.alerting.builder
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
 import org.opensearch.commons.alerting.model.action.PerExecutionActionScope
 import org.opensearch.commons.alerting.model.action.Throttle
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorInput
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.parser
 import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
@@ -28,6 +32,7 @@ import org.opensearch.commons.alerting.toJsonString
 import org.opensearch.commons.alerting.toJsonStringWithUser
 import org.opensearch.commons.alerting.util.string
 import org.opensearch.commons.authuser.User
+import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.index.query.QueryBuilders
 import org.opensearch.search.builder.SearchSourceBuilder
@@ -520,5 +525,31 @@ class XContentTests {
         val monitorMetadataString = monitorMetadata.toXContent(XContentFactory.jsonBuilder(), ToXContent.EMPTY_PARAMS).string()
         val parsedMonitorMetadata = MonitorMetadata.parse(parser(monitorMetadataString))
         assertEquals("Round tripping MonitorMetadata doesn't work", monitorMetadata, parsedMonitorMetadata)
+    }
+
+    @Test
+    fun `test RemoteMonitorInput`() {
+        val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
+        val myObjOut = BytesStreamOutput()
+        myMonitorInput.writeTo(myObjOut)
+        val remoteMonitorInput = RemoteMonitorInput(myObjOut.bytes())
+
+        val xContent = remoteMonitorInput.toXContent(JsonXContent.contentBuilder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedRemoteMonitorInput = RemoteMonitorInput.parse(parser(xContent))
+        val parsedMyMonitorInput = MyMonitorInput(StreamInput.wrap(parsedRemoteMonitorInput.input.toBytesRef().bytes))
+        assertEquals("Round tripping RemoteMonitorInput doesn't work", myMonitorInput, parsedMyMonitorInput)
+    }
+
+    @Test
+    fun `test RemoteMonitorTrigger`() {
+        val myMonitorTrigger = MyMonitorTrigger(1, "hello", MyMonitorTrigger(2, "world", null))
+        val myObjOut = BytesStreamOutput()
+        myMonitorTrigger.writeTo(myObjOut)
+        val remoteMonitorTrigger = RemoteMonitorTrigger("id", "name", "1", listOf(), myObjOut.bytes())
+
+        val xContent = remoteMonitorTrigger.toXContent(JsonXContent.contentBuilder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedRemoteMonitorTrigger = Trigger.parse(parser(xContent)) as RemoteMonitorTrigger
+        val parsedMyMonitorTrigger = MyMonitorTrigger(StreamInput.wrap(parsedRemoteMonitorTrigger.trigger.toBytesRef().bytes))
+        assertEquals("Round tripping RemoteMonitorTrigger doesn't work", myMonitorTrigger, parsedMyMonitorTrigger)
     }
 }
