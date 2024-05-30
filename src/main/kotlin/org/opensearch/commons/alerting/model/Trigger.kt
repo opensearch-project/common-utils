@@ -1,6 +1,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.commons.alerting.model.action.Action
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.notifications.model.BaseModel
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.xcontent.XContentParser
@@ -14,7 +15,8 @@ interface Trigger : BaseModel {
         QUERY_LEVEL_TRIGGER(QueryLevelTrigger.QUERY_LEVEL_TRIGGER_FIELD),
         BUCKET_LEVEL_TRIGGER(BucketLevelTrigger.BUCKET_LEVEL_TRIGGER_FIELD),
         NOOP_TRIGGER(NoOpTrigger.NOOP_TRIGGER_FIELD),
-        CHAINED_ALERT_TRIGGER(ChainedAlertTrigger.CHAINED_ALERT_TRIGGER_FIELD);
+        CHAINED_ALERT_TRIGGER(ChainedAlertTrigger.CHAINED_ALERT_TRIGGER_FIELD),
+        REMOTE_MONITOR_TRIGGER(RemoteMonitorTrigger.REMOTE_MONITOR_TRIGGER_FIELD);
 
         override fun toString(): String {
             return value
@@ -55,6 +57,7 @@ interface Trigger : BaseModel {
                 Type.BUCKET_LEVEL_TRIGGER -> BucketLevelTrigger(sin)
                 Type.DOCUMENT_LEVEL_TRIGGER -> DocumentLevelTrigger(sin)
                 Type.CHAINED_ALERT_TRIGGER -> ChainedAlertTrigger(sin)
+                Type.REMOTE_MONITOR_TRIGGER -> RemoteMonitorTrigger(sin)
                 // This shouldn't be reachable but ensuring exhaustiveness as Kotlin warns
                 // enum can be null in Java
                 else -> throw IllegalStateException("Unexpected input [$type] when reading Trigger")

@@ -5,13 +5,16 @@
 
 package org.opensearch.commons.alerting.action
 
+import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.commons.alerting.model.InputRunResults
 import org.opensearch.commons.alerting.randomDocumentLevelTriggerRunResult
 import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.test.OpenSearchTestCase
 
-class DocLevelMonitorFanOutResponseTests : OpenSearchTestCase() {
+class DocLevelMonitorFanOutResponseTests {
+
+    @Test
     fun `test doc level monitor fan out response with errors as stream`() {
         val docLevelMonitorFanOutResponse = DocLevelMonitorFanOutResponse(
             "nodeid",
@@ -33,6 +36,7 @@ class DocLevelMonitorFanOutResponseTests : OpenSearchTestCase() {
         assertEquals(docLevelMonitorFanOutResponse.triggerResults, newDocLevelMonitorFanOutResponse.triggerResults)
     }
 
+    @Test
     fun `test doc level monitor fan out response as stream`() {
         val workflow = DocLevelMonitorFanOutResponse(
             "nodeid",
