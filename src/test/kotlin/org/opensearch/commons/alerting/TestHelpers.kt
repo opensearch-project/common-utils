@@ -54,6 +54,7 @@ import org.opensearch.commons.alerting.model.action.AlertCategory
 import org.opensearch.commons.alerting.model.action.PerAlertActionScope
 import org.opensearch.commons.alerting.model.action.PerExecutionActionScope
 import org.opensearch.commons.alerting.model.action.Throttle
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.util.getBucketKeysHash
 import org.opensearch.commons.alerting.util.string
 import org.opensearch.commons.authuser.User
@@ -512,6 +513,12 @@ fun parser(xc: String): XContentParser {
     return parser
 }
 
+fun parser(xc: ByteArray): XContentParser {
+    val parser = XContentType.JSON.xContent().createParser(xContentRegistry(), LoggingDeprecationHandler.INSTANCE, xc)
+    parser.nextToken()
+    return parser
+}
+
 fun xContentRegistry(): NamedXContentRegistry {
     return NamedXContentRegistry(
         listOf(
@@ -521,7 +528,8 @@ fun xContentRegistry(): NamedXContentRegistry {
             BucketLevelTrigger.XCONTENT_REGISTRY,
             DocumentLevelTrigger.XCONTENT_REGISTRY,
             ChainedAlertTrigger.XCONTENT_REGISTRY,
-            NoOpTrigger.XCONTENT_REGISTRY
+            NoOpTrigger.XCONTENT_REGISTRY,
+            RemoteMonitorTrigger.XCONTENT_REGISTRY
         ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
     )
 }
