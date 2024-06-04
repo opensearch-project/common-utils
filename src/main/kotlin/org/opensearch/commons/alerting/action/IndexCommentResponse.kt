@@ -1,5 +1,6 @@
 package org.opensearch.commons.alerting.action
 
+import org.opensearch.commons.alerting.model.Comment
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._PRIMARY_TERM
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._SEQ_NO
@@ -9,7 +10,6 @@ import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
-import org.opensearch.commons.alerting.model.Comment
 
 class IndexCommentResponse : BaseResponse {
     // TODO: do we really need sequence num and primary term? probs delete em
