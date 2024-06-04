@@ -11,6 +11,7 @@ import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
 import org.opensearch.commons.alerting.model.action.PerExecutionActionScope
 import org.opensearch.commons.alerting.model.action.Throttle
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteDocLevelMonitorInput
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorInput
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.parser
@@ -21,6 +22,7 @@ import org.opensearch.commons.alerting.randomActionWithPolicy
 import org.opensearch.commons.alerting.randomAlert
 import org.opensearch.commons.alerting.randomBucketLevelMonitor
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
+import org.opensearch.commons.alerting.randomDocLevelQuery
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitorWithoutUser
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
@@ -588,5 +590,25 @@ class XContentTests {
         val parsedRemoteMonitorTrigger = Trigger.parse(parser(xContent)) as RemoteMonitorTrigger
         val parsedMyMonitorTrigger = MyMonitorTrigger(StreamInput.wrap(parsedRemoteMonitorTrigger.trigger.toBytesRef().bytes))
         assertEquals("Round tripping RemoteMonitorTrigger doesn't work", myMonitorTrigger, parsedMyMonitorTrigger)
+    }
+
+    @Test
+    fun `test RemoteDocLevelMonitorInput`() {
+        val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
+        val myObjOut = BytesStreamOutput()
+        myMonitorInput.writeTo(myObjOut)
+        val docLevelMonitorInput = DocLevelMonitorInput(
+            "test",
+            listOf("test"),
+            listOf(randomDocLevelQuery())
+        )
+        val remoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(myObjOut.bytes(), docLevelMonitorInput)
+
+        val xContent = remoteDocLevelMonitorInput.toXContent(JsonXContent.contentBuilder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedRemoteDocLevelMonitorInput = RemoteDocLevelMonitorInput.parse(parser(xContent))
+        val parsedMyMonitorInput = MyMonitorInput(StreamInput.wrap(parsedRemoteDocLevelMonitorInput.input.toBytesRef().bytes))
+        assertEquals("Round tripping RemoteDocLevelMonitorInput doesn't work", myMonitorInput, parsedMyMonitorInput)
+        val parsedDocLevelMonitorInput = parsedRemoteDocLevelMonitorInput.docLevelMonitorInput
+        assertEquals("Round tripping RemoteDocLevelMonitorInput doesn't work", docLevelMonitorInput, parsedDocLevelMonitorInput)
     }
 }
