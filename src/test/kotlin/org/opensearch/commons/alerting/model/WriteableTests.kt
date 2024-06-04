@@ -8,6 +8,7 @@ import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
 import org.opensearch.commons.alerting.model.action.Throttle
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteDocLevelMonitorInput
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorInput
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.randomAction
@@ -359,6 +360,29 @@ class WriteableTests {
         val newRemoteMonitorTrigger = RemoteMonitorTrigger(sin)
         val newMyMonitorTrigger = MyMonitorTrigger(StreamInput.wrap(newRemoteMonitorTrigger.trigger.toBytesRef().bytes))
         Assert.assertEquals("Round tripping RemoteMonitorTrigger failed", newMyMonitorTrigger, myMonitorTrigger)
+    }
+
+    @Test
+    fun `test RemoteDocLevelMonitorInput as stream`() {
+        val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
+        val myObjOut = BytesStreamOutput()
+        myMonitorInput.writeTo(myObjOut)
+        val docLevelMonitorInput = DocLevelMonitorInput(
+            "test",
+            listOf("test"),
+            listOf(randomDocLevelQuery())
+        )
+        val remoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(myObjOut.bytes(), docLevelMonitorInput)
+
+        val out = BytesStreamOutput()
+        remoteDocLevelMonitorInput.writeTo(out)
+
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRemoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(sin)
+        val newMyMonitorInput = MyMonitorInput(StreamInput.wrap(newRemoteDocLevelMonitorInput.input.toBytesRef().bytes))
+        Assert.assertEquals("Round tripping RemoteMonitorInput failed", newMyMonitorInput, myMonitorInput)
+        val newDocLevelMonitorInput = newRemoteDocLevelMonitorInput.docLevelMonitorInput
+        Assert.assertEquals("Round tripping DocLevelMonitorInput failed", newDocLevelMonitorInput, docLevelMonitorInput)
     }
 
     fun randomDocumentLevelTriggerRunResult(): DocumentLevelTriggerRunResult {
