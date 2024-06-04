@@ -16,7 +16,7 @@ import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
 import java.time.Instant
 
-data class Note(
+data class Comment(
     val id: String = NO_ID,
     val entityId: String = NO_ID,
     val content: String,
@@ -67,19 +67,19 @@ data class Note(
         return mapOf<String, Any?>(
             _ID to id,
             ENTITY_ID_FIELD to entityId,
-            NOTE_CONTENT_FIELD to content,
-            NOTE_CREATED_TIME_FIELD to createdTime,
-            NOTE_LAST_UPDATED_TIME_FIELD to lastUpdatedTime,
-            NOTE_USER_FIELD to user?.name
+            COMMENT_CONTENT_FIELD to content,
+            COMMENT_CREATED_TIME_FIELD to createdTime,
+            COMMENT_LAST_UPDATED_TIME_FIELD to lastUpdatedTime,
+            COMMENT_USER_FIELD to user?.name
         )
     }
 
-    // used to create the Note JSON object for an API response (displayed to user)
+    // used to create the Comment JSON object for an API response (displayed to user)
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         return createXContentBuilder(builder, false)
     }
 
-    // used to create the Note JSON object for indexing a doc into an index (not displayed to user)
+    // used to create the Comment JSON object for indexing a doc into an index (not displayed to user)
     fun toXContentWithUser(builder: XContentBuilder): XContentBuilder {
         return createXContentBuilder(builder, true)
     }
@@ -87,16 +87,16 @@ data class Note(
     private fun createXContentBuilder(builder: XContentBuilder, includeFullUser: Boolean): XContentBuilder {
         builder.startObject()
             .field(ENTITY_ID_FIELD, entityId)
-            .field(NOTE_CONTENT_FIELD, content)
-            .optionalTimeField(NOTE_CREATED_TIME_FIELD, createdTime)
-            .optionalTimeField(NOTE_LAST_UPDATED_TIME_FIELD, lastUpdatedTime)
+            .field(COMMENT_CONTENT_FIELD, content)
+            .optionalTimeField(COMMENT_CREATED_TIME_FIELD, createdTime)
+            .optionalTimeField(COMMENT_LAST_UPDATED_TIME_FIELD, lastUpdatedTime)
 
         if (includeFullUser) {
-            // if we're storing a Note into an internal index, include full User
-            builder.optionalUserField(NOTE_USER_FIELD, user)
+            // if we're storing a Comment into an internal index, include full User
+            builder.optionalUserField(COMMENT_USER_FIELD, user)
         } else {
-            // if we're displaying the Note as part of an API call response, only include username
-            builder.optionalUsernameField(NOTE_USER_FIELD, user)
+            // if we're displaying the Comment as part of an API call response, only include username
+            builder.optionalUsernameField(COMMENT_USER_FIELD, user)
         }
 
         builder.endObject()
@@ -105,16 +105,16 @@ data class Note(
 
     companion object {
         const val ENTITY_ID_FIELD = "entity_id"
-        const val NOTE_CONTENT_FIELD = "content"
-        const val NOTE_CREATED_TIME_FIELD = "created_time"
-        const val NOTE_LAST_UPDATED_TIME_FIELD = "last_updated_time"
-        const val NOTE_USER_FIELD = "user"
+        const val COMMENT_CONTENT_FIELD = "content"
+        const val COMMENT_CREATED_TIME_FIELD = "created_time"
+        const val COMMENT_LAST_UPDATED_TIME_FIELD = "last_updated_time"
+        const val COMMENT_USER_FIELD = "user"
         const val NO_ID = ""
 
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, id: String = NO_ID): Note {
+        fun parse(xcp: XContentParser, id: String = NO_ID): Comment {
             lateinit var entityId: String
             var content = ""
             lateinit var createdTime: Instant
@@ -128,10 +128,10 @@ data class Note(
 
                 when (fieldName) {
                     ENTITY_ID_FIELD -> entityId = xcp.text()
-                    NOTE_CONTENT_FIELD -> content = xcp.text()
-                    NOTE_CREATED_TIME_FIELD -> createdTime = requireNotNull(xcp.instant())
-                    NOTE_LAST_UPDATED_TIME_FIELD -> lastUpdatedTime = xcp.instant()
-                    NOTE_USER_FIELD ->
+                    COMMENT_CONTENT_FIELD -> content = xcp.text()
+                    COMMENT_CREATED_TIME_FIELD -> createdTime = requireNotNull(xcp.instant())
+                    COMMENT_LAST_UPDATED_TIME_FIELD -> lastUpdatedTime = xcp.instant()
+                    COMMENT_USER_FIELD ->
                         user = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
                             null
                         } else {
@@ -140,7 +140,7 @@ data class Note(
                 }
             }
 
-            return Note(
+            return Comment(
                 id = id,
                 entityId = entityId,
                 content = content,
@@ -152,8 +152,8 @@ data class Note(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Note {
-            return Note(sin)
+        fun readFrom(sin: StreamInput): Comment {
+            return Comment(sin)
         }
     }
 }

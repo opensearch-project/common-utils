@@ -2,24 +2,20 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
-import org.opensearch.action.search.SearchRequest
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 
-class SearchNoteRequest : ActionRequest {
+class DeleteCommentRequest : ActionRequest {
+    val commentId: String
 
-    val searchRequest: SearchRequest
-
-    constructor(
-        searchRequest: SearchRequest
-    ) : super() {
-        this.searchRequest = searchRequest
+    constructor(commentId: String) : super() {
+        this.commentId = commentId
     }
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        searchRequest = SearchRequest(sin)
+        commentId = sin.readString()
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -28,6 +24,6 @@ class SearchNoteRequest : ActionRequest {
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
-        searchRequest.writeTo(out)
+        out.writeString(commentId)
     }
 }

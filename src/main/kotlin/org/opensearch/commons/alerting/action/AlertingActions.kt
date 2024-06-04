@@ -21,9 +21,9 @@ object AlertingActions {
     const val SUBSCRIBE_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/subscribe"
     const val GET_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/get"
     const val SEARCH_MONITORS_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/search"
-    const val INDEX_NOTE_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/notes/write"
-    const val SEARCH_NOTES_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/notes/search"
-    const val DELETE_NOTES_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/notes/delete"
+    const val INDEX_COMMENT_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/comments/write"
+    const val SEARCH_COMMENTS_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/comments/search"
+    const val DELETE_COMMENT_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/comments/delete"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -78,14 +78,14 @@ object AlertingActions {
         ActionType(SEARCH_MONITORS_ACTION_NAME, ::SearchResponse)
 
     @JvmField
-    val INDEX_NOTE_ACTION_TYPE =
-        ActionType(INDEX_NOTE_ACTION_NAME, ::IndexNoteResponse)
+    val INDEX_COMMENT_ACTION_TYPE =
+        ActionType(INDEX_COMMENT_ACTION_NAME, ::IndexCommentResponse)
 
     @JvmField
-    val SEARCH_NOTES_ACTION_TYPE =
-        ActionType(SEARCH_NOTES_ACTION_NAME, ::SearchResponse)
+    val SEARCH_COMMENTS_ACTION_TYPE =
+        ActionType(SEARCH_COMMENTS_ACTION_NAME, ::SearchResponse)
 
     @JvmField
-    val DELETE_NOTES_ACTION_TYPE =
-        ActionType(DELETE_NOTES_ACTION_NAME, ::DeleteNoteResponse)
+    val DELETE_COMMENT_ACTION_TYPE =
+        ActionType(DELETE_COMMENT_ACTION_NAME, ::DeleteCommentResponse)
 }

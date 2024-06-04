@@ -7,7 +7,7 @@ import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 
-class DeleteNoteResponse : BaseResponse {
+class DeleteCommentResponse : BaseResponse {
     var id: String
 
     constructor(

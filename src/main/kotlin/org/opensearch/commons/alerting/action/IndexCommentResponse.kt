@@ -1,6 +1,5 @@
 package org.opensearch.commons.alerting.action
 
-import org.opensearch.commons.alerting.model.Note
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._PRIMARY_TERM
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._SEQ_NO
@@ -10,24 +9,25 @@ import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
+import org.opensearch.commons.alerting.model.Comment
 
-class IndexNoteResponse : BaseResponse {
+class IndexCommentResponse : BaseResponse {
     // TODO: do we really need sequence num and primary term? probs delete em
     var id: String
     var seqNo: Long
     var primaryTerm: Long
-    var note: Note
+    var comment: Comment
 
     constructor(
         id: String,
         seqNo: Long,
         primaryTerm: Long,
-        note: Note
+        comment: Comment
     ) : super() {
         this.id = id
         this.seqNo = seqNo
         this.primaryTerm = primaryTerm
-        this.note = note
+        this.comment = comment
     }
 
     @Throws(IOException::class)
@@ -35,7 +35,7 @@ class IndexNoteResponse : BaseResponse {
         sin.readString(), // id
         sin.readLong(), // seqNo
         sin.readLong(), // primaryTerm
-        Note.readFrom(sin) // note
+        Comment.readFrom(sin) // comment
     )
 
     @Throws(IOException::class)
@@ -43,7 +43,7 @@ class IndexNoteResponse : BaseResponse {
         out.writeString(id)
         out.writeLong(seqNo)
         out.writeLong(primaryTerm)
-        note.writeTo(out)
+        comment.writeTo(out)
     }
 
     @Throws(IOException::class)
@@ -52,7 +52,7 @@ class IndexNoteResponse : BaseResponse {
             .field(_ID, id)
             .field(_SEQ_NO, seqNo)
             .field(_PRIMARY_TERM, primaryTerm)
-            .field("note", note)
+            .field("comment", comment)
             .endObject()
     }
 }
