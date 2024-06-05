@@ -68,7 +68,10 @@ data class RemoteDocLevelMonitorInput(val input: BytesReference, val docLevelMon
                 when (fieldName) {
                     RemoteMonitorInput.INPUT_FIELD -> bytes = xcp.binaryValue()
                     RemoteMonitorInput.INPUT_SIZE -> size = xcp.intValue()
-                    Input.Type.DOCUMENT_LEVEL_INPUT.value -> docLevelMonitorInput = DocLevelMonitorInput.parse(xcp)
+                    Input.Type.DOCUMENT_LEVEL_INPUT.value -> {
+                        docLevelMonitorInput = DocLevelMonitorInput.parse(xcp)
+                        XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp)
+                    }
                 }
             }
             val input = BytesReference.fromByteBuffer(ByteBuffer.wrap(bytes, 0, size))
