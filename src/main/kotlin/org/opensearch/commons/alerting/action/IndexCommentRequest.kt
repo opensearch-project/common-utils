@@ -7,6 +7,15 @@ import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
 import java.io.IOException
 
+/**
+ * Request to index/create a Comment
+ *
+ * entityId: the entity that the Comment is attached to and therefore associated with (e.g. in Alerting,
+ * the entity is an Alert). This field is expected to be non-blank if the request is to create a new Comment.
+ *
+ * commentId: the ID of an existing Comment. This field is expected to be non-blank if the request is to
+ * update an existing Comment.
+ */
 class IndexCommentRequest : ActionRequest {
     val entityId: String
     val commentId: String
@@ -42,6 +51,11 @@ class IndexCommentRequest : ActionRequest {
     )
 
     override fun validate(): ActionRequestValidationException? {
+        if (method == RestRequest.Method.POST && entityId.isBlank() ||
+            method == RestRequest.Method.PUT && commentId.isBlank()
+        ) {
+            return ActionRequestValidationException()
+        }
         return null
     }
 

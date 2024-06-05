@@ -8,25 +8,25 @@ import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 
 class DeleteCommentResponse : BaseResponse {
-    var id: String
+    var commentId: String
 
     constructor(
         id: String
     ) : super() {
-        this.id = id
+        this.commentId = id
     }
 
     constructor(sin: StreamInput) : this(
-        sin.readString() // id
+        sin.readString() // commentId
     )
 
     override fun writeTo(out: StreamOutput) {
-        out.writeString(id)
+        out.writeString(commentId)
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         return builder.startObject()
-            .field(IndexUtils._ID, id)
+            .field(IndexUtils._ID, commentId)
             .endObject()
     }
 }

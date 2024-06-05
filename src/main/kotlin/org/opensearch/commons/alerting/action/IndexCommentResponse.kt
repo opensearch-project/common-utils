@@ -12,7 +12,6 @@ import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
 
 class IndexCommentResponse : BaseResponse {
-    // TODO: do we really need sequence num and primary term? probs delete em
     var id: String
     var seqNo: Long
     var primaryTerm: Long

@@ -8,7 +8,7 @@ import org.opensearch.core.common.io.stream.StreamInput
 
 class DeleteCommentRequestTests {
     @Test
-    fun `test delete comment request`() {
+    fun `test delete comment request writing and parsing`() {
         val req = DeleteCommentRequest("1234")
         assertNotNull(req)
         assertEquals("1234", req.commentId)

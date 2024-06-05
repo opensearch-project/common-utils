@@ -19,6 +19,9 @@ class DeleteCommentRequest : ActionRequest {
     )
 
     override fun validate(): ActionRequestValidationException? {
+        if (commentId.isBlank()) {
+            return ActionRequestValidationException()
+        }
         return null
     }
 
