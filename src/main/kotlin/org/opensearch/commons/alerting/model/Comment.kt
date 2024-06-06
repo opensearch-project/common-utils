@@ -32,11 +32,7 @@ data class Comment(
         content = sin.readString(),
         createdTime = sin.readInstant(),
         lastUpdatedTime = sin.readOptionalInstant(),
-        user = if (sin.readBoolean()) {
-            User(sin)
-        } else {
-            null
-        }
+        user = if (sin.readBoolean()) User(sin) else null
     )
 
     constructor(
