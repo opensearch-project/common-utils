@@ -54,7 +54,9 @@ class IndexCommentRequest : ActionRequest {
         if (method == RestRequest.Method.POST && entityId.isBlank() ||
             method == RestRequest.Method.PUT && commentId.isBlank()
         ) {
-            return ActionRequestValidationException()
+            val exception = ActionRequestValidationException()
+            exception.addValidationError("id must not be blank")
+            return exception
         }
         return null
     }

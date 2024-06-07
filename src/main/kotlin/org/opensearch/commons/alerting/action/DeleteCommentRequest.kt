@@ -20,7 +20,9 @@ class DeleteCommentRequest : ActionRequest {
 
     override fun validate(): ActionRequestValidationException? {
         if (commentId.isBlank()) {
-            return ActionRequestValidationException()
+            val exception = ActionRequestValidationException()
+            exception.addValidationError("comment id must not be blank")
+            return exception
         }
         return null
     }
