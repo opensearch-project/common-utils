@@ -7,7 +7,6 @@ package org.opensearch.commons.utils
 
 import org.opensearch.common.xcontent.XContentFactory
 import org.opensearch.common.xcontent.XContentType
-import org.opensearch.commons.alerting.model.CorrelationAlert
 import org.opensearch.core.xcontent.DeprecationHandler
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
@@ -17,11 +16,7 @@ import java.io.ByteArrayOutputStream
 fun getJsonString(xContent: ToXContent): String {
     ByteArrayOutputStream().use { byteArrayOutputStream ->
         val builder = XContentFactory.jsonBuilder(byteArrayOutputStream)
-        if (xContent is CorrelationAlert) {
-            xContent.toXContent(builder)
-        } else {
-            xContent.toXContent(builder, ToXContent.EMPTY_PARAMS)
-        }
+        xContent.toXContent(builder, ToXContent.EMPTY_PARAMS)
         builder.close()
         return byteArrayOutputStream.toString("UTF8")
     }
