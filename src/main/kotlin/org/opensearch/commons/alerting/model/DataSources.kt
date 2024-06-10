@@ -80,7 +80,7 @@ data class DataSources(
         alertsIndex = sin.readString(),
         alertsHistoryIndex = sin.readOptionalString(),
         alertsHistoryIndexPattern = sin.readOptionalString(),
-        commentsIndex = sin.readString(),
+        commentsIndex = sin.readOptionalString(),
         commentsIndexPattern = sin.readOptionalString(),
         queryIndexMappingsByType = sin.readMap() as Map<String, Map<String, String>>,
         findingsEnabled = sin.readOptionalBoolean()
@@ -208,7 +208,7 @@ data class DataSources(
         out.writeString(alertsIndex)
         out.writeOptionalString(alertsHistoryIndex)
         out.writeOptionalString(alertsHistoryIndexPattern)
-        out.writeString(commentsIndex)
+        out.writeOptionalString(commentsIndex)
         out.writeOptionalString(commentsIndexPattern)
         out.writeMap(queryIndexMappingsByType as Map<String, Any>)
         out.writeOptionalBoolean(findingsEnabled)
