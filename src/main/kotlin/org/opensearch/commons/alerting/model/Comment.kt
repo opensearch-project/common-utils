@@ -19,16 +19,17 @@ import java.time.Instant
 data class Comment(
     val id: String = NO_ID,
     val entityId: String = NO_ID,
+    val entityType: String,
     val content: String,
     val createdTime: Instant,
     val lastUpdatedTime: Instant?,
     val user: User?
 ) : Writeable, ToXContent {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         id = sin.readString(),
         entityId = sin.readString(),
+        entityType = sin.readString(),
         content = sin.readString(),
         createdTime = sin.readInstant(),
         lastUpdatedTime = sin.readOptionalInstant(),
@@ -37,21 +38,32 @@ data class Comment(
 
     constructor(
         entityId: String,
+        entityType: String,
         content: String,
         createdTime: Instant,
         user: User?
     ) : this (
         entityId = entityId,
+        entityType = entityType,
         content = content,
         createdTime = createdTime,
         lastUpdatedTime = null,
         user = user
     )
 
+    enum class EntityType(val value: String) {
+        ALERT("alert");
+
+        override fun toString(): String {
+            return value
+        }
+    }
+
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         out.writeString(id)
         out.writeString(entityId)
+        out.writeString(entityType)
         out.writeString(content)
         out.writeInstant(createdTime)
         out.writeOptionalInstant(lastUpdatedTime)
@@ -63,6 +75,7 @@ data class Comment(
         return mapOf<String, Any?>(
             _ID to id,
             ENTITY_ID_FIELD to entityId,
+            ENTITY_TYPE_FIELD to entityType,
             COMMENT_CONTENT_FIELD to content,
             COMMENT_CREATED_TIME_FIELD to createdTime,
             COMMENT_LAST_UPDATED_TIME_FIELD to lastUpdatedTime,
@@ -83,6 +96,7 @@ data class Comment(
     private fun createXContentBuilder(builder: XContentBuilder, includeFullUser: Boolean): XContentBuilder {
         builder.startObject()
             .field(ENTITY_ID_FIELD, entityId)
+            .field(ENTITY_TYPE_FIELD, entityType)
             .field(COMMENT_CONTENT_FIELD, content)
             .optionalTimeField(COMMENT_CREATED_TIME_FIELD, createdTime)
             .optionalTimeField(COMMENT_LAST_UPDATED_TIME_FIELD, lastUpdatedTime)
@@ -101,6 +115,7 @@ data class Comment(
 
     companion object {
         const val ENTITY_ID_FIELD = "entity_id"
+        const val ENTITY_TYPE_FIELD = "entity_type"
         const val COMMENT_CONTENT_FIELD = "content"
         const val COMMENT_CREATED_TIME_FIELD = "created_time"
         const val COMMENT_LAST_UPDATED_TIME_FIELD = "last_updated_time"
@@ -112,6 +127,7 @@ data class Comment(
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID): Comment {
             lateinit var entityId: String
+            lateinit var entityType: String
             var content = ""
             lateinit var createdTime: Instant
             var lastUpdatedTime: Instant? = null
@@ -124,6 +140,7 @@ data class Comment(
 
                 when (fieldName) {
                     ENTITY_ID_FIELD -> entityId = xcp.text()
+                    ENTITY_TYPE_FIELD -> entityType = xcp.text()
                     COMMENT_CONTENT_FIELD -> content = xcp.text()
                     COMMENT_CREATED_TIME_FIELD -> createdTime = requireNotNull(xcp.instant())
                     COMMENT_LAST_UPDATED_TIME_FIELD -> lastUpdatedTime = xcp.instant()
@@ -139,6 +156,7 @@ data class Comment(
             return Comment(
                 id = id,
                 entityId = entityId,
+                entityType = entityType,
                 content = content,
                 createdTime = createdTime,
                 lastUpdatedTime = lastUpdatedTime,

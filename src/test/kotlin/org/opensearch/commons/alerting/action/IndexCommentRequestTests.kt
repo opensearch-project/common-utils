@@ -10,7 +10,7 @@ import org.opensearch.rest.RestRequest
 class IndexCommentRequestTests {
     @Test
     fun `test index comment post request`() {
-        val req = IndexCommentRequest("123", "456", 1L, 2L, RestRequest.Method.POST, "comment")
+        val req = IndexCommentRequest("123", "alert", "456", 1L, 2L, RestRequest.Method.POST, "comment")
         assertNotNull(req)
         val out = BytesStreamOutput()
         req.writeTo(out)
@@ -26,7 +26,7 @@ class IndexCommentRequestTests {
 
     @Test
     fun `test index comment put request`() {
-        val req = IndexCommentRequest("123", "456", 1L, 2L, RestRequest.Method.PUT, "comment")
+        val req = IndexCommentRequest("123", "alert", "456", 1L, 2L, RestRequest.Method.PUT, "comment")
         assertNotNull(req)
         val out = BytesStreamOutput()
         req.writeTo(out)
