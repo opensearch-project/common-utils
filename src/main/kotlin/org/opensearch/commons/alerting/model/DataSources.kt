@@ -86,7 +86,6 @@ data class DataSources(
         findingsEnabled = sin.readOptionalBoolean()
     )
 
-    @Throws(IOException::class)
     constructor(
         queryIndex: String,
         findingsIndex: String,
