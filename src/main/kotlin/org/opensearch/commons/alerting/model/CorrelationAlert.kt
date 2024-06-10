@@ -3,6 +3,7 @@ package org.opensearch.commons.alerting.model
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
@@ -59,7 +60,7 @@ class CorrelationAlert : BaseAlert {
     }
 
     // Override to include CorrelationAlert specific fields
-    fun toXContent(builder: XContentBuilder): XContentBuilder {
+    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         builder.startObject()
             .startArray(CORRELATED_FINDING_IDS)
         correlatedFindingIds.forEach { id ->
@@ -90,9 +91,9 @@ class CorrelationAlert : BaseAlert {
         return superTemplateArgs + correlationSpecificArgs
     }
     companion object {
-        const val CORRELATED_FINDING_IDS = "correlatedFindingIds"
-        const val CORRELATION_RULE_ID = "correlationRuleId"
-        const val CORRELATION_RULE_NAME = "correlationRuleName"
+        const val CORRELATED_FINDING_IDS = "correlated_findingIds"
+        const val CORRELATION_RULE_ID = "correlation_rule_id"
+        const val CORRELATION_RULE_NAME = "correlation_rule_name"
 
         @JvmStatic
         @Throws(IOException::class)
