@@ -32,10 +32,10 @@ data class DataSources(
     val alertsHistoryIndexPattern: String? = "<.opendistro-alerting-alert-history-{now/d}-1>", // AlertIndices.ALERT_HISTORY_INDEX_PATTERN
 
     /** Configures a custom index alias to store comments associated with alerts.*/
-    val commentsIndex: String? = ".opensearch-alerting-comments-history-write", // AlertIndices.COMMENTS_HISTORY_WRITE_INDEX
+    val commentsIndex: String? = ".opensearch-alerting-comments-history-write", // CommentsIndices.COMMENTS_HISTORY_WRITE_INDEX
 
     /** Configures a custom index pattern for commentsIndex alias.*/
-    val commentsIndexPattern: String? = "<.opensearch-alerting-comments-history-{now/d}-1>", // AlertIndices.COMMENTS_HISTORY_INDEX_PATTERN
+    val commentsIndexPattern: String? = "<.opensearch-alerting-comments-history-{now/d}-1>", // CommentsIndices.COMMENTS_HISTORY_INDEX_PATTERN
 
     /** Configures custom mappings by field type for query index.
      * Custom query index mappings are configurable, only if a custom query index is configured too. */
