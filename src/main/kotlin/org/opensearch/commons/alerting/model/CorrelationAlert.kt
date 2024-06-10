@@ -91,7 +91,7 @@ class CorrelationAlert : BaseAlert {
         return superTemplateArgs + correlationSpecificArgs
     }
     companion object {
-        const val CORRELATED_FINDING_IDS = "correlated_findingIds"
+        const val CORRELATED_FINDING_IDS = "correlated_finding_ids"
         const val CORRELATION_RULE_ID = "correlation_rule_id"
         const val CORRELATION_RULE_NAME = "correlation_rule_name"
 
