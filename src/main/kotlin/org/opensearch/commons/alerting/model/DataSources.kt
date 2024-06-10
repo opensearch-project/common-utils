@@ -31,6 +31,12 @@ data class DataSources(
     /** Configures a custom index pattern for alertHistoryIndex alias.*/
     val alertsHistoryIndexPattern: String? = "<.opendistro-alerting-alert-history-{now/d}-1>", // AlertIndices.ALERT_HISTORY_INDEX_PATTERN
 
+    /** Configures a custom index alias to store comments associated with alerts.*/
+    val commentsIndex: String = ".opensearch-alerting-comments-history-write", // AlertIndices.COMMENTS_HISTORY_WRITE_INDEX
+
+    /** Configures a custom index pattern for commentsIndex alias.*/
+    val commentsIndexPattern: String? = "<.opensearch-alerting-comments-history-{now/d}-1>", // AlertIndices.COMMENTS_HISTORY_INDEX_PATTERN
+
     /** Configures custom mappings by field type for query index.
      * Custom query index mappings are configurable, only if a custom query index is configured too. */
     val queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf(),
@@ -49,6 +55,9 @@ data class DataSources(
         }
         require(alertsIndex.isNotEmpty()) {
             "Alerts index cannot be empty"
+        }
+        require(commentsIndex.isNotEmpty()) {
+            "Comments index cannot be empty"
         }
         if (queryIndexMappingsByType.isNotEmpty()) {
             require(queryIndex != ScheduledJob.DOC_LEVEL_QUERIES_INDEX) {
@@ -74,6 +83,8 @@ data class DataSources(
         alertsIndex = sin.readString(),
         alertsHistoryIndex = sin.readOptionalString(),
         alertsHistoryIndexPattern = sin.readOptionalString(),
+        commentsIndex = sin.readString(),
+        commentsIndexPattern = sin.readOptionalString(),
         queryIndexMappingsByType = sin.readMap() as Map<String, Map<String, String>>,
         findingsEnabled = sin.readOptionalBoolean()
     )
@@ -87,6 +98,8 @@ data class DataSources(
             ALERTS_INDEX_FIELD to alertsIndex,
             ALERTS_HISTORY_INDEX_FIELD to alertsHistoryIndex,
             ALERTS_HISTORY_INDEX_PATTERN_FIELD to alertsHistoryIndexPattern,
+            COMMENTS_INDEX_FIELD to commentsIndex,
+            COMMENTS_INDEX_PATTERN_FIELD to commentsIndexPattern,
             QUERY_INDEX_MAPPINGS_BY_TYPE to queryIndexMappingsByType,
             FINDINGS_ENABLED_FIELD to findingsEnabled
         )
@@ -100,6 +113,8 @@ data class DataSources(
         builder.field(ALERTS_INDEX_FIELD, alertsIndex)
         builder.field(ALERTS_HISTORY_INDEX_FIELD, alertsHistoryIndex)
         builder.field(ALERTS_HISTORY_INDEX_PATTERN_FIELD, alertsHistoryIndexPattern)
+        builder.field(COMMENTS_INDEX_FIELD, commentsIndex)
+        builder.field(COMMENTS_INDEX_PATTERN_FIELD, commentsIndexPattern)
         builder.field(QUERY_INDEX_MAPPINGS_BY_TYPE, queryIndexMappingsByType as Map<String, Any>)
         builder.field(FINDINGS_ENABLED_FIELD, findingsEnabled)
         builder.endObject()
@@ -113,6 +128,8 @@ data class DataSources(
         const val ALERTS_INDEX_FIELD = "alerts_index"
         const val ALERTS_HISTORY_INDEX_FIELD = "alerts_history_index"
         const val ALERTS_HISTORY_INDEX_PATTERN_FIELD = "alerts_history_index_pattern"
+        const val COMMENTS_INDEX_FIELD = "comments_index"
+        const val COMMENTS_INDEX_PATTERN_FIELD = "comments_index_pattern"
         const val QUERY_INDEX_MAPPINGS_BY_TYPE = "query_index_mappings_by_type"
         const val FINDINGS_ENABLED_FIELD = "findings_enabled"
 
@@ -126,6 +143,8 @@ data class DataSources(
             var alertsIndex = ""
             var alertsHistoryIndex = ""
             var alertsHistoryIndexPattern = ""
+            var commentsIndex = ""
+            var commentsIndexPattern = ""
             var queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf()
             var findingsEnabled = false
 
@@ -141,6 +160,8 @@ data class DataSources(
                     ALERTS_INDEX_FIELD -> alertsIndex = xcp.text()
                     ALERTS_HISTORY_INDEX_FIELD -> alertsHistoryIndex = xcp.text()
                     ALERTS_HISTORY_INDEX_PATTERN_FIELD -> alertsHistoryIndexPattern = xcp.text()
+                    COMMENTS_INDEX_FIELD -> commentsIndex = xcp.text()
+                    COMMENTS_INDEX_PATTERN_FIELD -> commentsIndexPattern = xcp.text()
                     QUERY_INDEX_MAPPINGS_BY_TYPE -> queryIndexMappingsByType = xcp.map() as Map<String, Map<String, String>>
                     FINDINGS_ENABLED_FIELD -> findingsEnabled = xcp.booleanValue()
                 }
@@ -152,6 +173,8 @@ data class DataSources(
                 alertsIndex = alertsIndex,
                 alertsHistoryIndex = alertsHistoryIndex,
                 alertsHistoryIndexPattern = alertsHistoryIndexPattern,
+                commentsIndex = commentsIndex,
+                commentsIndexPattern = commentsIndexPattern,
                 queryIndexMappingsByType = queryIndexMappingsByType,
                 findingsEnabled = findingsEnabled
             )
@@ -166,6 +189,8 @@ data class DataSources(
         out.writeString(alertsIndex)
         out.writeOptionalString(alertsHistoryIndex)
         out.writeOptionalString(alertsHistoryIndexPattern)
+        out.writeString(commentsIndex)
+        out.writeOptionalString(commentsIndexPattern)
         out.writeMap(queryIndexMappingsByType as Map<String, Any>)
         out.writeOptionalBoolean(findingsEnabled)
     }
