@@ -32,10 +32,10 @@ data class DataSources(
     val alertsHistoryIndexPattern: String? = "<.opendistro-alerting-alert-history-{now/d}-1>", // AlertIndices.ALERT_HISTORY_INDEX_PATTERN
 
     /** Configures a custom index alias to store comments associated with alerts.*/
-    val commentsIndex: String = ".opensearch-alerting-comments-history-write", // AlertIndices.COMMENTS_HISTORY_WRITE_INDEX
+    val commentsIndex: String? = ".opensearch-alerting-comments-history-write", // CommentsIndices.COMMENTS_HISTORY_WRITE_INDEX
 
     /** Configures a custom index pattern for commentsIndex alias.*/
-    val commentsIndexPattern: String? = "<.opensearch-alerting-comments-history-{now/d}-1>", // AlertIndices.COMMENTS_HISTORY_INDEX_PATTERN
+    val commentsIndexPattern: String? = "<.opensearch-alerting-comments-history-{now/d}-1>", // CommentsIndices.COMMENTS_HISTORY_INDEX_PATTERN
 
     /** Configures custom mappings by field type for query index.
      * Custom query index mappings are configurable, only if a custom query index is configured too. */
@@ -55,9 +55,6 @@ data class DataSources(
         }
         require(alertsIndex.isNotEmpty()) {
             "Alerts index cannot be empty"
-        }
-        require(commentsIndex.isNotEmpty()) {
-            "Comments index cannot be empty"
         }
         if (queryIndexMappingsByType.isNotEmpty()) {
             require(queryIndex != ScheduledJob.DOC_LEVEL_QUERIES_INDEX) {
@@ -83,10 +80,32 @@ data class DataSources(
         alertsIndex = sin.readString(),
         alertsHistoryIndex = sin.readOptionalString(),
         alertsHistoryIndexPattern = sin.readOptionalString(),
-        commentsIndex = sin.readString(),
+        commentsIndex = sin.readOptionalString(),
         commentsIndexPattern = sin.readOptionalString(),
         queryIndexMappingsByType = sin.readMap() as Map<String, Map<String, String>>,
         findingsEnabled = sin.readOptionalBoolean()
+    )
+
+    constructor(
+        queryIndex: String,
+        findingsIndex: String,
+        findingsIndexPattern: String?,
+        alertsIndex: String,
+        alertsHistoryIndex: String?,
+        alertsHistoryIndexPattern: String?,
+        queryIndexMappingsByType: Map<String, Map<String, String>>,
+        findingsEnabled: Boolean?
+    ) : this(
+        queryIndex = queryIndex,
+        findingsIndex = findingsIndex,
+        findingsIndexPattern = findingsIndexPattern,
+        alertsIndex = alertsIndex,
+        alertsHistoryIndex = alertsHistoryIndex,
+        alertsHistoryIndexPattern = alertsHistoryIndexPattern,
+        commentsIndex = null,
+        commentsIndexPattern = null,
+        queryIndexMappingsByType = queryIndexMappingsByType,
+        findingsEnabled = findingsEnabled
     )
 
     @Suppress("UNCHECKED_CAST")
@@ -189,7 +208,7 @@ data class DataSources(
         out.writeString(alertsIndex)
         out.writeOptionalString(alertsHistoryIndex)
         out.writeOptionalString(alertsHistoryIndexPattern)
-        out.writeString(commentsIndex)
+        out.writeOptionalString(commentsIndex)
         out.writeOptionalString(commentsIndexPattern)
         out.writeMap(queryIndexMappingsByType as Map<String, Any>)
         out.writeOptionalBoolean(findingsEnabled)
