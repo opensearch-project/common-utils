@@ -51,14 +51,6 @@ data class Comment(
         user = user
     )
 
-    enum class EntityType(val value: String) {
-        ALERT("alert");
-
-        override fun toString(): String {
-            return value
-        }
-    }
-
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         out.writeString(id)
