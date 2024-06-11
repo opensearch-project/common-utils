@@ -10,13 +10,14 @@ import org.opensearch.rest.RestRequest
 class IndexCommentRequestTests {
     @Test
     fun `test index comment post request`() {
-        val req = IndexCommentRequest("123", "456", 1L, 2L, RestRequest.Method.POST, "comment")
+        val req = IndexCommentRequest("123", "alert", "456", 1L, 2L, RestRequest.Method.POST, "comment")
         assertNotNull(req)
         val out = BytesStreamOutput()
         req.writeTo(out)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newReq = IndexCommentRequest(sin)
         assertEquals("123", newReq.entityId)
+        assertEquals("alert", newReq.entityType)
         assertEquals("456", newReq.commentId)
         assertEquals(1L, newReq.seqNo)
         assertEquals(2L, newReq.primaryTerm)
@@ -26,13 +27,14 @@ class IndexCommentRequestTests {
 
     @Test
     fun `test index comment put request`() {
-        val req = IndexCommentRequest("123", "456", 1L, 2L, RestRequest.Method.PUT, "comment")
+        val req = IndexCommentRequest("123", "alert", "456", 1L, 2L, RestRequest.Method.PUT, "comment")
         assertNotNull(req)
         val out = BytesStreamOutput()
         req.writeTo(out)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newReq = IndexCommentRequest(sin)
         assertEquals("123", newReq.entityId)
+        assertEquals("alert", newReq.entityType)
         assertEquals("456", newReq.commentId)
         assertEquals(1L, newReq.seqNo)
         assertEquals(2L, newReq.primaryTerm)
