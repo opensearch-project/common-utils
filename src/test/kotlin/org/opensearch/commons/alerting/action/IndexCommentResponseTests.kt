@@ -13,7 +13,7 @@ class IndexCommentResponseTests {
     fun `test index comment response with comment`() {
         val comment = Comment(
             "123",
-            Comment.EntityType.ALERT.value,
+            "alert",
             "456",
             "comment",
             Instant.now(),
