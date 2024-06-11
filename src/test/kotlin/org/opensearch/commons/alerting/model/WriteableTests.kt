@@ -370,6 +370,30 @@ class WriteableTests {
         Assert.assertEquals("Round tripping DocLevelMonitorInput failed", newDocLevelMonitorInput, docLevelMonitorInput)
     }
 
+    @Test
+    fun `test Comment object`() {
+        val user = randomUser()
+        val comment = Comment(
+            "123",
+            "456",
+            "alert",
+            "content",
+            Instant.now(),
+            null,
+            user
+        )
+        Assertions.assertNotNull(comment)
+        val out = BytesStreamOutput()
+        comment.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newComment = Comment(sin)
+        Assertions.assertEquals("123", newComment.id)
+        Assertions.assertEquals("456", newComment.entityId)
+        Assertions.assertEquals("alert", newComment.entityType)
+        Assertions.assertEquals("content", newComment.content)
+        Assertions.assertEquals(user, newComment.user)
+    }
+
     fun randomDocumentLevelTriggerRunResult(): DocumentLevelTriggerRunResult {
         val map = mutableMapOf<String, ActionRunResult>()
         map.plus(Pair("key1", randomActionRunResult()))
