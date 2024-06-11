@@ -652,8 +652,8 @@ fun createUnifiedAlertTemplateArgs(unifiedAlert: BaseAlert): Map<String, Any?> {
 fun createCorrelationAlertTemplateArgs(correlationAlert: CorrelationAlert): Map<String, Any?> {
     val unifiedAlertTemplateArgs = createUnifiedAlertTemplateArgs(correlationAlert)
     return unifiedAlertTemplateArgs + mapOf(
-        "correlatedFindingIds" to correlationAlert.correlatedFindingIds,
-        "correlationRuleId" to correlationAlert.correlationRuleId,
-        "correlationRuleName" to correlationAlert.correlationRuleName
+        CorrelationAlert.CORRELATED_FINDING_IDS to correlationAlert.correlatedFindingIds,
+        CorrelationAlert.CORRELATION_RULE_ID to correlationAlert.correlationRuleId,
+        CorrelationAlert.CORRELATION_RULE_NAME to correlationAlert.correlationRuleName
     )
 }

@@ -3,7 +3,6 @@ package org.opensearch.commons.alerting.model
 import org.opensearch.common.lucene.uid.Versions
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 import org.opensearch.commons.alerting.util.instant
-import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.commons.alerting.util.optionalUserField
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.common.io.stream.StreamInput
@@ -85,17 +84,17 @@ open class BaseAlert(
 
     companion object {
         const val ALERT_ID_FIELD = "id"
-        const val SCHEMA_VERSION_FIELD = "schemaVersion"
+        const val SCHEMA_VERSION_FIELD = "schema_version"
         const val ALERT_VERSION_FIELD = "version"
         const val USER_FIELD = "user"
-        const val TRIGGER_NAME_FIELD = "triggerName"
+        const val TRIGGER_NAME_FIELD = "trigger_name"
         const val STATE_FIELD = "state"
-        const val START_TIME_FIELD = "startTime"
-        const val END_TIME_FIELD = "endTime"
-        const val ACKNOWLEDGED_TIME_FIELD = "acknowledgedTime"
-        const val ERROR_MESSAGE_FIELD = "errorMessage"
+        const val START_TIME_FIELD = "start_time"
+        const val END_TIME_FIELD = "end_time"
+        const val ACKNOWLEDGED_TIME_FIELD = "acknowledged_time"
+        const val ERROR_MESSAGE_FIELD = "error_message"
         const val SEVERITY_FIELD = "severity"
-        const val ACTION_EXECUTION_RESULTS_FIELD = "actionExecutionResults"
+        const val ACTION_EXECUTION_RESULTS_FIELD = "action_execution_results"
         const val NO_ID = ""
         const val NO_VERSION = Versions.NOT_FOUND
 
@@ -138,7 +137,7 @@ open class BaseAlert(
                         }
                     }
                     START_TIME_FIELD -> startTime = requireNotNull(xcp.instant())
-                    END_TIME_FIELD -> endTime = xcp.instant()
+                    END_TIME_FIELD -> endTime = requireNotNull(xcp.instant())
                     ACKNOWLEDGED_TIME_FIELD -> acknowledgedTime = xcp.instant()
                 }
             }
@@ -178,7 +177,8 @@ open class BaseAlert(
         if (!secure) {
             builder.optionalUserField(USER_FIELD, user)
         }
-        builder.field(ALERT_ID_FIELD, id)
+        builder
+            .field(ALERT_ID_FIELD, id)
             .field(ALERT_VERSION_FIELD, version)
             .field(SCHEMA_VERSION_FIELD, schemaVersion)
             .field(TRIGGER_NAME_FIELD, triggerName)
@@ -186,9 +186,9 @@ open class BaseAlert(
             .field(ERROR_MESSAGE_FIELD, errorMessage)
             .field(SEVERITY_FIELD, severity)
             .field(ACTION_EXECUTION_RESULTS_FIELD, actionExecutionResults.toTypedArray())
-            .optionalTimeField(START_TIME_FIELD, startTime)
-            .optionalTimeField(END_TIME_FIELD, endTime)
-            .optionalTimeField(ACKNOWLEDGED_TIME_FIELD, acknowledgedTime)
+            .field(START_TIME_FIELD, startTime)
+            .field(END_TIME_FIELD, endTime)
+            .field(ACKNOWLEDGED_TIME_FIELD, acknowledgedTime)
         return builder
     }
 
