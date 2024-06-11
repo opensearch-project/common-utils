@@ -593,4 +593,22 @@ class XContentTests {
         val parsedDataSources = DataSources.parse(parser(dataSourcesString))
         Assertions.assertEquals(dataSources, parsedDataSources, "Round tripping DataSources doesn't work")
     }
+
+    @Test
+    fun `test Comment parsing`() {
+        val comment = Comment(
+            "123",
+            "456",
+            "alert",
+            "content",
+            Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            null,
+            randomUser()
+        )
+        Assertions.assertNotNull(comment)
+
+        val commentString = comment.toXContentWithUser(builder()).string()
+        val parsedComment = Comment.parse(parser(commentString), "123")
+        Assertions.assertEquals(comment, parsedComment, "Round tripping Comment doesn't work")
+    }
 }
