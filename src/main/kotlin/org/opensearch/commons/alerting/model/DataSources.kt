@@ -179,8 +179,8 @@ data class DataSources(
                     ALERTS_INDEX_FIELD -> alertsIndex = xcp.text()
                     ALERTS_HISTORY_INDEX_FIELD -> alertsHistoryIndex = xcp.text()
                     ALERTS_HISTORY_INDEX_PATTERN_FIELD -> alertsHistoryIndexPattern = xcp.text()
-                    COMMENTS_INDEX_FIELD -> commentsIndex = xcp.text()
-                    COMMENTS_INDEX_PATTERN_FIELD -> commentsIndexPattern = xcp.text()
+                    COMMENTS_INDEX_FIELD -> commentsIndex = xcp.textOrNull()
+                    COMMENTS_INDEX_PATTERN_FIELD -> commentsIndexPattern = xcp.textOrNull()
                     QUERY_INDEX_MAPPINGS_BY_TYPE -> queryIndexMappingsByType = xcp.map() as Map<String, Map<String, String>>
                     FINDINGS_ENABLED_FIELD -> findingsEnabled = xcp.booleanValue()
                 }
