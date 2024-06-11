@@ -574,4 +574,23 @@ class XContentTests {
         val parsedDocLevelMonitorInput = parsedRemoteDocLevelMonitorInput.docLevelMonitorInput
         assertEquals("Round tripping RemoteDocLevelMonitorInput doesn't work", docLevelMonitorInput, parsedDocLevelMonitorInput)
     }
+
+    @Test
+    fun `test DataSources parsing`() {
+        val dataSources = DataSources(
+            ScheduledJob.DOC_LEVEL_QUERIES_INDEX,
+            ".opensearch-alerting-finding-history-write",
+            "<.opensearch-alerting-finding-history-{now/d}-1>",
+            ".opendistro-alerting-alerts",
+            ".opendistro-alerting-alert-history-write",
+            "<.opendistro-alerting-alert-history-{now/d}-1>",
+            mapOf(),
+            false
+        )
+        Assertions.assertNotNull(dataSources)
+
+        val dataSourcesString = dataSources.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedDataSources = DataSources.parse(parser(dataSourcesString))
+        Assertions.assertEquals(dataSources, parsedDataSources, "Round tripping DataSources doesn't work")
+    }
 }
