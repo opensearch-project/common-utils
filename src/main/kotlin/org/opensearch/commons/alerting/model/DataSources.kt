@@ -31,6 +31,12 @@ data class DataSources(
     /** Configures a custom index pattern for alertHistoryIndex alias.*/
     val alertsHistoryIndexPattern: String? = "<.opendistro-alerting-alert-history-{now/d}-1>", // AlertIndices.ALERT_HISTORY_INDEX_PATTERN
 
+    /** Configures a custom index alias to store comments associated with alerts.*/
+    val commentsIndex: String? = DEFAULT_COMMENTS_INDEX, // CommentsIndices.COMMENTS_HISTORY_WRITE_INDEX
+
+    /** Configures a custom index pattern for commentsIndex alias.*/
+    val commentsIndexPattern: String? = DEFAULT_COMMENTS_INDEX_PATTERN, // CommentsIndices.COMMENTS_HISTORY_INDEX_PATTERN
+
     /** Configures custom mappings by field type for query index.
      * Custom query index mappings are configurable, only if a custom query index is configured too. */
     val queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf(),
@@ -78,6 +84,28 @@ data class DataSources(
         findingsEnabled = sin.readOptionalBoolean()
     )
 
+    constructor(
+        queryIndex: String,
+        findingsIndex: String,
+        findingsIndexPattern: String?,
+        alertsIndex: String,
+        alertsHistoryIndex: String?,
+        alertsHistoryIndexPattern: String?,
+        queryIndexMappingsByType: Map<String, Map<String, String>>,
+        findingsEnabled: Boolean?
+    ) : this(
+        queryIndex = queryIndex,
+        findingsIndex = findingsIndex,
+        findingsIndexPattern = findingsIndexPattern,
+        alertsIndex = alertsIndex,
+        alertsHistoryIndex = alertsHistoryIndex,
+        alertsHistoryIndexPattern = alertsHistoryIndexPattern,
+        commentsIndex = DEFAULT_COMMENTS_INDEX,
+        commentsIndexPattern = DEFAULT_COMMENTS_INDEX_PATTERN,
+        queryIndexMappingsByType = queryIndexMappingsByType,
+        findingsEnabled = findingsEnabled
+    )
+
     @Suppress("UNCHECKED_CAST")
     fun asTemplateArg(): Map<String, Any?> {
         return mapOf(
@@ -115,6 +143,9 @@ data class DataSources(
         const val ALERTS_HISTORY_INDEX_PATTERN_FIELD = "alerts_history_index_pattern"
         const val QUERY_INDEX_MAPPINGS_BY_TYPE = "query_index_mappings_by_type"
         const val FINDINGS_ENABLED_FIELD = "findings_enabled"
+
+        const val DEFAULT_COMMENTS_INDEX = ".opensearch-alerting-comments-history-write"
+        const val DEFAULT_COMMENTS_INDEX_PATTERN = "<.opensearch-alerting-comments-history-{now/d}-1>"
 
         @JvmStatic
         @Throws(IOException::class)
