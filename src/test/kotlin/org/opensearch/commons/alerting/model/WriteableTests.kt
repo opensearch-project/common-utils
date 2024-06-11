@@ -373,12 +373,13 @@ class WriteableTests {
     @Test
     fun `test Comment object`() {
         val user = randomUser()
+        val createdTime = Instant.now()
         val comment = Comment(
             "123",
             "456",
             "alert",
             "content",
-            Instant.now(),
+            createdTime,
             null,
             user
         )
@@ -391,6 +392,7 @@ class WriteableTests {
         Assertions.assertEquals("456", newComment.entityId)
         Assertions.assertEquals("alert", newComment.entityType)
         Assertions.assertEquals("content", newComment.content)
+        Assertions.assertEquals(createdTime, newComment.createdTime)
         Assertions.assertEquals(user, newComment.user)
     }
 
