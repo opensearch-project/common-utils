@@ -20,6 +20,7 @@ import org.opensearch.commons.alerting.randomUserEmpty
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.search.builder.SearchSourceBuilder
+import java.time.Instant
 import kotlin.test.assertTrue
 
 class WriteableTests {
@@ -189,5 +190,31 @@ class WriteableTests {
             newActionExecutionPolicy,
             "Round tripping ActionExecutionPolicy doesn't work"
         )
+    }
+
+    @Test
+    fun `test Comment object`() {
+        val user = randomUser()
+        val createdTime = Instant.now()
+        val comment = Comment(
+            "123",
+            "456",
+            "alert",
+            "content",
+            createdTime,
+            null,
+            user
+        )
+        Assertions.assertNotNull(comment)
+        val out = BytesStreamOutput()
+        comment.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newComment = Comment(sin)
+        Assertions.assertEquals("123", newComment.id)
+        Assertions.assertEquals("456", newComment.entityId)
+        Assertions.assertEquals("alert", newComment.entityType)
+        Assertions.assertEquals("content", newComment.content)
+        Assertions.assertEquals(createdTime, newComment.createdTime)
+        Assertions.assertEquals(user, newComment.user)
     }
 }
