@@ -9,7 +9,6 @@ class DeleteWorkflowRequestTests {
 
     @Test
     fun `test delete workflow request`() {
-
         val req = DeleteWorkflowRequest("1234", true)
         Assert.assertNotNull(req)
         Assert.assertEquals("1234", req.workflowId)

@@ -23,6 +23,7 @@ class AlertTests {
         assertEquals(templateArgs[Alert.START_TIME_FIELD], alert.startTime.toEpochMilli(), "Template args start time does not")
         assertEquals(templateArgs[Alert.LAST_NOTIFICATION_TIME_FIELD], null, "Template args last notification time does not match")
         assertEquals(templateArgs[Alert.SEVERITY_FIELD], alert.severity, "Template args severity does not match")
+        assertEquals(templateArgs[Alert.CLUSTERS_FIELD], alert.clusters?.joinToString(","), "Template args clusters does not match")
     }
 
     @Test
@@ -40,6 +41,7 @@ class AlertTests {
         assertEquals(templateArgs[Alert.START_TIME_FIELD], alert.startTime.toEpochMilli(), "Template args start time does not")
         assertEquals(templateArgs[Alert.LAST_NOTIFICATION_TIME_FIELD], null, "Template args last notification time does not match")
         assertEquals(templateArgs[Alert.SEVERITY_FIELD], alert.severity, "Template args severity does not match")
+        assertEquals(templateArgs[Alert.CLUSTERS_FIELD], alert.clusters?.joinToString(","), "Template args clusters does not match")
         assertEquals(
             templateArgs[Alert.BUCKET_KEYS],
             alert.aggregationResultBucket?.bucketKeys?.joinToString(","),
@@ -48,7 +50,7 @@ class AlertTests {
         assertEquals(
             templateArgs[Alert.PARENTS_BUCKET_PATH],
             alert.aggregationResultBucket?.parentBucketPath,
-            "Template args parentBucketPath does not match",
+            "Template args parentBucketPath does not match"
         )
     }
 
@@ -64,8 +66,11 @@ class AlertTests {
     @Test
     fun `test alert in audit state`() {
         val auditAlert = Alert(
-            randomQueryLevelMonitor(), randomQueryLevelTrigger(), Instant.now().truncatedTo(ChronoUnit.MILLIS),
-            null, actionExecutionResults = listOf(randomActionExecutionResult())
+            randomQueryLevelMonitor(),
+            randomQueryLevelTrigger(),
+            Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            null,
+            actionExecutionResults = listOf(randomActionExecutionResult())
         )
         Assertions.assertFalse(auditAlert.isAcknowledged(), "Alert should not be in acknowledged state")
     }

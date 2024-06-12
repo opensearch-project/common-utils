@@ -8,15 +8,15 @@ import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.index.query.QueryBuilders
 
 internal class GetFindingsRequestTests {
 
     @Test
     fun `test get findings request`() {
-
         val table = Table("asc", "sortString", null, 1, 0, "")
-
-        val req = GetFindingsRequest("2121", table, "1", "finding_index_name", listOf("1", "2"))
+        val boolQueryBuilder = QueryBuilders.boolQuery()
+        val req = GetFindingsRequest("2121", table, "1", "finding_index_name", listOf("1", "2"), boolQueryBuilder)
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -35,8 +35,8 @@ internal class GetFindingsRequestTests {
     @Test
     fun `test validate returns null`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
-
-        val req = GetFindingsRequest("2121", table, "1", "active")
+        val boolQueryBuilder = QueryBuilders.boolQuery()
+        val req = GetFindingsRequest("2121", table, "1", "active", listOf("1", "2"), boolQueryBuilder)
         assertNotNull(req)
         assertNull(req.validate())
     }

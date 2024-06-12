@@ -3,6 +3,7 @@ package org.opensearch.commons.alerting.model
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.http.client.utils.URIBuilder
 import org.opensearch.common.CheckedFunction
+import org.opensearch.commons.utils.CLUSTER_NAME_REGEX
 import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -13,6 +14,7 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.net.URI
+import java.net.URISyntaxException
 
 val ILLEGAL_PATH_PARAMETER_CHARACTERS = arrayOf(':', '"', '+', '\\', '|', '?', '#', '>', '<', ' ')
 
@@ -22,7 +24,8 @@ val ILLEGAL_PATH_PARAMETER_CHARACTERS = arrayOf(':', '"', '+', '\\', '|', '?', '
 data class ClusterMetricsInput(
     var path: String,
     var pathParams: String = "",
-    var url: String
+    var url: String,
+    var clusters: List<String> = listOf()
 ) : Input {
     val clusterMetricType: ClusterMetricType
     val constructedUri: URI
@@ -56,6 +59,12 @@ data class ClusterMetricsInput(
             "Only port '$SUPPORTED_PORT' is supported."
         }
 
+        if (clusters.isNotEmpty()) {
+            require(clusters.all { CLUSTER_NAME_REGEX.matches(it) }) {
+                "Cluster names are not valid."
+            }
+        }
+
         clusterMetricType = findApiType(constructedUri.path)
         this.parseEmptyFields()
     }
@@ -74,6 +83,7 @@ data class ClusterMetricsInput(
             .field(PATH_FIELD, path)
             .field(PATH_PARAMS_FIELD, pathParams)
             .field(URL_FIELD, url)
+            .field(CLUSTERS_FIELD, clusters)
             .endObject()
             .endObject()
     }
@@ -87,6 +97,7 @@ data class ClusterMetricsInput(
         out.writeString(path)
         out.writeString(pathParams)
         out.writeString(url)
+        out.writeStringArray(clusters.toTypedArray())
     }
 
     companion object {
@@ -99,6 +110,7 @@ data class ClusterMetricsInput(
         const val PATH_PARAMS_FIELD = "path_params"
         const val URL_FIELD = "url"
         const val URI_FIELD = "uri"
+        const val CLUSTERS_FIELD = "clusters"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(Input::class.java, ParseField(URI_FIELD), CheckedFunction { parseInner(it) })
 
@@ -111,6 +123,7 @@ data class ClusterMetricsInput(
             var path = ""
             var pathParams = ""
             var url = ""
+            val clusters = mutableListOf<String>()
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
 
@@ -121,9 +134,17 @@ data class ClusterMetricsInput(
                     PATH_FIELD -> path = xcp.text()
                     PATH_PARAMS_FIELD -> pathParams = xcp.text()
                     URL_FIELD -> url = xcp.text()
+                    CLUSTERS_FIELD -> {
+                        XContentParserUtils.ensureExpectedToken(
+                            XContentParser.Token.START_ARRAY,
+                            xcp.currentToken(),
+                            xcp
+                        )
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) clusters.add(xcp.text())
+                    }
                 }
             }
-            return ClusterMetricsInput(path, pathParams, url)
+            return ClusterMetricsInput(path, pathParams, url, clusters)
         }
     }
 
@@ -137,14 +158,18 @@ data class ClusterMetricsInput(
         return if (url.isEmpty()) {
             constructUrlFromInputs()
         } else {
-            URIBuilder(url).build()
+            try {
+                URIBuilder(url).build()
+            } catch (e: URISyntaxException) {
+                throw IllegalArgumentException("Invalid URL syntax.")
+            }
         }
     }
 
     /**
      * Isolates just the path parameters from the [ClusterMetricsInput] URI.
      * @return The path parameters portion of the [ClusterMetricsInput] URI.
-     * @throws IllegalArgumentException if the [ClusterMetricType] requires path parameters, but none are supplied;
+     * @throws [IllegalArgumentException] if the [ClusterMetricType] requires path parameters, but none are supplied;
      * or when path parameters are provided for an [ClusterMetricType] that does not use path parameters.
      */
     fun parsePathParams(): String {
@@ -165,7 +190,7 @@ data class ClusterMetricsInput(
             ILLEGAL_PATH_PARAMETER_CHARACTERS.forEach { character ->
                 if (pathParams.contains(character)) {
                     throw IllegalArgumentException(
-                        "The provided path parameters contain invalid characters or spaces. Please omit: " + "${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")}"
+                        "The provided path parameters contain invalid characters or spaces. Please omit: " + ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")
                     )
                 }
             }
@@ -185,7 +210,7 @@ data class ClusterMetricsInput(
      * Examines the path of a [ClusterMetricsInput] to determine which API is being called.
      * @param uriPath The path to examine.
      * @return The [ClusterMetricType] associated with the [ClusterMetricsInput] monitor.
-     * @throws IllegalArgumentException when the API to call cannot be determined from the URI.
+     * @throws [IllegalArgumentException] when the API to call cannot be determined from the URI.
      */
     private fun findApiType(uriPath: String): ClusterMetricType {
         var apiType = ClusterMetricType.BLANK
@@ -207,12 +232,27 @@ data class ClusterMetricsInput(
      * @return The constructed [URI].
      */
     private fun constructUrlFromInputs(): URI {
-        val uriBuilder = URIBuilder()
-            .setScheme(SUPPORTED_SCHEME)
-            .setHost(SUPPORTED_HOST)
-            .setPort(SUPPORTED_PORT)
-            .setPath(path + pathParams)
-        return uriBuilder.build()
+        /**
+         * this try-catch block is required due to a httpcomponents 5.1.x library issue
+         * it auto encodes path params in the url.
+         */
+        return try {
+            val formattedPath = if (path.startsWith("/") || path.isBlank()) path else "/$path"
+            val formattedPathParams = if (pathParams.startsWith("/") || pathParams.isBlank()) pathParams else "/$pathParams"
+            val uriBuilder = URIBuilder("$SUPPORTED_SCHEME://$SUPPORTED_HOST:$SUPPORTED_PORT$formattedPath$formattedPathParams")
+            uriBuilder.build()
+        } catch (ex: URISyntaxException) {
+            val uriBuilder = URIBuilder()
+                .setScheme(SUPPORTED_SCHEME)
+                .setHost(SUPPORTED_HOST)
+                .setPort(SUPPORTED_PORT)
+                .setPath(path + pathParams)
+            try {
+                uriBuilder.build()
+            } catch (e: URISyntaxException) {
+                throw IllegalArgumentException("Invalid URL syntax.")
+            }
+        }
     }
 
     /**

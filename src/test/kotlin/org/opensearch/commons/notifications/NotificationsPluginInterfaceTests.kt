@@ -202,7 +202,11 @@ internal class NotificationsPluginInterfaceTests {
         }.whenever(client).execute(any(ActionType::class.java), any(), any())
 
         NotificationsPluginInterface.sendNotification(
-            client, notificationInfo, channelMessage, listOf("channelId1", "channelId2"), listener
+            client,
+            notificationInfo,
+            channelMessage,
+            listOf("channelId1", "channelId2"),
+            listener
         )
         verify(listener, times(1)).onResponse(eq(response))
     }

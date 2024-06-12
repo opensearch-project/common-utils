@@ -21,6 +21,9 @@ object AlertingActions {
     const val SUBSCRIBE_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/subscribe"
     const val GET_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/get"
     const val SEARCH_MONITORS_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/search"
+    const val INDEX_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/alerts/comments/write"
+    const val SEARCH_COMMENTS_ACTION_NAME = "cluster:admin/opensearch/alerting/alerts/comments/search"
+    const val DELETE_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/alerts/comments/delete"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -29,6 +32,7 @@ object AlertingActions {
     @JvmField
     val INDEX_WORKFLOW_ACTION_TYPE =
         ActionType(INDEX_WORKFLOW_ACTION_NAME, ::IndexWorkflowResponse)
+
     @JvmField
     val GET_ALERTS_ACTION_TYPE =
         ActionType(GET_ALERTS_ACTION_NAME, ::GetAlertsResponse)
@@ -48,6 +52,7 @@ object AlertingActions {
     @JvmField
     val DELETE_WORKFLOW_ACTION_TYPE =
         ActionType(DELETE_WORKFLOW_ACTION_NAME, ::DeleteWorkflowResponse)
+
     @JvmField
     val GET_FINDINGS_ACTION_TYPE =
         ActionType(GET_FINDINGS_ACTION_NAME, ::GetFindingsResponse)
@@ -71,4 +76,16 @@ object AlertingActions {
     @JvmField
     val SEARCH_MONITORS_ACTION_TYPE =
         ActionType(SEARCH_MONITORS_ACTION_NAME, ::SearchResponse)
+
+    @JvmField
+    val INDEX_COMMENT_ACTION_TYPE =
+        ActionType(INDEX_COMMENT_ACTION_NAME, ::IndexCommentResponse)
+
+    @JvmField
+    val SEARCH_COMMENTS_ACTION_TYPE =
+        ActionType(SEARCH_COMMENTS_ACTION_NAME, ::SearchResponse)
+
+    @JvmField
+    val DELETE_COMMENT_ACTION_TYPE =
+        ActionType(DELETE_COMMENT_ACTION_NAME, ::DeleteCommentResponse)
 }

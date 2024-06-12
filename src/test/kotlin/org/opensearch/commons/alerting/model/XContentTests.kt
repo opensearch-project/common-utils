@@ -277,13 +277,15 @@ class XContentTests {
         val cmf1 = ChainedMonitorFindings(monitorId = "m1")
         val cmf1String = cmf1.toJsonString()
         Assertions.assertEquals(
-            ChainedMonitorFindings.parse(parser(cmf1String)), cmf1,
+            ChainedMonitorFindings.parse(parser(cmf1String)),
+            cmf1,
             "Round tripping chained monitor findings failed"
         )
         val cmf2 = ChainedMonitorFindings(monitorIds = listOf("m1", "m2"))
         val cmf2String = cmf2.toJsonString()
         Assertions.assertEquals(
-            ChainedMonitorFindings.parse(parser(cmf2String)), cmf2,
+            ChainedMonitorFindings.parse(parser(cmf2String)),
+            cmf2,
             "Round tripping chained monitor findings failed"
         )
     }
@@ -430,6 +432,18 @@ class XContentTests {
     }
 
     @Test
+    fun `test doc level query toXcontent with query field names`() {
+        val dlq = DocLevelQuery("id", "name", listOf("f1", "f2"), "query", listOf("t1", "t2"), listOf("f1", "f2"))
+        val dlqString = dlq.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedDlq = DocLevelQuery.parse(parser(dlqString))
+        Assertions.assertEquals(
+            dlq,
+            parsedDlq,
+            "Round tripping Doc level query doesn't work"
+        )
+    }
+
+    @Test
     fun `test alert parsing`() {
         val alert = randomAlert()
 
@@ -450,7 +464,8 @@ class XContentTests {
             errorMessage = "some error",
             lastNotificationTime = Instant.now(),
             workflowId = "",
-            executionId = ""
+            executionId = "",
+            clusters = listOf()
         )
         assertEquals("Round tripping alert doesn't work", alert.triggerName, "NoOp trigger")
     }
@@ -462,7 +477,8 @@ class XContentTests {
             "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
             ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
             "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
+            "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }
@@ -475,7 +491,8 @@ class XContentTests {
                 "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
                 ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
                 "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-                "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null}"
+                "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
+                "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }

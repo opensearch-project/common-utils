@@ -9,6 +9,26 @@ class ClusterMetricsInputTests {
     private var pathParams = ""
     private var url = ""
 
+    private val validClusters = listOf(
+        "cluster-name",
+        "cluster:name"
+    )
+
+    private val invalidClusters = listOf(
+        // Character length less than 1 should return FALSE
+        "",
+
+        // Character length greater than 255 should return FALSE
+        (0..255).joinToString(separator = "") { "a" },
+
+        // Invalid characters should return FALSE
+        "cluster-#name",
+        "cluster:#name",
+
+        // More than 1 `:` character should return FALSE
+        "bad:cluster:name"
+    )
+
     @Test
     fun `test valid ClusterMetricsInput creation using HTTP URI component fields`() {
         // GIVEN
@@ -21,6 +41,7 @@ class ClusterMetricsInputTests {
         assertEquals(path, clusterMetricsInput.path)
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(testUrl, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -34,6 +55,7 @@ class ClusterMetricsInputTests {
 
         // THEN
         assertEquals(url, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -47,6 +69,7 @@ class ClusterMetricsInputTests {
 
         // THEN
         assertEquals(url, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -84,12 +107,13 @@ class ClusterMetricsInputTests {
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(url, clusterMetricsInput.url)
         assertEquals(url, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
     fun `test url field and URI component fields with path params create equal URI`() {
         // GIVEN
-        path = "/_cluster/health/"
+        path = "/_cluster/health"
         pathParams = "index1,index2,index3,index4,index5"
         url = "http://localhost:9200/_cluster/health/index1,index2,index3,index4,index5"
 
@@ -101,6 +125,7 @@ class ClusterMetricsInputTests {
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(url, clusterMetricsInput.url)
         assertEquals(url, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -200,12 +225,13 @@ class ClusterMetricsInputTests {
         // THEN
         assertEquals(pathParams, params)
         assertEquals(testUrl, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
     fun `test parsePathParams with path params as URI field`() {
         // GIVEN
-        path = "/_cluster/health/"
+        path = "/_cluster/health"
         pathParams = "index1,index2,index3,index4,index5"
         val testUrl = "http://localhost:9200/_cluster/health/index1,index2,index3,index4,index5"
         val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
@@ -216,6 +242,7 @@ class ClusterMetricsInputTests {
         // THEN
         assertEquals(pathParams, params)
         assertEquals(testUrl, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -232,6 +259,7 @@ class ClusterMetricsInputTests {
         // THEN
         assertEquals(testParams, params)
         assertEquals(url, clusterMetricsInput.constructedUri.toString())
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
@@ -268,7 +296,7 @@ class ClusterMetricsInputTests {
 
             // WHEN + THEN
             assertFailsWith<IllegalArgumentException>(
-                "The provided path parameters contain invalid characters or spaces. Please omit: " + "${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")}"
+                "The provided path parameters contain invalid characters or spaces. Please omit: " + ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")
             ) {
                 clusterMetricsInput.parsePathParams()
             }
@@ -422,14 +450,15 @@ class ClusterMetricsInputTests {
         assertEquals(testPath, clusterMetricsInput.path)
         assertEquals(testPathParams, clusterMetricsInput.pathParams)
         assertEquals(url, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
     }
 
     @Test
     fun `test parseEmptyFields populates empty url field when path and path_params are provided`() {
         // GIVEN
-        path = "/_cluster/health/"
+        path = "/_cluster/health"
         pathParams = "index1,index2,index3,index4,index5"
-        val testUrl = "http://localhost:9200$path$pathParams"
+        val testUrl = "http://localhost:9200$path/$pathParams"
 
         // WHEN
         val clusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
@@ -438,5 +467,128 @@ class ClusterMetricsInputTests {
         assertEquals(path, clusterMetricsInput.path)
         assertEquals(pathParams, clusterMetricsInput.pathParams)
         assertEquals(testUrl, clusterMetricsInput.url)
+        assertEquals(emptyList(), clusterMetricsInput.clusters)
+    }
+
+    @Test
+    fun `test a single valid cluster`() {
+        validClusters.forEach {
+            // GIVEN
+            path = "/_cluster/health"
+            pathParams = "index1,index2,index3,index4,index5"
+            url = ""
+            val clusters = listOf(it)
+
+            // WHEN
+            val clusterMetricsInput = ClusterMetricsInput(
+                path = path,
+                pathParams = pathParams,
+                url = url,
+                clusters = clusters
+            )
+
+            // THEN
+            assertEquals(path, clusterMetricsInput.path)
+            assertEquals(pathParams, clusterMetricsInput.pathParams)
+            assertEquals(clusters, clusterMetricsInput.clusters)
+        }
+    }
+
+    @Test
+    fun `test multiple valid clusters`() {
+        // GIVEN
+        path = "/_cluster/health"
+        pathParams = "index1,index2,index3,index4,index5"
+        url = ""
+        val clusters = validClusters
+
+        // WHEN
+        val clusterMetricsInput = ClusterMetricsInput(
+            path = path,
+            pathParams = pathParams,
+            url = url,
+            clusters = clusters
+        )
+
+        // THEN
+        assertEquals(path, clusterMetricsInput.path)
+        assertEquals(pathParams, clusterMetricsInput.pathParams)
+        assertEquals(clusters, clusterMetricsInput.clusters)
+    }
+
+    @Test
+    fun `test a single invalid cluster`() {
+        invalidClusters.forEach {
+            // GIVEN
+            path = "/_cluster/health"
+            pathParams = "index1,index2,index3,index4,index5"
+            url = ""
+            val clusters = listOf(it)
+
+            // WHEN + THEN
+            assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
+                ClusterMetricsInput(
+                    path = path,
+                    pathParams = pathParams,
+                    url = url,
+                    clusters = clusters
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `test multiple invalid clusters`() {
+        // GIVEN
+        path = "/_cluster/health"
+        pathParams = "index1,index2,index3,index4,index5"
+        url = ""
+        val clusters = invalidClusters
+
+        // WHEN + THEN
+        assertFailsWith<IllegalArgumentException>("The API could not be determined from the provided URI.") {
+            ClusterMetricsInput(
+                path = path,
+                pathParams = pathParams,
+                url = url,
+                clusters = clusters
+            )
+        }
+    }
+
+    @Test
+    fun `test url field contains invalid characters`() {
+        // GIVEN
+        path = ""
+        pathParams = ""
+        url = "http://localhost:9200/${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString("")}"
+
+        // WHEN + THEN
+        assertFailsWith<IllegalArgumentException>("Invalid URL syntax.") {
+            ClusterMetricsInput(
+                path = path,
+                pathParams = pathParams,
+                url = url,
+                clusters = listOf()
+            )
+        }
+    }
+
+    @Test
+    fun `test URI fields provided and url contains invalid characters`() {
+        // GIVEN
+        path = "/_cluster/health"
+        pathParams = "index1,index2,index3,index4,index5"
+        url = "http://localhost:9200/${ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString("")}"
+
+        // WHEN + THEN
+        assertFailsWith<IllegalArgumentException>("Invalid URL syntax.") {
+            ClusterMetricsInput(
+                path = path,
+                pathParams = pathParams,
+                url = url,
+                clusters = listOf()
+            )
+        }
     }
 }
