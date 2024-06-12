@@ -18,6 +18,7 @@ import java.io.IOException
  */
 class IndexCommentRequest : ActionRequest {
     val entityId: String
+    val entityType: String
     val commentId: String
     val seqNo: Long
     val primaryTerm: Long
@@ -26,6 +27,7 @@ class IndexCommentRequest : ActionRequest {
 
     constructor(
         entityId: String,
+        entityType: String,
         commentId: String,
         seqNo: Long,
         primaryTerm: Long,
@@ -33,6 +35,7 @@ class IndexCommentRequest : ActionRequest {
         content: String
     ) : super() {
         this.entityId = entityId
+        this.entityType = entityType
         this.commentId = commentId
         this.seqNo = seqNo
         this.primaryTerm = primaryTerm
@@ -43,6 +46,7 @@ class IndexCommentRequest : ActionRequest {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         entityId = sin.readString(),
+        entityType = sin.readString(),
         commentId = sin.readString(),
         seqNo = sin.readLong(),
         primaryTerm = sin.readLong(),
@@ -64,6 +68,7 @@ class IndexCommentRequest : ActionRequest {
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         out.writeString(entityId)
+        out.writeString(entityType)
         out.writeString(commentId)
         out.writeLong(seqNo)
         out.writeLong(primaryTerm)
