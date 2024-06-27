@@ -7,7 +7,7 @@ package org.opensearch.commons.replication
 import org.opensearch.action.support.master.AcknowledgedResponse
 import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.replication.action.StopIndexReplicationRequest
-import org.opensearch.commons.replication.action.ReplicationActions.STOP_REPLICATION_ACTION_TYPE
+import org.opensearch.commons.replication.action.ReplicationActions.UNFOLLOW_REPLICATION_ACTION_TYPE
 import org.opensearch.commons.utils.recreateObject
 import org.opensearch.core.action.ActionListener
 import org.opensearch.core.action.ActionResponse
@@ -15,7 +15,7 @@ import org.opensearch.core.common.io.stream.Writeable
 
 
 /**
- * All the transport action plugin interfaces for the cross-cluster-replication plugin.
+ * Transport action plugin interfaces for the cross-cluster-replication plugin.
  */
 object ReplicationPluginInterface {
 
@@ -32,7 +32,7 @@ object ReplicationPluginInterface {
         listener: ActionListener<AcknowledgedResponse>
     ) {
         return client.execute(
-            STOP_REPLICATION_ACTION_TYPE,
+            UNFOLLOW_REPLICATION_ACTION_TYPE,
             request,
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
