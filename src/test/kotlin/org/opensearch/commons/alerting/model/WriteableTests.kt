@@ -28,6 +28,8 @@ import org.opensearch.commons.alerting.randomQueryLevelTriggerRunResult
 import org.opensearch.commons.alerting.randomThrottle
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
+import org.opensearch.commons.alerting.randomWorkflow
+import org.opensearch.commons.alerting.util.IndexUtils
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -36,6 +38,7 @@ import org.opensearch.search.builder.SearchSourceBuilder
 import org.opensearch.test.OpenSearchTestCase
 import java.io.IOException
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertTrue
 
 class WriteableTests {
@@ -357,6 +360,47 @@ class WriteableTests {
         Assert.assertEquals("Round tripping RemoteMonitorInput failed", newMyMonitorInput, myMonitorInput)
         val newDocLevelMonitorInput = newRemoteDocLevelMonitorInput.docLevelMonitorInput
         Assert.assertEquals("Round tripping DocLevelMonitorInput failed", newDocLevelMonitorInput, docLevelMonitorInput)
+    }
+
+    @Test
+    fun `test RemoteMonitor as stream`() {
+        val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
+        var myObjOut = BytesStreamOutput()
+        myMonitorInput.writeTo(myObjOut)
+        val docLevelMonitorInput = DocLevelMonitorInput(
+            "test",
+            listOf("test"),
+            listOf(randomDocLevelQuery())
+        )
+        val remoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(myObjOut.bytes(), docLevelMonitorInput)
+
+        val myMonitorTrigger = MyMonitorTrigger(1, "hello", MyMonitorTrigger(2, "world", null))
+        myObjOut = BytesStreamOutput()
+        myMonitorTrigger.writeTo(myObjOut)
+        val remoteMonitorTrigger = RemoteMonitorTrigger("id", "name", "1", listOf(), myObjOut.bytes())
+
+        val monitor = Monitor(
+            Monitor.NO_ID,
+            Monitor.NO_VERSION,
+            "hello",
+            true,
+            IntervalSchedule(1, ChronoUnit.MINUTES),
+            Instant.now(),
+            Instant.now(),
+            "remote_doc_level_monitor",
+            null,
+            IndexUtils.NO_SCHEMA_VERSION,
+            listOf(remoteDocLevelMonitorInput),
+            listOf(remoteMonitorTrigger),
+            mapOf()
+        )
+
+        val out = BytesStreamOutput()
+        monitor.writeTo(out)
+
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newMonitor = Monitor(sin)
+        Assert.assertEquals("Round tripping RemoteMonitor failed", monitor, newMonitor)
     }
 
     fun randomDocumentLevelTriggerRunResult(): DocumentLevelTriggerRunResult {
