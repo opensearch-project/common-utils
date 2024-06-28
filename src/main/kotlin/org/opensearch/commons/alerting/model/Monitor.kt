@@ -1,6 +1,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.MONITOR_MAX_INPUTS
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.MONITOR_MAX_TRIGGERS
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
@@ -188,8 +189,10 @@ data class Monitor(
         inputs.forEach {
             if (it is SearchInput) {
                 out.writeEnum(Input.Type.SEARCH_INPUT)
-            } else {
+            } else if (it is DocLevelMonitorInput) {
                 out.writeEnum(Input.Type.DOCUMENT_LEVEL_INPUT)
+            } else {
+                out.writeEnum(Input.Type.REMOTE_DOC_LEVEL_MONITOR_INPUT)
             }
             it.writeTo(out)
         }
@@ -199,6 +202,7 @@ data class Monitor(
             when (it) {
                 is BucketLevelTrigger -> out.writeEnum(Trigger.Type.BUCKET_LEVEL_TRIGGER)
                 is DocumentLevelTrigger -> out.writeEnum(Trigger.Type.DOCUMENT_LEVEL_TRIGGER)
+                is RemoteMonitorTrigger -> out.writeEnum(Trigger.Type.REMOTE_MONITOR_TRIGGER)
                 else -> out.writeEnum(Trigger.Type.QUERY_LEVEL_TRIGGER)
             }
             it.writeTo(out)
