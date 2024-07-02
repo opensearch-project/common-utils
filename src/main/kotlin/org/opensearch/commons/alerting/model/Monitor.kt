@@ -1,6 +1,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.MONITOR_MAX_INPUTS
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.MONITOR_MAX_TRIGGERS
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
@@ -22,7 +23,7 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
-import java.util.Locale
+import java.util.regex.Pattern
 
 data class Monitor(
     override val id: String = NO_ID,
@@ -34,7 +35,7 @@ data class Monitor(
     override val enabledTime: Instant?,
     // TODO: Check how this behaves during rolling upgrade/multi-version cluster
     //  Can read/write and parsing break if it's done from an old -> new version of the plugin?
-    val monitorType: MonitorType,
+    val monitorType: String,
     val user: User?,
     val schemaVersion: Int = NO_SCHEMA_VERSION,
     val inputs: List<Input>,
@@ -56,13 +57,13 @@ data class Monitor(
             require(triggerIds.add(trigger.id)) { "Duplicate trigger id: ${trigger.id}. Trigger ids must be unique." }
             // Verify Trigger type based on Monitor type
             when (monitorType) {
-                MonitorType.QUERY_LEVEL_MONITOR ->
+                MonitorType.QUERY_LEVEL_MONITOR.value ->
                     require(trigger is QueryLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
-                MonitorType.BUCKET_LEVEL_MONITOR ->
+                MonitorType.BUCKET_LEVEL_MONITOR.value ->
                     require(trigger is BucketLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
-                MonitorType.CLUSTER_METRICS_MONITOR ->
+                MonitorType.CLUSTER_METRICS_MONITOR.value ->
                     require(trigger is QueryLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
-                MonitorType.DOC_LEVEL_MONITOR ->
+                MonitorType.DOC_LEVEL_MONITOR.value ->
                     require(trigger is DocumentLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
             }
         }
@@ -94,7 +95,7 @@ data class Monitor(
         schedule = Schedule.readFrom(sin),
         lastUpdateTime = sin.readInstant(),
         enabledTime = sin.readOptionalInstant(),
-        monitorType = sin.readEnum(MonitorType::class.java),
+        monitorType = sin.readString(),
         user = if (sin.readBoolean()) {
             User(sin)
         } else {
@@ -179,7 +180,7 @@ data class Monitor(
         schedule.writeTo(out)
         out.writeInstant(lastUpdateTime)
         out.writeOptionalInstant(enabledTime)
-        out.writeEnum(monitorType)
+        out.writeString(monitorType)
         out.writeBoolean(user != null)
         user?.writeTo(out)
         out.writeInt(schemaVersion)
@@ -188,8 +189,10 @@ data class Monitor(
         inputs.forEach {
             if (it is SearchInput) {
                 out.writeEnum(Input.Type.SEARCH_INPUT)
-            } else {
+            } else if (it is DocLevelMonitorInput) {
                 out.writeEnum(Input.Type.DOCUMENT_LEVEL_INPUT)
+            } else {
+                out.writeEnum(Input.Type.REMOTE_DOC_LEVEL_MONITOR_INPUT)
             }
             it.writeTo(out)
         }
@@ -199,6 +202,7 @@ data class Monitor(
             when (it) {
                 is BucketLevelTrigger -> out.writeEnum(Trigger.Type.BUCKET_LEVEL_TRIGGER)
                 is DocumentLevelTrigger -> out.writeEnum(Trigger.Type.DOCUMENT_LEVEL_TRIGGER)
+                is RemoteMonitorTrigger -> out.writeEnum(Trigger.Type.REMOTE_MONITOR_TRIGGER)
                 else -> out.writeEnum(Trigger.Type.QUERY_LEVEL_TRIGGER)
             }
             it.writeTo(out)
@@ -227,6 +231,7 @@ data class Monitor(
         const val DATA_SOURCES_FIELD = "data_sources"
         const val ENABLED_TIME_FIELD = "enabled_time"
         const val OWNER_FIELD = "owner"
+        val MONITOR_TYPE_PATTERN = Pattern.compile("[a-zA-Z0-9_]{5,25}")
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
         // the different subclasses and creating circular dependencies
@@ -265,9 +270,10 @@ data class Monitor(
                     NAME_FIELD -> name = xcp.text()
                     MONITOR_TYPE_FIELD -> {
                         monitorType = xcp.text()
-                        val allowedTypes = MonitorType.values().map { it.value }
-                        if (!allowedTypes.contains(monitorType)) {
-                            throw IllegalStateException("Monitor type should be one of $allowedTypes")
+                        val matcher = MONITOR_TYPE_PATTERN.matcher(monitorType)
+                        val find = matcher.matches()
+                        if (!find) {
+                            throw IllegalStateException("Monitor type should follow pattern ${MONITOR_TYPE_PATTERN.pattern()}")
                         }
                     }
                     USER_FIELD -> user = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else User.parse(xcp)
@@ -325,7 +331,7 @@ data class Monitor(
                 requireNotNull(schedule) { "Monitor schedule is null" },
                 lastUpdateTime ?: Instant.now(),
                 enabledTime,
-                MonitorType.valueOf(monitorType.uppercase(Locale.ROOT)),
+                monitorType,
                 user,
                 schemaVersion,
                 inputs.toList(),

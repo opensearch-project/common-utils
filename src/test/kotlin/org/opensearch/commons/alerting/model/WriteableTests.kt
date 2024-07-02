@@ -1,26 +1,43 @@
 package org.opensearch.commons.alerting.model
 
+import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.opensearch.common.UUIDs
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.model.action.ActionExecutionPolicy
 import org.opensearch.commons.alerting.model.action.Throttle
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteDocLevelMonitorInput
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorInput
+import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
+import org.opensearch.commons.alerting.randomBucketLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
+import org.opensearch.commons.alerting.randomBucketLevelTriggerRunResult
 import org.opensearch.commons.alerting.randomChainedAlertTrigger
 import org.opensearch.commons.alerting.randomDocLevelQuery
+import org.opensearch.commons.alerting.randomDocumentLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomDocumentLevelTrigger
+import org.opensearch.commons.alerting.randomInputRunResults
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
+import org.opensearch.commons.alerting.randomQueryLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
+import org.opensearch.commons.alerting.randomQueryLevelTriggerRunResult
 import org.opensearch.commons.alerting.randomThrottle
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
+import org.opensearch.commons.alerting.util.IndexUtils
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.search.builder.SearchSourceBuilder
+import org.opensearch.test.OpenSearchTestCase
+import java.io.IOException
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertTrue
 
 class WriteableTests {
@@ -216,5 +233,256 @@ class WriteableTests {
         Assertions.assertEquals("content", newComment.content)
         Assertions.assertEquals(createdTime, newComment.createdTime)
         Assertions.assertEquals(user, newComment.user)
+    }
+
+    @Test
+    fun `test actionrunresult as stream`() {
+        val actionRunResult = randomActionRunResult()
+        val out = BytesStreamOutput()
+        actionRunResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newActionRunResult = ActionRunResult(sin)
+        OpenSearchTestCase.assertEquals(
+            "Round tripping ActionRunResult doesn't work",
+            actionRunResult,
+            newActionRunResult
+        )
+    }
+
+    @Test
+    fun `test query-level triggerrunresult as stream`() {
+        val runResult = randomQueryLevelTriggerRunResult()
+        val out = BytesStreamOutput()
+        runResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRunResult = QueryLevelTriggerRunResult(sin)
+        OpenSearchTestCase.assertEquals(runResult.triggerName, newRunResult.triggerName)
+        OpenSearchTestCase.assertEquals(runResult.triggered, newRunResult.triggered)
+        OpenSearchTestCase.assertEquals(runResult.error, newRunResult.error)
+        OpenSearchTestCase.assertEquals(runResult.actionResults, newRunResult.actionResults)
+    }
+
+    @Test
+    fun `test bucket-level triggerrunresult as stream`() {
+        val runResult = randomBucketLevelTriggerRunResult()
+        val out = BytesStreamOutput()
+        runResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRunResult = BucketLevelTriggerRunResult(sin)
+        OpenSearchTestCase.assertEquals("Round tripping ActionRunResult doesn't work", runResult, newRunResult)
+    }
+
+    @Test
+    fun `test doc-level triggerrunresult as stream`() {
+        val runResult = randomDocumentLevelTriggerRunResult()
+        val out = BytesStreamOutput()
+        runResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRunResult = DocumentLevelTriggerRunResult(sin)
+        OpenSearchTestCase.assertEquals("Round tripping ActionRunResult doesn't work", runResult, newRunResult)
+    }
+
+    @Test
+    fun `test inputrunresult as stream`() {
+        val runResult = randomInputRunResults()
+        val out = BytesStreamOutput()
+        runResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRunResult = InputRunResults.readFrom(sin)
+        OpenSearchTestCase.assertEquals("Round tripping InputRunResults doesn't work", runResult, newRunResult)
+    }
+
+    @Test
+    fun `test query-level monitorrunresult as stream`() {
+        val runResult = randomQueryLevelMonitorRunResult()
+        val out = BytesStreamOutput()
+        runResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRunResult = MonitorRunResult<QueryLevelTriggerRunResult>(sin)
+        OpenSearchTestCase.assertEquals("Round tripping MonitorRunResult doesn't work", runResult, newRunResult)
+    }
+
+    @Test
+    fun `test bucket-level monitorrunresult as stream`() {
+        val runResult = randomBucketLevelMonitorRunResult()
+        val out = BytesStreamOutput()
+        runResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRunResult = MonitorRunResult<BucketLevelTriggerRunResult>(sin)
+        OpenSearchTestCase.assertEquals("Round tripping MonitorRunResult doesn't work", runResult, newRunResult)
+    }
+
+    @Test
+    fun `test doc-level monitorrunresult as stream`() {
+        val runResult = randomDocumentLevelMonitorRunResult()
+        val out = BytesStreamOutput()
+        runResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRunResult = MonitorRunResult<DocumentLevelTriggerRunResult>(sin)
+        OpenSearchTestCase.assertEquals("Round tripping MonitorRunResult doesn't work", runResult, newRunResult)
+    }
+
+    @Test
+    fun `test DocumentLevelTriggerRunResult as stream`() {
+        val workflow = randomDocumentLevelTriggerRunResult()
+        val out = BytesStreamOutput()
+        workflow.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newWorkflow = DocumentLevelTriggerRunResult(sin)
+        Assert.assertEquals("Round tripping dltrr failed", newWorkflow, workflow)
+    }
+
+    @Test
+    fun `test RemoteMonitorInput as stream`() {
+        val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
+        val myObjOut = BytesStreamOutput()
+        myMonitorInput.writeTo(myObjOut)
+        val remoteMonitorInput = RemoteMonitorInput(myObjOut.bytes())
+
+        val out = BytesStreamOutput()
+        remoteMonitorInput.writeTo(out)
+
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRemoteMonitorInput = RemoteMonitorInput(sin)
+        val newMyMonitorInput = MyMonitorInput(StreamInput.wrap(newRemoteMonitorInput.input.toBytesRef().bytes))
+        Assert.assertEquals("Round tripping RemoteMonitorInput failed", newMyMonitorInput, myMonitorInput)
+    }
+
+    @Test
+    fun `test RemoteMonitorTrigger as stream`() {
+        val myMonitorTrigger = MyMonitorTrigger(1, "hello", MyMonitorTrigger(2, "world", null))
+        val myObjOut = BytesStreamOutput()
+        myMonitorTrigger.writeTo(myObjOut)
+        val remoteMonitorTrigger = RemoteMonitorTrigger("id", "name", "1", listOf(), myObjOut.bytes())
+
+        val out = BytesStreamOutput()
+        remoteMonitorTrigger.writeTo(out)
+
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRemoteMonitorTrigger = RemoteMonitorTrigger(sin)
+        val newMyMonitorTrigger = MyMonitorTrigger(StreamInput.wrap(newRemoteMonitorTrigger.trigger.toBytesRef().bytes))
+        Assert.assertEquals("Round tripping RemoteMonitorTrigger failed", newMyMonitorTrigger, myMonitorTrigger)
+    }
+
+    @Test
+    fun `test RemoteDocLevelMonitorInput as stream`() {
+        val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
+        val myObjOut = BytesStreamOutput()
+        myMonitorInput.writeTo(myObjOut)
+        val docLevelMonitorInput = DocLevelMonitorInput(
+            "test",
+            listOf("test"),
+            listOf(randomDocLevelQuery())
+        )
+        val remoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(myObjOut.bytes(), docLevelMonitorInput)
+
+        val out = BytesStreamOutput()
+        remoteDocLevelMonitorInput.writeTo(out)
+
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRemoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(sin)
+        val newMyMonitorInput = MyMonitorInput(StreamInput.wrap(newRemoteDocLevelMonitorInput.input.toBytesRef().bytes))
+        Assert.assertEquals("Round tripping RemoteMonitorInput failed", newMyMonitorInput, myMonitorInput)
+        val newDocLevelMonitorInput = newRemoteDocLevelMonitorInput.docLevelMonitorInput
+        Assert.assertEquals("Round tripping DocLevelMonitorInput failed", newDocLevelMonitorInput, docLevelMonitorInput)
+    }
+
+    @Test
+    fun `test RemoteMonitor as stream`() {
+        val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
+        var myObjOut = BytesStreamOutput()
+        myMonitorInput.writeTo(myObjOut)
+        val docLevelMonitorInput = DocLevelMonitorInput(
+            "test",
+            listOf("test"),
+            listOf(randomDocLevelQuery())
+        )
+        val remoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(myObjOut.bytes(), docLevelMonitorInput)
+
+        val myMonitorTrigger = MyMonitorTrigger(1, "hello", MyMonitorTrigger(2, "world", null))
+        myObjOut = BytesStreamOutput()
+        myMonitorTrigger.writeTo(myObjOut)
+        val remoteMonitorTrigger = RemoteMonitorTrigger("id", "name", "1", listOf(), myObjOut.bytes())
+
+        val monitor = Monitor(
+            Monitor.NO_ID,
+            Monitor.NO_VERSION,
+            "hello",
+            true,
+            IntervalSchedule(1, ChronoUnit.MINUTES),
+            Instant.now(),
+            Instant.now(),
+            "remote_doc_level_monitor",
+            null,
+            IndexUtils.NO_SCHEMA_VERSION,
+            listOf(remoteDocLevelMonitorInput),
+            listOf(remoteMonitorTrigger),
+            mapOf()
+        )
+
+        val out = BytesStreamOutput()
+        monitor.writeTo(out)
+
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newMonitor = Monitor(sin)
+        Assert.assertEquals("Round tripping RemoteMonitor failed", monitor, newMonitor)
+    }
+
+    fun randomDocumentLevelTriggerRunResult(): DocumentLevelTriggerRunResult {
+        val map = mutableMapOf<String, ActionRunResult>()
+        map.plus(Pair("key1", randomActionRunResult()))
+        map.plus(Pair("key2", randomActionRunResult()))
+        return DocumentLevelTriggerRunResult(
+            "trigger-name",
+            mutableListOf(UUIDs.randomBase64UUID().toString()),
+            null,
+            mutableMapOf(Pair("alertId", map))
+        )
+    }
+
+    fun randomActionRunResult(): ActionRunResult {
+        val map = mutableMapOf<String, String>()
+        map.plus(Pair("key1", "val1"))
+        map.plus(Pair("key2", "val2"))
+        return ActionRunResult(
+            "1234",
+            "test-action",
+            map,
+            false,
+            Instant.now(),
+            null
+        )
+    }
+}
+
+data class MyMonitorInput(val a: Int, val b: String, val c: MyMonitorInput?) : Writeable {
+
+    @Throws(IOException::class)
+    constructor(sin: StreamInput) : this(
+        sin.readInt(),
+        sin.readString(),
+        sin.readOptionalWriteable { MyMonitorInput(it) }
+    )
+
+    override fun writeTo(out: StreamOutput) {
+        out.writeInt(a)
+        out.writeString(b)
+        out.writeOptionalWriteable(c)
+    }
+}
+
+data class MyMonitorTrigger(val a: Int, val b: String, val c: MyMonitorTrigger?) : Writeable {
+
+    @Throws(IOException::class)
+    constructor(sin: StreamInput) : this(
+        sin.readInt(),
+        sin.readString(),
+        sin.readOptionalWriteable { MyMonitorTrigger(it) }
+    )
+
+    override fun writeTo(out: StreamOutput) {
+        out.writeInt(a)
+        out.writeString(b)
+        out.writeOptionalWriteable(c)
     }
 }
