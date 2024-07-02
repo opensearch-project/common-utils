@@ -1,5 +1,6 @@
 package org.opensearch.commons.alerting.util
 
+import org.opensearch.commons.alerting.model.AggregationResultBucket
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.settings.SupportedClusterMetricsSettings
 import org.opensearch.commons.authuser.User
@@ -8,6 +9,7 @@ import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.time.Instant
+import java.util.Locale
 
 class IndexUtils {
     companion object {
@@ -46,7 +48,9 @@ class IndexUtils {
     }
 }
 
-fun Monitor.isBucketLevelMonitor(): Boolean = this.monitorType == Monitor.MonitorType.BUCKET_LEVEL_MONITOR
+fun Monitor.isBucketLevelMonitor(): Boolean =
+    isMonitorOfStandardType() &&
+        Monitor.MonitorType.valueOf(this.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.BUCKET_LEVEL_MONITOR
 
 fun XContentBuilder.optionalUserField(name: String, user: User?): XContentBuilder {
     if (user == null) {
@@ -85,3 +89,16 @@ fun XContentParser.instant(): Instant? {
  * Extension function for ES 6.3 and above that duplicates the ES 6.2 XContentBuilder.string() method.
  */
 fun XContentBuilder.string(): String = BytesReference.bytes(this).utf8ToString()
+
+fun Monitor.isMonitorOfStandardType(): Boolean {
+    val standardMonitorTypes = Monitor.MonitorType.values().map { it.value.uppercase(Locale.ROOT) }.toSet()
+    return standardMonitorTypes.contains(this.monitorType.uppercase(Locale.ROOT))
+}
+
+fun getBucketKeysHash(bucketKeys: List<String>): String = bucketKeys.joinToString(separator = "#")
+
+/**
+ * Since buckets can have multi-value keys, this converts the bucket key values to a string that can be used
+ * as the key for a HashMap to easily retrieve [AggregationResultBucket] based on the bucket key values.
+ */
+fun AggregationResultBucket.getBucketKeysHash(): String = getBucketKeysHash(this.bucketKeys)
