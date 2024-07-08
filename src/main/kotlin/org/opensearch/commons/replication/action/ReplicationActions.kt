@@ -28,5 +28,4 @@ object ReplicationActions {
         ActionType(STOP_REPLICATION_ACTION_NAME, ::AcknowledgedResponse)
     val UNFOLLOW_REPLICATION_ACTION_TYPE =
         ActionType(UNFOLLOW_REPLICATION_ACTION_NAME, ::AcknowledgedResponse)
-
 }

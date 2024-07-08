@@ -25,6 +25,7 @@ internal class ReplicationPluginInterfaceTests {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private lateinit var client: NodeClient
+
     @Test
     fun stopReplication() {
         val request = Mockito.mock(StopIndexReplicationRequest::class.java)

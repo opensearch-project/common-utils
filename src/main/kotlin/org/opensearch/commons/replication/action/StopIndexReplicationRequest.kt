@@ -1,14 +1,19 @@
 package org.opensearch.commons.replication.action
 
 import org.opensearch.action.ActionRequestValidationException
-import org.apache.logging.log4j.LogManager
 import org.opensearch.action.IndicesRequest
 import org.opensearch.action.support.IndicesOptions
 import org.opensearch.action.support.master.AcknowledgedRequest
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.core.xcontent.*
-class StopIndexReplicationRequest : AcknowledgedRequest<StopIndexReplicationRequest>, IndicesRequest.Replaceable, ToXContentObject  {
+import org.opensearch.core.xcontent.ObjectParser
+import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.ToXContentObject
+import org.opensearch.core.xcontent.XContentBuilder
+import org.opensearch.core.xcontent.XContentParser
+
+class StopIndexReplicationRequest :
+    AcknowledgedRequest<StopIndexReplicationRequest>, IndicesRequest.Replaceable, ToXContentObject {
     lateinit var indexName: String
     constructor(indexName: String) {
         this.indexName = indexName
@@ -17,7 +22,7 @@ class StopIndexReplicationRequest : AcknowledgedRequest<StopIndexReplicationRequ
     private constructor() {
     }
 
-    constructor(inp: StreamInput): super(inp) {
+    constructor(inp: StreamInput) : super(inp) {
         indexName = inp.readString()
     }
     companion object {
@@ -30,7 +35,6 @@ class StopIndexReplicationRequest : AcknowledgedRequest<StopIndexReplicationRequ
             stopIndexReplicationRequest.indexName = followerIndex
             return stopIndexReplicationRequest
         }
-        private val log = LogManager.getLogger(StopIndexReplicationRequest::class.java)
     }
 
     override fun validate(): ActionRequestValidationException? {
