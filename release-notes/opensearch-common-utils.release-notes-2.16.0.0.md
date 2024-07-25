@@ -9,4 +9,4 @@ Compatible with OpenSearch 2.16.0
 * [Backport 2.x] Add support for remote monitors ([#694](https://github.com/opensearch-project/common-utils/pull/694))
 
 ### Documentation
-* Added 2.16.0.0 release notes. ([#695](https://github.com/opensearch-project/common-utils/pull/695))
+* Added 2.16.0.0 release notes. ([#700](https://github.com/opensearch-project/common-utils/pull/700))
