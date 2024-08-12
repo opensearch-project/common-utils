@@ -69,7 +69,13 @@ data class BucketLevelTrigger(
             NAME_FIELD to name,
             SEVERITY_FIELD to severity,
             ACTIONS_FIELD to actions.map { it.asTemplateArg() },
-            PARENT_BUCKET_PATH to getParentBucketPath()
+            PARENT_BUCKET_PATH to getParentBucketPath(),
+            CONDITION_FIELD to mapOf(
+                SCRIPT_FIELD to mapOf(
+                    SOURCE_FIELD to bucketSelector.script.idOrCode,
+                    LANG_FIELD to bucketSelector.script.lang
+                )
+            )
         )
     }
 
@@ -81,6 +87,9 @@ data class BucketLevelTrigger(
         const val BUCKET_LEVEL_TRIGGER_FIELD = "bucket_level_trigger"
         const val CONDITION_FIELD = "condition"
         const val PARENT_BUCKET_PATH = "parentBucketPath"
+        const val SCRIPT_FIELD = "script"
+        const val SOURCE_FIELD = "source"
+        const val LANG_FIELD = "lang"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             Trigger::class.java,
