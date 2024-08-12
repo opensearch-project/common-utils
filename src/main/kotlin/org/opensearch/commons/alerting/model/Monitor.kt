@@ -124,8 +124,18 @@ data class Monitor(
     }
 
     /** Returns a representation of the monitor suitable for passing into painless and mustache scripts. */
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(_ID to id, _VERSION to version, NAME_FIELD to name, ENABLED_FIELD to enabled)
+    fun asTemplateArg(): Map<String, Any?> {
+        return mapOf(
+            _ID to id,
+            _VERSION to version,
+            NAME_FIELD to name,
+            ENABLED_FIELD to enabled,
+            MONITOR_TYPE_FIELD to monitorType.toString(),
+            ENABLED_TIME_FIELD to enabledTime?.toEpochMilli(),
+            LAST_UPDATE_TIME_FIELD to lastUpdateTime.toEpochMilli(),
+            SCHEDULE_FIELD to schedule.asTemplateArg(),
+            INPUTS_FIELD to inputs.map { it.asTemplateArg() }
+        )
     }
 
     fun toXContentWithUser(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
