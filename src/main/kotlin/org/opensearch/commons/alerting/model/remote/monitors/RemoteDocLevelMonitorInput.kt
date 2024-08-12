@@ -21,7 +21,7 @@ data class RemoteDocLevelMonitorInput(val input: BytesReference, val docLevelMon
         DocLevelMonitorInput.readFrom(sin)
     )
 
-    fun asTemplateArg(): Map<String, Any?> {
+    override fun asTemplateArg(): Map<String, Any> {
         val bytes = input.toBytesRef().bytes
         return mapOf(
             RemoteDocLevelMonitorInput.INPUT_SIZE to bytes.size,

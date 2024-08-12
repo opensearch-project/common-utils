@@ -66,4 +66,7 @@ interface Input : BaseModel {
     }
 
     fun name(): String
+
+    /** Returns a representation of the schedule suitable for passing into painless and mustache scripts. */
+    fun asTemplateArg(): Map<String, Any> = emptyMap()
 }

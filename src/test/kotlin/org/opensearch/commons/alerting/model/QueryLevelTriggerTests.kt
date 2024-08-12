@@ -1,24 +1,23 @@
 package org.opensearch.commons.alerting.model
 
 import org.junit.jupiter.api.Test
-import org.opensearch.commons.alerting.model.BucketLevelTrigger.Companion.CONDITION_FIELD
-import org.opensearch.commons.alerting.model.BucketLevelTrigger.Companion.LANG_FIELD
-import org.opensearch.commons.alerting.model.BucketLevelTrigger.Companion.PARENT_BUCKET_PATH
-import org.opensearch.commons.alerting.model.BucketLevelTrigger.Companion.SCRIPT_FIELD
-import org.opensearch.commons.alerting.model.BucketLevelTrigger.Companion.SOURCE_FIELD
+import org.opensearch.commons.alerting.model.QueryLevelTrigger.Companion.CONDITION_FIELD
+import org.opensearch.commons.alerting.model.QueryLevelTrigger.Companion.LANG_FIELD
+import org.opensearch.commons.alerting.model.QueryLevelTrigger.Companion.SCRIPT_FIELD
+import org.opensearch.commons.alerting.model.QueryLevelTrigger.Companion.SOURCE_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.ACTIONS_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.ID_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.NAME_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.SEVERITY_FIELD
-import org.opensearch.commons.alerting.randomBucketLevelTrigger
+import org.opensearch.commons.alerting.randomQueryLevelTrigger
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class BucketLevelTriggerTests {
+class QueryLevelTriggerTests {
 
     @Test
-    fun `test BucketLevelTrigger asTemplateArgs`() {
-        val trigger = randomBucketLevelTrigger()
+    fun `test QueryLevelTrigger asTemplateArgs`() {
+        val trigger = randomQueryLevelTrigger()
 
         val templateArgs = trigger.asTemplateArg()
 
@@ -31,22 +30,17 @@ class BucketLevelTriggerTests {
             actions.size,
             "Template arg field 'actions' doesn't match"
         )
-        assertEquals(
-            trigger.getParentBucketPath(),
-            templateArgs[PARENT_BUCKET_PATH],
-            "Template arg field 'parentBucketPath' doesn't match"
-        )
         val condition = templateArgs[CONDITION_FIELD] as? Map<*, *>
         assertNotNull(condition, "Template arg field 'condition' is empty")
         val script = condition[SCRIPT_FIELD] as? Map<*, *>
         assertNotNull(script, "Template arg field 'condition.script' is empty")
         assertEquals(
-            trigger.bucketSelector.script.idOrCode,
+            trigger.condition.idOrCode,
             script[SOURCE_FIELD],
             "Template arg field 'script.source' doesn't match"
         )
         assertEquals(
-            trigger.bucketSelector.script.lang,
+            trigger.condition.lang,
             script[LANG_FIELD],
             "Template arg field 'script.lang' doesn't match"
         )
