@@ -2,6 +2,12 @@ package org.opensearch.commons.alerting.model
 
 import org.junit.jupiter.api.Test
 import org.opensearch.common.xcontent.ToXContent
+import org.opensearch.commons.alerting.model.Schedule.Companion.CRON_FIELD
+import org.opensearch.commons.alerting.model.Schedule.Companion.EXPRESSION_FIELD
+import org.opensearch.commons.alerting.model.Schedule.Companion.INTERVAL_FIELD
+import org.opensearch.commons.alerting.model.Schedule.Companion.PERIOD_FIELD
+import org.opensearch.commons.alerting.model.Schedule.Companion.TIMEZONE_FIELD
+import org.opensearch.commons.alerting.model.Schedule.Companion.UNIT_FIELD
 import org.opensearch.commons.alerting.util.string
 import java.time.Instant
 import java.time.ZoneId
@@ -67,7 +73,8 @@ class ScheduleTest : XContentTestBase {
 
         val cronSchedule = CronSchedule(cronExpression, ZoneId.of("America/Los_Angeles"))
         // The nextTimeToExecute should be the minute after the previous execution time instance, not enabledTimeInstance
-        val nextTimeToExecute = cronSchedule.getExpectedNextExecutionTime(enabledTimeInstance, previousExecutionTimeInstance)
+        val nextTimeToExecute =
+            cronSchedule.getExpectedNextExecutionTime(enabledTimeInstance, previousExecutionTimeInstance)
         assertNotNull(nextTimeToExecute, "There should be next execute time")
         assertEquals(
             previousExecutionTimeInstance.plusSeconds(2L),
@@ -107,7 +114,8 @@ class ScheduleTest : XContentTestBase {
         val intervalSchedule = IntervalSchedule(1, ChronoUnit.MINUTES, testInstance)
 
         // The nextTimeToExecute should be the minute after the previous execution time instance
-        val nextTimeToExecute = intervalSchedule.getExpectedNextExecutionTime(enabledTimeInstance, previousExecutionTimeInstance)
+        val nextTimeToExecute =
+            intervalSchedule.getExpectedNextExecutionTime(enabledTimeInstance, previousExecutionTimeInstance)
         assertNotNull(nextTimeToExecute, "There should be next execute time")
         assertEquals(
             previousExecutionTimeInstance.plusSeconds(60L),
@@ -165,12 +173,19 @@ class ScheduleTest : XContentTestBase {
     @Test
     fun `test invalid type`() {
         val scheduleString = "{\"foobarzzz\":{\"expression\":\"0 * * * *\",\"timezone\":\"+++9\"}}"
-        assertFailsWith(IllegalArgumentException::class, "Expected IllegalArgumentException") { Schedule.parse(parser(scheduleString)) }
+        assertFailsWith(IllegalArgumentException::class, "Expected IllegalArgumentException") {
+            Schedule.parse(
+                parser(
+                    scheduleString
+                )
+            )
+        }
     }
 
     @Test
     fun `test two types`() {
-        val scheduleString = "{\"cron\":{\"expression\":\"0 * * * *\",\"timezone\":\"Asia/Tokyo\"}, \"period\":{\"interval\":\"1\",\"unit\":\"Minutes\"}}"
+        val scheduleString =
+            "{\"cron\":{\"expression\":\"0 * * * *\",\"timezone\":\"Asia/Tokyo\"}, \"period\":{\"interval\":\"1\",\"unit\":\"Minutes\"}}"
         assertFailsWith(IllegalArgumentException::class, "Expected IllegalArgumentException") {
             Schedule.parse(parser(scheduleString))
         }
@@ -334,5 +349,45 @@ class ScheduleTest : XContentTestBase {
         assertFailsWith(IllegalArgumentException::class, "Expected IllegalArgumentException") {
             IntervalSchedule(-1, ChronoUnit.MINUTES)
         }
+    }
+
+    @Test
+    fun `test IntervalSchedule as asTemplateArgs`() {
+        val schedule = createTestIntervalSchedule()
+
+        val templateArgs = schedule.asTemplateArg()
+
+        val period = templateArgs[PERIOD_FIELD] as? Map<*, *>
+        assertNotNull(period, "Template arg field 'period' is empty")
+        assertEquals(
+            schedule.interval,
+            period[INTERVAL_FIELD],
+            "Template arg field 'interval' doesn't match"
+        )
+        assertEquals(
+            schedule.unit.toString(),
+            period[UNIT_FIELD],
+            "Template arg field 'unit' doesn't match"
+        )
+    }
+
+    @Test
+    fun `test CronSchedule as asTemplateArgs`() {
+        val schedule = createTestCronSchedule()
+
+        val templateArgs = schedule.asTemplateArg()
+
+        val cron = templateArgs[CRON_FIELD] as? Map<*, *>
+        assertNotNull(cron, "Template arg field 'cron' is empty")
+        assertEquals(
+            schedule.expression,
+            cron[EXPRESSION_FIELD],
+            "Template arg field 'expression' doesn't match"
+        )
+        assertEquals(
+            schedule.timezone.toString(),
+            cron[TIMEZONE_FIELD],
+            "Template arg field 'timezone' doesn't match"
+        )
     }
 }
