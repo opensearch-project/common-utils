@@ -85,4 +85,12 @@ data class SearchInput(val indices: List<String>, val query: SearchSourceBuilder
             return SearchInput(sin)
         }
     }
+
+    override fun asTemplateArg(): Map<String, Any> =
+        mapOf(
+            SEARCH_FIELD to mapOf(
+                INDICES_FIELD to indices,
+                QUERY_FIELD to query.toString()
+            )
+        )
 }
