@@ -296,6 +296,13 @@ fun randomDocLevelMonitorInput(
     return DocLevelMonitorInput(description = description, indices = indices, queries = queries)
 }
 
+fun randomSearchInput(
+    indices: List<String> = listOf(1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { RandomStrings.randomAsciiLettersOfLength(Random(), 10) },
+    query: SearchSourceBuilder = SearchSourceBuilder().query(QueryBuilders.matchAllQuery())
+): SearchInput {
+    return SearchInput(indices, query)
+}
+
 fun randomClusterMetricsInput(
     path: String = ClusterMetricsInput.ClusterMetricType.CLUSTER_HEALTH.defaultPath,
     pathParams: String = "",
