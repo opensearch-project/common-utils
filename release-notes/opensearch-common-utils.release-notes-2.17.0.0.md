@@ -13,4 +13,4 @@ Compatible with OpenSearch 2.15.0
 * Updated pull request template to include API spec change in checklist ([#696](https://github.com/opensearch-project/common-utils/pull/696))
 
 ### Documentation
-* Added 2.17.0.0 release notes ([]())
+* Added 2.17.0.0 release notes ([#727](https://github.com/opensearch-project/common-utils/pull/727))
