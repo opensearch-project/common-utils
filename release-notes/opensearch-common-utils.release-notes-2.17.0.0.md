@@ -1,6 +1,6 @@
-## Version 2.15.0.0 2024-06-10
+## Version 2.17.0.0 2024-09-03
 
-Compatible with OpenSearch 2.15.0
+Compatible with OpenSearch 2.17.0
 
 ### Maintenance
 * Fixed Common-Utils CIs: ([#703](https://github.com/opensearch-project/common-utils/pull/703))
