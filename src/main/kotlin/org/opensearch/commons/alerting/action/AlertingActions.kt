@@ -21,9 +21,9 @@ object AlertingActions {
     const val SUBSCRIBE_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/subscribe"
     const val GET_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/get"
     const val SEARCH_MONITORS_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/search"
-    const val INDEX_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/alerts/comments/write"
-    const val SEARCH_COMMENTS_ACTION_NAME = "cluster:admin/opensearch/alerting/alerts/comments/search"
-    const val DELETE_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/alerts/comments/delete"
+    const val INDEX_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/write"
+    const val SEARCH_COMMENTS_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/search"
+    const val DELETE_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/delete"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
