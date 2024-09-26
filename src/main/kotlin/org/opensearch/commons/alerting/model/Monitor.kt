@@ -42,7 +42,6 @@ data class Monitor(
     val triggers: List<Trigger>,
     val uiMetadata: Map<String, Any>,
     val dataSources: DataSources = DataSources(),
-    val deleteQueryIndexInEveryRun: Boolean? = false,
     val owner: String? = "alerting"
 ) : ScheduledJob {
 
@@ -111,7 +110,6 @@ data class Monitor(
         } else {
             DataSources()
         },
-        deleteQueryIndexInEveryRun = sin.readOptionalBoolean(),
         owner = sin.readOptionalString()
     )
 
@@ -171,7 +169,6 @@ data class Monitor(
             .optionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
         if (uiMetadata.isNotEmpty()) builder.field(UI_METADATA_FIELD, uiMetadata)
         builder.field(DATA_SOURCES_FIELD, dataSources)
-        builder.field(DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD, deleteQueryIndexInEveryRun)
         builder.field(OWNER_FIELD, owner)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
@@ -223,7 +220,6 @@ data class Monitor(
         out.writeMap(uiMetadata)
         out.writeBoolean(dataSources != null) // for backward compatibility with pre-existing monitors which don't have datasources field
         dataSources.writeTo(out)
-        out.writeOptionalBoolean(deleteQueryIndexInEveryRun)
         out.writeOptionalString(owner)
     }
 
@@ -244,7 +240,6 @@ data class Monitor(
         const val UI_METADATA_FIELD = "ui_metadata"
         const val DATA_SOURCES_FIELD = "data_sources"
         const val ENABLED_TIME_FIELD = "enabled_time"
-        const val DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD = "delete_query_index_in_every_run"
         const val OWNER_FIELD = "owner"
         val MONITOR_TYPE_PATTERN = Pattern.compile("[a-zA-Z0-9_]{5,25}")
 
@@ -273,7 +268,6 @@ data class Monitor(
             val triggers: MutableList<Trigger> = mutableListOf()
             val inputs: MutableList<Input> = mutableListOf()
             var dataSources = DataSources()
-            var deleteQueryIndexInEveryRun = false
             var owner = "alerting"
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -327,11 +321,6 @@ data class Monitor(
                     } else {
                         DataSources.parse(xcp)
                     }
-                    DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD -> deleteQueryIndexInEveryRun = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                        deleteQueryIndexInEveryRun
-                    } else {
-                        xcp.booleanValue()
-                    }
                     OWNER_FIELD -> owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
                     else -> {
                         xcp.skipChildren()
@@ -359,7 +348,6 @@ data class Monitor(
                 triggers.toList(),
                 uiMetadata,
                 dataSources,
-                deleteQueryIndexInEveryRun,
                 owner
             )
         }
