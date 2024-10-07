@@ -9,7 +9,7 @@ buildscript {
         opensearch_version = System.getProperty("opensearch.version", "3.0.0-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
-        kotlin_version = System.getProperty("kotlin.version", "1.8.21")
+        kotlin_version = System.getProperty("kotlin.version", "1.9.25")
     }
 
     repositories {
@@ -30,7 +30,7 @@ buildscript {
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'com.diffplug.spotless' version '6.22.0'
+    id 'com.diffplug.spotless' version '6.25.0'
 }
 
 repositories {
@@ -51,8 +51,8 @@ allprojects {
     }
 }
 
-targetCompatibility = JavaVersion.VERSION_11
-sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_21
+sourceCompatibility = JavaVersion.VERSION_21
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -143,13 +143,13 @@ tasks.register('ktlintFormat', JavaExec) {
 compileKotlin {
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict']
-        jvmTarget = "11"
+        jvmTarget = "21"
     }
 }
 
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "21"
     }
 }
 
