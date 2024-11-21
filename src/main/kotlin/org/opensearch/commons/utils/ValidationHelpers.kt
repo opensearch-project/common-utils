@@ -11,6 +11,9 @@ import java.util.regex.Pattern
 // Valid ID characters = (All Base64 chars + "_-") to support UUID format and Base64 encoded IDs
 private val VALID_ID_CHARS: Set<Char> = (('a'..'z') + ('A'..'Z') + ('0'..'9') + '+' + '/' + '_' + '-').toSet()
 
+// Invalid characters in a new name field: [* ? < > | #]
+private val INVALID_NAME_CHARS = "^\\*\\?<>|#"
+
 fun validateUrl(urlString: String) {
     require(isValidUrl(urlString)) { "Invalid URL or unsupported" }
 }
@@ -52,4 +55,16 @@ fun isValidId(idString: String): Boolean {
 fun validateIamRoleArn(roleArn: String) {
     val roleArnRegex = Pattern.compile("^arn:aws(-[^:]+)?:iam::([0-9]{12}):([a-zA-Z_0-9+=,.@\\-_/]+)$")
     require(roleArnRegex.matcher(roleArn).find()) { "Invalid AWS role ARN: $roleArn " }
+}
+
+fun isValidName(name: String): Boolean {
+    // Regex to restrict string so that it cannot start with [_, -, +],
+    // contain two consecutive periods or contain invalid chars
+    val regex = Regex("""^(?![_\-\+])(?!.*\.\.)[^$INVALID_NAME_CHARS]+$""")
+
+    return name.matches(regex)
+}
+
+fun getInvalidNameChars(): String {
+    return INVALID_NAME_CHARS
 }
