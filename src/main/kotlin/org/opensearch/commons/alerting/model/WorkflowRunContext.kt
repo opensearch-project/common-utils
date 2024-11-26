@@ -17,7 +17,7 @@ data class WorkflowRunContext(
     val workflowId: String,
     val workflowMetadataId: String,
     val chainedMonitorId: String?,
-    val matchingDocIdsPerIndex: Map<String, List<String>>,
+    val matchingDocIdsPerIndex: Pair<Map<String, List<String>>, List<String>>,
     val auditDelegateMonitorAlerts: Boolean
 ) : Writeable, ToXContentObject {
     companion object {
@@ -30,7 +30,7 @@ data class WorkflowRunContext(
         sin.readString(),
         sin.readString(),
         sin.readOptionalString(),
-        sin.readMap() as Map<String, List<String>>,
+        Pair(sin.readMap() as Map<String, List<String>>, sin.readStringList()),
         sin.readBoolean()
     )
 
@@ -38,7 +38,8 @@ data class WorkflowRunContext(
         out.writeString(workflowId)
         out.writeString(workflowMetadataId)
         out.writeOptionalString(chainedMonitorId)
-        out.writeMap(matchingDocIdsPerIndex)
+        out.writeMap(matchingDocIdsPerIndex.first)
+        out.writeStringCollection(matchingDocIdsPerIndex.second)
         out.writeBoolean(auditDelegateMonitorAlerts)
     }
 

@@ -21,7 +21,8 @@ data class IndexExecutionContext(
     val updatedIndexNames: List<String>,
     val concreteIndexNames: List<String>,
     val conflictingFields: List<String>,
-    val docIds: List<String>? = emptyList()
+    val docIds: List<String>? = emptyList(),
+    val findingIds: List<String>? = emptyList()
 ) : Writeable, ToXContent {
 
     @Throws(IOException::class)
@@ -34,7 +35,8 @@ data class IndexExecutionContext(
         updatedIndexNames = sin.readStringList(),
         concreteIndexNames = sin.readStringList(),
         conflictingFields = sin.readStringList(),
-        docIds = sin.readOptionalStringList()
+        docIds = sin.readOptionalStringList(),
+        findingIds = sin.readOptionalStringList()
     )
 
     override fun writeTo(out: StreamOutput?) {
@@ -47,6 +49,7 @@ data class IndexExecutionContext(
         out.writeStringCollection(concreteIndexNames)
         out.writeStringCollection(conflictingFields)
         out.writeOptionalStringCollection(docIds)
+        out.writeOptionalStringCollection(findingIds)
     }
 
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
@@ -60,6 +63,7 @@ data class IndexExecutionContext(
             .field("concrete_index_names", concreteIndexNames)
             .field("conflicting_fields", conflictingFields)
             .field("doc_ids", docIds)
+            .field("finding_ids", findingIds)
             .endObject()
         return builder
     }

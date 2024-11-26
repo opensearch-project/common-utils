@@ -65,7 +65,7 @@ class DocLevelMonitorFanOutRequestTests {
             Workflow.NO_ID,
             Workflow.NO_ID,
             Monitor.NO_ID,
-            mutableMapOf("index" to listOf("1")),
+            Pair(mutableMapOf("index" to listOf("1")), listOf("finding1")),
             true
         )
         val docLevelMonitorFanOutRequest = DocLevelMonitorFanOutRequest(
