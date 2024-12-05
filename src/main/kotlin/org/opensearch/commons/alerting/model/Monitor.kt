@@ -174,7 +174,7 @@ data class Monitor(
         if (uiMetadata.isNotEmpty()) builder.field(UI_METADATA_FIELD, uiMetadata)
         builder.field(DATA_SOURCES_FIELD, dataSources)
         builder.field(DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD, deleteQueryIndexInEveryRun)
-        builder.field(SHOULD_PERSIST_FINDINGS_AND_ALERTS_FIELD, shouldCreateSingleAlertForFindings)
+        builder.field(SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD, shouldCreateSingleAlertForFindings)
         builder.field(OWNER_FIELD, owner)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
@@ -249,7 +249,7 @@ data class Monitor(
         const val DATA_SOURCES_FIELD = "data_sources"
         const val ENABLED_TIME_FIELD = "enabled_time"
         const val DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD = "delete_query_index_in_every_run"
-        const val SHOULD_PERSIST_FINDINGS_AND_ALERTS_FIELD = "should_persist_findings_and_alerts"
+        const val SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD = "should_create_single_alert_for_findings"
         const val OWNER_FIELD = "owner"
         val MONITOR_TYPE_PATTERN = Pattern.compile("[a-zA-Z0-9_]{5,25}")
 
@@ -338,7 +338,7 @@ data class Monitor(
                     } else {
                         xcp.booleanValue()
                     }
-                    SHOULD_PERSIST_FINDINGS_AND_ALERTS_FIELD -> delegateMonitor = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                    SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD -> delegateMonitor = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
                         delegateMonitor
                     } else {
                         xcp.booleanValue()
