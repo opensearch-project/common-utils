@@ -18,7 +18,8 @@ data class WorkflowRunContext(
     val workflowMetadataId: String,
     val chainedMonitorId: String?,
     val matchingDocIdsPerIndex: Map<String, List<String>>,
-    val auditDelegateMonitorAlerts: Boolean
+    val auditDelegateMonitorAlerts: Boolean,
+    val findingIds: List<String>? = null
 ) : Writeable, ToXContentObject {
     companion object {
         fun readFrom(sin: StreamInput): WorkflowRunContext {
@@ -31,7 +32,8 @@ data class WorkflowRunContext(
         sin.readString(),
         sin.readOptionalString(),
         sin.readMap() as Map<String, List<String>>,
-        sin.readBoolean()
+        sin.readBoolean(),
+        sin.readOptionalStringList()
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -40,6 +42,7 @@ data class WorkflowRunContext(
         out.writeOptionalString(chainedMonitorId)
         out.writeMap(matchingDocIdsPerIndex)
         out.writeBoolean(auditDelegateMonitorAlerts)
+        out.writeOptionalStringCollection(findingIds)
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params?): XContentBuilder {
@@ -49,6 +52,7 @@ data class WorkflowRunContext(
             .field("chained_monitor_id", chainedMonitorId)
             .field("matching_doc_ids_per_index", matchingDocIdsPerIndex)
             .field("audit_delegate_monitor_alerts", auditDelegateMonitorAlerts)
+            .field("finding_ids", findingIds)
             .endObject()
         return builder
     }
