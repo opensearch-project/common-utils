@@ -43,7 +43,7 @@ data class Monitor(
     val uiMetadata: Map<String, Any>,
     val dataSources: DataSources = DataSources(),
     val deleteQueryIndexInEveryRun: Boolean? = false,
-    val shouldPersistFindingsAndAlerts: Boolean? = false,
+    val shouldCreateSingleAlertForFindings: Boolean? = false,
     val owner: String? = "alerting"
 ) : ScheduledJob {
 
@@ -113,7 +113,7 @@ data class Monitor(
             DataSources()
         },
         deleteQueryIndexInEveryRun = sin.readOptionalBoolean(),
-        shouldPersistFindingsAndAlerts = sin.readOptionalBoolean(),
+        shouldCreateSingleAlertForFindings = sin.readOptionalBoolean(),
         owner = sin.readOptionalString()
     )
 
@@ -174,7 +174,7 @@ data class Monitor(
         if (uiMetadata.isNotEmpty()) builder.field(UI_METADATA_FIELD, uiMetadata)
         builder.field(DATA_SOURCES_FIELD, dataSources)
         builder.field(DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD, deleteQueryIndexInEveryRun)
-        builder.field(SHOULD_PERSIST_FINDINGS_AND_ALERTS_FIELD, shouldPersistFindingsAndAlerts)
+        builder.field(SHOULD_PERSIST_FINDINGS_AND_ALERTS_FIELD, shouldCreateSingleAlertForFindings)
         builder.field(OWNER_FIELD, owner)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
@@ -227,7 +227,7 @@ data class Monitor(
         out.writeBoolean(dataSources != null) // for backward compatibility with pre-existing monitors which don't have datasources field
         dataSources.writeTo(out)
         out.writeOptionalBoolean(deleteQueryIndexInEveryRun)
-        out.writeOptionalBoolean(shouldPersistFindingsAndAlerts)
+        out.writeOptionalBoolean(shouldCreateSingleAlertForFindings)
         out.writeOptionalString(owner)
     }
 
