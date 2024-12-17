@@ -59,6 +59,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Run start commands
+        run: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-start-command }}
+
       - name: Checkout
         uses: actions/checkout@v4
 
