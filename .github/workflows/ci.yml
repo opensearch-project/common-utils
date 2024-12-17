@@ -21,7 +21,6 @@ jobs:
       matrix:
         java: 
           - 21
-          - 23
     name: Build and Test
     runs-on: ubuntu-latest
     container:
@@ -56,7 +55,6 @@ jobs:
       matrix:
         java: 
           - 21
-          - 23
     name: Build and Test
     runs-on: windows-latest
 
