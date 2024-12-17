@@ -23,7 +23,7 @@ data class DocLevelMonitorInput(
         sin.readString(), // description
         sin.readStringList(), // indices
         sin.readList(::DocLevelQuery), // docLevelQueries
-        sin.readOptionalBoolean(), // fanoutEnabled
+        sin.readOptionalBoolean() // fanoutEnabled
     )
 
     override fun asTemplateArg(): Map<String, Any> {
