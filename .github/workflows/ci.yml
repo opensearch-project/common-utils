@@ -6,8 +6,6 @@ on:
   pull_request:
     branches:
       - "*"
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   Get-CI-Image-Tag:
@@ -21,7 +19,6 @@ jobs:
       matrix:
         java: 
           - 21
-          - 23
     name: Build and Test
     runs-on: ubuntu-latest
     container:
@@ -29,11 +26,14 @@ jobs:
       # this image tag is subject to change as more dependencies and updates will arrive over time
       image: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-version-linux }}
       # need to switch to root so that github actions can install runner binary on container without permission issues.
-      options: --user root
+      options: --user ${{ needs.Get-CI-Image-Tag.outputs.ci-image-start-options }}
 
     steps:
+      - name: Run start commands
+        run: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-start-command }}
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Java ${{ matrix.java }}
         uses: actions/setup-java@v1
@@ -56,13 +56,15 @@ jobs:
       matrix:
         java: 
           - 21
-          - 23
     name: Build and Test
     runs-on: windows-latest
 
     steps:
+      - name: Run start commands
+        run: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-start-command }}
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Java ${{ matrix.java }}
         uses: actions/setup-java@v1
