@@ -45,7 +45,7 @@ data class Monitor(
     val deleteQueryIndexInEveryRun: Boolean? = false,
     val shouldCreateSingleAlertForFindings: Boolean? = false,
     val owner: String? = "alerting",
-    val fanoutEnabled: Boolean? = true,
+    val fanoutEnabled: Boolean? = true
 ) : ScheduledJob {
 
     override val type = MONITOR_TYPE
