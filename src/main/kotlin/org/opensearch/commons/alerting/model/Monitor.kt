@@ -44,7 +44,7 @@ data class Monitor(
     val dataSources: DataSources = DataSources(),
     val deleteQueryIndexInEveryRun: Boolean? = false,
     val shouldCreateSingleAlertForFindings: Boolean? = false,
-    val owner: String? = "alerting",
+    val owner: String? = "alerting"
 ) : ScheduledJob {
 
     override val type = MONITOR_TYPE
@@ -372,7 +372,7 @@ data class Monitor(
                 dataSources,
                 deleteQueryIndexInEveryRun,
                 delegateMonitor,
-                owner,
+                owner
             )
         }
 
