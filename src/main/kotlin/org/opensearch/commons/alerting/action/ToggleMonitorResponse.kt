@@ -12,7 +12,7 @@ import org.opensearch.core.xcontent.ToXContent.Params
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
 
-class UpdateMonitorStateResponse : BaseResponse {
+class ToggleMonitorResponse : BaseResponse {
     var id: String
     var version: Long
     var seqNo: Long

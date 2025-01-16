@@ -7,7 +7,7 @@ import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
 import java.io.IOException
 
-class UpdateMonitorStateRequest : ActionRequest {
+class ToggleMonitorRequest : ActionRequest {
     val monitorId: String
     val enabled: Boolean
     val seqNo: Long
