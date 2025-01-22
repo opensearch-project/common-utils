@@ -91,8 +91,6 @@ fun isValidName(name: String): Boolean {
     return name.matches(regex)
 }
 
-
-
 fun getInvalidNameChars(): String {
     return INVALID_NAME_CHARS
 }
