@@ -19,7 +19,7 @@ class ToggleMonitorRequest : ActionRequest {
         enabled: Boolean,
         seqNo: Long,
         primaryTerm: Long,
-        method: RestRequest.Method,
+        method: RestRequest.Method
     ) : super() {
         this.monitorId = monitorId
         this.enabled = enabled
@@ -34,7 +34,7 @@ class ToggleMonitorRequest : ActionRequest {
         enabled = sin.readBoolean(),
         seqNo = sin.readLong(),
         primaryTerm = sin.readLong(),
-        method = sin.readEnum(RestRequest.Method::class.java),
+        method = sin.readEnum(RestRequest.Method::class.java)
     )
 
     @Throws(IOException::class)
