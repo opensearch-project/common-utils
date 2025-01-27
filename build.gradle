@@ -6,9 +6,9 @@
 buildscript {
     ext {
         opensearch_group = "org.opensearch"
-        opensearch_version = System.getProperty("opensearch.version", "3.0.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "3.0.0-alpha1-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
-        buildVersionQualifier = System.getProperty("build.version_qualifier", "")
+        buildVersionQualifier = System.getProperty("build.version_qualifier", "alpha1")
         kotlin_version = System.getProperty("kotlin.version", "1.9.25")
     }
 
@@ -58,7 +58,7 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'signing'
 apply plugin: 'maven-publish'
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 // apply plugin: 'io.gitlab.arturbosch.detekt'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.jetbrains.kotlin.plugin.allopen'
