@@ -23,7 +23,7 @@ jobs:
         os:
           - ubuntu-24.04-arm  # arm64-preview
           - ubuntu-24.04  # x64
-    name: Build and Test
+    name: Build and Test Linux
     runs-on: ${{ matrix.os }}
     container:
       # using the same image which is used by opensearch-build team to build the OpenSearch Distribution
@@ -62,7 +62,7 @@ jobs:
         java: 
           - 21
           - 23
-    name: Build and Test
+    name: Build and Test Windows
     runs-on: windows-latest
 
     steps:
