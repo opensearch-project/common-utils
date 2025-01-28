@@ -33,14 +33,14 @@ jobs:
       options: --user root
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Setup Java ${{ matrix.java }}
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Build and Test
         run: |
