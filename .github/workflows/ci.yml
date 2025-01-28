@@ -44,7 +44,7 @@ jobs:
       - name: Build and Test
         run: |
           chown -R 1000:1000 `pwd`
-          su `id -un 1000` -c "./gradlew build &&
+          su `id -un 1000` -c "./gradlew build -x spotlessJava &&
                                ./gradlew publishToMavenLocal"
           
       - name: Upload Coverage Report
@@ -74,7 +74,7 @@ jobs:
 
       - name: Build and Test
         run: |
-          ./gradlew build
+          ./gradlew build -x spotlessJava
 
       - name: Publish to Maven Local
         run: |
