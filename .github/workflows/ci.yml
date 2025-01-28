@@ -37,14 +37,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java ${{ matrix.java }}
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: ${{ matrix.java }}
 
       - name: Build and Test
         run: |
           chown -R 1000:1000 `pwd`
-          su `id -un 1000` -c "./gradlew build -x spotlessJava &&
+          su `id -un 1000` -c "./gradlew build &&
                                ./gradlew publishToMavenLocal"
           
       - name: Upload Coverage Report
@@ -74,7 +75,7 @@ jobs:
 
       - name: Build and Test
         run: |
-          ./gradlew build -x spotlessJava
+          ./gradlew build
 
       - name: Publish to Maven Local
         run: |
