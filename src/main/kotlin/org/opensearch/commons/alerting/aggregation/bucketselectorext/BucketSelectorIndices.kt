@@ -1,5 +1,6 @@
 package org.opensearch.commons.alerting.aggregation.bucketselectorext
 
+import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
@@ -7,12 +8,28 @@ import org.opensearch.search.aggregations.InternalAggregation
 import java.io.IOException
 import java.util.Objects
 
-open class BucketSelectorIndices(
-    name: String?,
-    private var parentBucketPath: String,
-    var bucketIndices: List<Int?>,
-    metaData: Map<String?, Any?>?
-) : InternalAggregation(name, metaData) {
+open class BucketSelectorIndices : InternalAggregation {
+    private var parentBucketPath: String
+    var bucketIndices: List<Int?>
+
+    constructor(
+        name: String?,
+        parentBucketPath: String,
+        bucketIndices: List<Int?>,
+        metaData: Map<String?, Any?>?
+    ) : super(name, metaData) {
+        this.parentBucketPath = parentBucketPath
+        this.bucketIndices = bucketIndices
+    }
+
+    /**
+     * Read from a stream.
+     */
+    @Throws(IOException::class)
+    constructor(sin: StreamInput) : super(sin) {
+        parentBucketPath = sin.readString()
+        bucketIndices = sin.readIntArray().asList()
+    }
 
     @Throws(IOException::class)
     override fun doWriteTo(out: StreamOutput) {
@@ -21,7 +38,7 @@ open class BucketSelectorIndices(
     }
 
     override fun getWriteableName(): String {
-        return name
+        return BucketSelectorExtAggregationBuilder.NAME.preferredName
     }
 
     override fun reduce(aggregations: List<InternalAggregation>, reduceContext: ReduceContext): BucketSelectorIndices {
