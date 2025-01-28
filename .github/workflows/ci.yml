@@ -31,17 +31,17 @@ jobs:
       options: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-start-options }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run start commands
-        run: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-start-command }}
-
       - name: Setup Java ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
+
+      - name: Run start commands
+        run: ${{ needs.Get-CI-Image-Tag.outputs.ci-image-start-command }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Build and Test
         run: |
