@@ -14,17 +14,19 @@ import java.io.IOException
 data class DocLevelMonitorInput(
     val description: String = NO_DESCRIPTION,
     val indices: List<String>,
-    val queries: List<DocLevelQuery>
+    val queries: List<DocLevelQuery>,
+    val fanoutEnabled: Boolean? = true
 ) : Input {
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // description
         sin.readStringList(), // indices
-        sin.readList(::DocLevelQuery) // docLevelQueries
+        sin.readList(::DocLevelQuery), // docLevelQueries
+        sin.readOptionalBoolean() // fanoutEnabled
     )
 
-    fun asTemplateArg(): Map<String, Any?> {
+    override fun asTemplateArg(): Map<String, Any> {
         return mapOf(
             DESCRIPTION_FIELD to description,
             INDICES_FIELD to indices,
@@ -41,6 +43,7 @@ data class DocLevelMonitorInput(
         out.writeString(description)
         out.writeStringCollection(indices)
         out.writeCollection(queries)
+        out.writeOptionalBoolean(fanoutEnabled)
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
@@ -49,6 +52,7 @@ data class DocLevelMonitorInput(
             .field(DESCRIPTION_FIELD, description)
             .field(INDICES_FIELD, indices.toTypedArray())
             .field(QUERIES_FIELD, queries.toTypedArray())
+            .field(FANOUT_FIELD, fanoutEnabled)
             .endObject()
             .endObject()
         return builder
@@ -59,7 +63,7 @@ data class DocLevelMonitorInput(
         const val INDICES_FIELD = "indices"
         const val DOC_LEVEL_INPUT_FIELD = "doc_level_input"
         const val QUERIES_FIELD = "queries"
-
+        const val FANOUT_FIELD = "fan_out_enabled"
         const val NO_DESCRIPTION = ""
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
@@ -74,6 +78,7 @@ data class DocLevelMonitorInput(
             var description: String = NO_DESCRIPTION
             val indices: MutableList<String> = mutableListOf()
             val docLevelQueries: MutableList<DocLevelQuery> = mutableListOf()
+            var fanoutEnabled: Boolean? = true
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -102,10 +107,15 @@ data class DocLevelMonitorInput(
                             docLevelQueries.add(DocLevelQuery.parse(xcp))
                         }
                     }
+                    FANOUT_FIELD -> fanoutEnabled = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                        fanoutEnabled
+                    } else {
+                        xcp.booleanValue()
+                    }
                 }
             }
 
-            return DocLevelMonitorInput(description = description, indices = indices, queries = docLevelQueries)
+            return DocLevelMonitorInput(description = description, indices = indices, queries = docLevelQueries, fanoutEnabled = fanoutEnabled)
         }
 
         @JvmStatic

@@ -18,7 +18,7 @@ data class RemoteMonitorInput(val input: BytesReference) : Input {
         sin.readBytesReference()
     )
 
-    fun asTemplateArg(): Map<String, Any?> {
+    override fun asTemplateArg(): Map<String, Any> {
         val bytes = input.toBytesRef().bytes
         return mapOf(
             INPUT_SIZE to bytes.size,
