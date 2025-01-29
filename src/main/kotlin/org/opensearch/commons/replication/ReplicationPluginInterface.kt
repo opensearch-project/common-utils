@@ -5,8 +5,9 @@
 package org.opensearch.commons.replication
 
 import org.opensearch.action.support.master.AcknowledgedResponse
+import org.opensearch.client.Client
 import org.opensearch.client.node.NodeClient
-import org.opensearch.commons.replication.action.ReplicationActions.UNFOLLOW_REPLICATION_ACTION_TYPE
+import org.opensearch.commons.replication.action.ReplicationActions.INTERNAL_STOP_REPLICATION_ACTION_TYPE
 import org.opensearch.commons.replication.action.StopIndexReplicationRequest
 import org.opensearch.commons.utils.recreateObject
 import org.opensearch.core.action.ActionListener
@@ -16,7 +17,7 @@ import org.opensearch.core.common.io.stream.Writeable
 /**
  * Transport action plugin interfaces for the cross-cluster-replication plugin.
  */
-object ReplicationPluginInterface {
+open class ReplicationPluginInterface {
 
     /**
      * Stop replication.
@@ -25,13 +26,14 @@ object ReplicationPluginInterface {
      * @param listener The listener for getting response
      */
 
-    fun stopReplication(
-        client: NodeClient,
+    open fun stopReplication(
+        client: Client,
         request: StopIndexReplicationRequest,
         listener: ActionListener<AcknowledgedResponse>
     ) {
-        return client.execute(
-            UNFOLLOW_REPLICATION_ACTION_TYPE,
+        val nodeClient = client as NodeClient
+        return nodeClient.execute(
+            INTERNAL_STOP_REPLICATION_ACTION_TYPE,
             request,
             wrapActionListener(listener) { response ->
                 recreateObject(response) {

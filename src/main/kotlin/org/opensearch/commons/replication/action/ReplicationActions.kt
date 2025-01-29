@@ -14,18 +14,17 @@ object ReplicationActions {
 
     /**
      * Action names for stopping replication
-     * STOP_REPLICATION_ACTION_NAME: action used for _stop REST API
-     * UNFOLLOW_REPLICATION_ACTION_NAME: internal action used for inter-plugin communication i.e. by ism to invoke stop
-     * replication.
+     * STOP_REPLICATION_ACTION_NAME: action used for _replication/_stop REST API
+     * INTERNAL_STOP_REPLICATION_ACTION_NAME: Internal only - Used by Index Management plugin to invoke stop replication
      */
     const val STOP_REPLICATION_ACTION_NAME = "indices:admin/plugins/replication/index/stop"
-    const val UNFOLLOW_REPLICATION_ACTION_NAME = "indices:admin/plugins/replication/index/unfollow"
+    const val INTERNAL_STOP_REPLICATION_ACTION_NAME = "indices:internal/plugins/replication/index/stop"
 
     /**
      * Stop replication transport action types.
      */
     val STOP_REPLICATION_ACTION_TYPE =
         ActionType(STOP_REPLICATION_ACTION_NAME, ::AcknowledgedResponse)
-    val UNFOLLOW_REPLICATION_ACTION_TYPE =
-        ActionType(UNFOLLOW_REPLICATION_ACTION_NAME, ::AcknowledgedResponse)
+    val INTERNAL_STOP_REPLICATION_ACTION_TYPE =
+        ActionType(INTERNAL_STOP_REPLICATION_ACTION_NAME, ::AcknowledgedResponse)
 }
