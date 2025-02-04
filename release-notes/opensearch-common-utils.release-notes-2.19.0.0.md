@@ -16,4 +16,4 @@ Compatible with OpenSearch 2.19.0
 * Monitor model changed to add an optional fanoutEnabled field ([#758](https://github.com/opensearch-project/common-utils/pull/758))
 
 ### Documentation
-* Added 2.1.0.0 release notes. ([#780](https://github.com/opensearch-project/common-utils/pull/780))
+* Added 2.19.0.0 release notes. ([#780](https://github.com/opensearch-project/common-utils/pull/780))
