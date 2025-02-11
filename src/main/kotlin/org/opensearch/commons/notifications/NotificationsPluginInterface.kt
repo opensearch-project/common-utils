@@ -4,7 +4,6 @@
  */
 package org.opensearch.commons.notifications
 
-import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
@@ -38,6 +37,7 @@ import org.opensearch.commons.utils.recreateObject
 import org.opensearch.core.action.ActionListener
 import org.opensearch.core.action.ActionResponse
 import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.transport.client.node.NodeClient
 
 /**
  * All the transport action plugin interfaces for the Notification plugin

@@ -18,7 +18,6 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.ActionType
-import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.destination.response.LegacyDestinationResponse
 import org.opensearch.commons.notifications.action.CreateNotificationConfigRequest
 import org.opensearch.commons.notifications.action.CreateNotificationConfigResponse
@@ -50,6 +49,7 @@ import org.opensearch.commons.notifications.model.SeverityType
 import org.opensearch.commons.notifications.model.Slack
 import org.opensearch.core.action.ActionListener
 import org.opensearch.core.rest.RestStatus
+import org.opensearch.transport.client.node.NodeClient
 import java.time.Instant
 
 @Suppress("UNCHECKED_CAST")
