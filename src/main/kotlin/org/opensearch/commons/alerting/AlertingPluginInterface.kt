@@ -5,7 +5,6 @@
 package org.opensearch.commons.alerting
 
 import org.opensearch.action.search.SearchResponse
-import org.opensearch.client.node.NodeClient
 import org.opensearch.commons.alerting.action.AcknowledgeAlertRequest
 import org.opensearch.commons.alerting.action.AcknowledgeAlertResponse
 import org.opensearch.commons.alerting.action.AcknowledgeChainedAlertRequest
@@ -37,6 +36,7 @@ import org.opensearch.core.action.ActionListener
 import org.opensearch.core.action.ActionResponse
 import org.opensearch.core.common.io.stream.NamedWriteableRegistry
 import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.transport.client.node.NodeClient
 
 /**
  * All the transport action plugin interfaces for the Alerting plugin
