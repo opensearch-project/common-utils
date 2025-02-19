@@ -4,9 +4,9 @@
  */
 package org.opensearch.commons.replication
 
-import org.opensearch.action.support.master.AcknowledgedResponse
-import org.opensearch.client.Client
-import org.opensearch.client.node.NodeClient
+import org.opensearch.action.support.clustermanager.AcknowledgedResponse
+import org.opensearch.transport.client.Client
+import org.opensearch.transport.client.node.NodeClient
 import org.opensearch.commons.replication.action.ReplicationActions.INTERNAL_STOP_REPLICATION_ACTION_TYPE
 import org.opensearch.commons.replication.action.StopIndexReplicationRequest
 import org.opensearch.commons.utils.recreateObject

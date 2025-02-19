@@ -9,11 +9,11 @@ import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.any
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
-import org.opensearch.action.support.master.AcknowledgedResponse
-import org.opensearch.client.node.NodeClient
+import org.opensearch.action.support.clustermanager.AcknowledgedResponse
+import org.opensearch.transport.client.node.NodeClient
 import org.opensearch.commons.replication.action.StopIndexReplicationRequest
 import org.opensearch.core.action.ActionListener
 import org.opensearch.core.action.ActionResponse
