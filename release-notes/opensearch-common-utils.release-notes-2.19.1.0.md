@@ -7,4 +7,4 @@ Compatible with OpenSearch 2.19.1
 * Upgrade logback to 1.5.16 and Cron Utils to 9.1.8 ([#796](https://github.com/opensearch-project/common-utils/pull/796))
 
 ### Documentation
-* Added 2.19.1.0 release notes. ([#780](https://github.com/opensearch-project/common-utils/pull/780))
+* Added 2.19.1.0 release notes. ([#797](https://github.com/opensearch-project/common-utils/pull/797))
