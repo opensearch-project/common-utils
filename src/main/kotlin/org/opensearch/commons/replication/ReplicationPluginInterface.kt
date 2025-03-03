@@ -5,19 +5,19 @@
 package org.opensearch.commons.replication
 
 import org.opensearch.action.support.clustermanager.AcknowledgedResponse
-import org.opensearch.transport.client.Client
-import org.opensearch.transport.client.node.NodeClient
 import org.opensearch.commons.replication.action.ReplicationActions.INTERNAL_STOP_REPLICATION_ACTION_TYPE
 import org.opensearch.commons.replication.action.StopIndexReplicationRequest
 import org.opensearch.commons.utils.recreateObject
 import org.opensearch.core.action.ActionListener
 import org.opensearch.core.action.ActionResponse
 import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.transport.client.Client
+import org.opensearch.transport.client.node.NodeClient
 
 /**
  * Transport action plugin interfaces for the cross-cluster-replication plugin.
  */
-open class ReplicationPluginInterface {
+object ReplicationPluginInterface {
 
     /**
      * Stop replication.
@@ -26,7 +26,7 @@ open class ReplicationPluginInterface {
      * @param listener The listener for getting response
      */
 
-    open fun stopReplication(
+    fun stopReplication(
         client: Client,
         request: StopIndexReplicationRequest,
         listener: ActionListener<AcknowledgedResponse>

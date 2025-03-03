@@ -13,10 +13,10 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.junit.jupiter.MockitoExtension
 import org.opensearch.action.support.clustermanager.AcknowledgedResponse
-import org.opensearch.transport.client.node.NodeClient
 import org.opensearch.commons.replication.action.StopIndexReplicationRequest
 import org.opensearch.core.action.ActionListener
 import org.opensearch.core.action.ActionResponse
+import org.opensearch.transport.client.node.NodeClient
 
 @ExtendWith(MockitoExtension::class)
 internal class ReplicationPluginInterfaceTests {
@@ -36,9 +36,8 @@ internal class ReplicationPluginInterfaceTests {
                 actionListener.onResponse(acknowledgedResponse) // Simulate success
             }
 
-        val replicationPluginInterface = ReplicationPluginInterface()
         // Call method under test
-        replicationPluginInterface.stopReplication(client, request, listener)
+        ReplicationPluginInterface.stopReplication(client, request, listener)
         // Verify that listener.onResponse is called with the correct response
         verify(listener).onResponse(acknowledgedResponse)
     }
@@ -58,9 +57,8 @@ internal class ReplicationPluginInterfaceTests {
                 actionListener.onFailure(exception) // Simulate failure
             }
 
-        val replicationPluginInterface = ReplicationPluginInterface()
         // Call method under test
-        replicationPluginInterface.stopReplication(client, request, listener)
+        ReplicationPluginInterface.stopReplication(client, request, listener)
         // Verify that listener.onResponse is called with the correct response
         verify(listener).onFailure(exception)
     }
