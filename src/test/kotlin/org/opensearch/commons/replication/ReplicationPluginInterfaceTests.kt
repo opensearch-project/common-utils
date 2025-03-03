@@ -36,9 +36,8 @@ internal class ReplicationPluginInterfaceTests {
                 actionListener.onResponse(acknowledgedResponse) // Simulate success
             }
 
-        val replicationPluginInterface = ReplicationPluginInterface()
         // Call method under test
-        replicationPluginInterface.stopReplication(client, request, listener)
+        ReplicationPluginInterface.stopReplication(client, request, listener)
         // Verify that listener.onResponse is called with the correct response
         verify(listener).onResponse(acknowledgedResponse)
     }
@@ -58,9 +57,8 @@ internal class ReplicationPluginInterfaceTests {
                 actionListener.onFailure(exception) // Simulate failure
             }
 
-        val replicationPluginInterface = ReplicationPluginInterface()
         // Call method under test
-        replicationPluginInterface.stopReplication(client, request, listener)
+        ReplicationPluginInterface.stopReplication(client, request, listener)
         // Verify that listener.onResponse is called with the correct response
         verify(listener).onFailure(exception)
     }
