@@ -17,8 +17,7 @@ import org.opensearch.core.common.io.stream.Writeable
 /**
  * Transport action plugin interfaces for the cross-cluster-replication plugin.
  */
-open class ReplicationPluginInterface {
-
+object ReplicationPluginInterface {
     /**
      * Stop replication.
      * @param client Node client for making transport action
@@ -26,7 +25,7 @@ open class ReplicationPluginInterface {
      * @param listener The listener for getting response
      */
 
-    open fun stopReplication(
+    fun stopReplication(
         client: Client,
         request: StopIndexReplicationRequest,
         listener: ActionListener<AcknowledgedResponse>
