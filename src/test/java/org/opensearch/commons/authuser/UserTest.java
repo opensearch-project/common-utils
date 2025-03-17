@@ -206,6 +206,68 @@ public class UserTest {
     }
 
     @Test
+    public void testParseUserStringWithPipeInUserName() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser\\|test-pipe|bckrole1,bckrol2|role1,role2|myTenant");
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+
+        assertEquals("myuser|test-pipe", user.getName());
+        assertEquals(2, user.getBackendRoles().size());
+        assertEquals(2, user.getRoles().size());
+        assertTrue(user.getRoles().contains("role1"));
+        assertTrue(user.getRoles().contains("role2"));
+        assertEquals("myTenant", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testParseUserStringWithPipeInBackedRoleName() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1\\|br1,bckrole2\\|br2|role1,role2|myTenant");
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+
+        assertEquals("myuser", user.getName());
+        assertEquals(2, user.getBackendRoles().size());
+        assertTrue(user.getBackendRoles().contains("bckrole1|br1"));
+        assertTrue(user.getBackendRoles().contains("bckrole2|br2"));
+        assertEquals(2, user.getRoles().size());
+        assertTrue(user.getRoles().contains("role1"));
+        assertTrue(user.getRoles().contains("role2"));
+        assertEquals("myTenant", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testParseUserStringWithPipeInRoleName() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1,bckrol2|role1\\|r1,role2\\|r2|myTenant");
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+
+        assertEquals("myuser", user.getName());
+        assertEquals(2, user.getBackendRoles().size());
+        assertEquals(2, user.getRoles().size());
+        assertTrue(user.getRoles().contains("role1|r1"));
+        assertTrue(user.getRoles().contains("role2|r2"));
+        assertEquals("myTenant", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testParseUserStringWithPipeInTenantName() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1,bckrol2|role1,role2|myTenant\\|t1");
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+
+        assertEquals("myuser", user.getName());
+        assertEquals(2, user.getBackendRoles().size());
+        assertEquals(2, user.getRoles().size());
+        assertTrue(user.getRoles().contains("role1"));
+        assertTrue(user.getRoles().contains("role2"));
+        assertEquals("myTenant|t1", user.getRequestedTenant());
+    }
+
+    @Test
     public void testUserIsAdminDnTrue() {
         Settings settings = Settings
             .builder()

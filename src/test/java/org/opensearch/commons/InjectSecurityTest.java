@@ -125,6 +125,42 @@ public class InjectSecurityTest {
     }
 
     @Test
+    public void testInjectUserInfoWithPipeInUserName() {
+        Settings settings = Settings.builder().build();
+        Settings headerSettings = Settings.builder().put("request.headers.default", "1").build();
+        ThreadContext threadContext = new ThreadContext(headerSettings);
+        threadContext.putHeader("name", "opendistro");
+        threadContext.putTransient("ctx.name", "plugin");
+
+        assertEquals("1", threadContext.getHeader("default"));
+        assertEquals("opendistro", threadContext.getHeader("name"));
+        assertEquals("plugin", threadContext.getTransient("ctx.name"));
+
+        User user = new User(
+                "Bob|test-pipe",
+                List.of("backendRole1", "backendRole2"),
+                List.of("role1", "role2"),
+                List.of("attr1", "attr2"),
+                "tenant1"
+        );
+        try (InjectSecurity helper = new InjectSecurity("test-name", null, threadContext)) {
+            helper.injectUserInfo(user);
+            assertEquals("1", threadContext.getHeader("default"));
+            assertEquals("opendistro", threadContext.getHeader("name"));
+            assertEquals("plugin", threadContext.getTransient("ctx.name"));
+            assertNotNull(threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT));
+            assertEquals(
+                    "Bob\\|test-pipe|backendRole1,backendRole2|role1,role2|tenant1",
+                    threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
+            );
+        }
+        assertEquals("1", threadContext.getHeader("default"));
+        assertEquals("opendistro", threadContext.getHeader("name"));
+        assertEquals("plugin", threadContext.getTransient("ctx.name"));
+        assertNull(threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT));
+    }
+
+    @Test
     public void testInjectProperty() {
         Settings settings = Settings.builder().put(OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS, false).build();
         Settings headerSettings = Settings.builder().put("request.headers.default", "1").build();
