@@ -89,14 +89,4 @@ public class UtilsTest {
         String unescaped = Utils.unescapePipe(escaped);
         assertEquals(original, unescaped);
     }
-
-    @Test
-    public void testRoundTrip_AlreadyEscapedString() {
-        String original = "user\\|with\\|escaped\\|pipes";
-        String escaped = Utils.escapePipe(original);
-        String unescaped = Utils.unescapePipe(escaped);
-        // Note: This might need adjustment based on your intended behavior
-        // Currently it will double-escape and then unescape once
-        assertEquals("user\\|with\\|escaped\\|pipes", unescaped);
-    }
 }

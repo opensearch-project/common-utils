@@ -137,11 +137,11 @@ public class InjectSecurityTest {
         assertEquals("plugin", threadContext.getTransient("ctx.name"));
 
         User user = new User(
-                "Bob|test-pipe",
-                List.of("backendRole1", "backendRole2"),
-                List.of("role1", "role2"),
-                List.of("attr1", "attr2"),
-                "tenant1"
+            "Bob|test-pipe",
+            List.of("backendRole1", "backendRole2"),
+            List.of("role1", "role2"),
+            List.of("attr1", "attr2"),
+            "tenant1"
         );
         try (InjectSecurity helper = new InjectSecurity("test-name", null, threadContext)) {
             helper.injectUserInfo(user);
@@ -150,8 +150,8 @@ public class InjectSecurityTest {
             assertEquals("plugin", threadContext.getTransient("ctx.name"));
             assertNotNull(threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT));
             assertEquals(
-                    "Bob\\|test-pipe|backendRole1,backendRole2|role1,role2|tenant1",
-                    threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
+                "Bob\\|test-pipe|backendRole1,backendRole2|role1,role2|tenant1",
+                threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
             );
         }
         assertEquals("1", threadContext.getHeader("default"));

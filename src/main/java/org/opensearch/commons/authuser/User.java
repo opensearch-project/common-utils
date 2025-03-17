@@ -180,21 +180,16 @@ final public class User implements Writeable, ToXContent {
         String requestedTenant = null;
 
         if ((strs.length > 1) && !Strings.isNullOrEmpty(strs[1])) {
-            backendRoles.addAll(Arrays.stream(strs[1].split(","))
-                    .map(Utils::unescapePipe)
-                    .toList());
+            backendRoles.addAll(Arrays.stream(strs[1].split(",")).map(Utils::unescapePipe).toList());
         }
         if ((strs.length > 2) && !Strings.isNullOrEmpty(strs[2])) {
-            roles.addAll(Arrays.stream(strs[2].split(","))
-                    .map(Utils::unescapePipe)
-                    .toList());
+            roles.addAll(Arrays.stream(strs[2].split(",")).map(Utils::unescapePipe).toList());
         }
         if ((strs.length > 3) && !Strings.isNullOrEmpty(strs[3])) {
             requestedTenant = unescapePipe(strs[3].trim());
         }
         return new User(userName, backendRoles, roles, Arrays.asList(), requestedTenant);
     }
-
 
     @Override
     public XContentBuilder toXContent(XContentBuilder builder, Params params) throws IOException {
