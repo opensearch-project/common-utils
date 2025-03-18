@@ -221,6 +221,25 @@ public class UserTest {
     }
 
     @Test
+    public void testParseUserStringWithMultiplePipesInUserName() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc
+            .putTransient(
+                OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT,
+                "myuser\\|test-pipe\\|test-pipe2|bckrole1,bckrol2|role1,role2|myTenant"
+            );
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+
+        assertEquals("myuser|test-pipe|test-pipe2", user.getName());
+        assertEquals(2, user.getBackendRoles().size());
+        assertEquals(2, user.getRoles().size());
+        assertTrue(user.getRoles().contains("role1"));
+        assertTrue(user.getRoles().contains("role2"));
+        assertEquals("myTenant", user.getRequestedTenant());
+    }
+
+    @Test
     public void testParseUserStringWithPipeInBackedRoleName() {
         ThreadContext tc = new ThreadContext(Settings.EMPTY);
         tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1\\|br1,bckrole2\\|br2|role1,role2|myTenant");
