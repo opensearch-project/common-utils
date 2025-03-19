@@ -5,6 +5,7 @@
 
 package org.opensearch.commons.authuser;
 
+import static org.opensearch.commons.authuser.Utils.unescapePipe;
 import static org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken;
 
 import java.io.IOException;
@@ -165,24 +166,26 @@ final public class User implements Writeable, ToXContent {
             return null;
         }
 
-        String[] strs = userString.split("\\|");
+        // Split on unescaped pipes (negative lookbehind for backslash)
+        String[] strs = userString.split("(?<!\\\\)\\|");
         if ((strs.length == 0) || (Strings.isNullOrEmpty(strs[0]))) {
             return null;
         }
 
-        String userName = strs[0].trim();
+        // Unescape the values
+        String userName = unescapePipe(strs[0].trim());
         List<String> backendRoles = new ArrayList<>();
         List<String> roles = new ArrayList<>();
         String requestedTenant = null;
 
         if ((strs.length > 1) && !Strings.isNullOrEmpty(strs[1])) {
-            backendRoles.addAll(Arrays.asList(strs[1].split(",")));
+            backendRoles.addAll(Arrays.stream(strs[1].split(",")).map(Utils::unescapePipe).toList());
         }
         if ((strs.length > 2) && !Strings.isNullOrEmpty(strs[2])) {
-            roles.addAll(Arrays.asList(strs[2].split(",")));
+            roles.addAll(Arrays.stream(strs[2].split(",")).map(Utils::unescapePipe).toList());
         }
         if ((strs.length > 3) && !Strings.isNullOrEmpty(strs[3])) {
-            requestedTenant = strs[3].trim();
+            requestedTenant = unescapePipe(strs[3].trim());
         }
         return new User(userName, backendRoles, roles, Arrays.asList(), requestedTenant);
     }
