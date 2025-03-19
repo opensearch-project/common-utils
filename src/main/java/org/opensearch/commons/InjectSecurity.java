@@ -8,6 +8,7 @@ package org.opensearch.commons;
 import static org.opensearch.commons.ConfigConstants.INJECTED_USER;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTED_ROLES;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
+import static org.opensearch.commons.authuser.Utils.escapePipe;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -143,13 +144,16 @@ public class InjectSecurity implements AutoCloseable {
                 );
             return;
         }
+
         StringJoiner joiner = new StringJoiner("|");
-        joiner.add(user.getName());
-        joiner.add(java.lang.String.join(",", user.getBackendRoles()));
-        joiner.add(java.lang.String.join(",", user.getRoles()));
+        // Escape pipe characters in all fields
+        joiner.add(escapePipe(user.getName()));
+        joiner.add(escapePipe(java.lang.String.join(",", user.getBackendRoles())));
+        joiner.add(escapePipe(java.lang.String.join(",", user.getRoles())));
+
         String requestedTenant = user.getRequestedTenant();
         if (!Strings.isNullOrEmpty(requestedTenant)) {
-            joiner.add(requestedTenant);
+            joiner.add(escapePipe(requestedTenant));
         }
         threadContext.putTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, joiner.toString());
     }
