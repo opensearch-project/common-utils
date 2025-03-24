@@ -5,6 +5,7 @@
 
 package org.opensearch.commons.alerting.action
 
+import org.apache.logging.log4j.LogManager
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.commons.alerting.model.DataSources
@@ -22,11 +23,13 @@ import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.ToXContentObject
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.index.seqno.SequenceNumbers
+import java.io.EOFException
 import java.io.IOException
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
+
     val monitor: Monitor
     val dryRun: Boolean
     val monitorMetadata: MonitorMetadata
@@ -37,10 +40,12 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
     val workflowRunContext: WorkflowRunContext?
 
     companion object {
+        val log = LogManager.getLogger(DocLevelMonitorFanOutRequest::class.java)
         private fun safeReadMonitor(sin: StreamInput): Monitor =
             try {
                 Monitor.readFrom(sin)!!
             } catch (e: Exception) {
+                log.error("Error parsing monitor in Doc level monitor fanout request", e)
                 Monitor(
                     "failed_serde", NO_VERSION, "failed_serde", true,
                     IntervalSchedule(1, ChronoUnit.MINUTES), Instant.now(), Instant.now(), "",
@@ -53,6 +58,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             try {
                 sin.readBoolean()
             } catch (e: Exception) {
+                log.error("Error parsing boolean in Doc level monitor fanout request", e)
                 false
             }
 
@@ -60,6 +66,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             try {
                 MonitorMetadata.readFrom(sin)
             } catch (e: Exception) {
+                log.error("Error parsing monitor in Doc level monitor fanout request", e)
                 MonitorMetadata(
                     "failed_serde",
                     SequenceNumbers.UNASSIGNED_SEQ_NO,
@@ -75,6 +82,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             try {
                 sin.readString()
             } catch (e: Exception) {
+                log.error("Error parsing string in Doc level monitor fanout request", e)
                 ""
             }
 
@@ -82,6 +90,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             try {
                 sin.readList(::ShardId)
             } catch (e: Exception) {
+                log.error("Error parsing shardId list in Doc level monitor fanout request", e)
                 listOf(ShardId("failed_serde", "failed_serde", 999999))
             }
 
@@ -89,6 +98,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             try {
                 sin.readStringList()
             } catch (e: Exception) {
+                log.error("Error parsing string list in Doc level monitor fanout request", e)
                 emptyList()
             }
 
@@ -96,15 +106,35 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             try {
                 if (sin.readBoolean()) WorkflowRunContext(sin) else null
             } catch (e: Exception) {
+                log.error("Error parsing workflow context in Doc level monitor fanout request", e)
                 null
             }
 
-        private fun safeReadIndexExecutionContext(sin: StreamInput): IndexExecutionContext? =
-            try {
-                IndexExecutionContext(sin)
+        private fun safeReadIndexExecutionContext(sin: StreamInput): IndexExecutionContext? {
+            var indexExecutionContext: IndexExecutionContext? = null
+            return try {
+                indexExecutionContext = IndexExecutionContext(sin)
+                while (sin.read() != -1) {
+                    // read and discard bytes until stream is entirely consumed
+                    try {
+                        sin.readByte()
+                    } catch (_: EOFException) {
+                    }
+                }
+                return indexExecutionContext
+            } catch (e: EOFException) {
+                indexExecutionContext
             } catch (e: Exception) {
+                log.error("Error parsing index execution context in Doc level monitor fanout request", e)
+                while (sin.read() != -1) {
+                    try { // read and throw bytes until stream is entirely consumed
+                        sin.readByte()
+                    } catch (_: EOFException) {
+                    }
+                }
                 null
             }
+        }
     }
 
     constructor(
