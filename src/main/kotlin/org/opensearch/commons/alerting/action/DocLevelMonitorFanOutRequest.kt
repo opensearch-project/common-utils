@@ -40,138 +40,8 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
     val workflowRunContext: WorkflowRunContext?
     val hasSerializationFailed: Boolean
 
-    init {
-        serializationFailedFlag = false
-    }
     companion object {
-        // flag flipped to true whenever a safeRead*() method fails to serialize a field correctly
-        private var serializationFailedFlag: Boolean = false
         val log = LogManager.getLogger(DocLevelMonitorFanOutRequest::class.java)
-        private fun safeReadMonitor(sin: StreamInput): Monitor =
-            try {
-                Monitor.readFrom(sin)!!
-            } catch (e: Exception) {
-                serializationFailedFlag = true
-                log.error("Error parsing monitor in Doc level monitor fanout request", e)
-                Monitor(
-                    "failed_serde", NO_VERSION, "failed_serde", true,
-                    IntervalSchedule(1, ChronoUnit.MINUTES), Instant.now(), Instant.now(), "",
-                    null, NO_SCHEMA_VERSION, emptyList(), emptyList(), emptyMap(),
-                    DataSources(), false, false, "failed"
-                )
-            }
-
-        private fun safeReadBoolean(sin: StreamInput): Boolean =
-            try {
-                sin.readBoolean()
-            } catch (e: Exception) {
-                serializationFailedFlag = true
-                log.error("Error parsing boolean in Doc level monitor fanout request", e)
-                false
-            }
-
-        private fun safeReadMonitorMetadata(sin: StreamInput): MonitorMetadata =
-            try {
-                MonitorMetadata.readFrom(sin)
-            } catch (e: Exception) {
-                serializationFailedFlag = true
-                log.error("Error parsing monitor in Doc level monitor fanout request", e)
-                MonitorMetadata(
-                    "failed_serde",
-                    SequenceNumbers.UNASSIGNED_SEQ_NO,
-                    SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
-                    "failed_serde",
-                    emptyList(),
-                    emptyMap(),
-                    mutableMapOf()
-                )
-            }
-
-        private fun safeReadString(sin: StreamInput): String =
-            try {
-                sin.readString()
-            } catch (e: Exception) {
-                serializationFailedFlag = true
-                log.error("Error parsing string in Doc level monitor fanout request", e)
-                ""
-            }
-
-        private fun safeReadShardIds(sin: StreamInput): List<ShardId> =
-            try {
-                sin.readList(::ShardId)
-            } catch (e: Exception) {
-                serializationFailedFlag = true
-                log.error("Error parsing shardId list in Doc level monitor fanout request", e)
-                emptyList()
-            }
-
-        private fun safeReadStringList(sin: StreamInput): List<String> =
-            try {
-                sin.readStringList()
-            } catch (e: Exception) {
-                serializationFailedFlag = true
-                log.error("Error parsing string list in Doc level monitor fanout request", e)
-                emptyList()
-            }
-
-        private fun safeReadWorkflowRunContext(sin: StreamInput): WorkflowRunContext? =
-            try {
-                if (sin.readBoolean()) WorkflowRunContext(sin) else null
-            } catch (e: Exception) {
-                serializationFailedFlag = true
-                log.error("Error parsing workflow context in Doc level monitor fanout request", e)
-                null
-            }
-
-        private fun safeReadIndexExecutionContext(sin: StreamInput): IndexExecutionContext? {
-            var indexExecutionContext: IndexExecutionContext? = null
-            return try {
-                indexExecutionContext = IndexExecutionContext(sin)
-                while (sin.read() != 0) {
-                    serializationFailedFlag = true
-                    // read and discard bytes until stream is entirely consumed
-                    try {
-                        sin.readByte()
-                    } catch (_: EOFException) {
-                    }
-                }
-                return indexExecutionContext
-            } catch (e: EOFException) {
-                indexExecutionContext
-            } catch (e: Exception) {
-                serializationFailedFlag = true
-                log.error("Error parsing index execution context in Doc level monitor fanout request", e)
-                while (sin.read() != 0) {
-                    try { // read and throw bytes until stream is entirely consumed
-                        sin.readByte()
-                    } catch (_: EOFException) {
-                    }
-                }
-                null
-            }
-        }
-    }
-
-    private constructor(
-        monitor: Monitor,
-        dryRun: Boolean,
-        monitorMetadata: MonitorMetadata,
-        executionId: String,
-        indexExecutionContext: IndexExecutionContext?,
-        shardIds: List<ShardId>,
-        concreteIndicesSeenSoFar: List<String>,
-        workflowRunContext: WorkflowRunContext?,
-        hasSerializationFailed: Boolean
-    ) : super() {
-        this.monitor = monitor
-        this.dryRun = dryRun
-        this.monitorMetadata = monitorMetadata
-        this.executionId = executionId
-        this.indexExecutionContext = indexExecutionContext
-        this.shardIds = shardIds
-        this.concreteIndicesSeenSoFar = concreteIndicesSeenSoFar
-        this.workflowRunContext = workflowRunContext
-        this.hasSerializationFailed = hasSerializationFailed ?: false
     }
 
     constructor(
@@ -196,16 +66,63 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
     }
 
     @Throws(IOException::class)
-    constructor(sin: StreamInput) : this(
-        monitor = safeReadMonitor(sin),
-        dryRun = safeReadBoolean(sin),
-        monitorMetadata = safeReadMonitorMetadata(sin),
-        executionId = safeReadString(sin),
-        shardIds = safeReadShardIds(sin),
-        concreteIndicesSeenSoFar = safeReadStringList(sin),
-        workflowRunContext = safeReadWorkflowRunContext(sin),
-        indexExecutionContext = safeReadIndexExecutionContext(sin),
-        hasSerializationFailed = serializationFailedFlag
+    constructor(sin: StreamInput) : super() {
+        var monitorSerializationSucceeded = true
+        var parsedMonitor = getDummyMonitor()
+        try {
+            parsedMonitor = Monitor(sin)
+        } catch (e: Exception) {
+            log.error("Error parsing monitor in Doc level monitor fanout request", e)
+            monitorSerializationSucceeded = false
+            log.info("Force consuming stream in Doc level monitor fanout request")
+            while (sin.read() != 0) {
+                // read and discard bytes until stream is entirely consumed
+                try {
+                    sin.readByte()
+                } catch (_: EOFException) {
+                }
+            }
+        }
+        if (monitorSerializationSucceeded) {
+            this.monitor = parsedMonitor
+            this.dryRun = sin.readBoolean()
+            this.monitorMetadata = MonitorMetadata.readFrom(sin)
+            this.executionId = sin.readString()
+            this.shardIds = sin.readList(::ShardId)
+            this.concreteIndicesSeenSoFar = sin.readStringList()
+            this.workflowRunContext = if (sin.readBoolean()) {
+                WorkflowRunContext(sin)
+            } else {
+                null
+            }
+            indexExecutionContext = IndexExecutionContext(sin)
+            this.hasSerializationFailed = false == monitorSerializationSucceeded
+        } else {
+            this.monitor = parsedMonitor
+            this.dryRun = false
+            this.monitorMetadata = MonitorMetadata(
+                "failed_serde",
+                SequenceNumbers.UNASSIGNED_SEQ_NO,
+                SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
+                "failed_serde",
+                emptyList(),
+                emptyMap(),
+                mutableMapOf()
+            )
+            this.executionId = ""
+            this.shardIds = emptyList()
+            this.concreteIndicesSeenSoFar = emptyList()
+            this.workflowRunContext = null
+            this.indexExecutionContext = null
+            this.hasSerializationFailed = false == monitorSerializationSucceeded
+        }
+    }
+
+    private fun getDummyMonitor() = Monitor(
+        "failed_serde", NO_VERSION, "failed_serde", true,
+        IntervalSchedule(1, ChronoUnit.MINUTES), Instant.now(), Instant.now(), "",
+        null, NO_SCHEMA_VERSION, emptyList(), emptyList(), emptyMap(),
+        DataSources(), false, false, "failed"
     )
 
     @Throws(IOException::class)

@@ -7,7 +7,6 @@ package org.opensearch.commons.alerting.action
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
@@ -196,65 +195,6 @@ class DocLevelMonitorFanOutRequestTests {
             Workflow.NO_ID,
             Monitor.NO_ID,
             mutableMapOf("index" to listOf("1")),
-            true,
-            listOf("finding1")
-        )
-        val docLevelMonitorFanOutRequest = DocLevelMonitorFanOutRequest(
-            monitor,
-            false,
-            monitorMetadata,
-            UUID.randomUUID().toString(),
-            indexExecutionContext,
-            listOf(ShardId("test-index", UUID.randomUUID().toString(), 0)),
-            listOf("test-index"),
-            workflowRunContext
-        )
-        val out = BytesStreamOutput()
-        monitor.writeTo(out)
-        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
-        val newDocLevelMonitorFanOutRequest = DocLevelMonitorFanOutRequest(sin)
-        assertNull(newDocLevelMonitorFanOutRequest.indexExecutionContext)
-        assertTrue(newDocLevelMonitorFanOutRequest.hasSerializationFailed)
-        assertEquals(sin.read(), -1)
-    }
-
-    @Test
-    fun `test doc level monitor fan out request as stream when there are additional bytes left to handle`() {
-        val docQuery = DocLevelQuery(query = "test_field:\"us-west-2\"", fields = listOf(), name = "3")
-        val docLevelInput = DocLevelMonitorInput("description", listOf("test-index"), listOf(docQuery))
-
-        val trigger = randomDocumentLevelTrigger(condition = Script("return true"))
-        val monitor = randomDocumentLevelMonitor(
-            inputs = listOf(docLevelInput),
-            triggers = listOf(trigger),
-            enabled = true,
-            schedule = IntervalSchedule(1, ChronoUnit.MINUTES)
-        )
-        val monitorMetadata = MonitorMetadata(
-            "test",
-            SequenceNumbers.UNASSIGNED_SEQ_NO,
-            SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
-            Monitor.NO_ID,
-            listOf(ActionExecutionTime("", Instant.now())),
-            mutableMapOf("index" to mutableMapOf("1" to "1")),
-            mutableMapOf("test-index" to ".opensearch-sap-test_windows-queries-000001")
-        )
-        val indexExecutionContext = IndexExecutionContext(
-            listOf(docQuery),
-            mutableMapOf("index" to mutableMapOf("1" to "1")),
-            mutableMapOf("index" to mutableMapOf("1" to "1")),
-            "test-index",
-            "test-index",
-            listOf("test-index"),
-            listOf("test-index"),
-            listOf("test-field"),
-            listOf("1", "2")
-        )
-        val workflowRunContext = WorkflowRunContext(
-            Workflow.NO_ID,
-            Workflow.NO_ID,
-            Monitor.NO_ID,
-            mutableMapOf("index" to listOf("1")),
             true
         )
         val docLevelMonitorFanOutRequest = DocLevelMonitorFanOutRequest(
@@ -268,16 +208,10 @@ class DocLevelMonitorFanOutRequestTests {
             workflowRunContext
         )
         val out = BytesStreamOutput()
+        out.writeString(UUID.randomUUID().toString())
         docLevelMonitorFanOutRequest.writeTo(out)
-        out.writeByte(Byte.MIN_VALUE)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newDocLevelMonitorFanOutRequest = DocLevelMonitorFanOutRequest(sin)
-        assertEquals(docLevelMonitorFanOutRequest.monitor, newDocLevelMonitorFanOutRequest.monitor)
-        assertEquals(docLevelMonitorFanOutRequest.executionId, newDocLevelMonitorFanOutRequest.executionId)
-        assertEquals(docLevelMonitorFanOutRequest.monitorMetadata, newDocLevelMonitorFanOutRequest.monitorMetadata)
-        assertEquals(docLevelMonitorFanOutRequest.indexExecutionContext, newDocLevelMonitorFanOutRequest.indexExecutionContext)
-        assertEquals(docLevelMonitorFanOutRequest.shardIds, newDocLevelMonitorFanOutRequest.shardIds)
-        assertEquals(docLevelMonitorFanOutRequest.workflowRunContext, newDocLevelMonitorFanOutRequest.workflowRunContext)
         assertEquals(sin.read(), 0)
         assertTrue(newDocLevelMonitorFanOutRequest.hasSerializationFailed)
     }
