@@ -40,6 +40,9 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
     val workflowRunContext: WorkflowRunContext?
     val hasSerializationFailed: Boolean
 
+    init {
+        serializationFailedFlag = false
+    }
     companion object {
         // flag flipped to true whenever a safeRead*() method fails to serialize a field correctly
         private var serializationFailedFlag: Boolean = false
@@ -99,7 +102,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             } catch (e: Exception) {
                 serializationFailedFlag = true
                 log.error("Error parsing shardId list in Doc level monitor fanout request", e)
-                listOf(ShardId("failed_serde", "failed_serde", 999999))
+                emptyList()
             }
 
         private fun safeReadStringList(sin: StreamInput): List<String> =
@@ -124,7 +127,8 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             var indexExecutionContext: IndexExecutionContext? = null
             return try {
                 indexExecutionContext = IndexExecutionContext(sin)
-                while (sin.read() != -1) {
+                while (sin.read() != 0) {
+                    serializationFailedFlag = true
                     // read and discard bytes until stream is entirely consumed
                     try {
                         sin.readByte()
@@ -137,7 +141,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             } catch (e: Exception) {
                 serializationFailedFlag = true
                 log.error("Error parsing index execution context in Doc level monitor fanout request", e)
-                while (sin.read() != -1) {
+                while (sin.read() != 0) {
                     try { // read and throw bytes until stream is entirely consumed
                         sin.readByte()
                     } catch (_: EOFException) {
@@ -148,7 +152,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
         }
     }
 
-    constructor(
+    private constructor(
         monitor: Monitor,
         dryRun: Boolean,
         monitorMetadata: MonitorMetadata,
@@ -157,7 +161,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
         shardIds: List<ShardId>,
         concreteIndicesSeenSoFar: List<String>,
         workflowRunContext: WorkflowRunContext?,
-        hasSerializationFailed: Boolean? = null
+        hasSerializationFailed: Boolean
     ) : super() {
         this.monitor = monitor
         this.dryRun = dryRun
@@ -167,8 +171,28 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
         this.shardIds = shardIds
         this.concreteIndicesSeenSoFar = concreteIndicesSeenSoFar
         this.workflowRunContext = workflowRunContext
-        require(false == shardIds.isEmpty()) { }
         this.hasSerializationFailed = hasSerializationFailed ?: false
+    }
+
+    constructor(
+        monitor: Monitor,
+        dryRun: Boolean,
+        monitorMetadata: MonitorMetadata,
+        executionId: String,
+        indexExecutionContext: IndexExecutionContext?,
+        shardIds: List<ShardId>,
+        concreteIndicesSeenSoFar: List<String>,
+        workflowRunContext: WorkflowRunContext?
+    ) : super() {
+        this.monitor = monitor
+        this.dryRun = dryRun
+        this.monitorMetadata = monitorMetadata
+        this.executionId = executionId
+        this.indexExecutionContext = indexExecutionContext
+        this.shardIds = shardIds
+        this.concreteIndicesSeenSoFar = concreteIndicesSeenSoFar
+        this.workflowRunContext = workflowRunContext
+        this.hasSerializationFailed = false
     }
 
     @Throws(IOException::class)
