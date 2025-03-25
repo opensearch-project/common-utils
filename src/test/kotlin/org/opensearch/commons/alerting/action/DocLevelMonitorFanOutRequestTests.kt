@@ -6,7 +6,9 @@
 package org.opensearch.commons.alerting.action
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.commons.alerting.model.ActionExecutionTime
@@ -81,7 +83,6 @@ class DocLevelMonitorFanOutRequestTests {
         )
         val out = BytesStreamOutput()
         docLevelMonitorFanOutRequest.writeTo(out)
-        monitor.writeTo(out)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newDocLevelMonitorFanOutRequest = DocLevelMonitorFanOutRequest(sin)
         assertEquals(docLevelMonitorFanOutRequest.monitor, newDocLevelMonitorFanOutRequest.monitor)
@@ -91,6 +92,7 @@ class DocLevelMonitorFanOutRequestTests {
         assertEquals(docLevelMonitorFanOutRequest.shardIds, newDocLevelMonitorFanOutRequest.shardIds)
         assertEquals(docLevelMonitorFanOutRequest.workflowRunContext, newDocLevelMonitorFanOutRequest.workflowRunContext)
         assertEquals(sin.read(), -1)
+        assertFalse(newDocLevelMonitorFanOutRequest.hasSerializationFailed)
     }
 
     @Test
@@ -153,6 +155,8 @@ class DocLevelMonitorFanOutRequestTests {
         assertEquals(docLevelMonitorFanOutRequest.indexExecutionContext, newDocLevelMonitorFanOutRequest.indexExecutionContext)
         assertEquals(docLevelMonitorFanOutRequest.shardIds, newDocLevelMonitorFanOutRequest.shardIds)
         assertEquals(docLevelMonitorFanOutRequest.workflowRunContext, newDocLevelMonitorFanOutRequest.workflowRunContext)
+        assertFalse(newDocLevelMonitorFanOutRequest.hasSerializationFailed)
+        assertEquals(sin.read(), -1)
     }
 
     @Test
@@ -210,5 +214,7 @@ class DocLevelMonitorFanOutRequestTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newDocLevelMonitorFanOutRequest = DocLevelMonitorFanOutRequest(sin)
         assertNull(newDocLevelMonitorFanOutRequest.indexExecutionContext)
+        assertTrue(newDocLevelMonitorFanOutRequest.hasSerializationFailed)
+        assertEquals(sin.read(), -1)
     }
 }
