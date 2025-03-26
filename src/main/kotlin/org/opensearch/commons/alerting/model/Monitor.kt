@@ -1,5 +1,6 @@
 package org.opensearch.commons.alerting.model
 
+import org.opensearch.Version
 import org.opensearch.common.CheckedFunction
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.MONITOR_MAX_INPUTS
@@ -112,8 +113,16 @@ data class Monitor(
         } else {
             DataSources()
         },
-        deleteQueryIndexInEveryRun = sin.readOptionalBoolean(),
-        shouldCreateSingleAlertForFindings = sin.readOptionalBoolean(),
+        deleteQueryIndexInEveryRun = if (sin.version.onOrAfter(Version.V_2_15_0)) {
+            sin.readOptionalBoolean()
+        } else {
+            false
+        },
+        shouldCreateSingleAlertForFindings = if (sin.version.onOrAfter(Version.V_2_15_0)) {
+            sin.readOptionalBoolean()
+        } else {
+            false
+        },
         owner = sin.readOptionalString()
     )
 
@@ -226,8 +235,12 @@ data class Monitor(
         out.writeMap(uiMetadata)
         out.writeBoolean(dataSources != null) // for backward compatibility with pre-existing monitors which don't have datasources field
         dataSources.writeTo(out)
-        out.writeOptionalBoolean(deleteQueryIndexInEveryRun)
-        out.writeOptionalBoolean(shouldCreateSingleAlertForFindings)
+        if (out.version.onOrAfter(Version.V_2_15_0)) {
+            out.writeOptionalBoolean(deleteQueryIndexInEveryRun)
+        }
+        if (out.version.onOrAfter(Version.V_2_15_0)) {
+            out.writeOptionalBoolean(shouldCreateSingleAlertForFindings)
+        }
         out.writeOptionalString(owner)
     }
 
