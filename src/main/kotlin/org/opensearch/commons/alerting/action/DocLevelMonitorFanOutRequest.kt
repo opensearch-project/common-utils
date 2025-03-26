@@ -8,11 +8,11 @@ package org.opensearch.commons.alerting.action
 import org.apache.logging.log4j.LogManager
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.commons.alerting.model.Alert.Companion.NO_VERSION
 import org.opensearch.commons.alerting.model.DataSources
 import org.opensearch.commons.alerting.model.IndexExecutionContext
 import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Monitor
-import org.opensearch.commons.alerting.model.Monitor.Companion.NO_VERSION
 import org.opensearch.commons.alerting.model.MonitorMetadata
 import org.opensearch.commons.alerting.model.WorkflowRunContext
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
@@ -69,8 +69,34 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
     constructor(sin: StreamInput) : super() {
         var monitorSerializationSucceeded = true
         var parsedMonitor = getDummyMonitor()
+        var parsedDryRun = false
+        var parsedMonitorMetadata: MonitorMetadata = MonitorMetadata(
+            "failed_serde",
+            SequenceNumbers.UNASSIGNED_SEQ_NO,
+            SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
+            "failed_serde",
+            emptyList(),
+            emptyMap(),
+            mutableMapOf()
+        )
+        var parsedShardIds: List<ShardId> = emptyList()
+        var parsedConcreteIndicesSeenSoFar = mutableListOf<String>()
+        var parsedExecutionId: String = ""
+        var parsedWorkflowContext: WorkflowRunContext? = null
+        var parsedIndexExecutionContext: IndexExecutionContext? = null
         try {
             parsedMonitor = Monitor(sin)
+            parsedDryRun = sin.readBoolean()
+            parsedMonitorMetadata = MonitorMetadata.readFrom(sin)
+            parsedExecutionId = sin.readString()
+            parsedShardIds = sin.readList(::ShardId)
+            parsedConcreteIndicesSeenSoFar = sin.readStringList()
+            parsedWorkflowContext = if (sin.readBoolean()) {
+                WorkflowRunContext(sin)
+            } else {
+                null
+            }
+            parsedIndexExecutionContext = IndexExecutionContext(sin)
         } catch (e: Exception) {
             log.error("Error parsing monitor in Doc level monitor fanout request", e)
             monitorSerializationSucceeded = false
@@ -83,39 +109,16 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
                 }
             }
         }
-        if (monitorSerializationSucceeded) {
-            this.monitor = parsedMonitor
-            this.dryRun = sin.readBoolean()
-            this.monitorMetadata = MonitorMetadata.readFrom(sin)
-            this.executionId = sin.readString()
-            this.shardIds = sin.readList(::ShardId)
-            this.concreteIndicesSeenSoFar = sin.readStringList()
-            this.workflowRunContext = if (sin.readBoolean()) {
-                WorkflowRunContext(sin)
-            } else {
-                null
-            }
-            indexExecutionContext = IndexExecutionContext(sin)
-            this.hasSerializationFailed = false == monitorSerializationSucceeded
-        } else {
-            this.monitor = parsedMonitor
-            this.dryRun = false
-            this.monitorMetadata = MonitorMetadata(
-                "failed_serde",
-                SequenceNumbers.UNASSIGNED_SEQ_NO,
-                SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
-                "failed_serde",
-                emptyList(),
-                emptyMap(),
-                mutableMapOf()
-            )
-            this.executionId = ""
-            this.shardIds = emptyList()
-            this.concreteIndicesSeenSoFar = emptyList()
-            this.workflowRunContext = null
-            this.indexExecutionContext = null
-            this.hasSerializationFailed = false == monitorSerializationSucceeded
-        }
+
+        this.monitor = parsedMonitor
+        this.dryRun = parsedDryRun
+        this.monitorMetadata = parsedMonitorMetadata
+        this.executionId = parsedExecutionId
+        this.shardIds = parsedShardIds
+        this.concreteIndicesSeenSoFar = parsedConcreteIndicesSeenSoFar
+        this.workflowRunContext = parsedWorkflowContext
+        this.indexExecutionContext = parsedIndexExecutionContext
+        this.hasSerializationFailed = false == monitorSerializationSucceeded
     }
 
     private fun getDummyMonitor() = Monitor(
