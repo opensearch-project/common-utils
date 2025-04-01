@@ -5,6 +5,7 @@
 
 package org.opensearch.commons.alerting.model
 
+import org.opensearch.Version
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.common.io.stream.Writeable
@@ -28,12 +29,12 @@ data class WorkflowRunContext(
     }
 
     constructor(sin: StreamInput) : this(
-        sin.readString(),
-        sin.readString(),
-        sin.readOptionalString(),
-        sin.readMap() as Map<String, List<String>>,
-        sin.readBoolean(),
-        sin.readOptionalStringList()
+        workflowId = sin.readString(),
+        workflowMetadataId = sin.readString(),
+        chainedMonitorId = sin.readOptionalString(),
+        matchingDocIdsPerIndex = sin.readMap() as Map<String, List<String>>,
+        auditDelegateMonitorAlerts = sin.readBoolean(),
+        findingIds = if (sin.version.onOrAfter(Version.V_2_15_0)) sin.readOptionalStringList() else emptyList()
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -42,7 +43,9 @@ data class WorkflowRunContext(
         out.writeOptionalString(chainedMonitorId)
         out.writeMap(matchingDocIdsPerIndex)
         out.writeBoolean(auditDelegateMonitorAlerts)
-        out.writeOptionalStringCollection(findingIds)
+        if (out.version.onOrAfter(Version.V_2_15_0)) {
+            out.writeOptionalStringCollection(findingIds)
+        }
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params?): XContentBuilder {
