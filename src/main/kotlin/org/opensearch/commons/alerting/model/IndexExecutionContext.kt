@@ -5,6 +5,7 @@
 
 package org.opensearch.commons.alerting.model
 
+import org.opensearch.Version
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.common.io.stream.Writeable
@@ -36,7 +37,7 @@ data class IndexExecutionContext(
         concreteIndexNames = sin.readStringList(),
         conflictingFields = sin.readStringList(),
         docIds = sin.readOptionalStringList(),
-        findingIds = sin.readOptionalStringList()
+        findingIds = if (sin.version.onOrAfter(Version.V_2_15_0)) sin.readOptionalStringList() else emptyList()
     )
 
     override fun writeTo(out: StreamOutput?) {
@@ -49,7 +50,9 @@ data class IndexExecutionContext(
         out.writeStringCollection(concreteIndexNames)
         out.writeStringCollection(conflictingFields)
         out.writeOptionalStringCollection(docIds)
-        out.writeOptionalStringCollection(findingIds)
+        if (out.version.onOrAfter(Version.V_2_15_0)) {
+            out.writeOptionalStringCollection(findingIds)
+        }
     }
 
     override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
