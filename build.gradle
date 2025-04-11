@@ -72,6 +72,7 @@ configurations {
           force "ch.qos.logback:logback-core:1.5.16"
       }
    }
+   agent
 }
 
 dependencies {
@@ -90,6 +91,10 @@ dependencies {
     testImplementation "com.cronutils:cron-utils:9.1.6"
     testImplementation "commons-validator:commons-validator:1.7"
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+
+    agent "org.opensearch:opensearch-agent-bootstrap:${opensearch_version}"
+    agent "org.opensearch:opensearch-agent:${opensearch_version}"
+    agent "net.bytebuddy:byte-buddy:1.17.5"
 
     ktlint "com.pinterest:ktlint:0.47.1"
 }
@@ -231,4 +236,14 @@ task updateVersion {
         // Include the required files that needs to be updated with new Version
         ant.replaceregexp(file:'build.gradle', match: '"opensearch.version", "\\d.*"', replace: '"opensearch.version", "' + newVersion.tokenize('-')[0] + '-SNAPSHOT"', flags:'g', byline:true)
     }
+}
+
+task prepareAgent(type: Copy) {
+  from(configurations.agent)
+  into "$buildDir/agent"
+}
+
+tasks.withType(Test) {
+  dependsOn prepareAgent
+  jvmArgs += ["-javaagent:" + project.layout.buildDirectory.file("agent/opensearch-agent-${opensearch_version}.jar").get()]
 }
