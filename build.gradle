@@ -64,6 +64,7 @@ apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.jetbrains.kotlin.plugin.allopen'
 apply plugin: 'opensearch.repositories'
 apply from: 'build-tools/opensearchplugin-coverage.gradle'
+apply plugin: 'opensearch.java-agent'
 
 configurations {
     ktlint {
