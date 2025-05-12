@@ -212,6 +212,7 @@ final public class User implements Writeable, ToXContent {
         List<String> roles = new ArrayList<>();
         String requestedTenant = null;
         String requestedTenantAccess = null;
+        List<String> customAttNames = new ArrayList<>();
 
         if ((strs.length > 1) && !Strings.isNullOrEmpty(strs[1])) {
             backendRoles.addAll(Arrays.stream(strs[1].split(",")).map(Utils::unescapePipe).toList());
@@ -225,7 +226,8 @@ final public class User implements Writeable, ToXContent {
         if ((strs.length > 4) && !Strings.isNullOrEmpty(strs[4])) {
             requestedTenantAccess = strs[4].trim();
         }
-        return new User(userName, backendRoles, roles, Arrays.asList(), requestedTenant, requestedTenantAccess);
+        customAttNames.addAll(Arrays.stream(strs[5].split(",")).map(Utils::unescapePipe).toList());
+        return new User(userName, backendRoles, roles, customAttNames, requestedTenant, requestedTenantAccess);
     }
 
     @Override
