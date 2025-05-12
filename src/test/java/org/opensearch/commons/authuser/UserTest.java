@@ -146,7 +146,8 @@ public class UserTest {
     @Test
     public void testParseUserString() {
         ThreadContext tc = new ThreadContext(Settings.EMPTY);
-        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1,bckrol2|role1,role2|myTenant");
+       tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT,
+                "myuser|bckrole1,bckrol2|role1,role2|myTenant|attr.proxy.prop1,attr.internal.prop2");
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
 
@@ -156,6 +157,8 @@ public class UserTest {
         assertTrue(user.getRoles().contains("role1"));
         assertTrue(user.getRoles().contains("role2"));
         assertEquals("myTenant", user.getRequestedTenant());
+        assertTrue(user.getCustomAttNames().contains("attr.proxy.prop1"));
+        assertTrue(user.getCustomAttNames().contains("attr.internal.prop2"));
     }
 
     @Test
