@@ -19,6 +19,8 @@ import java.util.Objects;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.opensearch.Version;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opensearch.client.Response;
 import org.opensearch.common.Nullable;
 import org.opensearch.common.inject.internal.ToStringBuilder;
@@ -56,6 +58,8 @@ final public class User implements Writeable, ToXContent {
     private final String requestedTenant;
     @Nullable
     private final String requestedTenantAccess;
+
+    private static final Logger log = LogManager.getLogger(User.class);
 
     public User() {
         name = "";
@@ -199,6 +203,8 @@ final public class User implements Writeable, ToXContent {
         if (Strings.isNullOrEmpty(userString)) {
             return null;
         }
+
+        log.debug("common-utils User.parse: user string: {}, thread: {}", userString, Thread.currentThread().getName());
 
         // Split on unescaped pipes (negative lookbehind for backslash)
         String[] strs = userString.split("(?<!\\\\)\\|");
