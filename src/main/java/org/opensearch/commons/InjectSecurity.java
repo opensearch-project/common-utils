@@ -130,6 +130,8 @@ public class InjectSecurity implements AutoCloseable {
      * @param user
      */
     public void injectUserInfo(final User user) {
+        log.debug("{}, InjectSecurity - injectUserInfo received user {}, thread {}", user, Thread.currentThread().getName());
+
         if (user == null) {
             return;
         }
@@ -155,6 +157,8 @@ public class InjectSecurity implements AutoCloseable {
         if (!Strings.isNullOrEmpty(requestedTenant)) {
             joiner.add(escapePipe(requestedTenant));
         }
+
+        log.debug("{}, InjectSecurity - inject user info: {}, thread {}", joiner.toString(), Thread.currentThread().getName());
         threadContext.putTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, joiner.toString());
     }
 
