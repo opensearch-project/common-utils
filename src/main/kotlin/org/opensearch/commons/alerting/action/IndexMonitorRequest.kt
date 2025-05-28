@@ -55,7 +55,7 @@ class IndexMonitorRequest : ActionRequest {
             val docLevelMonitorInput = monitor.inputs[0] as DocLevelMonitorInput
             if (docLevelMonitorInput.indices.stream().anyMatch { IndexPatternUtils.containsPatternSyntax(it) }) {
                 val actionValidationException = ActionRequestValidationException()
-                actionValidationException.addValidationError("Cannot configure index patterns in doc level monitors")
+                actionValidationException.addValidationError("Index patterns are not supported for doc level monitors.")
                 return actionValidationException
             }
         }
