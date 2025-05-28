@@ -2,11 +2,15 @@ package org.opensearch.commons.alerting.action
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.support.WriteRequest
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.settings.Settings
+import org.opensearch.commons.alerting.model.DocLevelMonitorInput
+import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.SearchInput
 import org.opensearch.commons.alerting.randomBucketLevelMonitor
+import org.opensearch.commons.alerting.randomDocumentLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.utils.recreateObject
 import org.opensearch.core.common.io.stream.NamedWriteableAwareStreamInput
@@ -80,7 +84,10 @@ class IndexMonitorRequestTests {
             recreateObject(bucketLevelMonitorRequest) { IndexMonitorRequest(it) }
         }
 
-        val recreatedObject = recreateObject(bucketLevelMonitorRequest, NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)) { IndexMonitorRequest(it) }
+        val recreatedObject = recreateObject(
+            bucketLevelMonitorRequest,
+            NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)
+        ) { IndexMonitorRequest(it) }
         Assertions.assertEquals(bucketLevelMonitorRequest.monitorId, recreatedObject.monitorId)
         Assertions.assertEquals(bucketLevelMonitorRequest.seqNo, recreatedObject.seqNo)
         Assertions.assertEquals(bucketLevelMonitorRequest.primaryTerm, recreatedObject.primaryTerm)
@@ -110,5 +117,112 @@ class IndexMonitorRequestTests {
         Assertions.assertEquals(2L, newReq.primaryTerm)
         Assertions.assertEquals(RestRequest.Method.PUT, newReq.method)
         Assertions.assertNotNull(newReq.monitor)
+    }
+
+    @Test
+    fun `test doc level monitor with valid index name`() {
+        val monitor = randomDocumentLevelMonitor().copy(
+            inputs = listOf(DocLevelMonitorInput(indices = listOf("valid-index"), queries = emptyList())),
+            triggers = emptyList()
+        )
+        val req = IndexMonitorRequest(
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.POST,
+            monitor
+        )
+
+        val validationException = req.validate()
+        Assertions.assertNull(validationException)
+    }
+
+    @Test
+    fun `test doc level monitor with wildcard index pattern`() {
+        val monitor = randomDocumentLevelMonitor().copy(
+            inputs = listOf(DocLevelMonitorInput(indices = listOf("valid, test*", "test*"), queries = emptyList()))
+        )
+        val req = IndexMonitorRequest(
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.POST,
+            monitor
+        )
+
+        val validationException = req.validate()
+        Assertions.assertNotNull(validationException)
+        Assertions.assertTrue(validationException is ActionRequestValidationException)
+        Assertions.assertTrue(
+            validationException!!.validationErrors().contains("Cannot configure index patterns in doc level monitors")
+                ?: false
+        )
+    }
+
+    @Test
+    fun `test doc level monitor with regex index pattern`() {
+        val monitor = randomDocumentLevelMonitor().copy(
+            inputs = listOf(DocLevelMonitorInput(indices = listOf("test[0-9]+"), queries = emptyList())),
+            triggers = emptyList()
+        )
+        val req = IndexMonitorRequest(
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.POST,
+            monitor
+        )
+
+        val validationException = req.validate()
+        Assertions.assertNotNull(validationException)
+        Assertions.assertTrue(validationException is ActionRequestValidationException)
+        Assertions.assertTrue(
+            validationException!!.validationErrors().contains("Cannot configure index patterns in doc level monitors")
+        )
+    }
+
+    @Test
+    fun `test doc level monitor with date math index pattern`() {
+        val monitor = randomDocumentLevelMonitor().copy(
+            inputs = listOf(DocLevelMonitorInput(indices = listOf("<test-{now/d}>"), queries = emptyList())),
+            triggers = emptyList()
+        )
+        val req = IndexMonitorRequest(
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.POST,
+            monitor
+        )
+
+        val validationException = req.validate()
+        Assertions.assertNotNull(validationException)
+        Assertions.assertTrue(validationException is ActionRequestValidationException)
+        Assertions.assertTrue(
+            validationException!!.validationErrors().contains("Cannot configure index patterns in doc level monitors")
+        )
+    }
+
+    @Test
+    fun `test non-doc level monitor with index pattern`() {
+        val monitor = randomQueryLevelMonitor().copy(
+            inputs = listOf(SearchInput(listOf("test*"), SearchSourceBuilder())),
+            monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR.name
+        )
+        val req = IndexMonitorRequest(
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.POST,
+            monitor
+        )
+
+        val validationException = req.validate()
+        Assertions.assertNull(validationException)
     }
 }
