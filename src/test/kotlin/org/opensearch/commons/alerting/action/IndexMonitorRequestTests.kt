@@ -156,7 +156,7 @@ class IndexMonitorRequestTests {
         Assertions.assertNotNull(validationException)
         Assertions.assertTrue(validationException is ActionRequestValidationException)
         Assertions.assertTrue(
-            validationException!!.validationErrors().contains("Cannot configure index patterns in doc level monitors")
+            validationException!!.validationErrors().contains("Index patterns are not supported for doc level monitors.")
                 ?: false
         )
     }
@@ -180,7 +180,7 @@ class IndexMonitorRequestTests {
         Assertions.assertNotNull(validationException)
         Assertions.assertTrue(validationException is ActionRequestValidationException)
         Assertions.assertTrue(
-            validationException!!.validationErrors().contains("Cannot configure index patterns in doc level monitors")
+            validationException!!.validationErrors().contains("Index patterns are not supported for doc level monitors.")
         )
     }
 
@@ -203,7 +203,7 @@ class IndexMonitorRequestTests {
         Assertions.assertNotNull(validationException)
         Assertions.assertTrue(validationException is ActionRequestValidationException)
         Assertions.assertTrue(
-            validationException!!.validationErrors().contains("Cannot configure index patterns in doc level monitors")
+            validationException!!.validationErrors().contains("Index patterns are not supported for doc level monitors.")
         )
     }
 
