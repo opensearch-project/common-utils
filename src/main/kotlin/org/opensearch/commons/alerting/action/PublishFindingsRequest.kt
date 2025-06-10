@@ -6,25 +6,26 @@ import org.opensearch.commons.alerting.model.Finding
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
+import java.util.Collections
 
 class PublishFindingsRequest : ActionRequest {
 
     val monitorId: String
 
-    val finding: Finding
+    val findings: List<Finding>
 
     constructor(
         monitorId: String,
-        finding: Finding
+        findings: List<Finding>
     ) : super() {
         this.monitorId = monitorId
-        this.finding = finding
+        this.findings = findings
     }
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         monitorId = sin.readString(),
-        finding = Finding.readFrom(sin)
+        findings = Collections.unmodifiableList(sin.readList(::Finding))
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -33,6 +34,6 @@ class PublishFindingsRequest : ActionRequest {
 
     override fun writeTo(out: StreamOutput) {
         out.writeString(monitorId)
-        finding.writeTo(out)
+        out.writeCollection(findings)
     }
 }

@@ -11,18 +11,19 @@ class PublishFindingsRequestTests {
 
     @Test
     fun `test delete monitor request`() {
-        val finding = randomFinding()
+        val findings = listOf(randomFinding())
         val monitorId = "mid"
-        val req = PublishFindingsRequest(monitorId, finding)
+        val req = PublishFindingsRequest(monitorId, findings)
         assertNotNull(req)
         assertEquals(monitorId, req.monitorId)
-        assertEquals(finding, req.finding)
+        assertEquals(findings, req.findings)
 
         val out = BytesStreamOutput()
         req.writeTo(out)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newReq = PublishFindingsRequest(sin)
         assertEquals(monitorId, newReq.monitorId)
-        assertEquals(finding.id, newReq.finding.id)
+        assertEquals(findings.size, newReq.findings.size)
+        assertEquals(findings[0].id, newReq.findings[0].id)
     }
 }
