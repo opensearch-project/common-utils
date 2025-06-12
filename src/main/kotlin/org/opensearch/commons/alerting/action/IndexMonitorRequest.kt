@@ -65,7 +65,12 @@ class IndexMonitorRequest : ActionRequest {
     private fun hasDocLeveMonitorInput() = monitor.inputs.isNotEmpty() && monitor.inputs[0] is DocLevelMonitorInput
 
     private fun isDocLevelMonitor() =
-        monitor.monitorType.isNotBlank() && Monitor.MonitorType.valueOf(this.monitor.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.DOC_LEVEL_MONITOR
+        monitor.monitorType.isNotBlank() && isMonitorOfStandardType(monitor.monitorType) && Monitor.MonitorType.valueOf(this.monitor.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.DOC_LEVEL_MONITOR
+
+    private fun isMonitorOfStandardType(monitorType: String): Boolean {
+        val standardMonitorTypes = Monitor.MonitorType.values().map { it.value.uppercase(Locale.ROOT) }.toSet()
+        return standardMonitorTypes.contains(monitorType.uppercase(Locale.ROOT))
+    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
