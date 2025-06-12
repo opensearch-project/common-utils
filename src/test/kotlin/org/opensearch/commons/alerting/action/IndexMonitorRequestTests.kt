@@ -162,6 +162,25 @@ class IndexMonitorRequestTests {
     }
 
     @Test
+    fun `test remote monitor with wildcard index pattern`() {
+        val monitor = randomDocumentLevelMonitor().copy(
+            monitorType = "ti_doc_level_monitor",
+            inputs = listOf(DocLevelMonitorInput(indices = listOf("valid, test*", "test*"), queries = emptyList()))
+        )
+        val req = IndexMonitorRequest(
+            "1234",
+            1L,
+            2L,
+            WriteRequest.RefreshPolicy.IMMEDIATE,
+            RestRequest.Method.POST,
+            monitor
+        )
+
+        val validationException = req.validate()
+        Assertions.assertNull(validationException)
+    }
+
+    @Test
     fun `test doc level monitor with regex index pattern`() {
         val monitor = randomDocumentLevelMonitor().copy(
             inputs = listOf(DocLevelMonitorInput(indices = listOf("test[0-9]+"), queries = emptyList())),
