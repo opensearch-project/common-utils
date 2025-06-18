@@ -6,7 +6,7 @@ Compatible with OpenSearch 3.1.0
 * Updating PublishFindingsRequest to use a list of findings ([#832](https://github.com/opensearch-project/common-utils/pull/832))
 
 ### Maintenance
-* Update common-utils shadow plugin repo and bump to 3.0.0.0-alpha1 ([#775](https://github.com/opensearch-project/common-utils/pull/775))
+* [AUTO] Increment version to 3.1.0-SNAPSHOT ([#820](https://github.com/opensearch-project/common-utils/pull/820))
 
 ### Bug fixes
 * Validate that index patterns are not allowed in create/update doc level monitor ([#829](https://github.com/opensearch-project/common-utils/pull/829))
