@@ -28,7 +28,6 @@ import org.opensearch.commons.alerting.action.IndexMonitorRequest
 import org.opensearch.commons.alerting.action.IndexMonitorResponse
 import org.opensearch.commons.alerting.action.IndexWorkflowRequest
 import org.opensearch.commons.alerting.action.IndexWorkflowResponse
-import org.opensearch.commons.alerting.action.PublishBatchFindingsRequest
 import org.opensearch.commons.alerting.action.PublishFindingsRequest
 import org.opensearch.commons.alerting.action.SearchMonitorRequest
 import org.opensearch.commons.alerting.action.SubscribeFindingsResponse
@@ -258,24 +257,6 @@ object AlertingPluginInterface {
     ) {
         client.execute(
             AlertingActions.SUBSCRIBE_FINDINGS_ACTION_TYPE,
-            request,
-            wrapActionListener(listener) { response ->
-                recreateObject(response) {
-                    SubscribeFindingsResponse(
-                        it
-                    )
-                }
-            }
-        )
-    }
-
-    fun publishBatchFindings(
-        client: NodeClient,
-        request: PublishBatchFindingsRequest,
-        listener: ActionListener<SubscribeFindingsResponse>
-    ) {
-        client.execute(
-            AlertingActions.SUBSCRIBE_BATCH_FINDINGS_ACTION_TYPE,
             request,
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
