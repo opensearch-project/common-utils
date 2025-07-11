@@ -19,7 +19,7 @@ jobs:
       matrix:
         java: 
           - 21
-          - 23
+          - 24
         os:
           - ubuntu-24.04-arm  # arm64-preview
           - ubuntu-24.04  # x64
@@ -61,7 +61,7 @@ jobs:
       matrix:
         java: 
           - 21
-          - 23
+          - 24
     name: Build and Test Windows
     runs-on: windows-latest
 
