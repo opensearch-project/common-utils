@@ -19,7 +19,6 @@ object AlertingActions {
     const val ACKNOWLEDGE_ALERTS_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/ack"
     const val ACKNOWLEDGE_CHAINED_ALERTS_ACTION_NAME = "cluster:admin/opendistro/alerting/chained_alerts/ack"
     const val SUBSCRIBE_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/subscribe"
-    const val SUBSCRIBE_BATCH_FINDINGS_ACTION_NAME = "cluster:admin/opensearch/alerting/findings/batch/subscribe"
     const val GET_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/get"
     const val SEARCH_MONITORS_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/search"
     const val INDEX_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/write"
@@ -65,10 +64,6 @@ object AlertingActions {
     @JvmField
     val SUBSCRIBE_FINDINGS_ACTION_TYPE =
         ActionType(SUBSCRIBE_FINDINGS_ACTION_NAME, ::SubscribeFindingsResponse)
-
-    @JvmField
-    val SUBSCRIBE_BATCH_FINDINGS_ACTION_TYPE =
-        ActionType(SUBSCRIBE_BATCH_FINDINGS_ACTION_NAME, ::SubscribeFindingsResponse)
 
     @JvmField
     val ACKNOWLEDGE_CHAINED_ALERTS_ACTION_TYPE =
