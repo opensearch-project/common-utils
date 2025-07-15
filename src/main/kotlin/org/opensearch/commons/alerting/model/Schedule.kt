@@ -283,7 +283,7 @@ data class IntervalSchedule(
     )
     companion object {
         @Transient
-        private val SUPPORTED_UNIT = listOf(ChronoUnit.MINUTES, ChronoUnit.HOURS, ChronoUnit.DAYS)
+        private val SUPPORTED_UNIT = listOf(ChronoUnit.SECONDS, ChronoUnit.MINUTES, ChronoUnit.HOURS, ChronoUnit.DAYS)
 
         @JvmStatic
         @Throws(IOException::class)
