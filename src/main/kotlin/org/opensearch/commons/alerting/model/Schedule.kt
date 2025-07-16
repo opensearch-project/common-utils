@@ -282,8 +282,9 @@ data class IntervalSchedule(
         sin.readEnum(ChronoUnit::class.java) // unit
     )
     companion object {
+        // Including SECONDS in this list for testing purposes to run test monitors in order of seconds
         @Transient
-        private val SUPPORTED_UNIT = listOf(ChronoUnit.MINUTES, ChronoUnit.HOURS, ChronoUnit.DAYS)
+        private val SUPPORTED_UNIT = listOf(ChronoUnit.SECONDS, ChronoUnit.MINUTES, ChronoUnit.HOURS, ChronoUnit.DAYS)
 
         @JvmStatic
         @Throws(IOException::class)
