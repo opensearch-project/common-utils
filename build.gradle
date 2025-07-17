@@ -69,6 +69,11 @@ apply from: 'build-tools/opensearchplugin-coverage.gradle'
 apply plugin: 'opensearch.java-agent'
 
 configurations {
+    all {
+        resolutionStrategy {
+            force "commons-beanutils:commons-beanutils:1.11.0"
+        }
+    }
     ktlint {
       resolutionStrategy {
           force "ch.qos.logback:logback-classic:1.5.16"
