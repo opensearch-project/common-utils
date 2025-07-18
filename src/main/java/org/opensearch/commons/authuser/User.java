@@ -18,8 +18,6 @@ import java.util.Objects;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.opensearch.client.Response;
 import org.opensearch.common.Nullable;
 import org.opensearch.common.inject.internal.ToStringBuilder;
@@ -54,8 +52,6 @@ final public class User implements Writeable, ToXContent {
     private final List<String> customAttNames;
     @Nullable
     private final String requestedTenant;
-
-    private static final Logger log = LogManager.getLogger(User.class);
 
     public User() {
         name = "";
@@ -171,8 +167,6 @@ final public class User implements Writeable, ToXContent {
             return null;
         }
 
-        log.debug("common-utils User.parse: user string: {}, thread: {}", userString, Thread.currentThread().getName());
-
         // Split on unescaped pipes (negative lookbehind for backslash)
         String[] strs = userString.split("(?<!\\\\)\\|");
         if ((strs.length == 0) || (Strings.isNullOrEmpty(strs[0]))) {
@@ -197,7 +191,6 @@ final public class User implements Writeable, ToXContent {
         }
         if ((strs.length > 4) && !Strings.isNullOrEmpty(strs[4])) {
             customAttNames.addAll(Arrays.stream(strs[4].split(",")).map(Utils::unescapePipe).toList());
-            log.debug("found custom attribute names: {}", customAttNames);
         }
         return new User(userName, backendRoles, roles, customAttNames, requestedTenant);
     }
