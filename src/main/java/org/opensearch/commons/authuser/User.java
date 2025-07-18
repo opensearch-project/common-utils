@@ -59,8 +59,6 @@ final public class User implements Writeable, ToXContent {
     @Nullable
     private final String requestedTenantAccess;
 
-    private static final Logger log = LogManager.getLogger(User.class);
-
     public User() {
         name = "";
         backendRoles = new ArrayList<>();
@@ -203,8 +201,6 @@ final public class User implements Writeable, ToXContent {
         if (Strings.isNullOrEmpty(userString)) {
             return null;
         }
-
-        log.debug("common-utils User.parse: user string: {}, thread: {}", userString, Thread.currentThread().getName());
 
         // Split on unescaped pipes (negative lookbehind for backslash)
         String[] strs = userString.split("(?<!\\\\)\\|");
