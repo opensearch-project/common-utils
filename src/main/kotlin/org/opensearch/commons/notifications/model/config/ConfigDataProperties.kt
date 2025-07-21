@@ -38,7 +38,8 @@ internal object ConfigDataProperties {
         Pair(ConfigType.SES_ACCOUNT, ConfigProperty(SesAccount.reader, SesAccount.xParser)),
         Pair(ConfigType.EMAIL_GROUP, ConfigProperty(EmailGroup.reader, EmailGroup.xParser)),
         Pair(ConfigType.SMTP_ACCOUNT, ConfigProperty(SmtpAccount.reader, SmtpAccount.xParser)),
-        Pair(ConfigType.MICROSOFT_TEAMS, ConfigProperty(MicrosoftTeams.reader, MicrosoftTeams.xParser))
+        Pair(ConfigType.MICROSOFT_TEAMS, ConfigProperty(MicrosoftTeams.reader, MicrosoftTeams.xParser)),
+        Pair(ConfigType.MATTERMOST, ConfigProperty(Slack.reader, Slack.xParser))
     )
 
     /**
@@ -65,6 +66,7 @@ internal object ConfigDataProperties {
             ConfigType.SNS -> configData is Sns
             ConfigType.SES_ACCOUNT -> configData is SesAccount
             ConfigType.MICROSOFT_TEAMS -> configData is MicrosoftTeams
+            ConfigType.MATTERMOST -> configData is Slack
             ConfigType.NONE -> true
         }
     }
