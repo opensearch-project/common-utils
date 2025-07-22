@@ -14,6 +14,7 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_IN
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.opensearch.common.io.stream.BytesStreamOutput;
@@ -26,11 +27,11 @@ import org.opensearch.core.common.io.stream.StreamInput;
 public class UserTest {
 
     User testNoTenantUser() {
-        return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1", "attr2"));
+        return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Map.of("attr1", "attrValue1", "attr2", "attrValue2"));
     }
 
     User testTenantUser() {
-        return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1", "attr2"), "__user__");
+        return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Map.of("attr1", "attrValue1", "attr2", "attrValue2"), "__user__");
     }
 
     @Test
@@ -39,7 +40,7 @@ public class UserTest {
         assertEquals("", user.getName());
         assertEquals(0, user.getBackendRoles().size());
         assertEquals(0, user.getRoles().size());
-        assertEquals(0, user.getCustomAttNames().size());
+        assertEquals(0, user.getCustomAttributes().size());
         assertNull(user.getRequestedTenant());
     }
 
@@ -49,7 +50,7 @@ public class UserTest {
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
-        assertEquals(2, user.getCustomAttNames().size());
+        assertEquals(2, user.getCustomAttributes().size());
         assertNull(user.getRequestedTenant());
     }
 
@@ -59,7 +60,7 @@ public class UserTest {
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
-        assertEquals(2, user.getCustomAttNames().size());
+        assertEquals(2, user.getCustomAttributes().size());
         assertFalse(Strings.isNullOrEmpty(user.getRequestedTenant()));
     }
 
@@ -72,7 +73,7 @@ public class UserTest {
         assertEquals("chip", user.getName());
         assertEquals(1, user.getBackendRoles().size());
         assertEquals(3, user.getRoles().size());
-        assertEquals(0, user.getCustomAttNames().size());
+        assertEquals(0, user.getCustomAttributes().size());
         assertNull(user.getRequestedTenant());
     }
 
@@ -85,7 +86,7 @@ public class UserTest {
         assertEquals("chip", user.getName());
         assertEquals(1, user.getBackendRoles().size());
         assertEquals(3, user.getRoles().size());
-        assertEquals(0, user.getCustomAttNames().size());
+        assertEquals(0, user.getCustomAttributes().size());
         assertEquals("__user__", user.getRequestedTenant());
     }
 
