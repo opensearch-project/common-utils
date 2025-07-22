@@ -212,6 +212,19 @@ public class UserTest {
     }
 
     @Test
+    public void testParseUserStringNameWithNullTenant() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|||null");
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+
+        assertEquals("myuser", user.getName());
+        assertEquals(0, user.getBackendRoles().size());
+        assertEquals(0, user.getRoles().size());
+        assertEquals(null, user.getRequestedTenant());
+    }
+
+    @Test
     public void testParseUserStringNobackendRoles() {
         ThreadContext tc = new ThreadContext(Settings.EMPTY);
         tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser||role1,role2");
