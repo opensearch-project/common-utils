@@ -204,7 +204,7 @@ final public class User implements Writeable, ToXContent {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static User parse(final String userString) throws IOException {
+    public static User parse(final String userString) {
         if (Strings.isNullOrEmpty(userString)) {
             return null;
         }
