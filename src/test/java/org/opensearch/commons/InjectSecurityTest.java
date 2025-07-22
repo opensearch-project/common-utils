@@ -18,6 +18,7 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJ
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.opensearch.common.settings.Settings;
@@ -104,7 +105,7 @@ public class InjectSecurityTest {
             "Bob",
             List.of("backendRole1", "backendRole2"),
             List.of("role1", "role2"),
-            List.of("attr1", "attr2"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
             "tenant1"
         );
         try (InjectSecurity helper = new InjectSecurity("test-name", null, threadContext)) {
@@ -140,7 +141,7 @@ public class InjectSecurityTest {
             "Bob|test-pipe",
             List.of("backendRole1", "backendRole2"),
             List.of("role1", "role2"),
-            List.of("attr1", "attr2"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
             "tenant1"
         );
         try (InjectSecurity helper = new InjectSecurity("test-name", null, threadContext)) {
