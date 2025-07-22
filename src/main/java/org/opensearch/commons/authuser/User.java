@@ -181,11 +181,11 @@ final public class User implements Writeable, ToXContent {
                     break;
                 // TODO: update
                 // case CUSTOM_ATTRIBUTES_FIELD:
-                //     ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
-                //     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
-                //         customAttNames.add(parser.text());
-                //     }
-                //     break;
+                // ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
+                // while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
+                // customAttNames.add(parser.text());
+                // }
+                // break;
                 case REQUESTED_TENANT_FIELD:
                     requestedTenant = parser.textOrNull();
                     break;
