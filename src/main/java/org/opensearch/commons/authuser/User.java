@@ -32,6 +32,7 @@ import org.opensearch.common.settings.Settings;
 import org.opensearch.common.xcontent.XContentHelper;
 import org.opensearch.common.xcontent.json.JsonXContent;
 import org.opensearch.commons.ConfigConstants;
+import org.opensearch.commons.authuser.util.Base64Helper;
 import org.opensearch.core.common.Strings;
 import org.opensearch.core.common.io.stream.StreamInput;
 import org.opensearch.core.common.io.stream.StreamOutput;
@@ -131,8 +132,7 @@ final public class User implements Writeable, ToXContent {
         name = (String) mapValue.get("user_name");
         backendRoles = (List<String>) mapValue.get("backend_roles");
         roles = (List<String>) mapValue.get("roles");
-        // TODO: update
-        customAttributes = (HashMap<String, String>) mapValue.get("custom_attribute_names");
+        customAttributes = (Map<String, String>) mapValue.get("custom_attributes");
         requestedTenant = (String) mapValue.getOrDefault("user_requested_tenant", null);
         requestedTenantAccess = (String) mapValue.getOrDefault("user_requested_tenant_access", null);
     }
@@ -141,8 +141,7 @@ final public class User implements Writeable, ToXContent {
         name = in.readString();
         backendRoles = in.readStringList();
         roles = in.readStringList();
-        // TODO: update
-        customAttributes = new HashMap<String, String>();
+        customAttributes = in.readMap(StreamInput::readString, StreamInput::readString);
         requestedTenant = in.readOptionalString();
         if (in.getVersion().onOrAfter(Version.V_3_2_0)) {
             requestedTenantAccess = in.readOptionalString();
@@ -179,13 +178,15 @@ final public class User implements Writeable, ToXContent {
                         roles.add(parser.text());
                     }
                     break;
-                // TODO: update
-                // case CUSTOM_ATTRIBUTES_FIELD:
-                // ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
-                // while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
-                // customAttNames.add(parser.text());
-                // }
-                // break;
+                case CUSTOM_ATTRIBUTES_FIELD:
+                    ensureExpectedToken(XContentParser.Token.START_OBJECT, parser.currentToken(), parser);
+                    while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
+                        String attrName = parser.text();
+                        parser.nextToken();
+                        String attrValue = parser.text();
+                        customAttributes.put(attrName, attrValue);
+                    }
+                    break;
                 case REQUESTED_TENANT_FIELD:
                     requestedTenant = parser.textOrNull();
                     break;
@@ -241,36 +242,9 @@ final public class User implements Writeable, ToXContent {
         }
 
         if ((strs.length > 5) && !Strings.isNullOrEmpty(strs[5])) {
-            ByteArrayInputStream bis = null;
-            ObjectInputStream ois = null;
-
-            try {
-                // Get the Base64 Decoder
-                Base64.Decoder decoder = Base64.getDecoder();
-
-                // Decode the string to a byte array
-                byte[] decodedBytes = decoder.decode(strs[4]);
-
-                bis = new ByteArrayInputStream(decodedBytes);
-                ois = new ObjectInputStream(bis);
-
-                Object obj = ois.readObject();
-
-                if (obj instanceof Map) {
-                    customAttributes = (Map<String, String>) obj;
-                } else {
-                    System.out.println("Deserialized object is not a Map: " + obj.getClass().getName());
-                }
-                // Now you can use deserializedObject
-            } catch (IOException | ClassNotFoundException e) {
-                // Handle case where the class of the serialized object is not found
-                e.printStackTrace();
-            } finally {
-                // Close the streams
-                ois.close();
-                bis.close();
-            }
+            customAttributes = (Map<String, String>) Base64Helper.deserializeObject(strs[5]);
         }
+
         return new User(userName, backendRoles, roles, customAttributes, requestedTenant, requestedTenantAccess);
     }
 
@@ -292,8 +266,7 @@ final public class User implements Writeable, ToXContent {
         out.writeString(name);
         out.writeStringCollection(backendRoles);
         out.writeStringCollection(roles);
-        // TODO: update
-        // out.writeMap(customAttributes);
+        out.writeMap(customAttributes, StreamOutput::writeString, StreamOutput::writeString);
         out.writeOptionalString(requestedTenant);
         if (out.getVersion().onOrAfter(Version.V_3_2_0)) {
             out.writeOptionalString(requestedTenantAccess);
