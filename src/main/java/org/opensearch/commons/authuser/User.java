@@ -223,7 +223,11 @@ final public class User implements Writeable, ToXContent {
             roles.addAll(Arrays.stream(strs[2].split(",")).map(Utils::unescapePipe).toList());
         }
         if ((strs.length > 3) && !Strings.isNullOrEmpty(strs[3])) {
-            requestedTenant = unescapePipe(strs[3].trim());
+            if ("null".equals(strs[3])) {
+                requestedTenant = null;
+            } else {
+                requestedTenant = unescapePipe(strs[3].trim());
+            }
         }
         if ((strs.length > 4) && !Strings.isNullOrEmpty(strs[4])) {
             requestedTenantAccess = strs[4].trim();
