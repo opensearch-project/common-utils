@@ -8,12 +8,9 @@ package org.opensearch.commons.authuser;
 import static org.opensearch.commons.authuser.Utils.unescapePipe;
 import static org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
