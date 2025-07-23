@@ -169,7 +169,7 @@ public class UserTest {
         tc
             .putTransient(
                 OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT,
-                "myuser|bckrole1,bckrol2|role1,role2|myTenant|" + serializedUserString
+                "myuser|bckrole1,bckrol2|role1,role2|myTenant|" + serializedAttrMap
             );
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
