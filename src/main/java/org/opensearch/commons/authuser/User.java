@@ -65,7 +65,7 @@ final public class User implements Writeable, ToXContent {
         name = "";
         backendRoles = new ArrayList<>();
         roles = new ArrayList<>();
-        customAttributes = new HashMap<String, String>();
+        customAttributes = new HashMap<>();
         requestedTenant = null;
         requestedTenantAccess = null;
     }
@@ -136,7 +136,7 @@ final public class User implements Writeable, ToXContent {
         String name = "";
         List<String> backendRoles = new ArrayList<>();
         List<String> roles = new ArrayList<>();
-        Map<String, String> customAttributes = new HashMap<String, String>();
+        Map<String, String> customAttributes = new HashMap<>();
         String requestedTenant = null;
         String requestedTenantAccess = null;
 
@@ -215,7 +215,9 @@ final public class User implements Writeable, ToXContent {
             roles.addAll(Arrays.stream(strs[2].split(",")).map(Utils::unescapePipe).toList());
         }
         if ((strs.length > 3) && !Strings.isNullOrEmpty(strs[3])) {
-            if (!"null".equals(strs[3])) {
+            if ("null".equals(strs[3])) {
+                requestedTenant = null;
+            } else {
                 requestedTenant = unescapePipe(strs[3].trim());
             }
         }
