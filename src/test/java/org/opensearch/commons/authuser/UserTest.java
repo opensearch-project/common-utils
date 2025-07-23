@@ -12,7 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,13 +23,19 @@ import org.opensearch.common.io.stream.BytesStreamOutput;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
 import org.opensearch.commons.ConfigConstants;
+import org.opensearch.commons.authuser.util.Base64Helper;
 import org.opensearch.core.common.Strings;
 import org.opensearch.core.common.io.stream.StreamInput;
 
 public class UserTest {
 
     User testNoTenantUser() {
-        return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Map.of("attr1", "attrValue1", "attr2", "attrValue2"));
+        return new User(
+            "chip",
+            Arrays.asList("admin", "ops"),
+            Arrays.asList("ops_data"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2")
+        );
     }
 
     User testTenantUser() {
@@ -42,7 +50,13 @@ public class UserTest {
     }
 
     User testTenantUserWithNoAccessInfo() {
-        return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Map.of("attr1", "attrValue1", "attr2", "attrValue2"), "__user__");
+        return new User(
+            "chip",
+            Arrays.asList("admin", "ops"),
+            Arrays.asList("ops_data"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
+            "__user__"
+        );
     }
 
     @Test
@@ -146,11 +160,16 @@ public class UserTest {
 
     @Test
     public void testParseUserString() {
+        Map<String, String> serializedUser = new HashMap<>();
+        serializedUser.put("attr1", "value1");
+        serializedUser.put("attr2", "value2");
+        String serializedUserString = Base64Helper.serializeObject((Serializable) serializedUser);
+
         ThreadContext tc = new ThreadContext(Settings.EMPTY);
         tc
             .putTransient(
                 OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT,
-                "myuser|bckrole1,bckrol2|role1,role2|myTenant|attr.proxy.prop1,attr.internal.prop2"
+                "myuser|bckrole1,bckrol2|role1,role2|myTenant|" + serializedUserString
             );
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
@@ -161,8 +180,11 @@ public class UserTest {
         assertTrue(user.getRoles().contains("role1"));
         assertTrue(user.getRoles().contains("role2"));
         assertEquals("myTenant", user.getRequestedTenant());
-        assertTrue(user.getCustomAttNames().contains("attr.proxy.prop1"));
-        assertTrue(user.getCustomAttNames().contains("attr.internal.prop2"));
+        assertEquals(2, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("value1"));
+        assertTrue(user.getCustomAttributes().containsKey("attr2"));
+        assertTrue(user.getCustomAttributes().containsValue("value2"));
     }
 
     @Test
