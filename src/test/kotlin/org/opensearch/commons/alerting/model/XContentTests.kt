@@ -23,6 +23,7 @@ import org.opensearch.commons.alerting.randomAlert
 import org.opensearch.commons.alerting.randomBucketLevelMonitor
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
 import org.opensearch.commons.alerting.randomDocLevelQuery
+import org.opensearch.commons.alerting.randomDocumentLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitorWithoutUser
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
@@ -127,8 +128,22 @@ class XContentTests {
         }
     }
 
+    @Test
     fun `test query-level monitor parsing`() {
         val monitor = randomQueryLevelMonitor()
+
+        val monitorString = monitor.toJsonStringWithUser()
+        val parsedMonitor = Monitor.parse(parser(monitorString))
+        assertEquals("Round tripping QueryLevelMonitor doesn't work", monitor, parsedMonitor)
+    }
+
+    @Test
+    fun `test doc-level monitor parsing`() {
+        val monitor = randomDocumentLevelMonitor().copy(
+            inputs = listOf(DocLevelMonitorInput(indices = listOf("<test-{now/d}>"), queries = emptyList())),
+            triggers = emptyList(),
+            metadataForFindings = listOf("field1", "field2")
+        )
 
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
