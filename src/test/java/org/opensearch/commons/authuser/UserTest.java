@@ -160,10 +160,10 @@ public class UserTest {
 
     @Test
     public void testParseUserString() {
-        Map<String, String> serializedUser = new HashMap<>();
-        serializedUser.put("attr1", "value1");
-        serializedUser.put("attr2", "value2");
-        String serializedUserString = Base64Helper.serializeObject((Serializable) serializedUser);
+        Map<String, String> attrMap = new HashMap<>();
+        attrMap.put("attr1", "value1");
+        attrMap.put("attr2", "value2");
+        String serializedAttrMap = Base64Helper.serializeObject((Serializable) attrMap);
 
         ThreadContext tc = new ThreadContext(Settings.EMPTY);
         tc
