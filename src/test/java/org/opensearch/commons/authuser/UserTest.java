@@ -22,10 +22,17 @@ import org.junit.jupiter.api.Test;
 import org.opensearch.common.io.stream.BytesStreamOutput;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
+import org.opensearch.common.xcontent.XContentFactory;
 import org.opensearch.commons.ConfigConstants;
 import org.opensearch.commons.authuser.util.Base64Helper;
 import org.opensearch.core.common.Strings;
 import org.opensearch.core.common.io.stream.StreamInput;
+import org.opensearch.core.xcontent.DeprecationHandler;
+import org.opensearch.core.xcontent.MediaType;
+import org.opensearch.core.xcontent.MediaTypeRegistry;
+import org.opensearch.core.xcontent.NamedXContentRegistry;
+import org.opensearch.core.xcontent.XContentBuilder;
+import org.opensearch.core.xcontent.XContentParser;
 
 public class UserTest {
 
@@ -166,11 +173,7 @@ public class UserTest {
         String serializedAttrMap = Base64Helper.serializeObject((Serializable) attrMap);
 
         ThreadContext tc = new ThreadContext(Settings.EMPTY);
-        tc
-            .putTransient(
-                OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT,
-                "myuser|bckrole1,bckrol2|role1,role2|myTenant|" + serializedAttrMap
-            );
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1,bckrol2|role1,role2|myTenant|" + serializedAttrMap);
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
 
@@ -372,6 +375,36 @@ public class UserTest {
         assertTrue(user.getRoles().contains("role1"));
         assertTrue(user.getRoles().contains("role2"));
         assertEquals("myTenant|t1", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testParseUserXContent() throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+
+        builder
+            .startObject() // Start a JSON object
+            .field(User.NAME_FIELD, "myuser") // Add a field
+            .startArray(User.BACKEND_ROLES_FIELD) // Start an array
+            .value("backend-role-1")
+            .value("backend-role-2")
+            .endArray() // End the array
+            .startArray(User.ROLES_FIELD) // Start an array
+            .value("role-1")
+            .value("role-2")
+            .endArray() // End the array
+            .field(User.REQUESTED_TENANT_FIELD, "tenant-1")
+            .startObject(User.CUSTOM_ATTRIBUTES_FIELD) // Start a nested object
+            .field("attr1", "val1")
+            .endObject() // End the nested object
+            .endObject(); // End the main object
+
+        MediaType mediaType = MediaTypeRegistry.JSON;
+        XContentParser parser = mediaType
+            .xContent()
+            .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.IGNORE_DEPRECATIONS, builder.toString());
+
+        User user = User.parse(parser);
+        assertEquals("myuser", user.getName());
     }
 
     @Test
