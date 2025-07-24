@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.opensearch.Version;
 import org.opensearch.common.io.stream.BytesStreamOutput;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
@@ -184,6 +185,20 @@ public class UserTest {
         User newUser = new User(in);
         assertEquals(user.toString(), newUser.toString(), "Round tripping User doesn't work");
         assertEquals(user, newUser, "Round tripping User doesn't work");
+    }
+
+    @Test
+    public void testStreamConstForUserBackwardsCompatibility() throws IOException {
+        User user = testNoTenantUser();
+        BytesStreamOutput out = new BytesStreamOutput();
+        out.setVersion(Version.V_3_1_0);
+        user.writeTo(out);
+        StreamInput in = StreamInput.wrap(out.bytes().toBytesRef().bytes);
+        in.setVersion(Version.V_3_1_0);
+        User newUser = new User(in);
+        assertEquals(2, newUser.getCustomAttributes().size());
+        assertTrue(newUser.getCustomAttributes().containsKey("attr1"));
+        assertTrue(newUser.getCustomAttributes().containsValue("null"));
     }
 
     @Test
