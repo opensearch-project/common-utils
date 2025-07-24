@@ -262,7 +262,7 @@ public class UserTest {
         assertEquals("myuser", user.getName());
         assertEquals(0, user.getBackendRoles().size());
         assertEquals(0, user.getRoles().size());
-        assertEquals(null, user.getRequestedTenant());
+        assertEquals("null", user.getRequestedTenant());
     }
 
     @Test
