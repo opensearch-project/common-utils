@@ -133,6 +133,21 @@ public class UserTest {
     }
 
     @Test
+    public void testCustomAttributesJsonConst() throws IOException {
+        String json =
+            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attributes\":{\"attr1\":\"val1\"},\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
+
+        User user = new User(json);
+        assertEquals("chip", user.getName());
+        assertEquals(1, user.getBackendRoles().size());
+        assertEquals(3, user.getRoles().size());
+        assertEquals(1, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("val1"));
+        assertEquals("__user__", user.getRequestedTenant());
+    }
+
+    @Test
     public void testStreamConstForNoTenantUser() throws IOException {
         User user = testNoTenantUser();
         BytesStreamOutput out = new BytesStreamOutput();
