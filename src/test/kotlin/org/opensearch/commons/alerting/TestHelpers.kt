@@ -454,12 +454,12 @@ fun randomUser(): User {
             RandomStrings.randomAsciiLettersOfLength(Random(), 10)
         ),
         listOf(RandomStrings.randomAsciiLettersOfLength(Random(), 10), ALL_ACCESS_ROLE),
-        listOf("test_attr=test")
+        mapOf("test_attr" to "test")
     )
 }
 
 fun randomUserEmpty(): User {
-    return User("", listOf(), listOf(), listOf())
+    return User("", listOf(), listOf(), mapOf())
 }
 
 /**
