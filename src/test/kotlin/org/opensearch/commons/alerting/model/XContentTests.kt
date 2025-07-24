@@ -312,7 +312,7 @@ class XContentTests {
                   "all_access",
                   "security_manager"
                 ],
-                "custom_attributes": {},
+                "custom_attribute_names": [],
                 "user_requested_tenant": null
               },
               "enabled": true,

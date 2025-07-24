@@ -49,6 +49,7 @@ final public class User implements Writeable, ToXContent {
     public static final String NAME_FIELD = "name";
     public static final String BACKEND_ROLES_FIELD = "backend_roles";
     public static final String ROLES_FIELD = "roles";
+    public static final String CUSTOM_ATTRIBUTE_NAMES_FIELD = "custom_attribute_names";
     public static final String CUSTOM_ATTRIBUTES_FIELD = "custom_attributes";
     public static final String REQUESTED_TENANT_FIELD = "user_requested_tenant";
     public static final String REQUESTED_TENANT_ACCESS = "user_requested_tenant_access";
@@ -168,6 +169,12 @@ final public class User implements Writeable, ToXContent {
                         parser.nextToken();
                         String attrValue = parser.text();
                         customAttributes.put(attrName, attrValue);
+                    }
+                    break;
+                case CUSTOM_ATTRIBUTE_NAMES_FIELD:
+                    ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
+                    while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
+                        customAttributes.put(parser.text(), null);
                     }
                     break;
                 case REQUESTED_TENANT_FIELD:
