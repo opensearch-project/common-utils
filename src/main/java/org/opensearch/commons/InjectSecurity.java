@@ -155,6 +155,7 @@ public class InjectSecurity implements AutoCloseable {
         if (!Strings.isNullOrEmpty(requestedTenant)) {
             joiner.add(escapePipe(requestedTenant));
         }
+
         threadContext.putTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, joiner.toString());
     }
 

@@ -12,12 +12,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.opensearch.Version;
 import org.opensearch.client.Response;
 import org.opensearch.common.Nullable;
 import org.opensearch.common.inject.internal.ToStringBuilder;
@@ -25,6 +29,7 @@ import org.opensearch.common.settings.Settings;
 import org.opensearch.common.xcontent.XContentHelper;
 import org.opensearch.common.xcontent.json.JsonXContent;
 import org.opensearch.commons.ConfigConstants;
+import org.opensearch.commons.authuser.util.Base64Helper;
 import org.opensearch.core.common.Strings;
 import org.opensearch.core.common.io.stream.StreamInput;
 import org.opensearch.core.common.io.stream.StreamOutput;
@@ -44,12 +49,13 @@ final public class User implements Writeable, ToXContent {
     public static final String BACKEND_ROLES_FIELD = "backend_roles";
     public static final String ROLES_FIELD = "roles";
     public static final String CUSTOM_ATTRIBUTE_NAMES_FIELD = "custom_attribute_names";
+    public static final String CUSTOM_ATTRIBUTES_FIELD = "custom_attributes";
     public static final String REQUESTED_TENANT_FIELD = "user_requested_tenant";
 
     private final String name;
     private final List<String> backendRoles;
     private final List<String> roles;
-    private final List<String> customAttNames;
+    private final Map<String, String> customAttributes;
     @Nullable
     private final String requestedTenant;
 
@@ -57,15 +63,15 @@ final public class User implements Writeable, ToXContent {
         name = "";
         backendRoles = new ArrayList<>();
         roles = new ArrayList<>();
-        customAttNames = new ArrayList<>();
+        customAttributes = new HashMap<>();
         requestedTenant = null;
     }
 
-    public User(final String name, final List<String> backendRoles, List<String> roles, List<String> customAttNames) {
+    public User(final String name, final List<String> backendRoles, List<String> roles, Map<String, String> customAttributes) {
         this.name = name;
         this.backendRoles = backendRoles;
         this.roles = roles;
-        this.customAttNames = customAttNames;
+        this.customAttributes = customAttributes;
         this.requestedTenant = null;
     }
 
@@ -73,13 +79,13 @@ final public class User implements Writeable, ToXContent {
         final String name,
         final List<String> backendRoles,
         final List<String> roles,
-        final List<String> customAttNames,
+        final Map<String, String> customAttributes,
         @Nullable final String requestedTenant
     ) {
         this.name = name;
         this.backendRoles = backendRoles;
         this.roles = roles;
-        this.customAttNames = customAttNames;
+        this.customAttributes = customAttributes;
         this.requestedTenant = requestedTenant;
     }
 
@@ -102,7 +108,16 @@ final public class User implements Writeable, ToXContent {
         name = (String) mapValue.get("user_name");
         backendRoles = (List<String>) mapValue.get("backend_roles");
         roles = (List<String>) mapValue.get("roles");
-        customAttNames = (List<String>) mapValue.get("custom_attribute_names");
+
+        Map<String, String> customAttributesFromJson = (Map<String, String>) mapValue.get("custom_attributes");
+        List<String> customAttNames = (List<String>) mapValue.get("custom_attribute_names");
+
+        if (customAttributesFromJson != null) {
+            customAttributes = customAttributesFromJson;
+        } else {
+            customAttributes = this.convertCustomAttributeNamesToMap(customAttNames);
+        }
+
         requestedTenant = (String) mapValue.getOrDefault("user_requested_tenant", null);
     }
 
@@ -110,7 +125,12 @@ final public class User implements Writeable, ToXContent {
         name = in.readString();
         backendRoles = in.readStringList();
         roles = in.readStringList();
-        customAttNames = in.readStringList();
+        if (in.getVersion().onOrAfter(Version.V_3_2_0)) {
+            customAttributes = in.readMap(StreamInput::readString, StreamInput::readString);
+        } else {
+            List<String> customAttNames = in.readStringList();
+            customAttributes = this.convertCustomAttributeNamesToMap(customAttNames);
+        }
         requestedTenant = in.readOptionalString();
     }
 
@@ -118,7 +138,7 @@ final public class User implements Writeable, ToXContent {
         String name = "";
         List<String> backendRoles = new ArrayList<>();
         List<String> roles = new ArrayList<>();
-        List<String> customAttNames = new ArrayList<>();
+        Map<String, String> customAttributes = new HashMap<>();
         String requestedTenant = null;
 
         ensureExpectedToken(XContentParser.Token.START_OBJECT, parser.currentToken(), parser);
@@ -141,10 +161,19 @@ final public class User implements Writeable, ToXContent {
                         roles.add(parser.text());
                     }
                     break;
+                case CUSTOM_ATTRIBUTES_FIELD:
+                    ensureExpectedToken(XContentParser.Token.START_OBJECT, parser.currentToken(), parser);
+                    while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
+                        String attrName = parser.currentName();
+                        parser.nextToken();
+                        String attrValue = parser.text();
+                        customAttributes.put(attrName, attrValue);
+                    }
+                    break;
                 case CUSTOM_ATTRIBUTE_NAMES_FIELD:
                     ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
                     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
-                        customAttNames.add(parser.text());
+                        customAttributes.put(parser.text(), null);
                     }
                     break;
                 case REQUESTED_TENANT_FIELD:
@@ -154,14 +183,15 @@ final public class User implements Writeable, ToXContent {
                     break;
             }
         }
-        return new User(name, backendRoles, roles, customAttNames, requestedTenant);
+        return new User(name, backendRoles, roles, customAttributes, requestedTenant);
     }
 
     /**
-     * User String format must be pipe separated as : user_name|backendrole1,backendrole2|roles1,role2
+     * User String format must be pipe separated as : user_name|backendrole1,backendrole2|roles1,role2|tenant|base64-encoded(serialized(custom atttributes))
      * @param userString
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static User parse(final String userString) {
         if (Strings.isNullOrEmpty(userString)) {
             return null;
@@ -178,6 +208,7 @@ final public class User implements Writeable, ToXContent {
         List<String> backendRoles = new ArrayList<>();
         List<String> roles = new ArrayList<>();
         String requestedTenant = null;
+        Map<String, String> customAttributes = new HashMap<>();
 
         if ((strs.length > 1) && !Strings.isNullOrEmpty(strs[1])) {
             backendRoles.addAll(Arrays.stream(strs[1].split(",")).map(Utils::unescapePipe).toList());
@@ -188,7 +219,10 @@ final public class User implements Writeable, ToXContent {
         if ((strs.length > 3) && !Strings.isNullOrEmpty(strs[3])) {
             requestedTenant = unescapePipe(strs[3].trim());
         }
-        return new User(userName, backendRoles, roles, Arrays.asList(), requestedTenant);
+        if ((strs.length > 4) && !Strings.isNullOrEmpty(strs[4])) {
+            customAttributes = (Map<String, String>) Base64Helper.deserializeObject(strs[4]);
+        }
+        return new User(userName, backendRoles, roles, customAttributes, requestedTenant);
     }
 
     @Override
@@ -198,7 +232,7 @@ final public class User implements Writeable, ToXContent {
             .field(NAME_FIELD, name)
             .field(BACKEND_ROLES_FIELD, backendRoles)
             .field(ROLES_FIELD, roles)
-            .field(CUSTOM_ATTRIBUTE_NAMES_FIELD, customAttNames)
+            .field(CUSTOM_ATTRIBUTES_FIELD, customAttributes)
             .field(REQUESTED_TENANT_FIELD, requestedTenant);
         return builder.endObject();
     }
@@ -208,7 +242,12 @@ final public class User implements Writeable, ToXContent {
         out.writeString(name);
         out.writeStringCollection(backendRoles);
         out.writeStringCollection(roles);
-        out.writeStringCollection(customAttNames);
+        if (out.getVersion().onOrAfter(Version.V_3_2_0)) {
+            out.writeMap(customAttributes, StreamOutput::writeString, StreamOutput::writeString);
+        } else {
+            List<String> customAttributeNames = new ArrayList<>(customAttributes.keySet());
+            out.writeStringCollection(customAttributeNames);
+        }
         out.writeOptionalString(requestedTenant);
     }
 
@@ -218,7 +257,9 @@ final public class User implements Writeable, ToXContent {
         builder.add(NAME_FIELD, name);
         builder.add(BACKEND_ROLES_FIELD, backendRoles);
         builder.add(ROLES_FIELD, roles);
-        builder.add(CUSTOM_ATTRIBUTE_NAMES_FIELD, customAttNames);
+        TreeMap<String, String> sortedCustomAttributes = new TreeMap<>();
+        sortedCustomAttributes.putAll(customAttributes);
+        builder.add(CUSTOM_ATTRIBUTES_FIELD, sortedCustomAttributes);
         builder.add(REQUESTED_TENANT_FIELD, requestedTenant);
         return builder.toString();
     }
@@ -232,7 +273,7 @@ final public class User implements Writeable, ToXContent {
         return this.name.equals(that.name)
             && this.getBackendRoles().equals(that.backendRoles)
             && this.getRoles().equals(that.roles)
-            && this.getCustomAttNames().equals(that.customAttNames)
+            && this.getCustomAttributes().equals(that.customAttributes)
             && (Objects.equals(this.requestedTenant, that.requestedTenant));
     }
 
@@ -248,8 +289,8 @@ final public class User implements Writeable, ToXContent {
         return roles;
     }
 
-    public List<String> getCustomAttNames() {
-        return customAttNames;
+    public Map<String, String> getCustomAttributes() {
+        return customAttributes;
     }
 
     @Nullable
@@ -263,5 +304,9 @@ final public class User implements Writeable, ToXContent {
         }
         List<String> adminDns = settings.getAsList(ConfigConstants.OPENSEARCH_SECURITY_AUTHCZ_ADMIN_DN, Collections.emptyList());
         return adminDns.contains(this.name);
+    }
+
+    private Map<String, String> convertCustomAttributeNamesToMap(List<String> customAttNames) {
+        return customAttNames.stream().collect(Collectors.toMap(key -> key, key -> "null"));
     }
 }
