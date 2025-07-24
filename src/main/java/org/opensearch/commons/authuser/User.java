@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -116,7 +117,20 @@ final public class User implements Writeable, ToXContent {
         name = (String) mapValue.get("user_name");
         backendRoles = (List<String>) mapValue.get("backend_roles");
         roles = (List<String>) mapValue.get("roles");
-        customAttributes = (Map<String, String>) mapValue.get("custom_attributes");
+
+        Map<String, String> customAttributesFromJson = (Map<String, String>) mapValue.get("custom_attributes");
+        List<String> customAttNames = (List<String>) mapValue.get("custom_attribute_names");
+
+        if (customAttributesFromJson != null) {
+            customAttributes = customAttributesFromJson;
+        } else {
+            customAttributes = customAttNames.stream()
+                .collect(Collectors.toMap(
+                        key -> key,
+                        key -> "null"
+                ));
+        }
+
         requestedTenant = (String) mapValue.getOrDefault("user_requested_tenant", null);
         requestedTenantAccess = (String) mapValue.getOrDefault("user_requested_tenant_access", null);
     }
