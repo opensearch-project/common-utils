@@ -403,8 +403,19 @@ public class UserTest {
             .xContent()
             .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.IGNORE_DEPRECATIONS, builder.toString());
 
+        parser.nextToken();
         User user = User.parse(parser);
         assertEquals("myuser", user.getName());
+        assertEquals(2, user.getBackendRoles().size());
+        assertTrue(user.getBackendRoles().contains("backend-role-1"));
+        assertTrue(user.getBackendRoles().contains("backend-role-2"));
+        assertEquals(2, user.getRoles().size());
+        assertTrue(user.getRoles().contains("role-1"));
+        assertTrue(user.getRoles().contains("role-2"));
+        assertEquals("tenant-1", user.getRequestedTenant());
+        assertEquals(1, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("val1"));
     }
 
     @Test
