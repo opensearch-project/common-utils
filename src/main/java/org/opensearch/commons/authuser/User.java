@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -263,7 +264,9 @@ final public class User implements Writeable, ToXContent {
         builder.add(NAME_FIELD, name);
         builder.add(BACKEND_ROLES_FIELD, backendRoles);
         builder.add(ROLES_FIELD, roles);
-        builder.add(CUSTOM_ATTRIBUTES_FIELD, customAttributes);
+        TreeMap<String, String> sortedCustomAttributes = new TreeMap<>();
+        sortedCustomAttributes.putAll(customAttributes);
+        builder.add(CUSTOM_ATTRIBUTES_FIELD, sortedCustomAttributes);
         builder.add(REQUESTED_TENANT_FIELD, requestedTenant);
         builder.add(REQUESTED_TENANT_ACCESS, requestedTenantAccess);
         return builder.toString();
