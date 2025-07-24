@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.opensearch.Version;
 import org.opensearch.client.Response;
 import org.opensearch.common.Nullable;
 import org.opensearch.common.inject.internal.ToStringBuilder;
@@ -114,7 +115,7 @@ final public class User implements Writeable, ToXContent {
         if (customAttributesFromJson != null) {
             customAttributes = customAttributesFromJson;
         } else {
-            customAttributes = customAttNames.stream().collect(Collectors.toMap(key -> key, key -> "null"));
+            customAttributes = this.convertCustomAttributeNamesToMap(customAttNames);
         }
 
         requestedTenant = (String) mapValue.getOrDefault("user_requested_tenant", null);
@@ -124,7 +125,12 @@ final public class User implements Writeable, ToXContent {
         name = in.readString();
         backendRoles = in.readStringList();
         roles = in.readStringList();
-        customAttributes = in.readMap(StreamInput::readString, StreamInput::readString);
+        if (in.getVersion().onOrAfter(Version.V_3_2_0)) {
+            customAttributes = in.readMap(StreamInput::readString, StreamInput::readString);
+        } else {
+            List<String> customAttNames = in.readStringList();
+            customAttributes = this.convertCustomAttributeNamesToMap(customAttNames);
+        }
         requestedTenant = in.readOptionalString();
     }
 
@@ -236,7 +242,12 @@ final public class User implements Writeable, ToXContent {
         out.writeString(name);
         out.writeStringCollection(backendRoles);
         out.writeStringCollection(roles);
-        out.writeMap(customAttributes, StreamOutput::writeString, StreamOutput::writeString);
+        if (out.getVersion().onOrAfter(Version.V_3_2_0)) {
+            out.writeMap(customAttributes, StreamOutput::writeString, StreamOutput::writeString);
+        } else {
+            List<String> customAttributeNames = new ArrayList<>(customAttributes.keySet());
+            out.writeStringCollection(customAttributeNames);
+        }
         out.writeOptionalString(requestedTenant);
     }
 
@@ -293,5 +304,9 @@ final public class User implements Writeable, ToXContent {
         }
         List<String> adminDns = settings.getAsList(ConfigConstants.OPENSEARCH_SECURITY_AUTHCZ_ADMIN_DN, Collections.emptyList());
         return adminDns.contains(this.name);
+    }
+
+    private Map<String, String> convertCustomAttributeNamesToMap(List<String> customAttNames) {
+        return customAttNames.stream().collect(Collectors.toMap(key -> key, key -> "null"));
     }
 }
