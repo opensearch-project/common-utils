@@ -124,11 +124,7 @@ final public class User implements Writeable, ToXContent {
         if (customAttributesFromJson != null) {
             customAttributes = customAttributesFromJson;
         } else {
-            customAttributes = customAttNames.stream()
-                .collect(Collectors.toMap(
-                        key -> key,
-                        key -> "null"
-                ));
+            customAttributes = customAttNames.stream().collect(Collectors.toMap(key -> key, key -> "null"));
         }
 
         requestedTenant = (String) mapValue.getOrDefault("user_requested_tenant", null);

@@ -175,7 +175,6 @@ public class UserTest {
         assertEquals("__user__", user.getRequestedTenant());
     }
 
-
     @Test
     public void testStreamConstForNoTenantUser() throws IOException {
         User user = testNoTenantUser();
