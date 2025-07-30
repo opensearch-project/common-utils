@@ -18,6 +18,7 @@ import java.util.Objects;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.opensearch.Version;
 import org.opensearch.client.Response;
 import org.opensearch.common.Nullable;
 import org.opensearch.common.inject.internal.ToStringBuilder;
@@ -45,6 +46,7 @@ final public class User implements Writeable, ToXContent {
     public static final String ROLES_FIELD = "roles";
     public static final String CUSTOM_ATTRIBUTE_NAMES_FIELD = "custom_attribute_names";
     public static final String REQUESTED_TENANT_FIELD = "user_requested_tenant";
+    public static final String REQUESTED_TENANT_ACCESS = "user_requested_tenant_access";
 
     private final String name;
     private final List<String> backendRoles;
@@ -52,6 +54,8 @@ final public class User implements Writeable, ToXContent {
     private final List<String> customAttNames;
     @Nullable
     private final String requestedTenant;
+    @Nullable
+    private final String requestedTenantAccess;
 
     public User() {
         name = "";
@@ -59,6 +63,7 @@ final public class User implements Writeable, ToXContent {
         roles = new ArrayList<>();
         customAttNames = new ArrayList<>();
         requestedTenant = null;
+        requestedTenantAccess = null;
     }
 
     public User(final String name, final List<String> backendRoles, List<String> roles, List<String> customAttNames) {
@@ -67,6 +72,7 @@ final public class User implements Writeable, ToXContent {
         this.roles = roles;
         this.customAttNames = customAttNames;
         this.requestedTenant = null;
+        this.requestedTenantAccess = null;
     }
 
     public User(
@@ -81,6 +87,23 @@ final public class User implements Writeable, ToXContent {
         this.roles = roles;
         this.customAttNames = customAttNames;
         this.requestedTenant = requestedTenant;
+        this.requestedTenantAccess = null;
+    }
+
+    public User(
+        final String name,
+        final List<String> backendRoles,
+        final List<String> roles,
+        final List<String> customAttNames,
+        @Nullable final String requestedTenant,
+        @Nullable final String requestedTenantAccess
+    ) {
+        this.name = name;
+        this.backendRoles = backendRoles;
+        this.roles = roles;
+        this.customAttNames = customAttNames;
+        this.requestedTenant = requestedTenant;
+        this.requestedTenantAccess = requestedTenantAccess;
     }
 
     /**
@@ -104,6 +127,7 @@ final public class User implements Writeable, ToXContent {
         roles = (List<String>) mapValue.get("roles");
         customAttNames = (List<String>) mapValue.get("custom_attribute_names");
         requestedTenant = (String) mapValue.getOrDefault("user_requested_tenant", null);
+        requestedTenantAccess = (String) mapValue.getOrDefault("user_requested_tenant_access", null);
     }
 
     public User(StreamInput in) throws IOException {
@@ -112,6 +136,9 @@ final public class User implements Writeable, ToXContent {
         roles = in.readStringList();
         customAttNames = in.readStringList();
         requestedTenant = in.readOptionalString();
+        if (in.getVersion().onOrAfter(Version.V_3_2_0)) {
+            requestedTenantAccess = in.readOptionalString();
+        }
     }
 
     public static User parse(XContentParser parser) throws IOException {
@@ -120,6 +147,7 @@ final public class User implements Writeable, ToXContent {
         List<String> roles = new ArrayList<>();
         List<String> customAttNames = new ArrayList<>();
         String requestedTenant = null;
+        String requestedTenantAccess = null;
 
         ensureExpectedToken(XContentParser.Token.START_OBJECT, parser.currentToken(), parser);
         while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -150,11 +178,14 @@ final public class User implements Writeable, ToXContent {
                 case REQUESTED_TENANT_FIELD:
                     requestedTenant = parser.textOrNull();
                     break;
+                case REQUESTED_TENANT_ACCESS:
+                    requestedTenantAccess = parser.textOrNull();
+                    break;
                 default:
                     break;
             }
         }
-        return new User(name, backendRoles, roles, customAttNames, requestedTenant);
+        return new User(name, backendRoles, roles, customAttNames, requestedTenant, requestedTenantAccess);
     }
 
     /**
@@ -178,6 +209,7 @@ final public class User implements Writeable, ToXContent {
         List<String> backendRoles = new ArrayList<>();
         List<String> roles = new ArrayList<>();
         String requestedTenant = null;
+        String requestedTenantAccess = null;
 
         if ((strs.length > 1) && !Strings.isNullOrEmpty(strs[1])) {
             backendRoles.addAll(Arrays.stream(strs[1].split(",")).map(Utils::unescapePipe).toList());
@@ -188,7 +220,10 @@ final public class User implements Writeable, ToXContent {
         if ((strs.length > 3) && !Strings.isNullOrEmpty(strs[3])) {
             requestedTenant = unescapePipe(strs[3].trim());
         }
-        return new User(userName, backendRoles, roles, Arrays.asList(), requestedTenant);
+        if ((strs.length > 4) && !Strings.isNullOrEmpty(strs[4])) {
+            requestedTenantAccess = strs[4].trim();
+        }
+        return new User(userName, backendRoles, roles, Arrays.asList(), requestedTenant, requestedTenantAccess);
     }
 
     @Override
@@ -199,7 +234,8 @@ final public class User implements Writeable, ToXContent {
             .field(BACKEND_ROLES_FIELD, backendRoles)
             .field(ROLES_FIELD, roles)
             .field(CUSTOM_ATTRIBUTE_NAMES_FIELD, customAttNames)
-            .field(REQUESTED_TENANT_FIELD, requestedTenant);
+            .field(REQUESTED_TENANT_FIELD, requestedTenant)
+            .field(REQUESTED_TENANT_ACCESS, requestedTenantAccess);
         return builder.endObject();
     }
 
@@ -210,6 +246,9 @@ final public class User implements Writeable, ToXContent {
         out.writeStringCollection(roles);
         out.writeStringCollection(customAttNames);
         out.writeOptionalString(requestedTenant);
+        if (out.getVersion().onOrAfter(Version.V_3_2_0)) {
+            out.writeOptionalString(requestedTenantAccess);
+        }
     }
 
     @Override
@@ -220,6 +259,7 @@ final public class User implements Writeable, ToXContent {
         builder.add(ROLES_FIELD, roles);
         builder.add(CUSTOM_ATTRIBUTE_NAMES_FIELD, customAttNames);
         builder.add(REQUESTED_TENANT_FIELD, requestedTenant);
+        builder.add(REQUESTED_TENANT_ACCESS, requestedTenantAccess);
         return builder.toString();
     }
 
@@ -233,7 +273,8 @@ final public class User implements Writeable, ToXContent {
             && this.getBackendRoles().equals(that.backendRoles)
             && this.getRoles().equals(that.roles)
             && this.getCustomAttNames().equals(that.customAttNames)
-            && (Objects.equals(this.requestedTenant, that.requestedTenant));
+            && (Objects.equals(this.requestedTenant, that.requestedTenant))
+            && (Objects.equals(this.requestedTenantAccess, that.requestedTenantAccess));
     }
 
     public String getName() {
@@ -255,6 +296,11 @@ final public class User implements Writeable, ToXContent {
     @Nullable
     public String getRequestedTenant() {
         return requestedTenant;
+    }
+
+    @Nullable
+    public String getRequestedTenantAccess() {
+        return requestedTenantAccess;
     }
 
     public boolean isAdminDn(Settings settings) {
