@@ -138,6 +138,8 @@ final public class User implements Writeable, ToXContent {
         requestedTenant = in.readOptionalString();
         if (in.getVersion().onOrAfter(Version.V_3_2_0)) {
             requestedTenantAccess = in.readOptionalString();
+        } else {
+            requestedTenantAccess = null;
         }
     }
 
