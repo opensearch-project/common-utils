@@ -1,5 +1,6 @@
 package org.opensearch.commons.alerting.model
 
+import org.opensearch.Version
 import org.opensearch.common.CheckedFunction
 import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
@@ -23,7 +24,7 @@ data class DocLevelMonitorInput(
         sin.readString(), // description
         sin.readStringList(), // indices
         sin.readList(::DocLevelQuery), // docLevelQueries
-        sin.readOptionalBoolean() // fanoutEnabled
+        if (sin.version.onOrAfter(Version.V_2_15_0)) sin.readOptionalBoolean() else true // fanoutEnabled
     )
 
     override fun asTemplateArg(): Map<String, Any> {
@@ -43,7 +44,9 @@ data class DocLevelMonitorInput(
         out.writeString(description)
         out.writeStringCollection(indices)
         out.writeCollection(queries)
-        out.writeOptionalBoolean(fanoutEnabled)
+        if (out.version.onOrAfter(Version.V_2_15_0)) {
+            out.writeOptionalBoolean(fanoutEnabled)
+        }
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
