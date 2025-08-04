@@ -51,7 +51,7 @@ public class UserTest {
             "chip",
             Arrays.asList("admin", "ops"),
             Arrays.asList("ops_data"),
-            Arrays.asList("attr1", "attr2"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
             "__user__",
             "WRITE"
         );
@@ -93,7 +93,7 @@ public class UserTest {
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
-        assertEquals(2, user.getCustomAttNames().size());
+        assertEquals(2, user.getCustomAttributes().size());
         assertFalse(Strings.isNullOrEmpty(user.getRequestedTenant()));
     }
 
