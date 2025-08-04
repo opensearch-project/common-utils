@@ -220,7 +220,7 @@ final public class User implements Writeable, ToXContent {
     }
 
     /**
-     * User String format must be pipe separated as : user_name|backendrole1,backendrole2|roles1,role2|tenant|base64-encoded(serialized(custom atttributes))
+     * User String format must be pipe separated as : user_name|backendrole1,backendrole2|roles1,role2|tenant|tenantAccess|base64-encoded(serialized(custom atttributes))
      * @param userString
      * @return
      */
