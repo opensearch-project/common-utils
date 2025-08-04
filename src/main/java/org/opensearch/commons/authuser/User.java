@@ -256,7 +256,6 @@ final public class User implements Writeable, ToXContent {
         if ((strs.length > 4) && !Strings.isNullOrEmpty(strs[4])) {
             requestedTenantAccess = strs[4].trim();
         }
-
         if ((strs.length > 5) && !Strings.isNullOrEmpty(strs[5])) {
             customAttributes = (Map<String, String>) Base64Helper.deserializeObject(strs[5]);
         }

@@ -231,7 +231,7 @@ public class UserTest {
         String serializedAttrMap = Base64Helper.serializeObject((Serializable) attrMap);
 
         ThreadContext tc = new ThreadContext(Settings.EMPTY);
-        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1,bckrol2|role1,role2|myTenant|" + serializedAttrMap);
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1,bckrol2|role1,role2|myTenant||" + serializedAttrMap);
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
 
