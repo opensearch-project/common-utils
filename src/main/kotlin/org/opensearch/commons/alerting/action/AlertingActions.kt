@@ -8,6 +8,7 @@ import org.opensearch.action.ActionType
 import org.opensearch.action.search.SearchResponse
 
 object AlertingActions {
+    // Alerting V1
     const val INDEX_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/write"
     const val INDEX_WORKFLOW_ACTION_NAME = "cluster:admin/opensearch/alerting/workflow/write"
     const val GET_ALERTS_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/get"
@@ -24,6 +25,9 @@ object AlertingActions {
     const val INDEX_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/write"
     const val SEARCH_COMMENTS_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/search"
     const val DELETE_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/delete"
+
+    // Alerting V2
+    const val INDEX_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/write"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -88,4 +92,8 @@ object AlertingActions {
     @JvmField
     val DELETE_COMMENT_ACTION_TYPE =
         ActionType(DELETE_COMMENT_ACTION_NAME, ::DeleteCommentResponse)
+
+    @JvmField
+    val INDEX_MONITOR_V2_ACTION_TYPE =
+        ActionType(INDEX_MONITOR_V2_ACTION_NAME, ::IndexMonitorV2Response)
 }
