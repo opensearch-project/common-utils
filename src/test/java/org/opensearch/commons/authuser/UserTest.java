@@ -517,4 +517,21 @@ public class UserTest {
         assertFalse(user.isAdminDn(null));
         assertFalse(user.isAdminDn(settings));
     }
+
+   @Test
+    public void testUserCustomAttributeNamesBackwardsCompatibility() {
+        User user = new User(
+            "chip",
+            Arrays.asList("admin", "ops"),
+            Arrays.asList("ops_data"),
+            Arrays.asList("attr1")
+        );
+        assertFalse(Strings.isNullOrEmpty(user.getName()));
+        assertEquals(2, user.getBackendRoles().size());
+        assertEquals(1, user.getRoles().size());
+        assertEquals(1, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("null"));
+        assertNull(user.getRequestedTenant());
+    }
 }
