@@ -346,6 +346,10 @@ final public class User implements Writeable, ToXContent {
         return customAttributes;
     }
 
+    public List<String> getCustomAttNames() {
+        return this.getCustomAttributeNamesFromMap(this.customAttributes);
+    }
+
     @Nullable
     public String getRequestedTenant() {
         return requestedTenant;
@@ -366,5 +370,10 @@ final public class User implements Writeable, ToXContent {
 
     private Map<String, String> convertCustomAttributeNamesToMap(List<String> customAttNames) {
         return customAttNames.stream().collect(Collectors.toMap(key -> key, key -> "null"));
+    }
+
+    private List<String> getCustomAttributeNamesFromMap(Map<String, String> customAttributes) {
+        List<String> customAttNames = new ArrayList<>(this.customAttributes.keySet());
+        return customAttNames;
     }
 }
