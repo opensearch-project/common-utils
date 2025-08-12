@@ -80,6 +80,15 @@ final public class User implements Writeable, ToXContent {
         this.requestedTenantAccess = null;
     }
 
+    public User(final String name, final List<String> backendRoles, List<String> roles, List<String> customAttNames) {
+        this.name = name;
+        this.backendRoles = backendRoles;
+        this.roles = roles;
+        this.customAttributes = this.convertCustomAttributeNamesToMap(customAttNames);
+        this.requestedTenant = null;
+        this.requestedTenantAccess = null;
+    }
+
     public User(
         final String name,
         final List<String> backendRoles,
