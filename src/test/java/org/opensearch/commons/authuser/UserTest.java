@@ -518,14 +518,9 @@ public class UserTest {
         assertFalse(user.isAdminDn(settings));
     }
 
-   @Test
+    @Test
     public void testUserCustomAttributeNamesBackwardsCompatibility() {
-        User user = new User(
-            "chip",
-            Arrays.asList("admin", "ops"),
-            Arrays.asList("ops_data"),
-            Arrays.asList("attr1")
-        );
+        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1"));
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
