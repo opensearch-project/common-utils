@@ -11,7 +11,6 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTE
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
 import static org.opensearch.commons.authuser.Utils.escapePipe;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -20,7 +19,6 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
 import org.opensearch.commons.authuser.User;
-import org.opensearch.commons.authuser.util.Base64Helper;
 import org.opensearch.core.common.Strings;
 
 /**

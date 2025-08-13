@@ -119,10 +119,7 @@ public class InjectSecurityTest {
                 "Bob|backendRole1,backendRole2|role1,role2|tenant1",
                 threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
             );
-            assertEquals(
-                Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
-                threadContext.getTransient(INJECTED_USER_CUSTOM_ATTRIBUTES)
-            );
+            assertEquals(Map.of("attr1", "attrValue1", "attr2", "attrValue2"), threadContext.getTransient(INJECTED_USER_CUSTOM_ATTRIBUTES));
         }
         assertEquals("1", threadContext.getHeader("default"));
         assertEquals("opendistro", threadContext.getHeader("name"));
@@ -159,10 +156,7 @@ public class InjectSecurityTest {
                 "Bob\\|test-pipe|backendRole1,backendRole2|role1,role2|tenant1",
                 threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
             );
-            assertEquals(
-                Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
-                threadContext.getTransient(INJECTED_USER_CUSTOM_ATTRIBUTES)
-            );
+            assertEquals(Map.of("attr1", "attrValue1", "attr2", "attrValue2"), threadContext.getTransient(INJECTED_USER_CUSTOM_ATTRIBUTES));
         }
         assertEquals("1", threadContext.getHeader("default"));
         assertEquals("opendistro", threadContext.getHeader("name"));
