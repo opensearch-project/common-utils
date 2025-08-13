@@ -6,10 +6,12 @@
 package org.opensearch.commons;
 
 import static org.opensearch.commons.ConfigConstants.INJECTED_USER;
+import static org.opensearch.commons.ConfigConstants.INJECTED_USER_CUSTOM_ATTRIBUTES;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTED_ROLES;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
 import static org.opensearch.commons.authuser.Utils.escapePipe;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -18,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
 import org.opensearch.commons.authuser.User;
+import org.opensearch.commons.authuser.util.Base64Helper;
 import org.opensearch.core.common.Strings;
 
 /**
@@ -157,6 +160,13 @@ public class InjectSecurity implements AutoCloseable {
         }
 
         threadContext.putTransient(ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, joiner.toString());
+
+        if (threadContext.getTransient(INJECTED_USER_CUSTOM_ATTRIBUTES) == null) {
+            threadContext.putTransient(INJECTED_USER_CUSTOM_ATTRIBUTES, user.getCustomAttributes());
+            log.debug("{}, InjectSecurity - inject user custom attributes: {}", Thread.currentThread().getName(), id);
+        } else {
+            log.error("{}, InjectSecurity - most likely thread context corruption : {}", Thread.currentThread().getName(), id);
+        }
     }
 
     /**

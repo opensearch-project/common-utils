@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.commons.ConfigConstants.INJECTED_USER;
+import static org.opensearch.commons.ConfigConstants.INJECTED_USER_CUSTOM_ATTRIBUTES;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTED_ROLES;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
@@ -118,6 +119,10 @@ public class InjectSecurityTest {
                 "Bob|backendRole1,backendRole2|role1,role2|tenant1",
                 threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
             );
+            assertEquals(
+                Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
+                threadContext.getTransient(INJECTED_USER_CUSTOM_ATTRIBUTES)
+            );
         }
         assertEquals("1", threadContext.getHeader("default"));
         assertEquals("opendistro", threadContext.getHeader("name"));
@@ -153,6 +158,10 @@ public class InjectSecurityTest {
             assertEquals(
                 "Bob\\|test-pipe|backendRole1,backendRole2|role1,role2|tenant1",
                 threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
+            );
+            assertEquals(
+                Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
+                threadContext.getTransient(INJECTED_USER_CUSTOM_ATTRIBUTES)
             );
         }
         assertEquals("1", threadContext.getHeader("default"));
