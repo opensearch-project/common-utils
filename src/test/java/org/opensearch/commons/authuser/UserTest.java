@@ -562,7 +562,8 @@ public class UserTest {
                 "backend_roles": ["admin", "ops"],
                 "roles": ["ops_data"],
                 "user_requested_tenant": null,
-                "user_requested_tenant_access": null
+                "user_requested_tenant_access": null,
+                "custom_attribute_names": []
             }
             """;
         assertEquals(
