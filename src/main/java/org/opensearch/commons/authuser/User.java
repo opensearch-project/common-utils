@@ -279,9 +279,15 @@ final public class User implements Writeable, ToXContent {
             .field(NAME_FIELD, name)
             .field(BACKEND_ROLES_FIELD, backendRoles)
             .field(ROLES_FIELD, roles)
-            .field(CUSTOM_ATTRIBUTES_FIELD, customAttributes)
             .field(REQUESTED_TENANT_FIELD, requestedTenant)
             .field(REQUESTED_TENANT_ACCESS, requestedTenantAccess);
+
+        if (customAttributes.size() > 0) {
+            builder.field(CUSTOM_ATTRIBUTES_FIELD, customAttributes);
+        } else {
+            builder.field(CUSTOM_ATTRIBUTE_NAMES_FIELD, new ArrayList<>());
+        }
+
         return builder.endObject();
     }
 

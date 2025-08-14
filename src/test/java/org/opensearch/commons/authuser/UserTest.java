@@ -529,4 +529,45 @@ public class UserTest {
         assertTrue(user.getCustomAttributes().containsValue("null"));
         assertNull(user.getRequestedTenant());
     }
+
+    @Test
+    public void testUserXContentIncludesCustomAttributes() throws IOException {
+        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Map.of("attr1", "value1"));
+        XContentBuilder xcontent = user.toXContent(XContentFactory.jsonBuilder(), null);
+        String expectedUserJson = """
+            {
+                "name": "chip",
+                "backend_roles": ["admin", "ops"],
+                "roles": ["ops_data"],
+                "user_requested_tenant": null,
+                "user_requested_tenant_access": null,
+                "custom_attributes": {
+                    "attr1": "value1"
+                }
+            }
+            """;
+        assertEquals(
+            expectedUserJson.replace("\n", "").replace("\s", ""),
+            xcontent.toString().replace("\n", "")
+        );
+    }
+
+    @Test
+    public void testUserXContentExcludesCustomAttributes() throws IOException {
+        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Map.of());
+        XContentBuilder xcontent = user.toXContent(XContentFactory.jsonBuilder(), null);
+        String expectedUserJson = """
+            {
+                "name": "chip",
+                "backend_roles": ["admin", "ops"],
+                "roles": ["ops_data"],
+                "user_requested_tenant": null,
+                "user_requested_tenant_access": null
+            }
+            """;
+        assertEquals(
+            expectedUserJson.replace("\n", "").replace("\s", ""),
+            xcontent.toString().replace("\n", "")
+        );
+    }
 }
