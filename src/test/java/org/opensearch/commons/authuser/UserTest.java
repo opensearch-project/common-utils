@@ -546,10 +546,7 @@ public class UserTest {
                 }
             }
             """;
-        assertEquals(
-            expectedUserJson.replace("\n", "").replace("\s", ""),
-            xcontent.toString().replace("\n", "")
-        );
+        assertEquals(expectedUserJson.replace("\n", "").replace("\s", ""), xcontent.toString().replace("\n", ""));
     }
 
     @Test
@@ -566,9 +563,6 @@ public class UserTest {
                 "custom_attribute_names": []
             }
             """;
-        assertEquals(
-            expectedUserJson.replace("\n", "").replace("\s", ""),
-            xcontent.toString().replace("\n", "")
-        );
+        assertEquals(expectedUserJson.replace("\n", "").replace("\s", ""), xcontent.toString().replace("\n", ""));
     }
 }
