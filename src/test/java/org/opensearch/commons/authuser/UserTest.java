@@ -12,21 +12,38 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.opensearch.Version;
 import org.opensearch.common.io.stream.BytesStreamOutput;
 import org.opensearch.common.settings.Settings;
 import org.opensearch.common.util.concurrent.ThreadContext;
+import org.opensearch.common.xcontent.XContentFactory;
 import org.opensearch.commons.ConfigConstants;
+import org.opensearch.commons.authuser.util.Base64Helper;
 import org.opensearch.core.common.Strings;
 import org.opensearch.core.common.io.stream.StreamInput;
+import org.opensearch.core.xcontent.DeprecationHandler;
+import org.opensearch.core.xcontent.MediaType;
+import org.opensearch.core.xcontent.MediaTypeRegistry;
+import org.opensearch.core.xcontent.NamedXContentRegistry;
+import org.opensearch.core.xcontent.XContentBuilder;
+import org.opensearch.core.xcontent.XContentParser;
 
 public class UserTest {
 
     User testNoTenantUser() {
-        return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1", "attr2"));
+        return new User(
+            "chip",
+            Arrays.asList("admin", "ops"),
+            Arrays.asList("ops_data"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2")
+        );
     }
 
     User testTenantUser() {
@@ -34,14 +51,20 @@ public class UserTest {
             "chip",
             Arrays.asList("admin", "ops"),
             Arrays.asList("ops_data"),
-            Arrays.asList("attr1", "attr2"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
             "__user__",
             "WRITE"
         );
     }
 
     User testTenantUserWithNoAccessInfo() {
-        return new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1", "attr2"), "__user__");
+        return new User(
+            "chip",
+            Arrays.asList("admin", "ops"),
+            Arrays.asList("ops_data"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
+            "__user__"
+        );
     }
 
     @Test
@@ -50,7 +73,7 @@ public class UserTest {
         assertEquals("", user.getName());
         assertEquals(0, user.getBackendRoles().size());
         assertEquals(0, user.getRoles().size());
-        assertEquals(0, user.getCustomAttNames().size());
+        assertEquals(0, user.getCustomAttributes().size());
         assertNull(user.getRequestedTenant());
     }
 
@@ -60,7 +83,7 @@ public class UserTest {
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
-        assertEquals(2, user.getCustomAttNames().size());
+        assertEquals(2, user.getCustomAttributes().size());
         assertNull(user.getRequestedTenant());
     }
 
@@ -70,7 +93,7 @@ public class UserTest {
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
-        assertEquals(2, user.getCustomAttNames().size());
+        assertEquals(2, user.getCustomAttributes().size());
         assertFalse(Strings.isNullOrEmpty(user.getRequestedTenant()));
     }
 
@@ -80,25 +103,53 @@ public class UserTest {
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
-        assertEquals(2, user.getCustomAttNames().size());
+        assertEquals(2, user.getCustomAttributes().size());
         assertFalse(Strings.isNullOrEmpty(user.getRequestedTenant()));
     }
 
     @Test
     public void testNullTenantJsonConst() throws IOException {
         String json =
-            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=null]\",\"user_name\":\"chip\",\"user_requested_tenant\":null,\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
+            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=null]\",\"user_name\":\"chip\",\"user_requested_tenant\":null,\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attributes\":{},\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
 
         User user = new User(json);
         assertEquals("chip", user.getName());
         assertEquals(1, user.getBackendRoles().size());
         assertEquals(3, user.getRoles().size());
-        assertEquals(0, user.getCustomAttNames().size());
+        assertEquals(0, user.getCustomAttributes().size());
         assertNull(user.getRequestedTenant());
     }
 
     @Test
     public void testNonNullTenantJsonConst() throws IOException {
+        String json =
+            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attributes\":{},\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
+
+        User user = new User(json);
+        assertEquals("chip", user.getName());
+        assertEquals(1, user.getBackendRoles().size());
+        assertEquals(3, user.getRoles().size());
+        assertEquals(0, user.getCustomAttributes().size());
+        assertEquals("__user__", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testCustomAttributesJsonConst() throws IOException {
+        String json =
+            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attributes\":{\"attr1\":\"val1\"},\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
+
+        User user = new User(json);
+        assertEquals("chip", user.getName());
+        assertEquals(1, user.getBackendRoles().size());
+        assertEquals(3, user.getRoles().size());
+        assertEquals(1, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("val1"));
+        assertEquals("__user__", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testEmptyCustomAttributeNamesJsonConst() throws IOException {
         String json =
             "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
 
@@ -106,7 +157,22 @@ public class UserTest {
         assertEquals("chip", user.getName());
         assertEquals(1, user.getBackendRoles().size());
         assertEquals(3, user.getRoles().size());
-        assertEquals(0, user.getCustomAttNames().size());
+        assertEquals(0, user.getCustomAttributes().size());
+        assertEquals("__user__", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testNonEmptyCustomAttributeNamesJsonConst() throws IOException {
+        String json =
+            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[\"attr1\"],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
+
+        User user = new User(json);
+        assertEquals("chip", user.getName());
+        assertEquals(1, user.getBackendRoles().size());
+        assertEquals(3, user.getRoles().size());
+        assertEquals(1, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("null"));
         assertEquals("__user__", user.getRequestedTenant());
     }
 
@@ -119,6 +185,20 @@ public class UserTest {
         User newUser = new User(in);
         assertEquals(user.toString(), newUser.toString(), "Round tripping User doesn't work");
         assertEquals(user, newUser, "Round tripping User doesn't work");
+    }
+
+    @Test
+    public void testStreamConstForUserBackwardsCompatibility() throws IOException {
+        User user = testNoTenantUser();
+        BytesStreamOutput out = new BytesStreamOutput();
+        out.setVersion(Version.V_3_1_0);
+        user.writeTo(out);
+        StreamInput in = StreamInput.wrap(out.bytes().toBytesRef().bytes);
+        in.setVersion(Version.V_3_1_0);
+        User newUser = new User(in);
+        assertEquals(2, newUser.getCustomAttributes().size());
+        assertTrue(newUser.getCustomAttributes().containsKey("attr1"));
+        assertTrue(newUser.getCustomAttributes().containsValue("null"));
     }
 
     @Test
@@ -145,8 +225,13 @@ public class UserTest {
 
     @Test
     public void testParseUserString() {
+        Map<String, String> attrMap = new HashMap<>();
+        attrMap.put("attr1", "value1");
+        attrMap.put("attr2", "value2");
+        String serializedAttrMap = Base64Helper.serializeObject((Serializable) attrMap);
+
         ThreadContext tc = new ThreadContext(Settings.EMPTY);
-        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1,bckrol2|role1,role2|myTenant");
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|bckrole1,bckrol2|role1,role2|myTenant||" + serializedAttrMap);
         String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
         User user = User.parse(str);
 
@@ -156,6 +241,11 @@ public class UserTest {
         assertTrue(user.getRoles().contains("role1"));
         assertTrue(user.getRoles().contains("role2"));
         assertEquals("myTenant", user.getRequestedTenant());
+        assertEquals(2, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("value1"));
+        assertTrue(user.getCustomAttributes().containsKey("attr2"));
+        assertTrue(user.getCustomAttributes().containsValue("value2"));
     }
 
     @Test
@@ -203,6 +293,19 @@ public class UserTest {
         assertEquals(0, user.getBackendRoles().size());
         assertEquals(0, user.getRoles().size());
         assertEquals("myTenant", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testParseUserStringNameWithNullTenant() {
+        ThreadContext tc = new ThreadContext(Settings.EMPTY);
+        tc.putTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT, "myuser|||null");
+        String str = tc.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT);
+        User user = User.parse(str);
+
+        assertEquals("myuser", user.getName());
+        assertEquals(0, user.getBackendRoles().size());
+        assertEquals(0, user.getRoles().size());
+        assertEquals("null", user.getRequestedTenant());
     }
 
     @Test
@@ -333,6 +436,47 @@ public class UserTest {
     }
 
     @Test
+    public void testParseUserXContent() throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+
+        builder
+            .startObject() // Start a JSON object
+            .field(User.NAME_FIELD, "myuser") // Add a field
+            .startArray(User.BACKEND_ROLES_FIELD) // Start an array
+            .value("backend-role-1")
+            .value("backend-role-2")
+            .endArray() // End the array
+            .startArray(User.ROLES_FIELD) // Start an array
+            .value("role-1")
+            .value("role-2")
+            .endArray() // End the array
+            .field(User.REQUESTED_TENANT_FIELD, "tenant-1")
+            .startObject(User.CUSTOM_ATTRIBUTES_FIELD) // Start a nested object
+            .field("attr1", "val1")
+            .endObject() // End the nested object
+            .endObject(); // End the main object
+
+        MediaType mediaType = MediaTypeRegistry.JSON;
+        XContentParser parser = mediaType
+            .xContent()
+            .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.IGNORE_DEPRECATIONS, builder.toString());
+
+        parser.nextToken();
+        User user = User.parse(parser);
+        assertEquals("myuser", user.getName());
+        assertEquals(2, user.getBackendRoles().size());
+        assertTrue(user.getBackendRoles().contains("backend-role-1"));
+        assertTrue(user.getBackendRoles().contains("backend-role-2"));
+        assertEquals(2, user.getRoles().size());
+        assertTrue(user.getRoles().contains("role-1"));
+        assertTrue(user.getRoles().contains("role-2"));
+        assertEquals("tenant-1", user.getRequestedTenant());
+        assertEquals(1, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("val1"));
+    }
+
+    @Test
     public void testUserIsAdminDnTrue() {
         Settings settings = Settings
             .builder()
@@ -372,5 +516,53 @@ public class UserTest {
         User user = User.parse("username|backend_role1|role1");
         assertFalse(user.isAdminDn(null));
         assertFalse(user.isAdminDn(settings));
+    }
+
+    @Test
+    public void testUserCustomAttributeNamesBackwardsCompatibility() {
+        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1"));
+        assertFalse(Strings.isNullOrEmpty(user.getName()));
+        assertEquals(2, user.getBackendRoles().size());
+        assertEquals(1, user.getRoles().size());
+        assertEquals(1, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("null"));
+        assertNull(user.getRequestedTenant());
+    }
+
+    @Test
+    public void testUserXContentIncludesCustomAttributes() throws IOException {
+        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Map.of("attr1", "value1"));
+        XContentBuilder xcontent = user.toXContent(XContentFactory.jsonBuilder(), null);
+        String expectedUserJson = """
+            {
+                "name": "chip",
+                "backend_roles": ["admin", "ops"],
+                "roles": ["ops_data"],
+                "user_requested_tenant": null,
+                "user_requested_tenant_access": null,
+                "custom_attributes": {
+                    "attr1": "value1"
+                }
+            }
+            """;
+        assertEquals(expectedUserJson.replace("\n", "").replace("\s", ""), xcontent.toString().replace("\n", ""));
+    }
+
+    @Test
+    public void testUserXContentExcludesCustomAttributes() throws IOException {
+        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Map.of());
+        XContentBuilder xcontent = user.toXContent(XContentFactory.jsonBuilder(), null);
+        String expectedUserJson = """
+            {
+                "name": "chip",
+                "backend_roles": ["admin", "ops"],
+                "roles": ["ops_data"],
+                "user_requested_tenant": null,
+                "user_requested_tenant_access": null,
+                "custom_attribute_names": []
+            }
+            """;
+        assertEquals(expectedUserJson.replace("\n", "").replace("\s", ""), xcontent.toString().replace("\n", ""));
     }
 }

@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.commons.ConfigConstants.INJECTED_USER;
+import static org.opensearch.commons.ConfigConstants.INJECTED_USER_CUSTOM_ATTRIBUTES;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_INJECTED_ROLES;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJECTED_USER_FOR_PLUGINS;
@@ -18,6 +19,7 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USE_INJ
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.opensearch.common.settings.Settings;
@@ -104,7 +106,7 @@ public class InjectSecurityTest {
             "Bob",
             List.of("backendRole1", "backendRole2"),
             List.of("role1", "role2"),
-            List.of("attr1", "attr2"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
             "tenant1"
         );
         try (InjectSecurity helper = new InjectSecurity("test-name", null, threadContext)) {
@@ -117,6 +119,7 @@ public class InjectSecurityTest {
                 "Bob|backendRole1,backendRole2|role1,role2|tenant1",
                 threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
             );
+            assertEquals(Map.of("attr1", "attrValue1", "attr2", "attrValue2"), threadContext.getTransient(INJECTED_USER_CUSTOM_ATTRIBUTES));
         }
         assertEquals("1", threadContext.getHeader("default"));
         assertEquals("opendistro", threadContext.getHeader("name"));
@@ -140,7 +143,7 @@ public class InjectSecurityTest {
             "Bob|test-pipe",
             List.of("backendRole1", "backendRole2"),
             List.of("role1", "role2"),
-            List.of("attr1", "attr2"),
+            Map.of("attr1", "attrValue1", "attr2", "attrValue2"),
             "tenant1"
         );
         try (InjectSecurity helper = new InjectSecurity("test-name", null, threadContext)) {
@@ -153,6 +156,7 @@ public class InjectSecurityTest {
                 "Bob\\|test-pipe|backendRole1,backendRole2|role1,role2|tenant1",
                 threadContext.getTransient(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
             );
+            assertEquals(Map.of("attr1", "attrValue1", "attr2", "attrValue2"), threadContext.getTransient(INJECTED_USER_CUSTOM_ATTRIBUTES));
         }
         assertEquals("1", threadContext.getHeader("default"));
         assertEquals("opendistro", threadContext.getHeader("name"));
