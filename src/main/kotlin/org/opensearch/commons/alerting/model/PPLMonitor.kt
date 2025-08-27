@@ -2,8 +2,11 @@ package org.opensearch.commons.alerting.model
 
 import java.io.IOException
 import java.time.Instant
+import org.apache.logging.log4j.LogManager
 import org.opensearch.Version
+import org.opensearch.common.CheckedFunction
 import org.opensearch.commons.alerting.model.Monitor.Companion
+import org.opensearch.commons.alerting.model.Monitor.Companion.MONITOR_TYPE
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_TIME_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.LABELS_FIELD
@@ -15,18 +18,23 @@ import org.opensearch.commons.alerting.model.MonitorV2.Companion.NO_ID
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.NO_VERSION
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.SCHEDULE_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.TRIGGERS_FIELD
+import org.opensearch.commons.alerting.model.MonitorV2.Companion.TYPE_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.convertLabelsMap
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
 import org.opensearch.commons.alerting.util.instant
 import org.opensearch.commons.alerting.util.nonOptionalTimeField
 import org.opensearch.commons.alerting.util.optionalTimeField
+import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
+
+private val logger = LogManager.getLogger(PPLMonitor::class.java)
 
 data class PPLMonitor(
     override val id: String = NO_ID,
@@ -82,10 +90,20 @@ data class PPLMonitor(
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         builder.startObject()
-        builder.field(NAME_FIELD, name)
+
+        // if this is being written as ScheduledJob, add extra object layer and add ScheduledJob
+        // related metadata, default to false
+        if (params.paramAsBoolean("with_type", false)) {
+            builder.startObject(MONITOR_V2_TYPE)
+        }
+        builder.field(TYPE_FIELD, MONITOR_V2_TYPE)
+
         // include monitor type field despite it not being a class field to differentiate
         // PPL monitor from other monitor types in alerting config system index
         builder.field(MONITOR_TYPE_FIELD, PPL_MONITOR_TYPE)
+
+        builder.field(NAME_FIELD, name)
+        builder.field(SCHEDULE_FIELD, schedule)
         builder.field(ENABLED_FIELD, enabled)
         builder.optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
         builder.nonOptionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
@@ -93,6 +111,12 @@ data class PPLMonitor(
         builder.field(TRIGGERS_FIELD, triggers.toTypedArray())
         builder.field(QUERY_FIELD, query)
         builder.endObject()
+
+        // if ScheduledJob metadata was added, end the extra object layer that was created
+        if (params.paramAsBoolean("with_type", false)) {
+            builder.endObject()
+        }
+
         return builder
     }
 
@@ -118,7 +142,7 @@ data class PPLMonitor(
         out.writeString(query)
     }
 
-    fun asTemplateArg(): Map<String, Any?> {
+    override fun asTemplateArg(): Map<String, Any?> {
         return mapOf(
             _ID to id,
             _VERSION to version,
@@ -153,6 +177,7 @@ data class PPLMonitor(
             var labels: Map<String, Any> = emptyMap()
             val triggers: MutableList<TriggerV2> = mutableListOf()
             var query: String? = null
+
 
             /* parse */
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)

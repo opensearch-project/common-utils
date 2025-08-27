@@ -1,14 +1,23 @@
 package org.opensearch.commons.alerting.model
 
 import java.io.IOException
+import java.time.Instant
+import org.apache.logging.log4j.LogManager
 import org.opensearch.common.CheckedFunction
 import org.opensearch.common.UUIDs
+import org.opensearch.common.unit.TimeValue
 import org.opensearch.commons.alerting.model.TriggerV2.Companion.ACTIONS_FIELD
+import org.opensearch.commons.alerting.model.TriggerV2.Companion.EXPIRE_FIELD
 import org.opensearch.commons.alerting.model.TriggerV2.Companion.ID_FIELD
+import org.opensearch.commons.alerting.model.TriggerV2.Companion.LAST_TRIGGERED_FIELD
 import org.opensearch.commons.alerting.model.TriggerV2.Companion.NAME_FIELD
 import org.opensearch.commons.alerting.model.TriggerV2.Companion.SEVERITY_FIELD
+import org.opensearch.commons.alerting.model.TriggerV2.Companion.SUPPRESS_FIELD
 import org.opensearch.commons.alerting.model.TriggerV2.Severity
 import org.opensearch.commons.alerting.model.action.Action
+import org.opensearch.commons.alerting.util.instant
+import org.opensearch.commons.alerting.util.optionalTimeField
+import org.opensearch.commons.authuser.User
 import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -18,13 +27,17 @@ import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 
+private val logger = LogManager.getLogger(PPLTrigger::class.java)
+
 data class PPLTrigger(
     override val id: String = UUIDs.base64UUID(),
     override val name: String,
     override val severity: Severity,
+    override val suppressDuration: TimeValue?,
+    override val expireDuration: TimeValue?,
+    override var lastTriggeredTime: Instant?,
     override val actions: List<Action>,
     val mode: TriggerMode, // result_set or per_result
-    // val suppress // TODO: potentially need to use OScore's TimeValue
     val conditionType: ConditionType,
     val numResultsCondition: NumResultsCondition?,
     val numResultsValue: Long?,
@@ -36,6 +49,11 @@ data class PPLTrigger(
         sin.readString(), // id
         sin.readString(), // name
         sin.readEnum(Severity::class.java), // severity
+        // parseTimeValue() is typically used to parse OpenSearch settings
+        // the second param is supposed to accept a setting name, but here we're passing in our own name
+        TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_SUPPRESS_SETTING_NAME), // suppressDuration
+        TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_EXPIRE_SETTING_NAME), // expireDuration
+        sin.readOptionalInstant(), // lastTriggeredTime
         sin.readList(::Action), // actions
         sin.readEnum(TriggerMode::class.java), // trigger mode
         // TODO: add validation to ensure numResultsCondition and numResultsValue or customCondition are non-null based on condition type?
@@ -51,11 +69,21 @@ data class PPLTrigger(
         out.writeString(id)
         out.writeString(name)
         out.writeEnum(severity)
+
+        out.writeBoolean(suppressDuration != null)
+        suppressDuration?.let { out.writeString(suppressDuration.toHumanReadableString(0)) }
+
+        out.writeBoolean(expireDuration != null)
+        expireDuration?.let { out.writeString(expireDuration.toHumanReadableString(0)) }
+
+        out.writeOptionalInstant(lastTriggeredTime)
         out.writeCollection(actions)
         out.writeEnum(mode)
         out.writeEnum(conditionType)
+
         out.writeBoolean(numResultsCondition != null) // TODO: look for built-in writeOptionalEnum support
-        if (numResultsCondition != null) out.writeEnum(numResultsCondition)
+        numResultsCondition?.let { out.writeEnum(numResultsCondition) }
+
         out.writeOptionalLong(numResultsValue)
         out.writeOptionalString(customCondition)
     }
@@ -65,13 +93,16 @@ data class PPLTrigger(
         builder.startObject(PPL_TRIGGER_FIELD)
         builder.field(ID_FIELD, id)
         builder.field(NAME_FIELD, name)
+        builder.field(SEVERITY_FIELD, severity.value)
+        builder.field(SUPPRESS_FIELD, suppressDuration?.toHumanReadableString(0))
+        builder.field(EXPIRE_FIELD, expireDuration?.toHumanReadableString(0))
+        builder.optionalTimeField(LAST_TRIGGERED_FIELD, lastTriggeredTime)
+        builder.field(ACTIONS_FIELD, actions.toTypedArray())
         builder.field(MODE_FIELD, mode.value)
         builder.field(CONDITION_TYPE_FIELD, conditionType.value)
-        builder.field(NUM_RESULTS_CONDITION_FIELD, numResultsCondition?.value)
-        builder.field(NUM_RESULTS_VALUE_FIELD, numResultsValue)
-        builder.field(CUSTOM_CONDITION_FIELD, customCondition)
-        builder.field(SEVERITY_FIELD, severity.value)
-        builder.field(ACTIONS_FIELD, actions.toTypedArray())
+        numResultsCondition?.let { builder.field(NUM_RESULTS_CONDITION_FIELD, numResultsCondition.value) }
+        numResultsValue?.let { builder.field(NUM_RESULTS_VALUE_FIELD, numResultsValue) }
+        customCondition?.let { builder.field(CUSTOM_CONDITION_FIELD, customCondition) }
         builder.endObject()
         builder.endObject()
         return builder
@@ -81,13 +112,15 @@ data class PPLTrigger(
         return mapOf(
             ID_FIELD to id,
             NAME_FIELD to name,
+            SEVERITY_FIELD to severity.value,
+            SUPPRESS_FIELD to suppressDuration?.toHumanReadableString(0),
+            EXPIRE_FIELD to expireDuration?.toHumanReadableString(0),
+            ACTIONS_FIELD to actions.map { it.asTemplateArg() },
             MODE_FIELD to mode.value,
             CONDITION_TYPE_FIELD to conditionType.value,
             NUM_RESULTS_CONDITION_FIELD to numResultsCondition?.value,
             NUM_RESULTS_VALUE_FIELD to numResultsValue,
             CUSTOM_CONDITION_FIELD to customCondition,
-            SEVERITY_FIELD to severity.value,
-            ACTIONS_FIELD to actions.map { it.asTemplateArg() }
         )
     }
 
@@ -123,13 +156,19 @@ data class PPLTrigger(
     }
 
     companion object {
+        // trigger wrapper object field name
         const val PPL_TRIGGER_FIELD = "ppl_trigger"
 
+        // field names
         const val MODE_FIELD = "mode"
         const val CONDITION_TYPE_FIELD = "type"
         const val NUM_RESULTS_CONDITION_FIELD = "num_results_condition"
         const val NUM_RESULTS_VALUE_FIELD = "num_results_value"
         const val CUSTOM_CONDITION_FIELD = "custom_condition"
+
+        // mock setting name used when parsing TimeValue
+        private const val PLACEHOLDER_SUPPRESS_SETTING_NAME = "ppl_trigger_suppress_duration"
+        private const val PLACEHOLDER_EXPIRE_SETTING_NAME = "ppl_trigger_expire_duration"
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             TriggerV2::class.java,
@@ -137,47 +176,80 @@ data class PPLTrigger(
             CheckedFunction { parseInner(it) }
         )
 
+
         @JvmStatic
         @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): PPLTrigger {
             var id = UUIDs.base64UUID() // assign a default triggerId if one is not specified
             var name: String? = null
             var severity: Severity? = null
+            var suppressDuration: TimeValue? = null
+            var expireDuration: TimeValue? = null
+            var lastTriggeredTime: Instant? = null
+            val actions: MutableList<Action> = mutableListOf()
             var mode: TriggerMode? = null
             var conditionType: ConditionType? = null
             var numResultsCondition: NumResultsCondition? = null
             var numResultsValue: Long? = null
             var customCondition: String? = null
-            val actions: MutableList<Action> = mutableListOf()
 
             /* parse */
-            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp) // outer trigger object start
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp) // ppl_trigger field name
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp) // inner trigger object start
 
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
 
+                // TODO: if e.g. trigger is num results but user explicitly passes in custom_condition = null, parse fails because
+                // TODO: it tries to parse a text value from null
                 when (fieldName) {
                     ID_FIELD -> id = xcp.text()
                     NAME_FIELD -> name = xcp.text()
                     SEVERITY_FIELD -> {
-                        val enumMatchResult = Severity.enumFromString(xcp.text())
-                            ?: throw IllegalArgumentException("Invalid value for $SEVERITY_FIELD. Supported values are ${Severity.entries.map { it.value }}")
+                        val input = xcp.text()
+                        val enumMatchResult = Severity.enumFromString(input)
+                            ?: throw IllegalArgumentException("Invalid value for $SEVERITY_FIELD: $input. Supported values are ${Severity.entries.map { it.value }}")
                         severity = enumMatchResult
                     }
                     MODE_FIELD -> {
-                        val enumMatchResult = TriggerMode.enumFromString(xcp.text())
-                            ?: throw IllegalArgumentException("Invalid value for $MODE_FIELD. Supported values are ${TriggerMode.entries.map { it.value }}")
+                        val input = xcp.text()
+                        val enumMatchResult = TriggerMode.enumFromString(input)
+                            ?: throw IllegalArgumentException("Invalid value for $MODE_FIELD: $input. Supported values are ${TriggerMode.entries.map { it.value }}")
                         mode = enumMatchResult
                     }
                     CONDITION_TYPE_FIELD -> {
-                        val enumMatchResult = ConditionType.enumFromString(xcp.text())
-                            ?: throw IllegalArgumentException("Invalid value for $CONDITION_TYPE_FIELD. Supported values are ${ConditionType.entries.map { it.value }}")
+                        val input = xcp.text()
+                        val enumMatchResult = ConditionType.enumFromString(input)
+                            ?: throw IllegalArgumentException("Invalid value for $CONDITION_TYPE_FIELD: $input. Supported values are ${ConditionType.entries.map { it.value }}")
                         conditionType = enumMatchResult
                     }
-                    NUM_RESULTS_CONDITION_FIELD -> numResultsCondition = NumResultsCondition.enumFromString(xcp.text())
+                    NUM_RESULTS_CONDITION_FIELD -> {
+                        val input = xcp.text()
+                        val enumMatchResult = NumResultsCondition.enumFromString(input)
+                            ?: throw IllegalArgumentException("Invalid value for $NUM_RESULTS_CONDITION_FIELD: $input. Supported values are ${NumResultsCondition.entries.map { it.value }}")
+                        numResultsCondition = enumMatchResult
+                    }
                     NUM_RESULTS_VALUE_FIELD -> numResultsValue = xcp.longValue()
                     CUSTOM_CONDITION_FIELD -> customCondition = xcp.text()
+                    SUPPRESS_FIELD -> {
+                        suppressDuration = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            val input = xcp.text()
+                            TimeValue.parseTimeValue(input, PLACEHOLDER_SUPPRESS_SETTING_NAME) // throws IllegalArgumentException if there's parsing error
+                        }
+                    }
+                    EXPIRE_FIELD -> {
+                        expireDuration = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            val input = xcp.text()
+                            TimeValue.parseTimeValue(input, PLACEHOLDER_EXPIRE_SETTING_NAME) // throws IllegalArgumentException if there's parsing error
+                        }
+                    }
+                    LAST_TRIGGERED_FIELD -> lastTriggeredTime = xcp.instant()
                     ACTIONS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
@@ -187,19 +259,24 @@ data class PPLTrigger(
                 }
             }
 
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp) // end of outer trigger object
+
             /* validations */
-            requireNotNull(name) { "Trigger name is null" }
-            requireNotNull(severity) { "Severity is null" }
-            requireNotNull(mode) { "Trigger mode is null" }
-            requireNotNull(conditionType) { "Trigger condition type is null" }
+            requireNotNull(name) { "Trigger name must be included" }
+            requireNotNull(severity) { "Trigger severity must be included" }
+            requireNotNull(mode) { "Trigger mode must be included" }
+            requireNotNull(conditionType) { "Trigger condition type must be included" }
 
             when (conditionType) {
                 ConditionType.NUMBER_OF_RESULTS -> {
-                    requireNotNull(numResultsCondition) { "if trigger condition is of type ${ConditionType.NUMBER_OF_RESULTS.value}, $NUM_RESULTS_CONDITION_FIELD cannot be null" }
-                    requireNotNull(numResultsValue) { "if trigger condition is of type ${ConditionType.NUMBER_OF_RESULTS.value}, $NUM_RESULTS_VALUE_FIELD cannot be null" }
+                    requireNotNull(numResultsCondition) { "if trigger condition is of type ${ConditionType.NUMBER_OF_RESULTS.value}, $NUM_RESULTS_CONDITION_FIELD must be included" }
+                    requireNotNull(numResultsValue) { "if trigger condition is of type ${ConditionType.NUMBER_OF_RESULTS.value}, $NUM_RESULTS_VALUE_FIELD must be included" }
+                    require(customCondition == null) { "if trigger condition is of type ${ConditionType.NUMBER_OF_RESULTS.value}, $CUSTOM_CONDITION_FIELD must not be included" }
                 }
                 ConditionType.CUSTOM -> {
-                    requireNotNull(customCondition) { "if trigger condition is of type ${ConditionType.CUSTOM.value}, $CUSTOM_CONDITION_FIELD cannot be null" }
+                    requireNotNull(customCondition) { "if trigger condition is of type ${ConditionType.CUSTOM.value}, $CUSTOM_CONDITION_FIELD must be included" }
+                    require(numResultsCondition == null) { "if trigger condition is of type ${ConditionType.CUSTOM.value}, $NUM_RESULTS_CONDITION_FIELD must not be included" }
+                    require(numResultsValue == null) { "if trigger condition is of type ${ConditionType.CUSTOM.value}, $NUM_RESULTS_VALUE_FIELD must not be included" }
                 }
             }
 
@@ -208,6 +285,9 @@ data class PPLTrigger(
                 id,
                 name,
                 severity,
+                suppressDuration,
+                expireDuration,
+                lastTriggeredTime,
                 actions,
                 mode,
                 conditionType,

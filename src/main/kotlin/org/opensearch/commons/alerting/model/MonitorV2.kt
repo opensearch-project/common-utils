@@ -2,6 +2,7 @@ package org.opensearch.commons.alerting.model
 
 import java.io.IOException
 import java.time.Instant
+import org.opensearch.common.CheckedFunction
 import org.opensearch.commons.alerting.model.Monitor.Companion
 import org.opensearch.commons.alerting.model.Monitor.Companion.INPUTS_FIELD
 import org.opensearch.commons.alerting.model.PPLMonitor.Companion.PPL_MONITOR_TYPE
@@ -10,15 +11,17 @@ import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
 import org.opensearch.commons.alerting.util.nonOptionalTimeField
 import org.opensearch.commons.alerting.util.optionalTimeField
+import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
+import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 
-// TODO: maybe make this abstract class? put init block logic here?
+// TODO: maybe make this abstract class? put init block logic here for all monitors?
 interface MonitorV2 : ScheduledJob {
     override val id: String
     override val version: Long
@@ -44,9 +47,12 @@ interface MonitorV2 : ScheduledJob {
         }
     }
 
+    fun asTemplateArg(): Map<String, Any?>
+
     companion object {
-        // scheduled job type name
-        const val MONITOR_V2_TYPE = "monitor_v2"
+        // scheduled job field names
+        const val TYPE_FIELD = "type"
+        const val MONITOR_V2_TYPE = "monitor_v2" // scheduled job type is MonitorV2
 
         // field names
         const val NAME_FIELD = "name"
@@ -62,6 +68,12 @@ interface MonitorV2 : ScheduledJob {
         const val NO_ID = ""
         const val NO_VERSION = 1L
 
+        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
+            ScheduledJob::class.java,
+            ParseField(MONITOR_V2_TYPE),
+            CheckedFunction { parse(it) }
+        )
+
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
@@ -75,6 +87,7 @@ interface MonitorV2 : ScheduledJob {
              level as all the other monitor fields, which means we would need some
              way of parsing the same XContent twice
              possible work around: require monitor type to be very first field
+             if first monitor type field is absent, assume ppl monitor as default
              */
             return PPLMonitor.parse(xcp)
         }

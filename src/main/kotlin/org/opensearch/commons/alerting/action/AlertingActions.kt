@@ -25,14 +25,11 @@ object AlertingActions {
     const val INDEX_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/write"
     const val SEARCH_COMMENTS_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/search"
     const val DELETE_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/delete"
-    const val PING_PPL_SQL_ACTION_NAME = "cluster:admin/opensearch/ping_ppl_sql"
-
-    @JvmField
-    val PING_PPL_SQL_ACTION_TYPE =
-        ActionType(PING_PPL_SQL_ACTION_NAME, ::PingPPLSQLResponse)
 
     // Alerting V2
     const val INDEX_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/write"
+    const val SEARCH_MONITORS_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/search"
+    const val DELETE_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/delete"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -101,4 +98,12 @@ object AlertingActions {
     @JvmField
     val INDEX_MONITOR_V2_ACTION_TYPE =
         ActionType(INDEX_MONITOR_V2_ACTION_NAME, ::IndexMonitorV2Response)
+
+    @JvmField
+    val SEARCH_MONITORS_V2_ACTION_TYPE =
+        ActionType(SEARCH_MONITORS_V2_ACTION_NAME, ::SearchResponse)
+
+    @JvmField
+    val DELETE_MONITOR_V2_ACTION_TYPE =
+        ActionType(DELETE_MONITOR_V2_ACTION_NAME, ::DeleteMonitorV2Response)
 }

@@ -1,19 +1,21 @@
 package org.opensearch.commons.alerting.model
 
 import java.io.IOException
+import java.time.Instant
+import org.opensearch.common.unit.TimeValue
 import org.opensearch.commons.alerting.model.PPLTrigger.Companion.PPL_TRIGGER_FIELD
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.notifications.model.BaseModel
 import org.opensearch.core.common.io.stream.StreamInput
-import org.opensearch.core.xcontent.XContentParser
-import org.opensearch.core.xcontent.XContentParserUtils
 
 interface TriggerV2 : BaseModel {
 
     val id: String
     val name: String
     val severity: Severity
-    // val expires // TODO: potentially need to use OScore's TimeValue
+    val suppressDuration: TimeValue? // TODO: move to MonitorV2 definition
+    val expireDuration: TimeValue? // TODO: move to MonitorV2 definition
+    var lastTriggeredTime: Instant?
     val actions: List<Action>
 
     enum class TriggerV2Type(val value: String) {
@@ -43,7 +45,8 @@ interface TriggerV2 : BaseModel {
         const val NAME_FIELD = "name"
         const val SEVERITY_FIELD = "severity"
         const val SUPPRESS_FIELD = "suppress"
-        const val EXPIRES_FIELD = "expires"
+        const val LAST_TRIGGERED_FIELD = "last_triggered_time"
+        const val EXPIRE_FIELD = "expires"
         const val ACTIONS_FIELD = "actions"
 
 //        @Throws(IOException::class)

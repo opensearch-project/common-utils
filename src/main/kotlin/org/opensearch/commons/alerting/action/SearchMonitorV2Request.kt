@@ -3,23 +3,22 @@ package org.opensearch.commons.alerting.action
 import java.io.IOException
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
-import org.opensearch.commons.ppl.action.TransportPPLQueryRequest
+import org.opensearch.action.search.SearchRequest
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.search.fetch.subphase.FetchSourceContext
 
-class PingPPLSQLRequest : ActionRequest {
-    val queryRequest: TransportPPLQueryRequest
+class SearchMonitorV2Request : ActionRequest {
+    val searchRequest: SearchRequest
 
     constructor(
-        queryRequest: TransportPPLQueryRequest
+        searchRequest: SearchRequest
     ) : super() {
-        this.queryRequest = queryRequest
+        this.searchRequest = searchRequest
     }
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        TransportPPLQueryRequest(sin)
+        searchRequest = SearchRequest(sin)
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -28,6 +27,6 @@ class PingPPLSQLRequest : ActionRequest {
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
-        queryRequest.writeTo(out)
+        searchRequest.writeTo(out)
     }
 }

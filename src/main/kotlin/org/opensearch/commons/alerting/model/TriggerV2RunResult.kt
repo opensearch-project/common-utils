@@ -11,6 +11,7 @@ import org.opensearch.core.xcontent.XContentBuilder
 interface TriggerV2RunResult : Writeable, ToXContent {
 
     val triggerName: String
+    val triggered: Boolean
     val error: Exception?
 
     /** Returns error information to store in the Alert. Currently it's just the stack trace but it can be more */
@@ -23,6 +24,7 @@ interface TriggerV2RunResult : Writeable, ToXContent {
 
     companion object {
         const val NAME_FIELD = "name"
+        const val TRIGGERED_FIELD = "triggered"
         const val ERROR_FIELD = "error"
     }
 }

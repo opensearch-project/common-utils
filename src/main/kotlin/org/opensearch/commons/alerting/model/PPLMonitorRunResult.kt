@@ -10,7 +10,6 @@ import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.PERIOD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.TRIGGER_RESULTS_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.suppressWarning
 import org.opensearch.commons.alerting.util.nonOptionalTimeField
-import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
@@ -22,7 +21,7 @@ data class PPLMonitorRunResult(
     override val periodStart: Instant,
     override val periodEnd: Instant,
     override val triggerResults: Map<String, PPLTriggerRunResult>,
-    val pplQueryResults: String // TODO: will likely be a different type like Map or JsonObject
+    val pplQueryResults: Map<String, Map<String, Any?>> // key: trigger id, value: query results
 ) : MonitorV2RunResult<PPLTriggerRunResult> {
 
     @Throws(IOException::class)
@@ -33,7 +32,7 @@ data class PPLMonitorRunResult(
         sin.readInstant(), // periodStart
         sin.readInstant(), // periodEnd
         suppressWarning(sin.readMap()) as Map<String, PPLTriggerRunResult>, // triggerResults
-        sin.readString() // pplQueryResults
+        sin.readMap() as Map<String, Map<String, Any?>> // pplQueryResults // TODO: if this works, delete suppressWarning call above
     )
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
@@ -55,7 +54,7 @@ data class PPLMonitorRunResult(
         out.writeInstant(periodStart)
         out.writeInstant(periodEnd)
         out.writeMap(triggerResults)
-        out.writeString(pplQueryResults)
+        out.writeMap(pplQueryResults)
     }
 
     // TODO: does this need any PPLMonitor specific logic, or can this just be deleted
