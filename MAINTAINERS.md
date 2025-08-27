@@ -17,6 +17,7 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Chase Engelbrecht     | [engechas](https://github.com/engechas)           | Amazon      |
 | Riya Saxena           | [riysaxen-amzn](https://github.com/riysaxen-amzn) | Amazon      |
 | Joanne Wang           | [jowg-amazon](https://github.com/jowg-amazon)     | Amazon      |
+| Craig Perkins         | [cwperks](https://github.com/cwperks)       | Amazon      |
 
 
 ## Emeritus
