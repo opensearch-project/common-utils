@@ -7,7 +7,6 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Maintainer            | GitHub ID                                         | Affiliation |
 |-----------------------|---------------------------------------------------|-------------|
 | Ashish Agrawal        | [lezzago](https://github.com/lezzago)             | Amazon      |
-| Mohammad Qureshi      | [qreshi](https://github.com/qreshi)               | Amazon      |
 | Bowen Lan             | [bowenlan-amzn](https://github.com/bowenlan-amzn) | Amazon      |
 | Rishabh Maurya        | [rishabhmaurya](https://github.com/rishabhmaurya) | Amazon      |
 | Saurabh Singh         | [getsaurabh02](https://github.com/getsaurabh02)   | Amazon      |
@@ -17,6 +16,7 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Chase Engelbrecht     | [engechas](https://github.com/engechas)           | Amazon      |
 | Riya Saxena           | [riysaxen-amzn](https://github.com/riysaxen-amzn) | Amazon      |
 | Joanne Wang           | [jowg-amazon](https://github.com/jowg-amazon)     | Amazon      |
+| Craig Perkins         | [cwperks](https://github.com/cwperks)             | Amazon      |
 
 
 ## Emeritus
@@ -25,3 +25,4 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 |---------------|---------------------------------------------------|-------------|
 | Annie Lee     | [leeyun-amzn](https://github.com/leeyun-amzn)     | Amazon      |
 | Sriram Kosuri | [skkosuri-amzn](https://github.com/skkosuri-amzn) | Amazon      |
+| Mohammad Qureshi      | [qreshi](https://github.com/qreshi)       | Amazon      |
