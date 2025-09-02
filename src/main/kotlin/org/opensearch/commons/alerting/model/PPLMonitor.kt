@@ -101,7 +101,6 @@ data class PPLMonitor(
         if (params.paramAsBoolean("with_type", false)) {
             builder.startObject(MONITOR_V2_TYPE)
         }
-        builder.field(TYPE_FIELD, MONITOR_V2_TYPE)
 
         // this field is ScheduledJob metadata, include despite it not being a class field
         builder.field(MONITOR_TYPE_FIELD, PPL_MONITOR_TYPE)
@@ -227,7 +226,6 @@ data class PPLMonitor(
                         queryLanguage = enumMatchResult
                     }
                     QUERY_FIELD -> query = xcp.text()
-                    TYPE_FIELD -> continue // TODO: can this field be done away with, it's redundant with outer scheduled job metadata field
                     else -> throw IllegalArgumentException("Unexpected field \"$fieldName\" when parsing PPL Monitor")
                 }
             }
