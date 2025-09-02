@@ -254,6 +254,8 @@ data class PPLMonitor(
                 enabledTime = null
             }
 
+            lastUpdateTime = lastUpdateTime ?: Instant.now()
+
             // check for required fields
             requireNotNull(name) { "Monitor name is null" }
             requireNotNull(schedule) { "Schedule is null" }
