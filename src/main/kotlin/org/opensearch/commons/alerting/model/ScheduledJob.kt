@@ -7,9 +7,6 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
-import org.apache.logging.log4j.LogManager
-
-private val log = LogManager.getLogger(ScheduledJob::class.java)
 
 interface ScheduledJob : BaseModel {
 
