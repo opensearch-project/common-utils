@@ -279,11 +279,5 @@ data class PPLMonitor(
                 query
             )
         }
-
-//        @JvmStatic
-//        @Throws(IOException::class)
-//        fun readFrom(sin: StreamInput): PPLMonitor {
-//            return PPLMonitor(sin)
-//        }
     }
 }

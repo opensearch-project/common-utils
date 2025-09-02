@@ -56,9 +56,7 @@ data class PPLTrigger(
         sin.readOptionalInstant(), // lastTriggeredTime
         sin.readList(::Action), // actions
         sin.readEnum(TriggerMode::class.java), // trigger mode
-        // TODO: add validation to ensure numResultsCondition and numResultsValue or customCondition are non-null based on condition type?
         sin.readEnum(ConditionType::class.java), // condition type
-        // TODO: can updated StreamInput be picked up so we can use readOptionalEnum?
         if (sin.readBoolean()) sin.readEnum(NumResultsCondition::class.java) else null, // num results condition
         sin.readOptionalLong(), // num results value
         sin.readOptionalString(), // custom condition
@@ -81,7 +79,7 @@ data class PPLTrigger(
         out.writeEnum(mode)
         out.writeEnum(conditionType)
 
-        out.writeBoolean(numResultsCondition != null) // TODO: look for built-in writeOptionalEnum support
+        out.writeBoolean(numResultsCondition != null)
         numResultsCondition?.let { out.writeEnum(numResultsCondition) }
 
         out.writeOptionalLong(numResultsValue)
@@ -202,8 +200,6 @@ data class PPLTrigger(
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
 
-                // TODO: if e.g. trigger is num results but user explicitly passes in custom_condition = null, parse fails because
-                // TODO: it tries to parse a text value from null
                 when (fieldName) {
                     ID_FIELD -> id = xcp.text()
                     NAME_FIELD -> name = xcp.text()
@@ -226,13 +222,29 @@ data class PPLTrigger(
                         conditionType = enumMatchResult
                     }
                     NUM_RESULTS_CONDITION_FIELD -> {
-                        val input = xcp.text()
-                        val enumMatchResult = NumResultsCondition.enumFromString(input)
-                            ?: throw IllegalArgumentException("Invalid value for $NUM_RESULTS_CONDITION_FIELD: $input. Supported values are ${NumResultsCondition.entries.map { it.value }}")
-                        numResultsCondition = enumMatchResult
+                        numResultsCondition = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            val input = xcp.text()
+                            val enumMatchResult = NumResultsCondition.enumFromString(input)
+                                ?: throw IllegalArgumentException("Invalid value for $NUM_RESULTS_CONDITION_FIELD: $input. Supported values are ${NumResultsCondition.entries.map { it.value }}")
+                            enumMatchResult
+                        }
                     }
-                    NUM_RESULTS_VALUE_FIELD -> numResultsValue = xcp.longValue()
-                    CUSTOM_CONDITION_FIELD -> customCondition = xcp.text()
+                    NUM_RESULTS_VALUE_FIELD -> {
+                        numResultsValue = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            xcp.longValue()
+                        }
+                    }
+                    CUSTOM_CONDITION_FIELD -> {
+                        customCondition = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            xcp.text()
+                        }
+                    }
                     SUPPRESS_FIELD -> {
                         suppressDuration = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
                             null
