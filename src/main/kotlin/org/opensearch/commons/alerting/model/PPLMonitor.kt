@@ -3,13 +3,8 @@ package org.opensearch.commons.alerting.model
 import java.io.IOException
 import java.time.Instant
 import org.apache.logging.log4j.LogManager
-import org.opensearch.Version
-import org.opensearch.common.CheckedFunction
-import org.opensearch.commons.alerting.model.Monitor.Companion
-import org.opensearch.commons.alerting.model.Monitor.Companion.MONITOR_TYPE
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_TIME_FIELD
-import org.opensearch.commons.alerting.model.MonitorV2.Companion.LABELS_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.LAST_UPDATE_TIME_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.MONITOR_TYPE_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.MONITOR_V2_TYPE
@@ -19,16 +14,16 @@ import org.opensearch.commons.alerting.model.MonitorV2.Companion.NO_VERSION
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.SCHEDULE_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.TRIGGERS_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.TYPE_FIELD
-import org.opensearch.commons.alerting.model.MonitorV2.Companion.convertLabelsMap
+import org.opensearch.commons.alerting.model.PPLTrigger.Companion.NUM_RESULTS_CONDITION_FIELD
+import org.opensearch.commons.alerting.model.PPLTrigger.NumResultsCondition
+import org.opensearch.commons.alerting.model.PPLTrigger.TriggerMode
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
 import org.opensearch.commons.alerting.util.instant
 import org.opensearch.commons.alerting.util.nonOptionalTimeField
 import org.opensearch.commons.alerting.util.optionalTimeField
-import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
-import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
@@ -36,6 +31,11 @@ import org.opensearch.core.xcontent.XContentParserUtils
 
 private val logger = LogManager.getLogger(PPLMonitor::class.java)
 
+// TODO: probably change this to be called PPLSQLMonitor. A PPL Monitor and SQL Monitor
+// TODO: would have the exact same functionality, except the choice of language
+// TODO: when calling PPL/SQL plugin's execute API would be different.
+// TODO: we dont need 2 different monitor types for that, just a simple if check
+// TODO: for query language at monitor execution time
 data class PPLMonitor(
     override val id: String = NO_ID,
     override val version: Long = NO_VERSION,
@@ -44,8 +44,8 @@ data class PPLMonitor(
     override val schedule: Schedule,
     override val lastUpdateTime: Instant,
     override val enabledTime: Instant?,
-    override val labels: Map<String, String> = emptyMap(),
     override val triggers: List<TriggerV2>,
+    val queryLanguage: QueryLanguage = QueryLanguage.PPL, // default to PPL, SQL not currently supported
     val query: String
 ) : MonitorV2 {
 
@@ -55,6 +55,11 @@ data class PPLMonitor(
     override fun fromDocument(id: String, version: Long): PPLMonitor = copy(id = id, version = version)
 
     init {
+        // SQL monitors are not yet supported
+        if (this.queryLanguage == QueryLanguage.SQL) {
+            throw IllegalStateException("Monitors with SQL queries are not supported")
+        }
+
         // for checking trigger ID uniqueness
         val triggerIds = mutableSetOf<String>()
         triggers.forEach { trigger ->
@@ -83,8 +88,8 @@ data class PPLMonitor(
         schedule = Schedule.readFrom(sin),
         lastUpdateTime = sin.readInstant(),
         enabledTime = sin.readOptionalInstant(),
-        labels = sin.readMap()?.let { convertLabelsMap(it) } ?: emptyMap(),
         triggers = sin.readList(TriggerV2::readFrom),
+        queryLanguage = sin.readEnum(QueryLanguage::class.java),
         query = sin.readString()
     )
 
@@ -98,8 +103,7 @@ data class PPLMonitor(
         }
         builder.field(TYPE_FIELD, MONITOR_V2_TYPE)
 
-        // include monitor type field despite it not being a class field to differentiate
-        // PPL monitor from other monitor types in alerting config system index
+        // this field is ScheduledJob metadata, include despite it not being a class field
         builder.field(MONITOR_TYPE_FIELD, PPL_MONITOR_TYPE)
 
         builder.field(NAME_FIELD, name)
@@ -107,8 +111,8 @@ data class PPLMonitor(
         builder.field(ENABLED_FIELD, enabled)
         builder.optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
         builder.nonOptionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
-        builder.field(LABELS_FIELD, labels)
         builder.field(TRIGGERS_FIELD, triggers.toTypedArray())
+        builder.field(QUERY_LANGUAGE_FIELD, queryLanguage.value)
         builder.field(QUERY_FIELD, query)
         builder.endObject()
 
@@ -133,12 +137,12 @@ data class PPLMonitor(
         }
         out.writeInstant(lastUpdateTime)
         out.writeOptionalInstant(enabledTime)
-        out.writeMap(labels)
         out.writeVInt(triggers.size)
         triggers.forEach {
             out.writeEnum(TriggerV2.TriggerV2Type.PPL_TRIGGER)
             it.writeTo(out)
         }
+        out.writeEnum(queryLanguage)
         out.writeString(query)
     }
 
@@ -151,17 +155,31 @@ data class PPLMonitor(
             SCHEDULE_FIELD to schedule,
             LAST_UPDATE_TIME_FIELD to lastUpdateTime.toEpochMilli(),
             ENABLED_TIME_FIELD to enabledTime?.toEpochMilli(),
-            LABELS_FIELD to labels,
             TRIGGERS_FIELD to triggers,
+            QUERY_LANGUAGE_FIELD to queryLanguage.value,
             QUERY_FIELD to query
         )
     }
 
+    enum class QueryLanguage(val value: String) {
+        PPL(PPL_QUERY_LANGUAGE),
+        SQL(SQL_QUERY_LANGUAGE);
+
+        companion object {
+            fun enumFromString(value: String): QueryLanguage? = QueryLanguage.entries.firstOrNull { it.value == value }
+        }
+    }
+
     companion object {
         // monitor type name
-        const val PPL_MONITOR_TYPE = "ppl_monitor"
+        const val PPL_MONITOR_TYPE = "ppl_monitor" // TODO: eventually change to SQL_PPL_MONITOR_TYPE
+
+        // query languages
+        const val PPL_QUERY_LANGUAGE = "ppl"
+        const val SQL_QUERY_LANGUAGE = "sql"
 
         // field names
+        const val QUERY_LANGUAGE_FIELD = "query_language"
         const val QUERY_FIELD = "query"
 
         @JvmStatic
@@ -172,10 +190,10 @@ data class PPLMonitor(
             var monitorType: String = PPL_MONITOR_TYPE
             var enabled = true
             var schedule: Schedule? = null
-            val lastUpdateTime: Instant = Instant.now() // set time of update or first creation as lastUpdateTime
+            var lastUpdateTime: Instant? = null
             var enabledTime: Instant? = null
-            var labels: Map<String, Any> = emptyMap()
             val triggers: MutableList<TriggerV2> = mutableListOf()
+            var queryLanguage: QueryLanguage = QueryLanguage.PPL // default to PPL
             var query: String? = null
 
 
@@ -191,7 +209,7 @@ data class PPLMonitor(
                     ENABLED_FIELD -> enabled = xcp.booleanValue()
                     SCHEDULE_FIELD -> schedule = Schedule.parse(xcp)
                     ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
-                    LABELS_FIELD -> labels = xcp.map()
+                    LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
                     TRIGGERS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
@@ -202,7 +220,15 @@ data class PPLMonitor(
                             triggers.add(PPLTrigger.parseInner(xcp))
                         }
                     }
+                    QUERY_LANGUAGE_FIELD -> {
+                        val input = xcp.text()
+                        val enumMatchResult = QueryLanguage.enumFromString(input)
+                            ?: throw IllegalArgumentException("Invalid value for $QUERY_LANGUAGE_FIELD: $input. Supported values are ${QueryLanguage.entries.map { it.value }}")
+                        queryLanguage = enumMatchResult
+                    }
                     QUERY_FIELD -> query = xcp.text()
+                    TYPE_FIELD -> continue // TODO: can this field be done away with, it's redundant with outer scheduled job metadata field
+                    else -> throw IllegalArgumentException("Unexpected field \"$fieldName\" when parsing PPL Monitor")
                 }
             }
 
@@ -228,17 +254,16 @@ data class PPLMonitor(
                 enabledTime = null
             }
 
-            // check if all label key,values are String,String, throw exception otherwise
-            try {
-                labels = convertLabelsMap(labels)
-            } catch (e: ClassCastException) {
-                throw IllegalArgumentException("invalid maps field, please ensure all labels are strings")
-            }
-
             // check for required fields
             requireNotNull(name) { "Monitor name is null" }
             requireNotNull(schedule) { "Schedule is null" }
+            requireNotNull(queryLanguage) { "Query language is null" }
             requireNotNull(query) { "Query is null" }
+            requireNotNull(lastUpdateTime) { "Last update time is null" }
+
+            if (queryLanguage == QueryLanguage.SQL) {
+                throw IllegalArgumentException("SQL queries are not supported. Please use a PPL query.")
+            }
 
             /* return PPLMonitor */
             return PPLMonitor(
@@ -249,8 +274,8 @@ data class PPLMonitor(
                 schedule,
                 lastUpdateTime,
                 enabledTime,
-                labels,
                 triggers,
+                queryLanguage,
                 query
             )
         }

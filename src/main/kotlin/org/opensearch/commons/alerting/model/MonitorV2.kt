@@ -30,8 +30,9 @@ interface MonitorV2 : ScheduledJob {
     override val schedule: Schedule
     override val lastUpdateTime: Instant // required for scheduled job maintenance
     override val enabledTime: Instant? // required for scheduled job maintenance
-    val labels: Map<String, String>?
     val triggers: List<TriggerV2>
+
+    fun asTemplateArg(): Map<String, Any?>
 
     enum class MonitorV2Type(val value: String) {
         PPL_MONITOR(PPL_MONITOR_TYPE);
@@ -47,8 +48,6 @@ interface MonitorV2 : ScheduledJob {
         }
     }
 
-    fun asTemplateArg(): Map<String, Any?>
-
     companion object {
         // scheduled job field names
         const val TYPE_FIELD = "type"
@@ -61,7 +60,6 @@ interface MonitorV2 : ScheduledJob {
         const val SCHEDULE_FIELD = "schedule"
         const val LAST_UPDATE_TIME_FIELD = "last_update_time"
         const val ENABLED_TIME_FIELD = "enabled_time"
-        const val LABELS_FIELD = "labels"
         const val TRIGGERS_FIELD = "triggers"
 
         // default values
@@ -106,15 +104,6 @@ interface MonitorV2 : ScheduledJob {
                     out.writeEnum(MonitorV2.MonitorV2Type.PPL_MONITOR)
                     monitorV2.writeTo(out)
                 }
-            }
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        fun convertLabelsMap(map: Map<String, Any>): Map<String, String> {
-            if (map.values.all { it is String }) {
-                return map as Map<String, String>
-            } else {
-                throw ClassCastException("at least one value in the map was not a string: $map")
             }
         }
     }
