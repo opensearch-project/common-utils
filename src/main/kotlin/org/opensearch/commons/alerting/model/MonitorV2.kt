@@ -6,6 +6,7 @@ import org.opensearch.common.CheckedFunction
 import org.opensearch.commons.alerting.model.Monitor.Companion
 import org.opensearch.commons.alerting.model.Monitor.Companion.INPUTS_FIELD
 import org.opensearch.commons.alerting.model.PPLMonitor.Companion.PPL_MONITOR_TYPE
+import org.opensearch.commons.alerting.model.PPLTrigger.Companion.PPL_TRIGGER_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Type
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
@@ -21,7 +22,6 @@ import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 
-// TODO: maybe make this abstract class? put init block logic here for all monitors?
 interface MonitorV2 : ScheduledJob {
     override val id: String
     override val version: Long
@@ -50,7 +50,6 @@ interface MonitorV2 : ScheduledJob {
 
     companion object {
         // scheduled job field names
-        const val TYPE_FIELD = "type"
         const val MONITOR_V2_TYPE = "monitor_v2" // scheduled job type is MonitorV2
 
         // field names
@@ -76,25 +75,26 @@ interface MonitorV2 : ScheduledJob {
         @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): MonitorV2 {
-            /*
-             TODO: this default implementation is short-term and inextensible
-             a correct implementation should 1) scan for monitor type field
-             2) delegate to the parse function of the MonitorV2 implementation,
-             just like how TriggerV2 interface does it.
-             The problem is the (internal) monitor type field is at the same
-             level as all the other monitor fields, which means we would need some
-             way of parsing the same XContent twice
-             possible work around: require monitor type to be very first field
-             if first monitor type field is absent, assume ppl monitor as default
-             */
-            return PPLMonitor.parse(xcp)
+            /* parse outer object for monitorV2 type, then delegate to correct monitorV2 parser */
+
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp) // outer monitor object start
+
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp) // monitor type field name
+            val monitorTypeText = xcp.currentName()
+            val monitorType = MonitorV2Type.enumFromString(monitorTypeText)
+                ?: throw IllegalStateException("when parsing MonitorV2, received invalid monitor type: $monitorTypeText")
+
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp) // inner monitor object start
+
+            return when (monitorType) {
+                MonitorV2Type.PPL_MONITOR -> PPLMonitor.parse(xcp)
+            }
         }
 
         fun readFrom(sin: StreamInput): MonitorV2 {
-            val monitorType = sin.readEnum(MonitorV2Type::class.java)
-            return when (monitorType) {
+            return when (val monitorType = sin.readEnum(MonitorV2Type::class.java)) {
                 MonitorV2Type.PPL_MONITOR -> PPLMonitor(sin)
-                else -> throw IllegalStateException("Unexpected input [$monitorType] when reading MonitorV2")
+                else -> throw IllegalStateException("Unexpected input \"$monitorType\" when reading MonitorV2")
             }
         }
 

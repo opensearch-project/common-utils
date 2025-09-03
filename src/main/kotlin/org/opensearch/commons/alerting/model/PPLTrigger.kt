@@ -193,7 +193,14 @@ data class PPLTrigger(
 
             /* parse */
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp) // outer trigger object start
+
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp) // ppl_trigger field name
+            val triggerType = xcp.currentName()
+            if (triggerType != PPL_TRIGGER_FIELD) {
+                throw IllegalStateException("when parsing PPLMonitor, expected trigger to be of type $PPL_TRIGGER_FIELD " +
+                    "but instead got \"$triggerType\"")
+            }
+
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp) // inner trigger object start
 
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {

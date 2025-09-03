@@ -13,8 +13,8 @@ interface TriggerV2 : BaseModel {
     val id: String
     val name: String
     val severity: Severity
-    val suppressDuration: TimeValue? // TODO: move to MonitorV2 definition
-    val expireDuration: TimeValue? // TODO: move to MonitorV2 definition
+    val suppressDuration: TimeValue?
+    val expireDuration: TimeValue?
     var lastTriggeredTime: Instant?
     val actions: List<Action>
 
@@ -49,33 +49,12 @@ interface TriggerV2 : BaseModel {
         const val EXPIRE_FIELD = "expires"
         const val ACTIONS_FIELD = "actions"
 
-//        @Throws(IOException::class)
-//        fun parse(xcp: XContentParser): TriggerV2 {
-//            // TODO: dead code until a MonitorV2 interface level parse() that delegates by monitor type is implemented
-//            val trigger: TriggerV2
-//
-//            val triggerV2TypeNames = TriggerV2Type.entries.map { it.value }
-//
-//            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
-//            XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp)
-//
-//            if (!triggerV2TypeNames.contains(xcp.currentName())) {
-//                throw IllegalArgumentException("Invalid trigger type ${xcp.currentName()}")
-//            }
-//
-//            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
-//            trigger = xcp.namedObject(TriggerV2::class.java, xcp.currentName(), null)
-//            XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp)
-//
-//            return trigger
-//        }
-
         @JvmStatic
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): TriggerV2 {
             return when (val type = sin.readEnum(TriggerV2Type::class.java)) {
                 TriggerV2Type.PPL_TRIGGER -> PPLTrigger(sin)
-                else -> throw IllegalStateException("Unexpected input [$type] when reading TriggerV2")
+                else -> throw IllegalStateException("Unexpected input \"$type\" when reading TriggerV2")
             }
         }
     }

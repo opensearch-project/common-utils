@@ -13,10 +13,6 @@ import org.opensearch.commons.alerting.model.MonitorV2.Companion.NO_ID
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.NO_VERSION
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.SCHEDULE_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.TRIGGERS_FIELD
-import org.opensearch.commons.alerting.model.MonitorV2.Companion.TYPE_FIELD
-import org.opensearch.commons.alerting.model.PPLTrigger.Companion.NUM_RESULTS_CONDITION_FIELD
-import org.opensearch.commons.alerting.model.PPLTrigger.NumResultsCondition
-import org.opensearch.commons.alerting.model.PPLTrigger.TriggerMode
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
 import org.opensearch.commons.alerting.util.instant
@@ -94,7 +90,7 @@ data class PPLMonitor(
     )
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+        builder.startObject() // overall start object
 
         // if this is being written as ScheduledJob, add extra object layer and add ScheduledJob
         // related metadata, default to false
@@ -102,8 +98,10 @@ data class PPLMonitor(
             builder.startObject(MONITOR_V2_TYPE)
         }
 
-        // this field is ScheduledJob metadata, include despite it not being a class field
-        builder.field(MONITOR_TYPE_FIELD, PPL_MONITOR_TYPE)
+        // wrap PPLMonitor in outer object named after its monitor type
+        // required for MonitorV2 XContentParser to first encounter this,
+        // read in monitor type, then delegate to correct parse() function
+        builder.startObject(PPL_MONITOR_TYPE) // monitor type start object
 
         builder.field(NAME_FIELD, name)
         builder.field(SCHEDULE_FIELD, schedule)
@@ -113,12 +111,15 @@ data class PPLMonitor(
         builder.field(TRIGGERS_FIELD, triggers.toTypedArray())
         builder.field(QUERY_LANGUAGE_FIELD, queryLanguage.value)
         builder.field(QUERY_FIELD, query)
-        builder.endObject()
+
+        builder.endObject() // monitor type end object
 
         // if ScheduledJob metadata was added, end the extra object layer that was created
         if (params.paramAsBoolean("with_type", false)) {
             builder.endObject()
         }
+
+        builder.endObject() // overall end object
 
         return builder
     }
