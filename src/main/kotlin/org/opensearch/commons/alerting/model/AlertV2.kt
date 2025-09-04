@@ -1,7 +1,5 @@
 package org.opensearch.commons.alerting.model
 
-import java.io.IOException
-import java.time.Instant
 import org.opensearch.common.lucene.uid.Versions
 import org.opensearch.commons.alerting.alerts.AlertError
 import org.opensearch.commons.alerting.model.Alert.Companion.ACKNOWLEDGED_TIME_FIELD
@@ -35,6 +33,8 @@ import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
+import java.io.IOException
+import java.time.Instant
 
 data class AlertV2(
     val id: String = NO_ID,
@@ -56,7 +56,7 @@ data class AlertV2(
     val errorHistory: List<AlertError>,
     val severity: String,
     val actionExecutionResults: List<ActionExecutionResult>,
-    val executionId: String? = null,
+    val executionId: String? = null
 ) : Writeable, ToXContent {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
@@ -83,7 +83,7 @@ data class AlertV2(
         errorHistory = sin.readList(::AlertError),
         severity = sin.readString(),
         actionExecutionResults = sin.readList(::ActionExecutionResult),
-        executionId = sin.readOptionalString(),
+        executionId = sin.readOptionalString()
     )
 
     @Throws(IOException::class)
@@ -153,7 +153,7 @@ data class AlertV2(
             EXPIRATION_TIME_FIELD to expirationTime?.toEpochMilli(),
             SEVERITY_FIELD to severity,
             START_TIME_FIELD to startTime.toEpochMilli(),
-            STATE_FIELD to state.toString(),
+            STATE_FIELD to state.toString()
         )
     }
 
@@ -245,7 +245,7 @@ data class AlertV2(
                 errorHistory = errorHistory,
                 severity = severity,
                 actionExecutionResults = actionExecutionResults,
-                executionId = executionId,
+                executionId = executionId
             )
         }
 

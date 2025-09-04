@@ -1,7 +1,5 @@
 package org.opensearch.commons.alerting.model
 
-import java.io.IOException
-import java.time.Instant
 import org.opensearch.commons.alerting.alerts.AlertError
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.ERROR_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.MONITOR_NAME_FIELD
@@ -14,6 +12,8 @@ import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
+import java.io.IOException
+import java.time.Instant
 
 data class PPLMonitorRunResult(
     override val monitorName: String,

@@ -5,12 +5,13 @@
 
 package org.opensearch.commons.ppl.format;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +27,8 @@ public enum Format {
     EXTENDED("extended"),
     COST("cost");
 
-    @Getter private final String formatName;
+    @Getter
+    private final String formatName;
 
     public static final Map<String, Format> RESPONSE_FORMATS;
 

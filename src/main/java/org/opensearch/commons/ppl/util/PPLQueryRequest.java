@@ -7,12 +7,14 @@ package org.opensearch.commons.ppl.util;
 
 import java.util.Locale;
 import java.util.Optional;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+
 import org.json.JSONObject;
 import org.opensearch.commons.ppl.format.Format;
 import org.opensearch.commons.ppl.format.JsonResponseFormatter;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 public class PPLQueryRequest {
 
@@ -21,9 +23,12 @@ public class PPLQueryRequest {
     public static final PPLQueryRequest NULL = new PPLQueryRequest("", null, DEFAULT_PPL_PATH, "");
 
     private final String pplQuery;
-    @Getter private final JSONObject jsonContent;
-    @Getter private final String path;
-    @Getter private String format = "";
+    @Getter
+    private final JSONObject jsonContent;
+    @Getter
+    private final String path;
+    @Getter
+    private String format = "";
 
     @Setter
     @Getter
@@ -66,8 +71,7 @@ public class PPLQueryRequest {
         if (optionalFormat.isPresent()) {
             return optionalFormat.get();
         } else {
-            throw new IllegalArgumentException(
-                    String.format(Locale.ROOT, "response in %s format is not supported.", format));
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "response in %s format is not supported.", format));
         }
     }
 }

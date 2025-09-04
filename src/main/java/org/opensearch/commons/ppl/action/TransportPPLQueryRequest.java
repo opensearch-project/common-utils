@@ -10,10 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Optional;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+
 import org.json.JSONObject;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.ActionRequestValidationException;
@@ -25,17 +22,25 @@ import org.opensearch.core.common.io.stream.OutputStreamStreamOutput;
 import org.opensearch.core.common.io.stream.StreamInput;
 import org.opensearch.core.common.io.stream.StreamOutput;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 //private val log = LogManager.getLogger(TransportExecuteMonitorAction::class.java)
 
 @RequiredArgsConstructor
 public class TransportPPLQueryRequest extends ActionRequest {
     public static final TransportPPLQueryRequest NULL = new TransportPPLQueryRequest("", null, "");
     private final String pplQuery;
-    @Getter private final JSONObject jsonContent;
+    @Getter
+    private final JSONObject jsonContent;
 
-    @Getter private final String path;
+    @Getter
+    private final String path;
 
-    @Getter private String format = "";
+    @Getter
+    private String format = "";
 
     @Setter
     @Getter
@@ -75,16 +80,13 @@ public class TransportPPLQueryRequest extends ActionRequest {
             return (TransportPPLQueryRequest) actionRequest;
         }
 
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             OutputStreamStreamOutput osso = new OutputStreamStreamOutput(baos)) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); OutputStreamStreamOutput osso = new OutputStreamStreamOutput(baos)) {
             actionRequest.writeTo(osso);
-            try (InputStreamStreamInput input =
-                         new InputStreamStreamInput(new ByteArrayInputStream(baos.toByteArray()))) {
+            try (InputStreamStreamInput input = new InputStreamStreamInput(new ByteArrayInputStream(baos.toByteArray()))) {
                 return new TransportPPLQueryRequest(input);
             }
         } catch (IOException e) {
-            throw new IllegalArgumentException(
-                    "failed to parse ActionRequest into TransportPPLQueryRequest", e);
+            throw new IllegalArgumentException("failed to parse ActionRequest into TransportPPLQueryRequest", e);
         }
     }
 
@@ -118,8 +120,7 @@ public class TransportPPLQueryRequest extends ActionRequest {
         if (optionalFormat.isPresent()) {
             return optionalFormat.get();
         } else {
-            throw new IllegalArgumentException(
-                    String.format(Locale.ROOT, "response in %s format is not supported.", format));
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "response in %s format is not supported.", format));
         }
     }
 

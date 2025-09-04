@@ -1,6 +1,5 @@
 package org.opensearch.commons.ppl
 
-import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.commons.ppl.action.PPLQueryAction
 import org.opensearch.commons.ppl.action.TransportPPLQueryRequest
 import org.opensearch.commons.ppl.action.TransportPPLQueryResponse

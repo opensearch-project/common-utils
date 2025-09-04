@@ -1,11 +1,11 @@
 package org.opensearch.commons.alerting.model
 
-import java.time.Instant
 import org.opensearch.commons.alerting.alerts.AlertError
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.common.io.stream.Writeable
 import org.opensearch.core.xcontent.ToXContent
+import java.time.Instant
 
 interface MonitorV2RunResult<out TriggerV2Result : TriggerV2RunResult> : Writeable, ToXContent {
     val monitorName: String

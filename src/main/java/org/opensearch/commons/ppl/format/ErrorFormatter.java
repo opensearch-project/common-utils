@@ -5,29 +5,24 @@
 
 package org.opensearch.commons.ppl.format;
 
-import com.google.gson.Gson;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+
+import org.opensearch.commons.ppl.serde.SerializeUtils;
+
+import com.google.gson.Gson;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
-import org.opensearch.commons.ppl.serde.SerializeUtils;
 
 @UtilityClass
 public class ErrorFormatter {
 
-    private static final Gson PRETTY_PRINT_GSON =
-            AccessController.doPrivileged(
-                    (PrivilegedAction<Gson>)
-                            () ->
-                                    SerializeUtils.getGsonBuilder()
-                                            .setPrettyPrinting()
-                                            .disableHtmlEscaping()
-                                            .create());
-    private static final Gson GSON =
-            AccessController.doPrivileged(
-                    (PrivilegedAction<Gson>)
-                            () -> SerializeUtils.getGsonBuilder().disableHtmlEscaping().create());
+    private static final Gson PRETTY_PRINT_GSON = AccessController
+        .doPrivileged((PrivilegedAction<Gson>) () -> SerializeUtils.getGsonBuilder().setPrettyPrinting().disableHtmlEscaping().create());
+    private static final Gson GSON = AccessController
+        .doPrivileged((PrivilegedAction<Gson>) () -> SerializeUtils.getGsonBuilder().disableHtmlEscaping().create());
 
     /** Util method to format {@link Throwable} response to JSON string in compact printing. */
     public static String compactFormat(Throwable t) {
@@ -46,8 +41,7 @@ public class ErrorFormatter {
     }
 
     public static String prettyJsonify(Object jsonObject) {
-        return AccessController.doPrivileged(
-                (PrivilegedAction<String>) () -> PRETTY_PRINT_GSON.toJson(jsonObject));
+        return AccessController.doPrivileged((PrivilegedAction<String>) () -> PRETTY_PRINT_GSON.toJson(jsonObject));
     }
 
     @RequiredArgsConstructor

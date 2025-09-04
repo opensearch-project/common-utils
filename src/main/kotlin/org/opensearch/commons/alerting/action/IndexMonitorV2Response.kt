@@ -1,7 +1,5 @@
 package org.opensearch.commons.alerting.action
 
-import java.io.IOException
-import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.MonitorV2
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._PRIMARY_TERM
@@ -12,6 +10,7 @@ import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
+import java.io.IOException
 
 class IndexMonitorV2Response : BaseResponse {
     var id: String

@@ -1,12 +1,12 @@
 package org.opensearch.commons.alerting.model
 
-import java.io.IOException
-import java.time.Instant
 import org.opensearch.common.unit.TimeValue
 import org.opensearch.commons.alerting.model.PPLTrigger.Companion.PPL_TRIGGER_FIELD
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.notifications.model.BaseModel
 import org.opensearch.core.common.io.stream.StreamInput
+import java.io.IOException
+import java.time.Instant
 
 interface TriggerV2 : BaseModel {
 

@@ -1,26 +1,15 @@
 package org.opensearch.commons.alerting.model
 
-import java.io.IOException
-import java.time.Instant
 import org.opensearch.common.CheckedFunction
-import org.opensearch.commons.alerting.model.Monitor.Companion
-import org.opensearch.commons.alerting.model.Monitor.Companion.INPUTS_FIELD
 import org.opensearch.commons.alerting.model.PPLMonitor.Companion.PPL_MONITOR_TYPE
-import org.opensearch.commons.alerting.model.PPLTrigger.Companion.PPL_TRIGGER_FIELD
-import org.opensearch.commons.alerting.model.Trigger.Type
-import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
-import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
-import org.opensearch.commons.alerting.util.nonOptionalTimeField
-import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.NamedXContentRegistry
-import org.opensearch.core.xcontent.ToXContent
-import org.opensearch.core.xcontent.XContent
-import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
+import java.io.IOException
+import java.time.Instant
 
 interface MonitorV2 : ScheduledJob {
     override val id: String
@@ -72,7 +61,6 @@ interface MonitorV2 : ScheduledJob {
         )
 
         @JvmStatic
-        @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): MonitorV2 {
             /* parse outer object for monitorV2 type, then delegate to correct monitorV2 parser */

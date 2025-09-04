@@ -1,6 +1,5 @@
 package org.opensearch.commons.alerting.action
 
-import java.io.IOException
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.support.WriteRequest
@@ -8,6 +7,7 @@ import org.opensearch.commons.alerting.model.MonitorV2
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
+import java.io.IOException
 
 class IndexMonitorV2Request : ActionRequest {
     val monitorId: String
@@ -24,7 +24,7 @@ class IndexMonitorV2Request : ActionRequest {
         primaryTerm: Long,
         refreshPolicy: WriteRequest.RefreshPolicy,
         method: RestRequest.Method,
-        monitorV2: MonitorV2,
+        monitorV2: MonitorV2
 //        rbacRoles: List<String>? = null
     ) : super() {
         this.monitorId = monitorId
@@ -43,7 +43,7 @@ class IndexMonitorV2Request : ActionRequest {
         primaryTerm = sin.readLong(),
         refreshPolicy = WriteRequest.RefreshPolicy.readFrom(sin),
         method = sin.readEnum(RestRequest.Method::class.java),
-        monitorV2 = MonitorV2.readFrom(sin),
+        monitorV2 = MonitorV2.readFrom(sin)
 //        rbacRoles = sin.readOptionalStringList()
     )
 

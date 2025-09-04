@@ -8,6 +8,7 @@ package org.opensearch.commons.ppl.util;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensearch.commons.ppl.format.Format;
@@ -37,8 +38,7 @@ public class PPLQueryRequestFactory {
             case POST:
                 return parsePPLRequestFromPayload(request);
             default:
-                throw new IllegalArgumentException(
-                        "OpenSearch PPL doesn't supported HTTP " + request.method().name());
+                throw new IllegalArgumentException("OpenSearch PPL doesn't supported HTTP " + request.method().name());
         }
     }
 
@@ -59,12 +59,12 @@ public class PPLQueryRequestFactory {
         boolean pretty = getPrettyOption(restRequest.params());
         try {
             jsonContent = new JSONObject(content);
-            PPLQueryRequest pplRequest =
-                    new PPLQueryRequest(
-                            jsonContent.getString(PPL_FIELD_NAME),
-                            jsonContent,
-                            restRequest.path(),
-                            format.getFormatName());
+            PPLQueryRequest pplRequest = new PPLQueryRequest(
+                jsonContent.getString(PPL_FIELD_NAME),
+                jsonContent,
+                restRequest.path(),
+                format.getFormatName()
+            );
             // set sanitize option if csv format
             if (format.equals(Format.CSV)) {
                 pplRequest.sanitize(getSanitizeOption(restRequest.params()));
@@ -80,17 +80,14 @@ public class PPLQueryRequestFactory {
     }
 
     private static Format getFormat(Map<String, String> requestParams, String path) {
-        String formatName =
-                requestParams.containsKey(QUERY_PARAMS_FORMAT)
-                        ? requestParams.get(QUERY_PARAMS_FORMAT).toLowerCase(Locale.ROOT)
-                        : isExplainRequest(path) ? DEFAULT_EXPLAIN_FORMAT : DEFAULT_RESPONSE_FORMAT;
-        Optional<Format> optionalFormat =
-                isExplainRequest(path) ? Format.ofExplain(formatName) : Format.of(formatName);
+        String formatName = requestParams.containsKey(QUERY_PARAMS_FORMAT) ? requestParams.get(QUERY_PARAMS_FORMAT).toLowerCase(Locale.ROOT)
+            : isExplainRequest(path) ? DEFAULT_EXPLAIN_FORMAT
+            : DEFAULT_RESPONSE_FORMAT;
+        Optional<Format> optionalFormat = isExplainRequest(path) ? Format.ofExplain(formatName) : Format.of(formatName);
         if (optionalFormat.isPresent()) {
             return optionalFormat.get();
         } else {
-            throw new IllegalArgumentException(
-                    "Failed to create executor due to unknown response format: " + formatName);
+            throw new IllegalArgumentException("Failed to create executor due to unknown response format: " + formatName);
         }
     }
 

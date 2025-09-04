@@ -1,7 +1,5 @@
 package org.opensearch.commons.alerting.model
 
-import java.io.IOException
-import java.time.Instant
 import org.apache.logging.log4j.LogManager
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_TIME_FIELD
@@ -24,6 +22,8 @@ import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
+import java.io.IOException
+import java.time.Instant
 
 private val logger = LogManager.getLogger(PPLMonitor::class.java)
 
@@ -195,7 +195,6 @@ data class PPLMonitor(
             val triggers: MutableList<TriggerV2> = mutableListOf()
             var queryLanguage: QueryLanguage = QueryLanguage.PPL // default to PPL
             var query: String? = null
-
 
             /* parse */
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)

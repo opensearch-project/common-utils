@@ -1,7 +1,5 @@
 package org.opensearch.commons.alerting.model
 
-import java.io.IOException
-import java.time.Instant
 import org.apache.logging.log4j.LogManager
 import org.opensearch.common.CheckedFunction
 import org.opensearch.common.UUIDs
@@ -17,7 +15,6 @@ import org.opensearch.commons.alerting.model.TriggerV2.Severity
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.alerting.util.instant
 import org.opensearch.commons.alerting.util.optionalTimeField
-import org.opensearch.commons.authuser.User
 import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -26,6 +23,8 @@ import org.opensearch.core.xcontent.ToXContent
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
+import java.io.IOException
+import java.time.Instant
 
 private val logger = LogManager.getLogger(PPLTrigger::class.java)
 
@@ -59,7 +58,7 @@ data class PPLTrigger(
         sin.readEnum(ConditionType::class.java), // condition type
         if (sin.readBoolean()) sin.readEnum(NumResultsCondition::class.java) else null, // num results condition
         sin.readOptionalLong(), // num results value
-        sin.readOptionalString(), // custom condition
+        sin.readOptionalString() // custom condition
     )
 
     @Throws(IOException::class)
@@ -118,7 +117,7 @@ data class PPLTrigger(
             CONDITION_TYPE_FIELD to conditionType.value,
             NUM_RESULTS_CONDITION_FIELD to numResultsCondition?.value,
             NUM_RESULTS_VALUE_FIELD to numResultsValue,
-            CUSTOM_CONDITION_FIELD to customCondition,
+            CUSTOM_CONDITION_FIELD to customCondition
         )
     }
 
@@ -174,7 +173,6 @@ data class PPLTrigger(
             CheckedFunction { parseInner(it) }
         )
 
-
         @JvmStatic
         @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): PPLTrigger {
@@ -197,8 +195,10 @@ data class PPLTrigger(
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp) // ppl_trigger field name
             val triggerType = xcp.currentName()
             if (triggerType != PPL_TRIGGER_FIELD) {
-                throw IllegalStateException("when parsing PPLMonitor, expected trigger to be of type $PPL_TRIGGER_FIELD " +
-                    "but instead got \"$triggerType\"")
+                throw IllegalStateException(
+                    "when parsing PPLMonitor, expected trigger to be of type $PPL_TRIGGER_FIELD " +
+                        "but instead got \"$triggerType\""
+                )
             }
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp) // inner trigger object start
@@ -313,7 +313,7 @@ data class PPLTrigger(
                 conditionType,
                 numResultsCondition,
                 numResultsValue,
-                customCondition,
+                customCondition
             )
         }
     }

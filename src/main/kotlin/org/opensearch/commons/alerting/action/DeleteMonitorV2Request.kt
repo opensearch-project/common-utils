@@ -1,11 +1,11 @@
 package org.opensearch.commons.alerting.action
 
-import java.io.IOException
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.support.WriteRequest
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
+import java.io.IOException
 
 class DeleteMonitorV2Request : ActionRequest {
     val monitorV2Id: String

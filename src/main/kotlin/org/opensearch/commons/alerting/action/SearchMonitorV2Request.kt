@@ -1,11 +1,11 @@
 package org.opensearch.commons.alerting.action
 
-import java.io.IOException
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.search.SearchRequest
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
+import java.io.IOException
 
 class SearchMonitorV2Request : ActionRequest {
     val searchRequest: SearchRequest

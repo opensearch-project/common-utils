@@ -8,6 +8,7 @@ package org.opensearch.commons.ppl.serde;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -44,8 +45,7 @@ public class DataSourceType {
             if (!knownValues.containsKey(upperCaseName)) {
                 knownValues.put(type.name().toUpperCase(Locale.ROOT), type);
             } else {
-                throw new IllegalArgumentException(
-                        "DataSourceType with name " + type.name() + " already exists");
+                throw new IllegalArgumentException("DataSourceType with name " + type.name() + " already exists");
             }
         }
     }

@@ -1,11 +1,11 @@
 package org.opensearch.commons.alerting.action
 
-import java.io.IOException
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.search.fetch.subphase.FetchSourceContext
+import java.io.IOException
 
 class GetMonitorV2Request : ActionRequest {
     val monitorV2Id: String
