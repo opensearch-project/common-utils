@@ -24,6 +24,8 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
+import org.opensearch.commons.alerting.model.Monitor.Companion.SCHEMA_VERSION_FIELD
+import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 
 private val logger = LogManager.getLogger(PPLMonitor::class.java)
 
@@ -40,6 +42,7 @@ data class PPLMonitor(
     override val schedule: Schedule,
     override val lastUpdateTime: Instant,
     override val enabledTime: Instant?,
+    override val schemaVersion: Int = NO_SCHEMA_VERSION,
     override val triggers: List<TriggerV2>,
     val queryLanguage: QueryLanguage = QueryLanguage.PPL, // default to PPL, SQL not currently supported
     val query: String
@@ -84,6 +87,7 @@ data class PPLMonitor(
         schedule = Schedule.readFrom(sin),
         lastUpdateTime = sin.readInstant(),
         enabledTime = sin.readOptionalInstant(),
+        schemaVersion = sin.readInt(),
         triggers = sin.readList(TriggerV2::readFrom),
         queryLanguage = sin.readEnum(QueryLanguage::class.java),
         query = sin.readString()
@@ -106,8 +110,9 @@ data class PPLMonitor(
         builder.field(NAME_FIELD, name)
         builder.field(SCHEDULE_FIELD, schedule)
         builder.field(ENABLED_FIELD, enabled)
-        builder.optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
         builder.nonOptionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
+        builder.optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
+        builder.field(SCHEMA_VERSION_FIELD, schemaVersion)
         builder.field(TRIGGERS_FIELD, triggers.toTypedArray())
         builder.field(QUERY_LANGUAGE_FIELD, queryLanguage.value)
         builder.field(QUERY_FIELD, query)
@@ -137,6 +142,7 @@ data class PPLMonitor(
         }
         out.writeInstant(lastUpdateTime)
         out.writeOptionalInstant(enabledTime)
+        out.writeInt(schemaVersion)
         out.writeVInt(triggers.size)
         triggers.forEach {
             out.writeEnum(TriggerV2.TriggerV2Type.PPL_TRIGGER)
@@ -192,6 +198,7 @@ data class PPLMonitor(
             var schedule: Schedule? = null
             var lastUpdateTime: Instant? = null
             var enabledTime: Instant? = null
+            var schemaVersion = NO_SCHEMA_VERSION
             val triggers: MutableList<TriggerV2> = mutableListOf()
             var queryLanguage: QueryLanguage = QueryLanguage.PPL // default to PPL
             var query: String? = null
@@ -207,8 +214,9 @@ data class PPLMonitor(
                     MONITOR_TYPE_FIELD -> monitorType = xcp.text()
                     ENABLED_FIELD -> enabled = xcp.booleanValue()
                     SCHEDULE_FIELD -> schedule = Schedule.parse(xcp)
-                    ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
+                    ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
+                    SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
                     TRIGGERS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
@@ -274,6 +282,7 @@ data class PPLMonitor(
                 schedule,
                 lastUpdateTime,
                 enabledTime,
+                schemaVersion,
                 triggers,
                 queryLanguage,
                 query

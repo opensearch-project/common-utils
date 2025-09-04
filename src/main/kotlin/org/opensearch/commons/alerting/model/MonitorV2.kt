@@ -10,6 +10,7 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
+import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 
 interface MonitorV2 : ScheduledJob {
     override val id: String
@@ -19,6 +20,7 @@ interface MonitorV2 : ScheduledJob {
     override val schedule: Schedule
     override val lastUpdateTime: Instant // required for scheduled job maintenance
     override val enabledTime: Instant? // required for scheduled job maintenance
+    val schemaVersion: Int // for updating monitors
     val triggers: List<TriggerV2>
 
     fun asTemplateArg(): Map<String, Any?>
