@@ -1,6 +1,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
+import org.opensearch.common.unit.TimeValue
 import org.opensearch.commons.alerting.model.PPLMonitor.Companion.PPL_MONITOR_TYPE
 import org.opensearch.core.ParseField
 import org.opensearch.core.common.io.stream.StreamInput
@@ -19,8 +20,9 @@ interface MonitorV2 : ScheduledJob {
     override val schedule: Schedule
     override val lastUpdateTime: Instant // required for scheduled job maintenance
     override val enabledTime: Instant? // required for scheduled job maintenance
-    val schemaVersion: Int // for updating monitors
     val triggers: List<TriggerV2>
+    val schemaVersion: Int // for updating monitors
+    val lookBackWindow: TimeValue? // how far back to look when querying data during monitor execution
 
     fun asTemplateArg(): Map<String, Any?>
 
@@ -50,6 +52,7 @@ interface MonitorV2 : ScheduledJob {
         const val LAST_UPDATE_TIME_FIELD = "last_update_time"
         const val ENABLED_TIME_FIELD = "enabled_time"
         const val TRIGGERS_FIELD = "triggers"
+        const val LOOK_BACK_WINDOW_FIELD = "look_back_window"
 
         // default values
         const val NO_ID = ""

@@ -164,6 +164,8 @@ data class PPLTrigger(
         const val CUSTOM_CONDITION_FIELD = "custom_condition"
 
         // mock setting name used when parsing TimeValue
+        // TimeValue class is usually reserved for declaring settings, but we're using it
+        // outside that use case here, which is why we need these placeholders
         private const val PLACEHOLDER_SUPPRESS_SETTING_NAME = "ppl_trigger_suppress_duration"
         private const val PLACEHOLDER_EXPIRE_SETTING_NAME = "ppl_trigger_expire_duration"
 

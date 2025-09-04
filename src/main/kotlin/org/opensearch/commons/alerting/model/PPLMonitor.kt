@@ -1,10 +1,12 @@
 package org.opensearch.commons.alerting.model
 
 import org.apache.logging.log4j.LogManager
+import org.opensearch.common.unit.TimeValue
 import org.opensearch.commons.alerting.model.Monitor.Companion.SCHEMA_VERSION_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_TIME_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.LAST_UPDATE_TIME_FIELD
+import org.opensearch.commons.alerting.model.MonitorV2.Companion.LOOK_BACK_WINDOW_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.MONITOR_TYPE_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.MONITOR_V2_TYPE
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.NAME_FIELD
@@ -42,8 +44,9 @@ data class PPLMonitor(
     override val schedule: Schedule,
     override val lastUpdateTime: Instant,
     override val enabledTime: Instant?,
-    override val schemaVersion: Int = NO_SCHEMA_VERSION,
     override val triggers: List<TriggerV2>,
+    override val schemaVersion: Int = NO_SCHEMA_VERSION,
+    override val lookBackWindow: TimeValue? = null,
     val queryLanguage: QueryLanguage = QueryLanguage.PPL, // default to PPL, SQL not currently supported
     val query: String
 ) : MonitorV2 {
@@ -87,8 +90,9 @@ data class PPLMonitor(
         schedule = Schedule.readFrom(sin),
         lastUpdateTime = sin.readInstant(),
         enabledTime = sin.readOptionalInstant(),
-        schemaVersion = sin.readInt(),
         triggers = sin.readList(TriggerV2::readFrom),
+        schemaVersion = sin.readInt(),
+        lookBackWindow = TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME),
         queryLanguage = sin.readEnum(QueryLanguage::class.java),
         query = sin.readString()
     )
@@ -112,8 +116,9 @@ data class PPLMonitor(
         builder.field(ENABLED_FIELD, enabled)
         builder.nonOptionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
         builder.optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
-        builder.field(SCHEMA_VERSION_FIELD, schemaVersion)
         builder.field(TRIGGERS_FIELD, triggers.toTypedArray())
+        builder.field(SCHEMA_VERSION_FIELD, schemaVersion)
+        builder.field(LOOK_BACK_WINDOW_FIELD, lookBackWindow?.toHumanReadableString(0))
         builder.field(QUERY_LANGUAGE_FIELD, queryLanguage.value)
         builder.field(QUERY_FIELD, query)
 
@@ -142,12 +147,16 @@ data class PPLMonitor(
         }
         out.writeInstant(lastUpdateTime)
         out.writeOptionalInstant(enabledTime)
-        out.writeInt(schemaVersion)
         out.writeVInt(triggers.size)
         triggers.forEach {
             out.writeEnum(TriggerV2.TriggerV2Type.PPL_TRIGGER)
             it.writeTo(out)
         }
+        out.writeInt(schemaVersion)
+
+        out.writeBoolean(lookBackWindow != null)
+        lookBackWindow?.let { out.writeString(lookBackWindow.toHumanReadableString(0)) }
+
         out.writeEnum(queryLanguage)
         out.writeString(query)
     }
@@ -162,6 +171,7 @@ data class PPLMonitor(
             LAST_UPDATE_TIME_FIELD to lastUpdateTime.toEpochMilli(),
             ENABLED_TIME_FIELD to enabledTime?.toEpochMilli(),
             TRIGGERS_FIELD to triggers,
+            LOOK_BACK_WINDOW_FIELD to lookBackWindow?.toHumanReadableString(0),
             QUERY_LANGUAGE_FIELD to queryLanguage.value,
             QUERY_FIELD to query
         )
@@ -188,6 +198,11 @@ data class PPLMonitor(
         const val QUERY_LANGUAGE_FIELD = "query_language"
         const val QUERY_FIELD = "query"
 
+        // mock setting name used when parsing TimeValue
+        // TimeValue class is usually reserved for declaring settings, but we're using it
+        // outside that use case here, which is why we need these placeholders
+        private const val PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME = "ppl_monitor_look_back_window"
+
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
@@ -198,8 +213,9 @@ data class PPLMonitor(
             var schedule: Schedule? = null
             var lastUpdateTime: Instant? = null
             var enabledTime: Instant? = null
-            var schemaVersion = NO_SCHEMA_VERSION
             val triggers: MutableList<TriggerV2> = mutableListOf()
+            var schemaVersion = NO_SCHEMA_VERSION
+            var lookBackWindow: TimeValue? = null
             var queryLanguage: QueryLanguage = QueryLanguage.PPL // default to PPL
             var query: String? = null
 
@@ -216,7 +232,6 @@ data class PPLMonitor(
                     SCHEDULE_FIELD -> schedule = Schedule.parse(xcp)
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
                     ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
-                    SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
                     TRIGGERS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
@@ -225,6 +240,15 @@ data class PPLMonitor(
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             triggers.add(PPLTrigger.parseInner(xcp))
+                        }
+                    }
+                    SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
+                    LOOK_BACK_WINDOW_FIELD -> {
+                        lookBackWindow = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            val input = xcp.text()
+                            TimeValue.parseTimeValue(input, PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME) // throws IllegalArgumentException if there's parsing error
                         }
                     }
                     QUERY_LANGUAGE_FIELD -> {
@@ -269,6 +293,10 @@ data class PPLMonitor(
             requireNotNull(query) { "Query is null" }
             requireNotNull(lastUpdateTime) { "Last update time is null" }
 
+            if (schedule is IntervalSchedule && lookBackWindow != null) {
+                throw IllegalArgumentException("Look back windows only supported for CRON schedules")
+            }
+
             if (queryLanguage == QueryLanguage.SQL) {
                 throw IllegalArgumentException("SQL queries are not supported. Please use a PPL query.")
             }
@@ -282,8 +310,9 @@ data class PPLMonitor(
                 schedule,
                 lastUpdateTime,
                 enabledTime,
-                schemaVersion,
                 triggers,
+                schemaVersion,
+                lookBackWindow,
                 queryLanguage,
                 query
             )
