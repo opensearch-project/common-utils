@@ -1,6 +1,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.apache.logging.log4j.LogManager
+import org.opensearch.commons.alerting.model.Monitor.Companion.SCHEMA_VERSION_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.ENABLED_TIME_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.LAST_UPDATE_TIME_FIELD
@@ -11,6 +12,7 @@ import org.opensearch.commons.alerting.model.MonitorV2.Companion.NO_ID
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.NO_VERSION
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.SCHEDULE_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2.Companion.TRIGGERS_FIELD
+import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
 import org.opensearch.commons.alerting.util.instant
@@ -24,8 +26,6 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
-import org.opensearch.commons.alerting.model.Monitor.Companion.SCHEMA_VERSION_FIELD
-import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 
 private val logger = LogManager.getLogger(PPLMonitor::class.java)
 
