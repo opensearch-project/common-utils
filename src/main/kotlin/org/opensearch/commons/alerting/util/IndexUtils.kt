@@ -66,6 +66,10 @@ fun XContentBuilder.optionalUsernameField(name: String, user: User?): XContentBu
     return this.field(name, user.name)
 }
 
+fun XContentBuilder.nonOptionalTimeField(name: String, instant: Instant): XContentBuilder {
+    return this.timeField(name, "${name}_in_millis", instant.toEpochMilli())
+}
+
 fun XContentBuilder.optionalTimeField(name: String, instant: Instant?): XContentBuilder {
     if (instant == null) {
         return nullField(name)
