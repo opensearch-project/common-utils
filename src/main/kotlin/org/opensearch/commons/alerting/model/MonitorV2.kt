@@ -10,7 +10,6 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
-import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 
 interface MonitorV2 : ScheduledJob {
     override val id: String
