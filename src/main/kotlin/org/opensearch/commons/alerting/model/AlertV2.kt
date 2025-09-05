@@ -46,6 +46,7 @@ data class AlertV2(
 //    val monitorUser: User?,
     val triggerId: String,
     val triggerName: String,
+    val queryResults: Map<String, Any>,
     val state: State, // TODO: potentially delete for stateless alerts, all stateless alerts are ACTIVE
     val startTime: Instant, // TODO: potentially delete for stateless alerts
     val endTime: Instant? = null, // TODO: potentially delete for stateless alerts
@@ -73,6 +74,7 @@ data class AlertV2(
 //        },
         triggerId = sin.readString(),
         triggerName = sin.readString(),
+        queryResults = sin.readMap()!!.toMap(),
         state = sin.readEnum(State::class.java),
         startTime = sin.readInstant(),
         endTime = sin.readOptionalInstant(),
@@ -98,6 +100,7 @@ data class AlertV2(
 //        monitorUser?.writeTo(out)
         out.writeString(triggerId)
         out.writeString(triggerName)
+        out.writeMap(queryResults)
         out.writeEnum(state)
         out.writeInstant(startTime)
         out.writeOptionalInstant(endTime)
@@ -122,6 +125,7 @@ data class AlertV2(
             .field(EXECUTION_ID_FIELD, executionId)
             .field(TRIGGER_ID_FIELD, triggerId)
             .field(TRIGGER_NAME_FIELD, triggerName)
+            .field(QUERY_RESULTS_FIELD, queryResults)
             .field(STATE_FIELD, state)
             .field(ERROR_MESSAGE_FIELD, errorMessage)
             .field(ALERT_HISTORY_FIELD, errorHistory.toTypedArray())
@@ -159,6 +163,7 @@ data class AlertV2(
 
     companion object {
         const val EXPIRATION_TIME_FIELD = "expiration_time"
+        const val QUERY_RESULTS_FIELD = "query_results"
 
         @JvmStatic
         @JvmOverloads
@@ -171,6 +176,7 @@ data class AlertV2(
 //            var monitorUser: User? = null
             lateinit var triggerId: String
             lateinit var triggerName: String
+            var queryResults: Map<String, Any> = mapOf()
             lateinit var state: State
             lateinit var startTime: Instant
             lateinit var severity: String
@@ -202,6 +208,7 @@ data class AlertV2(
                     TRIGGER_ID_FIELD -> triggerId = xcp.text()
                     STATE_FIELD -> state = State.valueOf(xcp.text())
                     TRIGGER_NAME_FIELD -> triggerName = xcp.text()
+                    QUERY_RESULTS_FIELD -> queryResults = xcp.map()
                     START_TIME_FIELD -> startTime = requireNotNull(xcp.instant())
                     END_TIME_FIELD -> endTime = xcp.instant()
                     EXPIRATION_TIME_FIELD -> expirationTime = xcp.instant()
@@ -235,6 +242,7 @@ data class AlertV2(
 //                monitorUser = monitorUser,
                 triggerId = requireNotNull(triggerId),
                 triggerName = requireNotNull(triggerName),
+                queryResults = requireNotNull(queryResults),
                 state = requireNotNull(state),
                 startTime = requireNotNull(startTime),
                 endTime = endTime,
