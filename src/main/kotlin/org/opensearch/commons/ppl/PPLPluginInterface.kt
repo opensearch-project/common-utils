@@ -1,12 +1,12 @@
 package org.opensearch.commons.ppl
 
-import org.opensearch.commons.ppl.action.PPLQueryAction
-import org.opensearch.commons.ppl.action.TransportPPLQueryRequest
-import org.opensearch.commons.ppl.action.TransportPPLQueryResponse
 import org.opensearch.commons.utils.recreateObject
 import org.opensearch.core.action.ActionListener
 import org.opensearch.core.action.ActionResponse
 import org.opensearch.core.common.io.stream.Writeable
+import org.opensearch.sql.plugin.transport.PPLQueryAction
+import org.opensearch.sql.plugin.transport.TransportPPLQueryRequest
+import org.opensearch.sql.plugin.transport.TransportPPLQueryResponse
 import org.opensearch.transport.client.node.NodeClient
 
 /**
@@ -32,7 +32,7 @@ object PPLPluginInterface {
      * the response object.
      */
     @Suppress("UNCHECKED_CAST")
-    private fun <Response> wrapActionListener(
+    private fun <Response : ActionResponse> wrapActionListener(
         listener: ActionListener<Response>,
         recreate: (Writeable) -> Response
     ): ActionListener<Response> {

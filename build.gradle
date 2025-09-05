@@ -10,6 +10,14 @@ buildscript {
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
         kotlin_version = System.getProperty("kotlin.version", "1.9.25")
+        version_tokens = opensearch_version.tokenize('-')
+        opensearch_build = version_tokens[0] + '.0'
+        if (buildVersionQualifier) {
+            opensearch_build += "-${buildVersionQualifier}"
+        }
+        if (isSnapshot) {
+            opensearch_build += "-SNAPSHOT"
+        }
     }
 
     repositories {
@@ -68,12 +76,25 @@ apply from: 'build-tools/opensearchplugin-coverage.gradle'
 apply plugin: 'opensearch.java-agent'
 
 configurations {
+    zipArchive
     ktlint {
       resolutionStrategy {
           force "ch.qos.logback:logback-classic:1.5.16"
           force "ch.qos.logback:logback-core:1.5.16"
       }
    }
+}
+
+def sqlJarDirectory = "$buildDir/dependencies/opensearch-sql-plugin"
+
+task addJarsToClasspath(type: Copy) {
+    from(fileTree(dir: sqlJarDirectory)) {
+        include "opensearch-sql-${opensearch_build}.jar"
+        include "ppl-${opensearch_build}.jar"
+        include "protocol-${opensearch_build}.jar"
+        include "core-${opensearch_build}.jar"
+    }
+    into("$buildDir/classes")
 }
 
 dependencies {
@@ -91,15 +112,21 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testImplementation "com.cronutils:cron-utils:9.1.6"
     testImplementation "commons-validator:commons-validator:1.7"
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
-    implementation 'org.json:json:20240303'
-    implementation "com.google.guava:guava:33.3.0-jre"
-    implementation 'com.google.code.gson:gson:2.10.1'
-    compileOnly 'org.projectlombok:lombok:1.18.38'
-    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+
+    implementation fileTree(dir: sqlJarDirectory, include: ["opensearch-sql-${opensearch_build}.jar", "ppl-${opensearch_build}.jar", "protocol-${opensearch_build}.jar", "core-${opensearch_build}.jar"])
+
+    zipArchive group: 'org.opensearch.plugin', name:'opensearch-sql-plugin', version: "${opensearch_build}"
 
     ktlint "com.pinterest:ktlint:0.47.1"
 }
+
+task extractSqlJar(type: Copy) {
+    mustRunAfter()
+    from(zipTree(configurations.zipArchive.find { it.name.startsWith("opensearch-sql-plugin") }))
+    into sqlJarDirectory
+}
+
+tasks.addJarsToClasspath.dependsOn(extractSqlJar)
 
 test {
     useJUnitPlatform()
@@ -147,7 +174,12 @@ tasks.register('ktlintFormat', JavaExec) {
     args "-F", "src/**/*.kt"
 }
 
+compileJava {
+    dependsOn extractSqlJar
+}
+
 compileKotlin {
+    dependsOn extractSqlJar
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict']
         jvmTarget = "21"
