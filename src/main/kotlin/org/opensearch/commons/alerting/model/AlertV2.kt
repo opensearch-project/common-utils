@@ -47,14 +47,8 @@ data class AlertV2(
     val triggerId: String,
     val triggerName: String,
     val queryResults: Map<String, Any>,
-    val state: State, // TODO: potentially delete for stateless alerts, all stateless alerts are ACTIVE
-    val startTime: Instant, // TODO: potentially delete for stateless alerts
-    val endTime: Instant? = null, // TODO: potentially delete for stateless alerts
     val expirationTime: Instant?,
-    val lastNotificationTime: Instant? = null,
-    val acknowledgedTime: Instant? = null,
     val errorMessage: String? = null,
-    val errorHistory: List<AlertError>,
     val severity: String,
     val actionExecutionResults: List<ActionExecutionResult>,
     val executionId: String? = null
@@ -75,14 +69,8 @@ data class AlertV2(
         triggerId = sin.readString(),
         triggerName = sin.readString(),
         queryResults = sin.readMap()!!.toMap(),
-        state = sin.readEnum(State::class.java),
-        startTime = sin.readInstant(),
-        endTime = sin.readOptionalInstant(),
         expirationTime = sin.readOptionalInstant(),
-        lastNotificationTime = sin.readOptionalInstant(),
-        acknowledgedTime = sin.readOptionalInstant(),
         errorMessage = sin.readOptionalString(),
-        errorHistory = sin.readList(::AlertError),
         severity = sin.readString(),
         actionExecutionResults = sin.readList(::ActionExecutionResult),
         executionId = sin.readOptionalString()
@@ -101,14 +89,8 @@ data class AlertV2(
         out.writeString(triggerId)
         out.writeString(triggerName)
         out.writeMap(queryResults)
-        out.writeEnum(state)
-        out.writeInstant(startTime)
-        out.writeOptionalInstant(endTime)
         out.writeOptionalInstant(expirationTime)
-        out.writeOptionalInstant(lastNotificationTime)
-        out.writeOptionalInstant(acknowledgedTime)
         out.writeOptionalString(errorMessage)
-        out.writeCollection(errorHistory)
         out.writeString(severity)
         out.writeCollection(actionExecutionResults)
         out.writeOptionalString(executionId)
@@ -126,16 +108,10 @@ data class AlertV2(
             .field(TRIGGER_ID_FIELD, triggerId)
             .field(TRIGGER_NAME_FIELD, triggerName)
             .field(QUERY_RESULTS_FIELD, queryResults)
-            .field(STATE_FIELD, state)
             .field(ERROR_MESSAGE_FIELD, errorMessage)
-            .field(ALERT_HISTORY_FIELD, errorHistory.toTypedArray())
             .field(SEVERITY_FIELD, severity)
             .field(ACTION_EXECUTION_RESULTS_FIELD, actionExecutionResults.toTypedArray())
             .optionalTimeField(EXPIRATION_TIME_FIELD, expirationTime)
-            .optionalTimeField(START_TIME_FIELD, startTime)
-            .optionalTimeField(LAST_NOTIFICATION_TIME_FIELD, lastNotificationTime)
-            .optionalTimeField(END_TIME_FIELD, endTime)
-            .optionalTimeField(ACKNOWLEDGED_TIME_FIELD, acknowledgedTime)
             .endObject()
 
 //        if (!secure) {
@@ -147,17 +123,12 @@ data class AlertV2(
 
     fun asTemplateArg(): Map<String, Any?> {
         return mapOf(
-            ACKNOWLEDGED_TIME_FIELD to acknowledgedTime?.toEpochMilli(),
             ALERT_ID_FIELD to id,
             ALERT_VERSION_FIELD to version,
-            END_TIME_FIELD to endTime?.toEpochMilli(),
             ERROR_MESSAGE_FIELD to errorMessage,
             EXECUTION_ID_FIELD to executionId,
-            LAST_NOTIFICATION_TIME_FIELD to lastNotificationTime?.toEpochMilli(),
             EXPIRATION_TIME_FIELD to expirationTime?.toEpochMilli(),
             SEVERITY_FIELD to severity,
-            START_TIME_FIELD to startTime.toEpochMilli(),
-            STATE_FIELD to state.toString()
         )
     }
 
@@ -177,16 +148,10 @@ data class AlertV2(
             lateinit var triggerId: String
             lateinit var triggerName: String
             var queryResults: Map<String, Any> = mapOf()
-            lateinit var state: State
-            lateinit var startTime: Instant
             lateinit var severity: String
             var expirationTime: Instant? = null
-            var endTime: Instant? = null
-            var lastNotificationTime: Instant? = null
-            var acknowledgedTime: Instant? = null
             var errorMessage: String? = null
             var executionId: String? = null
-            val errorHistory: MutableList<AlertError> = mutableListOf()
             val actionExecutionResults: MutableList<ActionExecutionResult> = mutableListOf()
 
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -206,22 +171,11 @@ data class AlertV2(
 //                            User.parse(xcp)
 //                        }
                     TRIGGER_ID_FIELD -> triggerId = xcp.text()
-                    STATE_FIELD -> state = State.valueOf(xcp.text())
                     TRIGGER_NAME_FIELD -> triggerName = xcp.text()
                     QUERY_RESULTS_FIELD -> queryResults = xcp.map()
-                    START_TIME_FIELD -> startTime = requireNotNull(xcp.instant())
-                    END_TIME_FIELD -> endTime = xcp.instant()
                     EXPIRATION_TIME_FIELD -> expirationTime = xcp.instant()
-                    LAST_NOTIFICATION_TIME_FIELD -> lastNotificationTime = xcp.instant()
-                    ACKNOWLEDGED_TIME_FIELD -> acknowledgedTime = xcp.instant()
                     ERROR_MESSAGE_FIELD -> errorMessage = xcp.textOrNull()
                     EXECUTION_ID_FIELD -> executionId = xcp.textOrNull()
-                    ALERT_HISTORY_FIELD -> {
-                        ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
-                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
-                            errorHistory.add(AlertError.parse(xcp))
-                        }
-                    }
                     SEVERITY_FIELD -> severity = xcp.text()
                     ACTION_EXECUTION_RESULTS_FIELD -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
@@ -243,14 +197,8 @@ data class AlertV2(
                 triggerId = requireNotNull(triggerId),
                 triggerName = requireNotNull(triggerName),
                 queryResults = requireNotNull(queryResults),
-                state = requireNotNull(state),
-                startTime = requireNotNull(startTime),
-                endTime = endTime,
                 expirationTime = expirationTime,
-                lastNotificationTime = lastNotificationTime,
-                acknowledgedTime = acknowledgedTime,
                 errorMessage = errorMessage,
-                errorHistory = errorHistory,
                 severity = severity,
                 actionExecutionResults = actionExecutionResults,
                 executionId = executionId
