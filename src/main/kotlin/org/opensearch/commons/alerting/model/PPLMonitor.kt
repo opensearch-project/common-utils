@@ -42,11 +42,11 @@ data class PPLMonitor(
     override val name: String,
     override val enabled: Boolean,
     override val schedule: Schedule,
+    override val lookBackWindow: TimeValue? = null,
     override val lastUpdateTime: Instant,
     override val enabledTime: Instant?,
-    override val triggers: List<TriggerV2>,
+    override val triggers: List<TriggerV2>, // TODO: change this to list of PPLTriggers
     override val schemaVersion: Int = NO_SCHEMA_VERSION,
-    override val lookBackWindow: TimeValue? = null,
     val queryLanguage: QueryLanguage = QueryLanguage.PPL, // default to PPL, SQL not currently supported
     val query: String
 ) : MonitorV2 {
@@ -88,11 +88,11 @@ data class PPLMonitor(
         name = sin.readString(),
         enabled = sin.readBoolean(),
         schedule = Schedule.readFrom(sin),
+        lookBackWindow = TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME),
         lastUpdateTime = sin.readInstant(),
         enabledTime = sin.readOptionalInstant(),
         triggers = sin.readList(TriggerV2::readFrom),
         schemaVersion = sin.readInt(),
-        lookBackWindow = TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME),
         queryLanguage = sin.readEnum(QueryLanguage::class.java),
         query = sin.readString()
     )
@@ -113,12 +113,12 @@ data class PPLMonitor(
 
         builder.field(NAME_FIELD, name)
         builder.field(SCHEDULE_FIELD, schedule)
+        builder.field(LOOK_BACK_WINDOW_FIELD, lookBackWindow?.toHumanReadableString(0))
         builder.field(ENABLED_FIELD, enabled)
         builder.nonOptionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
         builder.optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
         builder.field(TRIGGERS_FIELD, triggers.toTypedArray())
         builder.field(SCHEMA_VERSION_FIELD, schemaVersion)
-        builder.field(LOOK_BACK_WINDOW_FIELD, lookBackWindow?.toHumanReadableString(0))
         builder.field(QUERY_LANGUAGE_FIELD, queryLanguage.value)
         builder.field(QUERY_FIELD, query)
 
@@ -145,6 +145,10 @@ data class PPLMonitor(
         } else {
             out.writeEnum(Schedule.TYPE.INTERVAL)
         }
+
+        out.writeBoolean(lookBackWindow != null)
+        lookBackWindow?.let { out.writeString(lookBackWindow.toHumanReadableString(0)) }
+
         out.writeInstant(lastUpdateTime)
         out.writeOptionalInstant(enabledTime)
         out.writeVInt(triggers.size)
@@ -153,10 +157,6 @@ data class PPLMonitor(
             it.writeTo(out)
         }
         out.writeInt(schemaVersion)
-
-        out.writeBoolean(lookBackWindow != null)
-        lookBackWindow?.let { out.writeString(lookBackWindow.toHumanReadableString(0)) }
-
         out.writeEnum(queryLanguage)
         out.writeString(query)
     }
@@ -168,10 +168,10 @@ data class PPLMonitor(
             NAME_FIELD to name,
             ENABLED_FIELD to enabled,
             SCHEDULE_FIELD to schedule,
+            LOOK_BACK_WINDOW_FIELD to lookBackWindow?.toHumanReadableString(0),
             LAST_UPDATE_TIME_FIELD to lastUpdateTime.toEpochMilli(),
             ENABLED_TIME_FIELD to enabledTime?.toEpochMilli(),
             TRIGGERS_FIELD to triggers,
-            LOOK_BACK_WINDOW_FIELD to lookBackWindow?.toHumanReadableString(0),
             QUERY_LANGUAGE_FIELD to queryLanguage.value,
             QUERY_FIELD to query
         )
@@ -211,11 +211,11 @@ data class PPLMonitor(
             var monitorType: String = PPL_MONITOR_TYPE
             var enabled = true
             var schedule: Schedule? = null
+            var lookBackWindow: TimeValue? = null
             var lastUpdateTime: Instant? = null
             var enabledTime: Instant? = null
             val triggers: MutableList<TriggerV2> = mutableListOf()
             var schemaVersion = NO_SCHEMA_VERSION
-            var lookBackWindow: TimeValue? = null
             var queryLanguage: QueryLanguage = QueryLanguage.PPL // default to PPL
             var query: String? = null
 
@@ -230,6 +230,14 @@ data class PPLMonitor(
                     MONITOR_TYPE_FIELD -> monitorType = xcp.text()
                     ENABLED_FIELD -> enabled = xcp.booleanValue()
                     SCHEDULE_FIELD -> schedule = Schedule.parse(xcp)
+                    LOOK_BACK_WINDOW_FIELD -> {
+                        lookBackWindow = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            val input = xcp.text()
+                            TimeValue.parseTimeValue(input, PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME) // throws IllegalArgumentException if there's parsing error
+                        }
+                    }
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
                     ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
                     TRIGGERS_FIELD -> {
@@ -243,14 +251,6 @@ data class PPLMonitor(
                         }
                     }
                     SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
-                    LOOK_BACK_WINDOW_FIELD -> {
-                        lookBackWindow = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                            null
-                        } else {
-                            val input = xcp.text()
-                            TimeValue.parseTimeValue(input, PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME) // throws IllegalArgumentException if there's parsing error
-                        }
-                    }
                     QUERY_LANGUAGE_FIELD -> {
                         val input = xcp.text()
                         val enumMatchResult = QueryLanguage.enumFromString(input)
@@ -308,11 +308,11 @@ data class PPLMonitor(
                 name,
                 enabled,
                 schedule,
+                lookBackWindow,
                 lastUpdateTime,
                 enabledTime,
                 triggers,
                 schemaVersion,
-                lookBackWindow,
                 queryLanguage,
                 query
             )

@@ -112,8 +112,9 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
     testImplementation "com.cronutils:cron-utils:9.1.6"
     testImplementation "commons-validator:commons-validator:1.7"
+    implementation 'org.json:json:20240303'
 
-    implementation fileTree(dir: sqlJarDirectory, include: ["opensearch-sql-${opensearch_build}.jar", "ppl-${opensearch_build}.jar", "protocol-${opensearch_build}.jar", "core-${opensearch_build}.jar"])
+    implementation fileTree(dir: sqlJarDirectory, include: ["opensearch-sql-thin-${opensearch_build}.jar", "ppl-${opensearch_build}.jar", "protocol-${opensearch_build}.jar", "core-${opensearch_build}.jar"])
 
     zipArchive group: 'org.opensearch.plugin', name:'opensearch-sql-plugin', version: "${opensearch_build}"
 
@@ -126,7 +127,22 @@ task extractSqlJar(type: Copy) {
     into sqlJarDirectory
 }
 
-tasks.addJarsToClasspath.dependsOn(extractSqlJar)
+task extractSqlClass(type: Copy, dependsOn: [extractSqlJar]) {
+    from zipTree("${sqlJarDirectory}/opensearch-sql-${opensearch_build}.jar")
+    into("$buildDir/opensearch-sql")
+    include 'org/opensearch/sql/**'
+}
+
+task replaceSqlJar(type: Jar, dependsOn: [extractSqlClass]) {
+    from("$buildDir/opensearch-sql")
+    archiveFileName = "opensearch-sql-thin-${opensearch_build}.jar"
+    destinationDirectory = file(sqlJarDirectory)
+    doLast {
+        file("${sqlJarDirectory}/opensearch-sql-${opensearch_build}.jar").delete()
+    }
+}
+
+tasks.addJarsToClasspath.dependsOn(replaceSqlJar)
 
 test {
     useJUnitPlatform()
@@ -175,11 +191,11 @@ tasks.register('ktlintFormat', JavaExec) {
 }
 
 compileJava {
-    dependsOn extractSqlJar
+    dependsOn addJarsToClasspath
 }
 
 compileKotlin {
-    dependsOn extractSqlJar
+    dependsOn addJarsToClasspath
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict']
         jvmTarget = "21"

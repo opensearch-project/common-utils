@@ -13,7 +13,7 @@ import java.time.Instant
 
 data class PPLTriggerRunResult(
     override var triggerName: String,
-    override var triggered: Boolean, // TODO: may need to change this based on whether trigger mode is result set or per result
+    override var triggered: Boolean,
     override var error: Exception?,
     var actionResults: MutableMap<String, ActionRunResult> = mutableMapOf()
 ) : TriggerV2RunResult {
