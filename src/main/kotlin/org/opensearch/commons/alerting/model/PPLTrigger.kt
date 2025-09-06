@@ -25,6 +25,7 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
+import org.opensearch.commons.alerting.model.TriggerV2.TriggerV2Type
 
 private val logger = LogManager.getLogger(PPLTrigger::class.java)
 
@@ -87,7 +88,6 @@ data class PPLTrigger(
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params?): XContentBuilder {
         builder.startObject()
-        builder.startObject(PPL_TRIGGER_FIELD)
         builder.field(ID_FIELD, id)
         builder.field(NAME_FIELD, name)
         builder.field(SEVERITY_FIELD, severity.value)
@@ -100,7 +100,6 @@ data class PPLTrigger(
         numResultsCondition?.let { builder.field(NUM_RESULTS_CONDITION_FIELD, numResultsCondition.value) }
         numResultsValue?.let { builder.field(NUM_RESULTS_VALUE_FIELD, numResultsValue) }
         customCondition?.let { builder.field(CUSTOM_CONDITION_FIELD, customCondition) }
-        builder.endObject()
         builder.endObject()
         return builder
     }
@@ -194,17 +193,6 @@ data class PPLTrigger(
             /* parse */
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp) // outer trigger object start
 
-            XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp) // ppl_trigger field name
-            val triggerType = xcp.currentName()
-            if (triggerType != PPL_TRIGGER_FIELD) {
-                throw IllegalStateException(
-                    "when parsing PPLMonitor, expected trigger to be of type $PPL_TRIGGER_FIELD " +
-                        "but instead got \"$triggerType\""
-                )
-            }
-
-            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp) // inner trigger object start
-
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
@@ -281,8 +269,6 @@ data class PPLTrigger(
                 }
             }
 
-            XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp) // end of outer trigger object
-
             /* validations */
             requireNotNull(name) { "Trigger name must be included" }
             requireNotNull(severity) { "Trigger severity must be included" }
@@ -317,6 +303,12 @@ data class PPLTrigger(
                 numResultsValue,
                 customCondition
             )
+        }
+
+        @JvmStatic
+        @Throws(IOException::class)
+        fun readFrom(sin: StreamInput): PPLTrigger {
+            return PPLTrigger(sin)
         }
     }
 }

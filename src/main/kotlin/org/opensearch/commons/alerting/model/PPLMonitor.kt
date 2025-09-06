@@ -45,7 +45,7 @@ data class PPLMonitor(
     override val lookBackWindow: TimeValue? = null,
     override val lastUpdateTime: Instant,
     override val enabledTime: Instant?,
-    override val triggers: List<TriggerV2>, // TODO: change this to list of PPLTriggers
+    override val triggers: List<PPLTrigger>,
     override val schemaVersion: Int = NO_SCHEMA_VERSION,
     val queryLanguage: QueryLanguage = QueryLanguage.PPL, // default to PPL, SQL not currently supported
     val query: String
@@ -91,7 +91,7 @@ data class PPLMonitor(
         lookBackWindow = TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME),
         lastUpdateTime = sin.readInstant(),
         enabledTime = sin.readOptionalInstant(),
-        triggers = sin.readList(TriggerV2::readFrom),
+        triggers = sin.readList(PPLTrigger::readFrom),
         schemaVersion = sin.readInt(),
         queryLanguage = sin.readEnum(QueryLanguage::class.java),
         query = sin.readString()
@@ -152,10 +152,7 @@ data class PPLMonitor(
         out.writeInstant(lastUpdateTime)
         out.writeOptionalInstant(enabledTime)
         out.writeVInt(triggers.size)
-        triggers.forEach {
-            out.writeEnum(TriggerV2.TriggerV2Type.PPL_TRIGGER)
-            it.writeTo(out)
-        }
+        triggers.forEach { it.writeTo(out) }
         out.writeInt(schemaVersion)
         out.writeEnum(queryLanguage)
         out.writeString(query)
@@ -214,7 +211,7 @@ data class PPLMonitor(
             var lookBackWindow: TimeValue? = null
             var lastUpdateTime: Instant? = null
             var enabledTime: Instant? = null
-            val triggers: MutableList<TriggerV2> = mutableListOf()
+            val triggers: MutableList<PPLTrigger> = mutableListOf()
             var schemaVersion = NO_SCHEMA_VERSION
             var queryLanguage: QueryLanguage = QueryLanguage.PPL // default to PPL
             var query: String? = null

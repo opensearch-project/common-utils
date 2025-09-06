@@ -48,14 +48,5 @@ interface TriggerV2 : BaseModel {
         const val LAST_TRIGGERED_FIELD = "last_triggered_time"
         const val EXPIRE_FIELD = "expires"
         const val ACTIONS_FIELD = "actions"
-
-        @JvmStatic
-        @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): TriggerV2 {
-            return when (val type = sin.readEnum(TriggerV2Type::class.java)) {
-                TriggerV2Type.PPL_TRIGGER -> PPLTrigger(sin)
-                else -> throw IllegalStateException("Unexpected input \"$type\" when reading TriggerV2")
-            }
-        }
     }
 }
