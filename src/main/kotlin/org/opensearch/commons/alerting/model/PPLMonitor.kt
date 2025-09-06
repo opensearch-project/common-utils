@@ -261,9 +261,6 @@ data class PPLMonitor(
 
             /* validations */
 
-            // TODO: add validations for throttle actions time range
-            // (see alerting's TransportIndexMonitorAction.validateActionThrottle)
-
             // ensure MonitorV2 XContent being parsed by PPLMonitor class is PPL Monitor type
             if (monitorType != PPL_MONITOR_TYPE) {
                 throw IllegalArgumentException("Invalid monitor type: $monitorType")
@@ -272,6 +269,21 @@ data class PPLMonitor(
             // ensure there's at least 1 trigger
             if (triggers.isEmpty()) {
                 throw IllegalArgumentException("Monitor must include at least 1 trigger")
+            }
+
+            // ensure the trigger suppress durations are valid
+            triggers.forEach { trigger ->
+                trigger.suppressDuration?.let { suppressDuration ->
+                    // TODO: these max and min values are completely arbitrary, make them settings
+                    val minValue = TimeValue.timeValueMinutes(1)
+                    val maxValue = TimeValue.timeValueDays(5)
+
+                    require(suppressDuration <= maxValue)
+                    { "Suppress duration must be at most $maxValue but was $suppressDuration" }
+
+                    require(suppressDuration >= minValue)
+                    { "Suppress duration must be at least $minValue but was $suppressDuration" }
+                }
             }
 
             // if enabled, set time of MonitorV2 creation/update is set as enable time
