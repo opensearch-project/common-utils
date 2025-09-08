@@ -1,7 +1,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.ERROR_FIELD
-import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.MONITOR_NAME_FIELD
+import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.MONITOR_V2_NAME_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.PERIOD_END_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.PERIOD_START_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.TRIGGER_RESULTS_FIELD
@@ -35,7 +35,7 @@ data class PPLMonitorRunResult(
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         builder.startObject()
-        builder.field(MONITOR_NAME_FIELD, monitorName)
+        builder.field(MONITOR_V2_NAME_FIELD, monitorName)
         builder.nonOptionalTimeField(PERIOD_START_FIELD, periodStart)
         builder.nonOptionalTimeField(PERIOD_END_FIELD, periodEnd)
         builder.field(ERROR_FIELD, error?.message)

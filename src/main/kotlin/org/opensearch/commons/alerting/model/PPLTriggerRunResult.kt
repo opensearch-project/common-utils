@@ -15,7 +15,6 @@ data class PPLTriggerRunResult(
     override var triggerName: String,
     override var triggered: Boolean,
     override var error: Exception?,
-    var actionResults: MutableMap<String, ActionRunResult> = mutableMapOf()
 ) : TriggerV2RunResult {
 
     @Throws(IOException::class)
@@ -23,8 +22,7 @@ data class PPLTriggerRunResult(
     constructor(sin: StreamInput) : this(
         triggerName = sin.readString(),
         triggered = sin.readBoolean(),
-        error = sin.readException(),
-        actionResults = sin.readMap() as MutableMap<String, ActionRunResult>
+        error = sin.readException()
     )
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
@@ -32,7 +30,6 @@ data class PPLTriggerRunResult(
         builder.field(NAME_FIELD, triggerName)
         builder.field(TRIGGERED_FIELD, triggered)
         builder.field(ERROR_FIELD, error?.message)
-        builder.field(ACTION_RESULTS_FIELD, actionResults as Map<String, ActionRunResult>)
         builder.endObject()
         return builder
     }
@@ -42,24 +39,9 @@ data class PPLTriggerRunResult(
         out.writeString(triggerName)
         out.writeBoolean(triggered)
         out.writeException(error)
-        out.writeMap(actionResults as Map<String, ActionRunResult>)
-    }
-
-    override fun alertError(): AlertError? {
-        if (error != null) {
-            return AlertError(Instant.now(), "Failed evaluating trigger:\n${error!!.userErrorMessage()}")
-        }
-        for (actionResult in actionResults.values) {
-            if (actionResult.error != null) {
-                return AlertError(Instant.now(), "Failed running action:\n${actionResult.error.userErrorMessage()}")
-            }
-        }
-        return null
     }
 
     companion object {
-        const val ACTION_RESULTS_FIELD = "action_results"
-
         @JvmStatic
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): TriggerRunResult {

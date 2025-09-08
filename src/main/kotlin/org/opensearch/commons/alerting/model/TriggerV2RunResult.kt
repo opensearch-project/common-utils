@@ -11,14 +11,6 @@ interface TriggerV2RunResult : Writeable, ToXContent {
     val triggered: Boolean
     val error: Exception?
 
-    /** Returns error information to store in the Alert. Currently it's just the stack trace but it can be more */
-    fun alertError(): AlertError? {
-        if (error != null) {
-            return AlertError(Instant.now(), "Failed evaluating trigger:\n${error!!.userErrorMessage()}")
-        }
-        return null
-    }
-
     companion object {
         const val NAME_FIELD = "name"
         const val TRIGGERED_FIELD = "triggered"

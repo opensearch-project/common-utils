@@ -18,17 +18,8 @@ interface MonitorV2RunResult<out TriggerV2Result : TriggerV2RunResult> : Writeab
         PPL_MONITOR_RUN_RESULT;
     }
 
-    /** Returns error information to store in the Alert. Currently it's just the stack trace but it can be more */
-    fun alertError(): AlertError? {
-        if (error != null) {
-            return AlertError(Instant.now(), "Failed running monitor:\n${error!!.userErrorMessage()}")
-        }
-
-        return null
-    }
-
     companion object {
-        const val MONITOR_NAME_FIELD = "monitor_name"
+        const val MONITOR_V2_NAME_FIELD = "monitor_v2_name"
         const val ERROR_FIELD = "error"
         const val PERIOD_START_FIELD = "period_start"
         const val PERIOD_END_FIELD = "period_end"
