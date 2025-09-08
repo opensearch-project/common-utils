@@ -43,17 +43,12 @@ class ExecuteMonitorV2Request : ActionRequest {
         sin.readTimeValue() // requestEnd
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        // ensure exactly one of monitor ID or monitorV2 is supplied
-        var exception: ActionRequestValidationException? = null
+    override fun validate(): ActionRequestValidationException? =
         if (monitorV2 == null && monitorId == null) {
-            exception = ValidateActions.addValidationError(
-                "Neither a monitor ID or monitor object was supplied",
-                exception
-            )
+            ValidateActions.addValidationError("Neither a monitor ID nor monitor object was supplied", null)
+        } else {
+            null
         }
-        return exception
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
