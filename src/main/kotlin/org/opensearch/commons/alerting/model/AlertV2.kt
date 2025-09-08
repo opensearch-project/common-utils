@@ -1,16 +1,10 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.lucene.uid.Versions
-import org.opensearch.commons.alerting.alerts.AlertError
-import org.opensearch.commons.alerting.model.Alert.Companion.ACKNOWLEDGED_TIME_FIELD
-import org.opensearch.commons.alerting.model.Alert.Companion.ACTION_EXECUTION_RESULTS_FIELD
-import org.opensearch.commons.alerting.model.Alert.Companion.ALERT_HISTORY_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.ALERT_ID_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.ALERT_VERSION_FIELD
-import org.opensearch.commons.alerting.model.Alert.Companion.END_TIME_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.ERROR_MESSAGE_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.EXECUTION_ID_FIELD
-import org.opensearch.commons.alerting.model.Alert.Companion.LAST_NOTIFICATION_TIME_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.MONITOR_ID_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.MONITOR_NAME_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.MONITOR_VERSION_FIELD
@@ -18,13 +12,11 @@ import org.opensearch.commons.alerting.model.Alert.Companion.NO_ID
 import org.opensearch.commons.alerting.model.Alert.Companion.NO_VERSION
 import org.opensearch.commons.alerting.model.Alert.Companion.SCHEMA_VERSION_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.SEVERITY_FIELD
-import org.opensearch.commons.alerting.model.Alert.Companion.START_TIME_FIELD
-import org.opensearch.commons.alerting.model.Alert.Companion.STATE_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.TRIGGER_ID_FIELD
 import org.opensearch.commons.alerting.model.Alert.Companion.TRIGGER_NAME_FIELD
-import org.opensearch.commons.alerting.model.Alert.State
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 import org.opensearch.commons.alerting.util.instant
+import org.opensearch.commons.alerting.util.nonOptionalTimeField
 import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -35,7 +27,6 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
 import java.time.Instant
-import org.opensearch.commons.alerting.util.nonOptionalTimeField
 
 data class AlertV2(
     val id: String = NO_ID,
@@ -129,7 +120,7 @@ data class AlertV2(
             ERROR_MESSAGE_FIELD to errorMessage,
             EXECUTION_ID_FIELD to executionId,
             EXPIRATION_TIME_FIELD to expirationTime?.toEpochMilli(),
-            SEVERITY_FIELD to severity,
+            SEVERITY_FIELD to severity
         )
     }
 
