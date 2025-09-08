@@ -16,16 +16,6 @@ interface MonitorV2RunResult<out TriggerV2Result : TriggerV2RunResult> : Writeab
 
     enum class MonitorV2RunResultType() {
         PPL_MONITOR_RUN_RESULT;
-
-//        override fun toString(): String {
-//            return value
-//        }
-
-//        companion object {
-//            fun enumFromString(value: String): MonitorV2Type? {
-//                return MonitorV2Type.entries.find { it.value == value }
-//            }
-//        }
     }
 
     /** Returns error information to store in the Alert. Currently it's just the stack trace but it can be more */
