@@ -31,6 +31,7 @@ object AlertingActions {
     const val GET_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/get"
     const val SEARCH_MONITORS_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/search"
     const val DELETE_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/delete"
+    const val EXECUTE_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/execute"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -111,4 +112,8 @@ object AlertingActions {
     @JvmField
     val DELETE_MONITOR_V2_ACTION_TYPE =
         ActionType(DELETE_MONITOR_V2_ACTION_NAME, ::DeleteMonitorV2Response)
+
+    @JvmField
+    val EXECUTE_MONITOR_V2_ACTION_TYPE =
+        ActionType(EXECUTE_MONITOR_V2_ACTION_NAME, ::ExecuteMonitorV2Response)
 }
