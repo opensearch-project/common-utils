@@ -155,7 +155,6 @@ data class AlertV2(
             var expirationTime: Instant? = null
             var errorMessage: String? = null
             var executionId: String? = null
-            val actionExecutionResults: MutableList<ActionExecutionResult> = mutableListOf()
 
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -181,12 +180,6 @@ data class AlertV2(
                     ERROR_MESSAGE_FIELD -> errorMessage = xcp.textOrNull()
                     EXECUTION_ID_FIELD -> executionId = xcp.textOrNull()
                     SEVERITY_FIELD -> severity = xcp.text()
-                    ACTION_EXECUTION_RESULTS_FIELD -> {
-                        ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
-                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
-                            actionExecutionResults.add(ActionExecutionResult.parse(xcp))
-                        }
-                    }
                 }
             }
 
