@@ -28,6 +28,7 @@ interface TriggerV2 : BaseModel {
 
     enum class Severity(val value: String) {
         INFO("info"),
+        ERROR("error"),
         LOW("low"),
         MEDIUM("medium"),
         HIGH("high"),

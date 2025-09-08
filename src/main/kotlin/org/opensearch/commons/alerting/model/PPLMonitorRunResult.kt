@@ -1,12 +1,10 @@
 package org.opensearch.commons.alerting.model
 
-import org.opensearch.commons.alerting.alerts.AlertError
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.ERROR_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.MONITOR_NAME_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.PERIOD_END_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.PERIOD_START_FIELD
 import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.TRIGGER_RESULTS_FIELD
-import org.opensearch.commons.alerting.model.MonitorV2RunResult.Companion.suppressWarning
 import org.opensearch.commons.alerting.util.nonOptionalTimeField
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -31,8 +29,8 @@ data class PPLMonitorRunResult(
         sin.readException(), // error
         sin.readInstant(), // periodStart
         sin.readInstant(), // periodEnd
-        suppressWarning(sin.readMap()) as Map<String, PPLTriggerRunResult>, // triggerResults
-        sin.readMap() as Map<String, Map<String, Any?>> // pplQueryResults // TODO: if this works, delete suppressWarning call above
+        sin.readMap() as Map<String, PPLTriggerRunResult>, // triggerResults
+        sin.readMap() as Map<String, Map<String, Any?>> // pplQueryResults
     )
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
@@ -55,15 +53,6 @@ data class PPLMonitorRunResult(
         out.writeInstant(periodEnd)
         out.writeMap(triggerResults)
         out.writeMap(pplQueryResults)
-    }
-
-    // TODO: does this need any PPLMonitor specific logic, or can this just be deleted
-    override fun alertError(): AlertError? {
-        if (error != null) {
-            return AlertError(Instant.now(), "Failed running monitor:\n${error.userErrorMessage()}")
-        }
-
-        return null
     }
 
     companion object {

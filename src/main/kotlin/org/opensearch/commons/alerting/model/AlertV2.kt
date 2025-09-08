@@ -35,6 +35,7 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
 import java.time.Instant
+import org.opensearch.commons.alerting.util.nonOptionalTimeField
 
 data class AlertV2(
     val id: String = NO_ID,
@@ -47,10 +48,10 @@ data class AlertV2(
     val triggerId: String,
     val triggerName: String,
     val queryResults: Map<String, Any>,
+    val triggeredTime: Instant,
     val expirationTime: Instant?,
     val errorMessage: String? = null,
     val severity: String,
-    val actionExecutionResults: List<ActionExecutionResult>,
     val executionId: String? = null
 ) : Writeable, ToXContent {
     @Throws(IOException::class)
@@ -69,10 +70,10 @@ data class AlertV2(
         triggerId = sin.readString(),
         triggerName = sin.readString(),
         queryResults = sin.readMap()!!.toMap(),
+        triggeredTime = sin.readInstant(),
         expirationTime = sin.readOptionalInstant(),
         errorMessage = sin.readOptionalString(),
         severity = sin.readString(),
-        actionExecutionResults = sin.readList(::ActionExecutionResult),
         executionId = sin.readOptionalString()
     )
 
@@ -89,10 +90,10 @@ data class AlertV2(
         out.writeString(triggerId)
         out.writeString(triggerName)
         out.writeMap(queryResults)
+        out.writeInstant(triggeredTime)
         out.writeOptionalInstant(expirationTime)
         out.writeOptionalString(errorMessage)
         out.writeString(severity)
-        out.writeCollection(actionExecutionResults)
         out.writeOptionalString(executionId)
     }
 
@@ -110,7 +111,7 @@ data class AlertV2(
             .field(QUERY_RESULTS_FIELD, queryResults)
             .field(ERROR_MESSAGE_FIELD, errorMessage)
             .field(SEVERITY_FIELD, severity)
-            .field(ACTION_EXECUTION_RESULTS_FIELD, actionExecutionResults.toTypedArray())
+            .nonOptionalTimeField(TRIGGERED_TIME_FIELD, triggeredTime)
             .optionalTimeField(EXPIRATION_TIME_FIELD, expirationTime)
             .endObject()
 
@@ -133,6 +134,7 @@ data class AlertV2(
     }
 
     companion object {
+        const val TRIGGERED_TIME_FIELD = "triggered_time"
         const val EXPIRATION_TIME_FIELD = "expiration_time"
         const val QUERY_RESULTS_FIELD = "query_results"
 
@@ -149,6 +151,7 @@ data class AlertV2(
             lateinit var triggerName: String
             var queryResults: Map<String, Any> = mapOf()
             lateinit var severity: String
+            var triggeredTime: Instant? = null
             var expirationTime: Instant? = null
             var errorMessage: String? = null
             var executionId: String? = null
@@ -173,6 +176,7 @@ data class AlertV2(
                     TRIGGER_ID_FIELD -> triggerId = xcp.text()
                     TRIGGER_NAME_FIELD -> triggerName = xcp.text()
                     QUERY_RESULTS_FIELD -> queryResults = xcp.map()
+                    TRIGGERED_TIME_FIELD -> triggeredTime = xcp.instant()
                     EXPIRATION_TIME_FIELD -> expirationTime = xcp.instant()
                     ERROR_MESSAGE_FIELD -> errorMessage = xcp.textOrNull()
                     EXECUTION_ID_FIELD -> executionId = xcp.textOrNull()
@@ -197,10 +201,10 @@ data class AlertV2(
                 triggerId = requireNotNull(triggerId),
                 triggerName = requireNotNull(triggerName),
                 queryResults = requireNotNull(queryResults),
+                triggeredTime = requireNotNull(triggeredTime),
                 expirationTime = expirationTime,
                 errorMessage = errorMessage,
                 severity = severity,
-                actionExecutionResults = actionExecutionResults,
                 executionId = executionId
             )
         }

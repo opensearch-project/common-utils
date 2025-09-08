@@ -60,10 +60,5 @@ interface MonitorV2RunResult<out TriggerV2Result : TriggerV2RunResult> : Writeab
                 }
             }
         }
-
-        @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, TriggerV2RunResult> {
-            return map as Map<String, TriggerV2RunResult>
-        }
     }
 }

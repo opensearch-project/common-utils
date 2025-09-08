@@ -32,10 +32,10 @@ import java.time.Instant
 private val logger = LogManager.getLogger(PPLMonitor::class.java)
 
 // TODO: probably change this to be called PPLSQLMonitor. A PPL Monitor and SQL Monitor
-// TODO: would have the exact same functionality, except the choice of language
-// TODO: when calling PPL/SQL plugin's execute API would be different.
-// TODO: we dont need 2 different monitor types for that, just a simple if check
-// TODO: for query language at monitor execution time
+// would have the exact same functionality, except the choice of language
+// when calling PPL/SQL plugin's execute API would be different.
+// we dont need 2 different monitor types for that, just a simple if check
+// for query language at monitor execution time
 data class PPLMonitor(
     override val id: String = NO_ID,
     override val version: Long = NO_VERSION,
