@@ -6,17 +6,24 @@
 buildscript {
     ext {
         opensearch_group = "org.opensearch"
-        opensearch_version = System.getProperty("opensearch.version", "3.3.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "3.1.0-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
         kotlin_version = System.getProperty("kotlin.version", "1.9.25")
+        version_tokens = opensearch_version.tokenize('-')
+        opensearch_build = version_tokens[0] + '.0'
+        if (buildVersionQualifier) {
+            opensearch_build += "-${buildVersionQualifier}"
+        }
+        if (isSnapshot) {
+            opensearch_build += "-SNAPSHOT"
+        }
     }
 
     repositories {
         mavenLocal()
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
-        maven { url "https://central.sonatype.com/repository/maven-snapshots/" }
         maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
     }
 
@@ -32,13 +39,13 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'com.diffplug.spotless' version '6.25.0'
+    id "io.freefair.lombok" version "8.14"
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
     maven { url "https://plugins.gradle.org/m2/" }
-    maven { url "https://central.sonatype.com/repository/maven-snapshots/" }
     maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
 }
 
@@ -69,11 +76,7 @@ apply from: 'build-tools/opensearchplugin-coverage.gradle'
 apply plugin: 'opensearch.java-agent'
 
 configurations {
-    all {
-        resolutionStrategy {
-            force "commons-beanutils:commons-beanutils:1.11.0"
-        }
-    }
+    zipArchive
     ktlint {
       resolutionStrategy {
           force "ch.qos.logback:logback-classic:1.5.16"
@@ -82,25 +85,64 @@ configurations {
    }
 }
 
+def sqlJarDirectory = "$buildDir/dependencies/opensearch-sql-plugin"
+
+task addJarsToClasspath(type: Copy) {
+    from(fileTree(dir: sqlJarDirectory)) {
+        include "opensearch-sql-${opensearch_build}.jar"
+        include "ppl-${opensearch_build}.jar"
+        include "protocol-${opensearch_build}.jar"
+        include "core-${opensearch_build}.jar"
+    }
+    into("$buildDir/classes")
+}
+
 dependencies {
     compileOnly "org.opensearch.client:opensearch-rest-high-level-client:${opensearch_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:${kotlin_version}"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3" // ${kotlin_version} does not work for coroutines
-    compileOnly "com.cronutils:cron-utils:9.2.1"
+    compileOnly "com.cronutils:cron-utils:9.1.6"
     compileOnly "commons-validator:commons-validator:1.7"
     testImplementation "org.opensearch.test:framework:${opensearch_version}"
     testImplementation "org.jetbrains.kotlin:kotlin-test:${kotlin_version}"
     testImplementation "org.mockito:mockito-core:3.10.0"
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.10.0'
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
-    testImplementation "com.cronutils:cron-utils:9.2.1"
+    testImplementation "com.cronutils:cron-utils:9.1.6"
     testImplementation "commons-validator:commons-validator:1.7"
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
+    implementation 'org.json:json:20240303'
+
+    implementation fileTree(dir: sqlJarDirectory, include: ["opensearch-sql-thin-${opensearch_build}.jar", "ppl-${opensearch_build}.jar", "protocol-${opensearch_build}.jar", "core-${opensearch_build}.jar"])
+
+    zipArchive group: 'org.opensearch.plugin', name:'opensearch-sql-plugin', version: "${opensearch_build}"
 
     ktlint "com.pinterest:ktlint:0.47.1"
 }
+
+task extractSqlJar(type: Copy) {
+    mustRunAfter()
+    from(zipTree(configurations.zipArchive.find { it.name.startsWith("opensearch-sql-plugin") }))
+    into sqlJarDirectory
+}
+
+task extractSqlClass(type: Copy, dependsOn: [extractSqlJar]) {
+    from zipTree("${sqlJarDirectory}/opensearch-sql-${opensearch_build}.jar")
+    into("$buildDir/opensearch-sql")
+    include 'org/opensearch/sql/**'
+}
+
+task replaceSqlJar(type: Jar, dependsOn: [extractSqlClass]) {
+    from("$buildDir/opensearch-sql")
+    archiveFileName = "opensearch-sql-thin-${opensearch_build}.jar"
+    destinationDirectory = file(sqlJarDirectory)
+    doLast {
+        file("${sqlJarDirectory}/opensearch-sql-${opensearch_build}.jar").delete()
+    }
+}
+
+tasks.addJarsToClasspath.dependsOn(replaceSqlJar)
 
 test {
     useJUnitPlatform()
@@ -148,7 +190,12 @@ tasks.register('ktlintFormat', JavaExec) {
     args "-F", "src/**/*.kt"
 }
 
+compileJava {
+    dependsOn addJarsToClasspath
+}
+
 compileKotlin {
+    dependsOn addJarsToClasspath
     kotlinOptions {
         freeCompilerArgs = ['-Xjsr305=strict']
         jvmTarget = "21"
@@ -182,10 +229,10 @@ publishing {
         }
         maven {
             name = "Snapshots"
-            url = "https://central.sonatype.com/repository/maven-snapshots/"
+            url = "https://aws.oss.sonatype.org/content/repositories/snapshots"
             credentials {
-                username System.getenv("SONATYPE_USERNAME")
-                password System.getenv("SONATYPE_PASSWORD")
+                username "$System.env.SONATYPE_USERNAME"
+                password "$System.env.SONATYPE_PASSWORD"
             }
         }
     }
