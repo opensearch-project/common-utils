@@ -278,11 +278,9 @@ data class PPLMonitor(
                     val minValue = TimeValue.timeValueMinutes(1)
                     val maxValue = TimeValue.timeValueDays(5)
 
-                    require(suppressDuration <= maxValue)
-                    { "Suppress duration must be at most $maxValue but was $suppressDuration" }
+                    require(suppressDuration <= maxValue) { "Suppress duration must be at most $maxValue but was $suppressDuration" }
 
-                    require(suppressDuration >= minValue)
-                    { "Suppress duration must be at least $minValue but was $suppressDuration" }
+                    require(suppressDuration >= minValue) { "Suppress duration must be at least $minValue but was $suppressDuration" }
                 }
             }
 

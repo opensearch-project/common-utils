@@ -21,7 +21,7 @@ class ExecuteMonitorV2Request : ActionRequest {
         monitorId: String?,
         monitorV2: MonitorV2?,
         requestStart: TimeValue? = null,
-        requestEnd: TimeValue,
+        requestEnd: TimeValue
     ) : super() {
         this.dryrun = dryrun
         this.monitorId = monitorId
@@ -36,9 +36,11 @@ class ExecuteMonitorV2Request : ActionRequest {
         sin.readOptionalString(), // monitorId
         if (sin.readBoolean()) {
             MonitorV2.readFrom(sin) // monitor
-        } else null,
+        } else {
+            null
+        },
         sin.readOptionalTimeValue(),
-        sin.readTimeValue(), // requestEnd
+        sin.readTimeValue() // requestEnd
     )
 
     override fun validate(): ActionRequestValidationException? {

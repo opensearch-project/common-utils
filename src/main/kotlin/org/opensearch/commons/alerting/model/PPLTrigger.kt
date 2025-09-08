@@ -25,7 +25,6 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.time.Instant
-import org.opensearch.commons.alerting.model.TriggerV2.TriggerV2Type
 
 private val logger = LogManager.getLogger(PPLTrigger::class.java)
 
