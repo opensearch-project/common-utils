@@ -4,8 +4,6 @@ import org.opensearch.common.unit.TimeValue
 import org.opensearch.commons.alerting.model.PPLTrigger.Companion.PPL_TRIGGER_FIELD
 import org.opensearch.commons.alerting.model.action.Action
 import org.opensearch.commons.notifications.model.BaseModel
-import org.opensearch.core.common.io.stream.StreamInput
-import java.io.IOException
 import java.time.Instant
 
 interface TriggerV2 : BaseModel {
@@ -28,6 +26,7 @@ interface TriggerV2 : BaseModel {
 
     enum class Severity(val value: String) {
         INFO("info"),
+        ERROR("error"),
         LOW("low"),
         MEDIUM("medium"),
         HIGH("high"),
@@ -48,14 +47,5 @@ interface TriggerV2 : BaseModel {
         const val LAST_TRIGGERED_FIELD = "last_triggered_time"
         const val EXPIRE_FIELD = "expires"
         const val ACTIONS_FIELD = "actions"
-
-        @JvmStatic
-        @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): TriggerV2 {
-            return when (val type = sin.readEnum(TriggerV2Type::class.java)) {
-                TriggerV2Type.PPL_TRIGGER -> PPLTrigger(sin)
-                else -> throw IllegalStateException("Unexpected input \"$type\" when reading TriggerV2")
-            }
-        }
     }
 }

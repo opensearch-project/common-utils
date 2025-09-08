@@ -32,21 +32,21 @@ import java.time.Instant
 private val logger = LogManager.getLogger(PPLMonitor::class.java)
 
 // TODO: probably change this to be called PPLSQLMonitor. A PPL Monitor and SQL Monitor
-// TODO: would have the exact same functionality, except the choice of language
-// TODO: when calling PPL/SQL plugin's execute API would be different.
-// TODO: we dont need 2 different monitor types for that, just a simple if check
-// TODO: for query language at monitor execution time
+// would have the exact same functionality, except the choice of language
+// when calling PPL/SQL plugin's execute API would be different.
+// we dont need 2 different monitor types for that, just a simple if check
+// for query language at monitor execution time
 data class PPLMonitor(
     override val id: String = NO_ID,
     override val version: Long = NO_VERSION,
     override val name: String,
     override val enabled: Boolean,
     override val schedule: Schedule,
+    override val lookBackWindow: TimeValue? = null,
     override val lastUpdateTime: Instant,
     override val enabledTime: Instant?,
-    override val triggers: List<TriggerV2>,
+    override val triggers: List<PPLTrigger>,
     override val schemaVersion: Int = NO_SCHEMA_VERSION,
-    override val lookBackWindow: TimeValue? = null,
     val queryLanguage: QueryLanguage = QueryLanguage.PPL, // default to PPL, SQL not currently supported
     val query: String
 ) : MonitorV2 {
@@ -88,11 +88,11 @@ data class PPLMonitor(
         name = sin.readString(),
         enabled = sin.readBoolean(),
         schedule = Schedule.readFrom(sin),
+        lookBackWindow = TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME),
         lastUpdateTime = sin.readInstant(),
         enabledTime = sin.readOptionalInstant(),
-        triggers = sin.readList(TriggerV2::readFrom),
+        triggers = sin.readList(PPLTrigger::readFrom),
         schemaVersion = sin.readInt(),
-        lookBackWindow = TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME),
         queryLanguage = sin.readEnum(QueryLanguage::class.java),
         query = sin.readString()
     )
@@ -113,12 +113,12 @@ data class PPLMonitor(
 
         builder.field(NAME_FIELD, name)
         builder.field(SCHEDULE_FIELD, schedule)
+        builder.field(LOOK_BACK_WINDOW_FIELD, lookBackWindow?.toHumanReadableString(0))
         builder.field(ENABLED_FIELD, enabled)
         builder.nonOptionalTimeField(LAST_UPDATE_TIME_FIELD, lastUpdateTime)
         builder.optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
         builder.field(TRIGGERS_FIELD, triggers.toTypedArray())
         builder.field(SCHEMA_VERSION_FIELD, schemaVersion)
-        builder.field(LOOK_BACK_WINDOW_FIELD, lookBackWindow?.toHumanReadableString(0))
         builder.field(QUERY_LANGUAGE_FIELD, queryLanguage.value)
         builder.field(QUERY_FIELD, query)
 
@@ -145,18 +145,15 @@ data class PPLMonitor(
         } else {
             out.writeEnum(Schedule.TYPE.INTERVAL)
         }
-        out.writeInstant(lastUpdateTime)
-        out.writeOptionalInstant(enabledTime)
-        out.writeVInt(triggers.size)
-        triggers.forEach {
-            out.writeEnum(TriggerV2.TriggerV2Type.PPL_TRIGGER)
-            it.writeTo(out)
-        }
-        out.writeInt(schemaVersion)
 
         out.writeBoolean(lookBackWindow != null)
         lookBackWindow?.let { out.writeString(lookBackWindow.toHumanReadableString(0)) }
 
+        out.writeInstant(lastUpdateTime)
+        out.writeOptionalInstant(enabledTime)
+        out.writeVInt(triggers.size)
+        triggers.forEach { it.writeTo(out) }
+        out.writeInt(schemaVersion)
         out.writeEnum(queryLanguage)
         out.writeString(query)
     }
@@ -168,10 +165,10 @@ data class PPLMonitor(
             NAME_FIELD to name,
             ENABLED_FIELD to enabled,
             SCHEDULE_FIELD to schedule,
+            LOOK_BACK_WINDOW_FIELD to lookBackWindow?.toHumanReadableString(0),
             LAST_UPDATE_TIME_FIELD to lastUpdateTime.toEpochMilli(),
             ENABLED_TIME_FIELD to enabledTime?.toEpochMilli(),
             TRIGGERS_FIELD to triggers,
-            LOOK_BACK_WINDOW_FIELD to lookBackWindow?.toHumanReadableString(0),
             QUERY_LANGUAGE_FIELD to queryLanguage.value,
             QUERY_FIELD to query
         )
@@ -211,11 +208,11 @@ data class PPLMonitor(
             var monitorType: String = PPL_MONITOR_TYPE
             var enabled = true
             var schedule: Schedule? = null
+            var lookBackWindow: TimeValue? = null
             var lastUpdateTime: Instant? = null
             var enabledTime: Instant? = null
-            val triggers: MutableList<TriggerV2> = mutableListOf()
+            val triggers: MutableList<PPLTrigger> = mutableListOf()
             var schemaVersion = NO_SCHEMA_VERSION
-            var lookBackWindow: TimeValue? = null
             var queryLanguage: QueryLanguage = QueryLanguage.PPL // default to PPL
             var query: String? = null
 
@@ -230,6 +227,14 @@ data class PPLMonitor(
                     MONITOR_TYPE_FIELD -> monitorType = xcp.text()
                     ENABLED_FIELD -> enabled = xcp.booleanValue()
                     SCHEDULE_FIELD -> schedule = Schedule.parse(xcp)
+                    LOOK_BACK_WINDOW_FIELD -> {
+                        lookBackWindow = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                            null
+                        } else {
+                            val input = xcp.text()
+                            TimeValue.parseTimeValue(input, PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME) // throws IllegalArgumentException if there's parsing error
+                        }
+                    }
                     LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
                     ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
                     TRIGGERS_FIELD -> {
@@ -243,14 +248,6 @@ data class PPLMonitor(
                         }
                     }
                     SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
-                    LOOK_BACK_WINDOW_FIELD -> {
-                        lookBackWindow = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                            null
-                        } else {
-                            val input = xcp.text()
-                            TimeValue.parseTimeValue(input, PLACEHOLDER_LOOK_BACK_WINDOW_SETTING_NAME) // throws IllegalArgumentException if there's parsing error
-                        }
-                    }
                     QUERY_LANGUAGE_FIELD -> {
                         val input = xcp.text()
                         val enumMatchResult = QueryLanguage.enumFromString(input)
@@ -264,9 +261,6 @@ data class PPLMonitor(
 
             /* validations */
 
-            // TODO: add validations for throttle actions time range
-            // (see alerting's TransportIndexMonitorAction.validateActionThrottle)
-
             // ensure MonitorV2 XContent being parsed by PPLMonitor class is PPL Monitor type
             if (monitorType != PPL_MONITOR_TYPE) {
                 throw IllegalArgumentException("Invalid monitor type: $monitorType")
@@ -275,6 +269,19 @@ data class PPLMonitor(
             // ensure there's at least 1 trigger
             if (triggers.isEmpty()) {
                 throw IllegalArgumentException("Monitor must include at least 1 trigger")
+            }
+
+            // ensure the trigger suppress durations are valid
+            triggers.forEach { trigger ->
+                trigger.suppressDuration?.let { suppressDuration ->
+                    // TODO: these max and min values are completely arbitrary, make them settings
+                    val minValue = TimeValue.timeValueMinutes(1)
+                    val maxValue = TimeValue.timeValueDays(5)
+
+                    require(suppressDuration <= maxValue) { "Suppress duration must be at most $maxValue but was $suppressDuration" }
+
+                    require(suppressDuration >= minValue) { "Suppress duration must be at least $minValue but was $suppressDuration" }
+                }
             }
 
             // if enabled, set time of MonitorV2 creation/update is set as enable time
@@ -308,11 +315,11 @@ data class PPLMonitor(
                 name,
                 enabled,
                 schedule,
+                lookBackWindow,
                 lastUpdateTime,
                 enabledTime,
                 triggers,
                 schemaVersion,
-                lookBackWindow,
                 queryLanguage,
                 query
             )
