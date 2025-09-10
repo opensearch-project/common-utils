@@ -8,7 +8,6 @@ import org.opensearch.action.ActionType
 import org.opensearch.action.search.SearchResponse
 
 object AlertingActions {
-    // Alerting V1
     const val INDEX_MONITOR_ACTION_NAME = "cluster:admin/opendistro/alerting/monitor/write"
     const val INDEX_WORKFLOW_ACTION_NAME = "cluster:admin/opensearch/alerting/workflow/write"
     const val GET_ALERTS_ACTION_NAME = "cluster:admin/opendistro/alerting/alerts/get"
@@ -25,13 +24,6 @@ object AlertingActions {
     const val INDEX_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/write"
     const val SEARCH_COMMENTS_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/search"
     const val DELETE_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/delete"
-
-    // Alerting V2
-    const val INDEX_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/write"
-    const val GET_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/get"
-    const val SEARCH_MONITORS_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/search"
-    const val DELETE_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/delete"
-    const val EXECUTE_MONITOR_V2_ACTION_NAME = "cluster:admin/opensearch/alerting/v2/monitor/execute"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -96,24 +88,4 @@ object AlertingActions {
     @JvmField
     val DELETE_COMMENT_ACTION_TYPE =
         ActionType(DELETE_COMMENT_ACTION_NAME, ::DeleteCommentResponse)
-
-    @JvmField
-    val INDEX_MONITOR_V2_ACTION_TYPE =
-        ActionType(INDEX_MONITOR_V2_ACTION_NAME, ::IndexMonitorV2Response)
-
-    @JvmField
-    val GET_MONITOR_V2_ACTION_TYPE =
-        ActionType(GET_MONITOR_V2_ACTION_NAME, ::GetMonitorV2Response)
-
-    @JvmField
-    val SEARCH_MONITORS_V2_ACTION_TYPE =
-        ActionType(SEARCH_MONITORS_V2_ACTION_NAME, ::SearchResponse)
-
-    @JvmField
-    val DELETE_MONITOR_V2_ACTION_TYPE =
-        ActionType(DELETE_MONITOR_V2_ACTION_NAME, ::DeleteMonitorV2Response)
-
-    @JvmField
-    val EXECUTE_MONITOR_V2_ACTION_TYPE =
-        ActionType(EXECUTE_MONITOR_V2_ACTION_NAME, ::ExecuteMonitorV2Response)
 }
