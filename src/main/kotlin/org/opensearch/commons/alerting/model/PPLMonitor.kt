@@ -36,6 +36,23 @@ private val logger = LogManager.getLogger(PPLMonitor::class.java)
 // when calling PPL/SQL plugin's execute API would be different.
 // we dont need 2 different monitor types for that, just a simple if check
 // for query language at monitor execution time
+/**
+ * PPL (Piped Processing Language) Monitor for OpenSearch Alerting V2
+ *
+ * @property id Monitor ID. Defaults to [NO_ID].
+ * @property version Version number of the monitor. Defaults to [NO_VERSION].
+ * @property name Display name of the monitor.
+ * @property enabled Boolean flag indicating whether the monitor is currently on or off.
+ * @property schedule Defines when and how often the monitor should run. Can be a CRON or interval schedule.
+ * @property lookBackWindow How far back each Monitor execution's query should look back when searching data.
+ *                    Only applicable if Monitor uses CRON schedule. Optional even if CRON schedule is used.
+ * @property lastUpdateTime Timestamp of the last update to this monitor.
+ * @property enabledTime Timestamp when the monitor was last enabled. Null if never enabled.
+ * @property triggers List of [PPLTrigger]s associated with this monitor.
+ * @property schemaVersion Version of the alerting-config index schema used when this Monitor was indexed. Defaults to [NO_SCHEMA_VERSION].
+ * @property queryLanguage The query language used. Defaults to [QueryLanguage.PPL].
+ * @property query The PPL query string to be executed by this monitor.
+ */
 data class PPLMonitor(
     override val id: String = NO_ID,
     override val version: Long = NO_VERSION,

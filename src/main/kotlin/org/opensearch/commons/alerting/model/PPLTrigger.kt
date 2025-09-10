@@ -28,12 +28,45 @@ import java.time.Instant
 
 private val logger = LogManager.getLogger(PPLTrigger::class.java)
 
+/**
+ * The PPL Trigger for PPL Monitors
+ *
+ * There are two types of PPLTrigger conditions: NUMBER_OF_RESULT and CUSTOM
+ * NUMBER_OF_RESULTS: triggers based on if the number of query results returned by the PPLMonitor
+ * query meets some threshold
+ * CUSTOM: triggers based on a custom condition that user specifies
+ * This trigger can operate in either result set or per-result mode and supports
+ * both numeric result conditions and custom conditions.
+ *
+ * PPLTriggers can run on two modes: RESULT_SET and PER_RESULT
+ * RESULT_SET: exactly one Alert is generated when the Trigger condition is met
+ * PER_RESULT: one Alert is generated per trigger condition-meeting query result row
+ *
+ * @property id Trigger ID, defaults to a base64 UUID.
+ * @property name Display name of the Trigger.
+ * @property severity The severity level of the Trigger.
+ * @property suppressDuration Optional duration for which alerts from this Trigger should be suppressed.
+ *                           Null indicates no suppression.
+ * @property expireDuration Duration after which alerts from this Trigger should be deleted permanently.
+ * @property lastTriggeredTime The last time this Trigger generated an Alert. Null if Trigger hasn't generated an Alert yet.
+ * @property actions List of notification-sending actions to run when the Trigger condition is met.
+ * @property mode Specifies whether the trigger evaluates the entire result set or each result individually.
+ *               Can be either [TriggerMode.RESULT_SET] or [TriggerMode.PER_RESULT].
+ * @property conditionType The type of condition to evaluate.
+ *               Can be either [ConditionType.NUMBER_OF_RESULTS] or [ConditionType.CUSTOM].
+ * @property numResultsCondition The comparison operator for NUMBER_OF_RESULTS conditions. Required if using NUMBER_OF_RESULTS conditions,
+ *                              null otherwise.
+ * @property numResultsValue The threshold value for NUMBER_OF_RESULTS conditions. Required if using NUMBER_OF_RESULTS conditions,
+ *                          null otherwise.
+ * @property customCondition A custom condition expression. Required if using CUSTOM conditions,
+ *                          null otherwise.
+ */
 data class PPLTrigger(
     override val id: String = UUIDs.base64UUID(),
     override val name: String,
     override val severity: Severity,
     override val suppressDuration: TimeValue?,
-    override val expireDuration: TimeValue?,
+    override val expireDuration: TimeValue,
     override var lastTriggeredTime: Instant?,
     override val actions: List<Action>,
     val mode: TriggerMode, // result_set or per_result
@@ -50,7 +83,7 @@ data class PPLTrigger(
         sin.readEnum(Severity::class.java), // severity
         // parseTimeValue() is typically used to parse OpenSearch settings
         // the second param is supposed to accept a setting name, but here we're passing in our own name
-        TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_SUPPRESS_SETTING_NAME), // suppressDuration
+        TimeValue.parseTimeValue(sin.readOptionalString(), PLACEHOLDER_SUPPRESS_SETTING_NAME), // suppressDuration
         TimeValue.parseTimeValue(sin.readString(), PLACEHOLDER_EXPIRE_SETTING_NAME), // expireDuration
         sin.readOptionalInstant(), // lastTriggeredTime
         sin.readList(::Action), // actions
@@ -70,9 +103,7 @@ data class PPLTrigger(
         out.writeBoolean(suppressDuration != null)
         suppressDuration?.let { out.writeString(suppressDuration.toHumanReadableString(0)) }
 
-        out.writeBoolean(expireDuration != null)
-        expireDuration?.let { out.writeString(expireDuration.toHumanReadableString(0)) }
-
+        out.writeString(expireDuration.toHumanReadableString(0))
         out.writeOptionalInstant(lastTriggeredTime)
         out.writeCollection(actions)
         out.writeEnum(mode)
@@ -91,7 +122,7 @@ data class PPLTrigger(
         builder.field(NAME_FIELD, name)
         builder.field(SEVERITY_FIELD, severity.value)
         builder.field(SUPPRESS_FIELD, suppressDuration?.toHumanReadableString(0))
-        builder.field(EXPIRE_FIELD, expireDuration?.toHumanReadableString(0))
+        builder.field(EXPIRE_FIELD, expireDuration.toHumanReadableString(0))
         builder.optionalTimeField(LAST_TRIGGERED_FIELD, lastTriggeredTime)
         builder.field(ACTIONS_FIELD, actions.toTypedArray())
         builder.field(MODE_FIELD, mode.value)
@@ -180,7 +211,7 @@ data class PPLTrigger(
             var name: String? = null
             var severity: Severity? = null
             var suppressDuration: TimeValue? = null
-            var expireDuration: TimeValue? = null
+            var expireDuration: TimeValue = TimeValue.timeValueDays(7) // default to 7 days // TODO: add this as a setting
             var lastTriggeredTime: Instant? = null
             val actions: MutableList<Action> = mutableListOf()
             var mode: TriggerMode? = null
@@ -250,11 +281,9 @@ data class PPLTrigger(
                         }
                     }
                     EXPIRE_FIELD -> {
-                        expireDuration = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                            null
-                        } else {
+                        if (xcp.currentToken() != XContentParser.Token.VALUE_NULL) { // if expire field is null, skip reading it and let it retain the default value
                             val input = xcp.text()
-                            TimeValue.parseTimeValue(input, PLACEHOLDER_EXPIRE_SETTING_NAME) // throws IllegalArgumentException if there's parsing error
+                            expireDuration = TimeValue.parseTimeValue(input, PLACEHOLDER_EXPIRE_SETTING_NAME) // throws IllegalArgumentException if there's parsing error
                         }
                     }
                     LAST_TRIGGERED_FIELD -> lastTriggeredTime = xcp.instant()
