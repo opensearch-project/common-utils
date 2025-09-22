@@ -284,6 +284,7 @@ final public class User implements Writeable, ToXContent {
 
         if (customAttributes.size() > 0) {
             builder.field(CUSTOM_ATTRIBUTES_FIELD, customAttributes);
+            builder.field(CUSTOM_ATTRIBUTE_NAMES_FIELD, this.getCustomAttributeNamesFromMap(customAttributes));
         } else {
             builder.field(CUSTOM_ATTRIBUTE_NAMES_FIELD, new ArrayList<>());
         }
@@ -379,7 +380,10 @@ final public class User implements Writeable, ToXContent {
     }
 
     private List<String> getCustomAttributeNamesFromMap(Map<String, String> customAttributes) {
-        List<String> customAttNames = new ArrayList<>(this.customAttributes.keySet());
+        List<String> customAttNames = new ArrayList<>();
+        for (Map.Entry<String, String> entry : this.customAttributes.entrySet()) {
+            customAttNames.add(entry.getKey() + "=" + entry.getValue());
+        }
         return customAttNames;
     }
 }
