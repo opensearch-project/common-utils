@@ -78,7 +78,7 @@ final public class User implements Writeable, ToXContent {
         this.requestedTenantAccess = null;
     }
 
-    public User(final String name, final List<String> backendRoles, List<String> roles, List<String> customAttNames) throws IOException {
+    public User(final String name, final List<String> backendRoles, List<String> roles, List<String> customAttNames) throws IllegalArgumentException {
         this.name = name;
         this.backendRoles = backendRoles;
         this.roles = roles;
@@ -178,7 +178,7 @@ final public class User implements Writeable, ToXContent {
      * @param XContentParser parser
      * @throws IOException
      */
-    public static User parse(XContentParser parser) throws IOException {
+    public static User parse(XContentParser parser) throws IOException, IllegalArgumentException {
         String name = "";
         List<String> backendRoles = new ArrayList<>();
         List<String> roles = new ArrayList<>();
@@ -366,7 +366,7 @@ final public class User implements Writeable, ToXContent {
         return adminDns.contains(this.name);
     }
 
-    private Map<String, String> convertCustomAttributeNamesToMap(List<String> customAttNames) throws IOException {
+    private Map<String, String> convertCustomAttributeNamesToMap(List<String> customAttNames) throws IllegalArgumentException {
         Map<String, String> customAttributes = new TreeMap<>();
         for (String entry : customAttNames) {
             Map<String, String> attributeInfo = User.parseAttributeInfoFromCustomAttributeName(entry);
@@ -375,11 +375,11 @@ final public class User implements Writeable, ToXContent {
         return customAttributes;
     }
 
-    private static Map<String, String> parseAttributeInfoFromCustomAttributeName(String customAttributeName) throws IOException {
+    private static Map<String, String> parseAttributeInfoFromCustomAttributeName(String customAttributeName) throws IllegalArgumentException {
         // Find first index in string of "="
         int idx = customAttributeName.indexOf("=");
         if (idx == -1) {
-            throw new IOException("No '=' present: " + customAttributeName);
+            throw new IllegalArgumentException("No '=' present: " + customAttributeName);
         }
         String attrKey = customAttributeName.substring(0, idx);
         String attrValue = customAttributeName.substring(idx + 1);

@@ -182,7 +182,7 @@ public class UserTest {
         String json =
             "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[\"attr1\"],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
 
-        assertThrows(IOException.class, () -> new User(json));
+        assertThrows(IllegalArgumentException.class, () -> new User(json));
     }
 
     @Test
@@ -513,7 +513,7 @@ public class UserTest {
             .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.IGNORE_DEPRECATIONS, builder.toString());
 
         parser.nextToken();
-        assertThrows(IOException.class, () -> User.parse(parser));
+        assertThrows(IllegalArgumentException.class, () -> User.parse(parser));
     }
 
     @Test
@@ -559,7 +559,7 @@ public class UserTest {
     }
 
     @Test
-    public void testUserCustomAttributeNamesBackwardsCompatibility() throws IOException {
+    public void testUserCustomAttributeNamesBackwardsCompatibility() throws IllegalArgumentException {
         User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1=val1"));
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
