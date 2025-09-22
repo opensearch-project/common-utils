@@ -211,16 +211,6 @@ final public class User implements Writeable, ToXContent {
                     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
                         Map<String, String> attributeInfo = User.parseAttributeInfoFromCustomAttributeName(parser.text());
                         customAttributes.put(attributeInfo.get("key"), attributeInfo.get("value"));
-                        // Assume custom attribute name values are key=value
-                        int idx = parser.text().indexOf("=");
-                        // Find first index in string of "="
-                        if (idx != -1) {
-                            String attrKey = parser.text().substring(0, idx);
-                            String attrValue = parser.text().substring(idx + 1);
-                            customAttributes.put(attrKey, attrValue);
-                        } else {
-                            throw new IOException("No '=' present: " + parser.text());
-                        }
                     }
                     break;
                 case REQUESTED_TENANT_FIELD:
