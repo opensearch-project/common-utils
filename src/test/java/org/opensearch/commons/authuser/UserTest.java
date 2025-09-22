@@ -543,7 +543,10 @@ public class UserTest {
                 "user_requested_tenant_access": null,
                 "custom_attributes": {
                     "attr1": "value1"
-                }
+                },
+                "custom_attribute_names": [
+                    "attr1=value1"
+                ]
             }
             """;
         assertEquals(expectedUserJson.replace("\n", "").replace("\s", ""), xcontent.toString().replace("\n", ""));
