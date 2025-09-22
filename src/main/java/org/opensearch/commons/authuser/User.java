@@ -211,7 +211,9 @@ final public class User implements Writeable, ToXContent {
                 case CUSTOM_ATTRIBUTE_NAMES_FIELD:
                     ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
                     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
-                        customAttributes.put(parser.text(), null);
+                        // Assume custom attribute name values are key=value with no extra "="
+                        String[] attrInfo = parser.text().split("=");
+                        customAttributes.put(attrInfo[0], attrInfo[1]);
                     }
                     break;
                 case REQUESTED_TENANT_FIELD:
