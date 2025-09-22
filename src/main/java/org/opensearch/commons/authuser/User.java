@@ -169,6 +169,19 @@ final public class User implements Writeable, ToXContent {
         }
     }
 
+    /**
+     * Parse the user as XContent into a User
+     *
+     * For CUSTOM_ATTRIBUTE_NAMES_FIELD, the expected format is:
+     *
+     *      ["attr=val"]
+     *
+     * where attr is the attribute name and val is the attribute value. If the format
+     * of the entries does not match "attr=val", an exception will be thrown.
+     *
+     * @param XContentParser parser
+     * @throws IOException
+     */
     public static User parse(XContentParser parser) throws IOException {
         String name = "";
         List<String> backendRoles = new ArrayList<>();
