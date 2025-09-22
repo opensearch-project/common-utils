@@ -199,15 +199,6 @@ final public class User implements Writeable, ToXContent {
                         roles.add(parser.text());
                     }
                     break;
-                case CUSTOM_ATTRIBUTES_FIELD:
-                    ensureExpectedToken(XContentParser.Token.START_OBJECT, parser.currentToken(), parser);
-                    while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
-                        String attrName = parser.currentName();
-                        parser.nextToken();
-                        String attrValue = parser.text();
-                        customAttributes.put(attrName, attrValue);
-                    }
-                    break;
                 case CUSTOM_ATTRIBUTE_NAMES_FIELD:
                     ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
                     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
