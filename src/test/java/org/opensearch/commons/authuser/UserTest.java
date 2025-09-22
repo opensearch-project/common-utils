@@ -165,7 +165,7 @@ public class UserTest {
     @Test
     public void testNonEmptyCustomAttributeNamesJsonConst() throws IOException {
         String json =
-            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[\"attr1\"],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
+            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[\"attr1=val1\"],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
 
         User user = new User(json);
         assertEquals("chip", user.getName());
@@ -173,8 +173,16 @@ public class UserTest {
         assertEquals(3, user.getRoles().size());
         assertEquals(1, user.getCustomAttributes().size());
         assertTrue(user.getCustomAttributes().containsKey("attr1"));
-        assertTrue(user.getCustomAttributes().containsValue("null"));
+        assertTrue(user.getCustomAttributes().containsValue("val1"));
         assertEquals("__user__", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testNonEmptyCustomAttributeNamesJsonConstThrows() throws IOException {
+        String json =
+            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[\"attr1\"],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
+
+        assertThrows(IOException.class, () -> new User(json));
     }
 
     @Test
@@ -199,7 +207,7 @@ public class UserTest {
         User newUser = new User(in);
         assertEquals(2, newUser.getCustomAttributes().size());
         assertTrue(newUser.getCustomAttributes().containsKey("attr1"));
-        assertTrue(newUser.getCustomAttributes().containsValue("null"));
+        assertTrue(newUser.getCustomAttributes().containsValue("attrValue1"));
     }
 
     @Test
@@ -551,14 +559,14 @@ public class UserTest {
     }
 
     @Test
-    public void testUserCustomAttributeNamesBackwardsCompatibility() {
-        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1"));
+    public void testUserCustomAttributeNamesBackwardsCompatibility() throws IOException {
+        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1=val1"));
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
         assertEquals(1, user.getCustomAttributes().size());
         assertTrue(user.getCustomAttributes().containsKey("attr1"));
-        assertTrue(user.getCustomAttributes().containsValue("null"));
+        assertTrue(user.getCustomAttributes().containsValue("val1"));
         assertNull(user.getRequestedTenant());
     }
 

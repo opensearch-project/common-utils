@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.TreeMap;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -78,7 +78,7 @@ final public class User implements Writeable, ToXContent {
         this.requestedTenantAccess = null;
     }
 
-    public User(final String name, final List<String> backendRoles, List<String> roles, List<String> customAttNames) {
+    public User(final String name, final List<String> backendRoles, List<String> roles, List<String> customAttNames) throws IOException {
         this.name = name;
         this.backendRoles = backendRoles;
         this.roles = roles;
@@ -128,7 +128,7 @@ final public class User implements Writeable, ToXContent {
     }
 
     @SuppressWarnings("unchecked")
-    public User(String json) {
+    public User(String json) throws IOException {
         if (Strings.isNullOrEmpty(json)) {
             throw new IllegalArgumentException("Response json cannot be null");
         }
@@ -155,12 +155,8 @@ final public class User implements Writeable, ToXContent {
         name = in.readString();
         backendRoles = in.readStringList();
         roles = in.readStringList();
-        if (in.getVersion().onOrAfter(Version.V_3_2_0)) {
-            customAttributes = in.readMap(StreamInput::readString, StreamInput::readString);
-        } else {
-            List<String> customAttNames = in.readStringList();
-            customAttributes = this.convertCustomAttributeNamesToMap(customAttNames);
-        }
+        List<String> customAttNames = in.readStringList();
+        customAttributes = this.convertCustomAttributeNamesToMap(customAttNames);
         requestedTenant = in.readOptionalString();
         if (in.getVersion().onOrAfter(Version.V_3_2_0)) {
             requestedTenantAccess = in.readOptionalString();
@@ -213,6 +209,8 @@ final public class User implements Writeable, ToXContent {
                 case CUSTOM_ATTRIBUTE_NAMES_FIELD:
                     ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
                     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
+                        Map<String, String> attributeInfo = User.parseAttributeInfoFromCustomAttributeName(parser.text());
+                        customAttributes.put(attributeInfo.get("key"), attributeInfo.get("value"));
                         // Assume custom attribute name values are key=value
                         int idx = parser.text().indexOf("=");
                         // Find first index in string of "="
@@ -307,12 +305,7 @@ final public class User implements Writeable, ToXContent {
         out.writeString(name);
         out.writeStringCollection(backendRoles);
         out.writeStringCollection(roles);
-        if (out.getVersion().onOrAfter(Version.V_3_2_0)) {
-            out.writeMap(customAttributes, StreamOutput::writeString, StreamOutput::writeString);
-        } else {
-            List<String> customAttributeNames = new ArrayList<>(customAttributes.keySet());
-            out.writeStringCollection(customAttributeNames);
-        }
+        out.writeStringCollection(this.getCustomAttributeNamesFromMap(customAttributes));
         out.writeOptionalString(requestedTenant);
         if (out.getVersion().onOrAfter(Version.V_3_2_0)) {
             out.writeOptionalString(requestedTenantAccess);
@@ -383,8 +376,24 @@ final public class User implements Writeable, ToXContent {
         return adminDns.contains(this.name);
     }
 
-    private Map<String, String> convertCustomAttributeNamesToMap(List<String> customAttNames) {
-        return customAttNames.stream().collect(Collectors.toMap(key -> key, key -> "null"));
+    private Map<String, String> convertCustomAttributeNamesToMap(List<String> customAttNames) throws IOException {
+        Map<String, String> customAttributes = new TreeMap<>();
+        for (String entry : customAttNames) {
+            Map<String, String> attributeInfo = User.parseAttributeInfoFromCustomAttributeName(entry);
+            customAttributes.put(attributeInfo.get("key"), attributeInfo.get("value"));
+        }
+        return customAttributes;
+    }
+
+    private static Map<String, String> parseAttributeInfoFromCustomAttributeName(String customAttributeName) throws IOException {
+        // Find first index in string of "="
+        int idx = customAttributeName.indexOf("=");
+        if (idx == -1) {
+            throw new IOException("No '=' present: " + customAttributeName);
+        }
+        String attrKey = customAttributeName.substring(0, idx);
+        String attrValue = customAttributeName.substring(idx + 1);
+        return Map.of("key", attrKey, "value", attrValue);
     }
 
     private List<String> getCustomAttributeNamesFromMap(Map<String, String> customAttributes) {
@@ -392,6 +401,7 @@ final public class User implements Writeable, ToXContent {
         for (Map.Entry<String, String> entry : this.customAttributes.entrySet()) {
             customAttNames.add(entry.getKey() + "=" + entry.getValue());
         }
+        Collections.sort(customAttNames);
         return customAttNames;
     }
 }
