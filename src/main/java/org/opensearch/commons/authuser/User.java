@@ -221,7 +221,7 @@ final public class User implements Writeable, ToXContent {
                             String attrValue = parser.text().substring(idx + 1);
                             customAttributes.put(attrKey, attrValue);
                         } else {
-                            throw new IllegalArgumentException("No '=' present: " + parser.text());
+                            throw new IOException("No '=' present: " + parser.text());
                         }
                     }
                     break;

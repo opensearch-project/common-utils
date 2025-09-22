@@ -505,7 +505,7 @@ public class UserTest {
             .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.IGNORE_DEPRECATIONS, builder.toString());
 
         parser.nextToken();
-        assertThrows(IllegalArgumentException.class, () -> User.parse(parser));
+        assertThrows(IOException.class, () -> User.parse(parser));
     }
 
     @Test
