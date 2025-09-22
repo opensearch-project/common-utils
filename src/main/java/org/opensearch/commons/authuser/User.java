@@ -314,9 +314,7 @@ final public class User implements Writeable, ToXContent {
         builder.add(NAME_FIELD, name);
         builder.add(BACKEND_ROLES_FIELD, backendRoles);
         builder.add(ROLES_FIELD, roles);
-        TreeMap<String, String> sortedCustomAttributes = new TreeMap<>();
-        sortedCustomAttributes.putAll(customAttributes);
-        builder.add(CUSTOM_ATTRIBUTES_FIELD, sortedCustomAttributes);
+        builder.add(CUSTOM_ATTRIBUTE_NAMES_FIELD, this.getCustomAttributeNamesFromMap(customAttributes));
         builder.add(REQUESTED_TENANT_FIELD, requestedTenant);
         builder.add(REQUESTED_TENANT_ACCESS, requestedTenantAccess);
         return builder.toString();
