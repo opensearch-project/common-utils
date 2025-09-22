@@ -78,7 +78,8 @@ final public class User implements Writeable, ToXContent {
         this.requestedTenantAccess = null;
     }
 
-    public User(final String name, final List<String> backendRoles, List<String> roles, List<String> customAttNames) throws IllegalArgumentException {
+    public User(final String name, final List<String> backendRoles, List<String> roles, List<String> customAttNames)
+        throws IllegalArgumentException {
         this.name = name;
         this.backendRoles = backendRoles;
         this.roles = roles;
@@ -128,7 +129,7 @@ final public class User implements Writeable, ToXContent {
     }
 
     @SuppressWarnings("unchecked")
-    public User(String json) throws IOException {
+    public User(String json) throws IOException, IllegalArgumentException {
         if (Strings.isNullOrEmpty(json)) {
             throw new IllegalArgumentException("Response json cannot be null");
         }
@@ -375,7 +376,8 @@ final public class User implements Writeable, ToXContent {
         return customAttributes;
     }
 
-    private static Map<String, String> parseAttributeInfoFromCustomAttributeName(String customAttributeName) throws IllegalArgumentException {
+    private static Map<String, String> parseAttributeInfoFromCustomAttributeName(String customAttributeName)
+        throws IllegalArgumentException {
         // Find first index in string of "="
         int idx = customAttributeName.indexOf("=");
         if (idx == -1) {
