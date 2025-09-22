@@ -8,8 +8,8 @@ package org.opensearch.commons.authuser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT;
 
 import java.io.IOException;
@@ -520,7 +520,6 @@ public class UserTest {
         assertEquals(user.getCustomAttNames(), Arrays.asList("attr1=val1"));
     }
 
-
     @Test
     public void testParseUserXContentMalformedCustomAttributeNamesThrows() throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder();
@@ -550,7 +549,6 @@ public class UserTest {
         parser.nextToken();
         assertThrows(IllegalArgumentException.class, () -> User.parse(parser));
     }
-
 
     @Test
     public void testUserIsAdminDnTrue() {
