@@ -211,9 +211,16 @@ final public class User implements Writeable, ToXContent {
                 case CUSTOM_ATTRIBUTE_NAMES_FIELD:
                     ensureExpectedToken(XContentParser.Token.START_ARRAY, parser.currentToken(), parser);
                     while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
-                        // Assume custom attribute name values are key=value with no extra "="
-                        String[] attrInfo = parser.text().split("=");
-                        customAttributes.put(attrInfo[0], attrInfo[1]);
+                        // Assume custom attribute name values are key=value
+                        int idx = parser.text().indexOf("=");
+                        // Find first index in string of "="
+                        if (idx != -1) {
+                            String attrKey = parser.text().substring(0, idx);
+                            String attrValue = parser.text().substring(idx + 1);
+                            customAttributes.put(attrKey, attrValue);
+                        } else {
+                            throw new IllegalArgumentException("No '=' present: " + parser.text());
+                        }
                     }
                     break;
                 case REQUESTED_TENANT_FIELD:
