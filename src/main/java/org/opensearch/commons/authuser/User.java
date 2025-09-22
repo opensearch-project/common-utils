@@ -285,7 +285,6 @@ final public class User implements Writeable, ToXContent {
             .field(REQUESTED_TENANT_ACCESS, requestedTenantAccess);
 
         if (customAttributes.size() > 0) {
-            builder.field(CUSTOM_ATTRIBUTES_FIELD, customAttributes);
             builder.field(CUSTOM_ATTRIBUTE_NAMES_FIELD, this.getCustomAttributeNamesFromMap(customAttributes));
         } else {
             builder.field(CUSTOM_ATTRIBUTE_NAMES_FIELD, new ArrayList<>());
