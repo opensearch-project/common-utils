@@ -48,7 +48,6 @@ final public class User implements Writeable, ToXContent {
     public static final String BACKEND_ROLES_FIELD = "backend_roles";
     public static final String ROLES_FIELD = "roles";
     public static final String CUSTOM_ATTRIBUTE_NAMES_FIELD = "custom_attribute_names";
-    public static final String CUSTOM_ATTRIBUTES_FIELD = "custom_attributes";
     public static final String REQUESTED_TENANT_FIELD = "user_requested_tenant";
     public static final String REQUESTED_TENANT_ACCESS = "user_requested_tenant_access";
 
