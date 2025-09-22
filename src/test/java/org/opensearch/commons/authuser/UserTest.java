@@ -543,9 +543,6 @@ public class UserTest {
                 "roles": ["ops_data"],
                 "user_requested_tenant": null,
                 "user_requested_tenant_access": null,
-                "custom_attributes": {
-                    "attr1": "value1"
-                },
                 "custom_attribute_names": [
                     "attr1=value1"
                 ]
