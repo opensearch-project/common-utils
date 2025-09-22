@@ -13,6 +13,7 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_IN
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -474,6 +475,7 @@ public class UserTest {
         assertEquals(1, user.getCustomAttributes().size());
         assertTrue(user.getCustomAttributes().containsKey("attr1"));
         assertTrue(user.getCustomAttributes().containsValue("val1"));
+        assertEquals(user.getCustomAttNames(), Arrays.asList("attr1=val1"));
     }
 
     @Test
