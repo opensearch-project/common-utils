@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT;
 
 import java.io.IOException;
@@ -476,6 +477,80 @@ public class UserTest {
         assertTrue(user.getCustomAttributes().containsValue("val1"));
         assertEquals(user.getCustomAttNames(), Arrays.asList("attr1=val1"));
     }
+
+    @Test
+    public void testParseUserXContentCustomAttributeNames() throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+
+        builder
+            .startObject() // Start a JSON object
+            .field(User.NAME_FIELD, "myuser") // Add a field
+            .startArray(User.BACKEND_ROLES_FIELD) // Start an array
+            .value("backend-role-1")
+            .value("backend-role-2")
+            .endArray() // End the array
+            .startArray(User.ROLES_FIELD) // Start an array
+            .value("role-1")
+            .value("role-2")
+            .endArray() // End the array
+            .field(User.REQUESTED_TENANT_FIELD, "tenant-1")
+            .startArray(User.CUSTOM_ATTRIBUTE_NAMES_FIELD) // Start a nested object
+            .value("attr1=val1")
+            .endArray() // End the array
+            .endObject(); // End the main object
+
+        MediaType mediaType = MediaTypeRegistry.JSON;
+        XContentParser parser = mediaType
+            .xContent()
+            .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.IGNORE_DEPRECATIONS, builder.toString());
+
+        parser.nextToken();
+        User user = User.parse(parser);
+        assertEquals("myuser", user.getName());
+        assertEquals(2, user.getBackendRoles().size());
+        assertTrue(user.getBackendRoles().contains("backend-role-1"));
+        assertTrue(user.getBackendRoles().contains("backend-role-2"));
+        assertEquals(2, user.getRoles().size());
+        assertTrue(user.getRoles().contains("role-1"));
+        assertTrue(user.getRoles().contains("role-2"));
+        assertEquals("tenant-1", user.getRequestedTenant());
+        assertEquals(1, user.getCustomAttributes().size());
+        assertTrue(user.getCustomAttributes().containsKey("attr1"));
+        assertTrue(user.getCustomAttributes().containsValue("val1"));
+        assertEquals(user.getCustomAttNames(), Arrays.asList("attr1=val1"));
+    }
+
+
+    @Test
+    public void testParseUserXContentMalformedCustomAttributeNamesThrows() throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+
+        builder
+            .startObject() // Start a JSON object
+            .field(User.NAME_FIELD, "myuser") // Add a field
+            .startArray(User.BACKEND_ROLES_FIELD) // Start an array
+            .value("backend-role-1")
+            .value("backend-role-2")
+            .endArray() // End the array
+            .startArray(User.ROLES_FIELD) // Start an array
+            .value("role-1")
+            .value("role-2")
+            .endArray() // End the array
+            .field(User.REQUESTED_TENANT_FIELD, "tenant-1")
+            .startArray(User.CUSTOM_ATTRIBUTE_NAMES_FIELD) // Start a nested object
+            .value("attr1")
+            .endArray() // End the array
+            .endObject(); // End the main object
+
+        MediaType mediaType = MediaTypeRegistry.JSON;
+        XContentParser parser = mediaType
+            .xContent()
+            .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.IGNORE_DEPRECATIONS, builder.toString());
+
+        parser.nextToken();
+        assertThrows(IllegalArgumentException.class, () -> User.parse(parser));
+    }
+
 
     @Test
     public void testUserIsAdminDnTrue() {
