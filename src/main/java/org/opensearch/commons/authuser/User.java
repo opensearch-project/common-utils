@@ -129,7 +129,7 @@ final public class User implements Writeable, ToXContent {
     }
 
     @SuppressWarnings("unchecked")
-    public User(String json) throws IOException {
+    public User(String json) {
         if (Strings.isNullOrEmpty(json)) {
             throw new IllegalArgumentException("Response json cannot be null");
         }
@@ -376,8 +376,7 @@ final public class User implements Writeable, ToXContent {
         return customAttributes;
     }
 
-    private static Map<String, String> parseAttributeInfoFromCustomAttributeName(String customAttributeName)
-        throws IllegalArgumentException {
+    private static Map<String, String> parseAttributeInfoFromCustomAttributeName(String customAttributeName) {
         // Find first index in string of "="
         int idx = customAttributeName.indexOf("=");
         if (idx == -1) {
