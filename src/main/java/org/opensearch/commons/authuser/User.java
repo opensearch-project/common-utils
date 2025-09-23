@@ -129,7 +129,7 @@ final public class User implements Writeable, ToXContent {
     }
 
     @SuppressWarnings("unchecked")
-    public User(String json) throws IOException, IllegalArgumentException {
+    public User(String json) throws IOException {
         if (Strings.isNullOrEmpty(json)) {
             throw new IllegalArgumentException("Response json cannot be null");
         }
@@ -179,7 +179,7 @@ final public class User implements Writeable, ToXContent {
      * @param XContentParser parser
      * @throws IOException
      */
-    public static User parse(XContentParser parser) throws IOException, IllegalArgumentException {
+    public static User parse(XContentParser parser) throws IOException {
         String name = "";
         List<String> backendRoles = new ArrayList<>();
         List<String> roles = new ArrayList<>();
@@ -367,7 +367,7 @@ final public class User implements Writeable, ToXContent {
         return adminDns.contains(this.name);
     }
 
-    private Map<String, String> convertCustomAttributeNamesToMap(List<String> customAttNames) throws IllegalArgumentException {
+    private Map<String, String> convertCustomAttributeNamesToMap(List<String> customAttNames) {
         Map<String, String> customAttributes = new TreeMap<>();
         for (String entry : customAttNames) {
             Map<String, String> attributeInfo = User.parseAttributeInfoFromCustomAttributeName(entry);
