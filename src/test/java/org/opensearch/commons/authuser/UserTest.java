@@ -8,6 +8,7 @@ package org.opensearch.commons.authuser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT;
 
@@ -164,7 +165,7 @@ public class UserTest {
     @Test
     public void testNonEmptyCustomAttributeNamesJsonConst() throws IOException {
         String json =
-            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[\"attr1\"],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
+            "{\"user\":\"User [name=chip, backend_roles=[admin], requestedTenant=__user__]\",\"user_name\":\"chip\",\"user_requested_tenant\":\"__user__\",\"remote_address\":\"127.0.0.1:52196\",\"backend_roles\":[\"admin\"],\"custom_attribute_names\":[\"attr1=val1\"],\"roles\":[\"alerting_monitor_full\",\"ops_role\",\"own_index\"],\"tenants\":{\"chip\":true},\"principal\":null,\"peer_certificates\":\"0\",\"sso_logout_url\":null}";
 
         User user = new User(json);
         assertEquals("chip", user.getName());
@@ -172,8 +173,39 @@ public class UserTest {
         assertEquals(3, user.getRoles().size());
         assertEquals(1, user.getCustomAttributes().size());
         assertTrue(user.getCustomAttributes().containsKey("attr1"));
-        assertTrue(user.getCustomAttributes().containsValue("null"));
+        assertTrue(user.getCustomAttributes().containsValue("val1"));
         assertEquals("__user__", user.getRequestedTenant());
+    }
+
+    @Test
+    public void testNonEmptyCustomAttributeNamesJsonConstThrows() throws IOException {
+        String json = """
+            {
+                "user": "User [name=chip, backend_roles=[admin], requestedTenant=__user__]",
+                "user_name": "chip",
+                "user_requested_tenant": "__user__",
+                "remote_address": "127.0.0.1:52196",
+                "backend_roles": [
+                    "admin"
+                ],
+                "custom_attribute_names": [
+                    "attr1"
+                ],
+                "roles": [
+                    "alerting_monitor_full",
+                    "ops_role",
+                    "own_index"
+                ],
+                "tenants": {
+                    "chip": true
+                },
+                "principal": null,
+                "peer_certificates": "0",
+                "sso_logout_url": null
+                }
+            """;
+
+        assertThrows(IllegalArgumentException.class, () -> new User(json));
     }
 
     @Test
@@ -198,7 +230,7 @@ public class UserTest {
         User newUser = new User(in);
         assertEquals(2, newUser.getCustomAttributes().size());
         assertTrue(newUser.getCustomAttributes().containsKey("attr1"));
-        assertTrue(newUser.getCustomAttributes().containsValue("null"));
+        assertTrue(newUser.getCustomAttributes().containsValue("attrValue1"));
     }
 
     @Test
@@ -451,9 +483,9 @@ public class UserTest {
             .value("role-2")
             .endArray() // End the array
             .field(User.REQUESTED_TENANT_FIELD, "tenant-1")
-            .startObject(User.CUSTOM_ATTRIBUTES_FIELD) // Start a nested object
-            .field("attr1", "val1")
-            .endObject() // End the nested object
+            .startArray(User.CUSTOM_ATTRIBUTE_NAMES_FIELD) // Start a nested object
+            .value("attr1=val1")
+            .endArray() // End the array
             .endObject(); // End the main object
 
         MediaType mediaType = MediaTypeRegistry.JSON;
@@ -474,6 +506,37 @@ public class UserTest {
         assertEquals(1, user.getCustomAttributes().size());
         assertTrue(user.getCustomAttributes().containsKey("attr1"));
         assertTrue(user.getCustomAttributes().containsValue("val1"));
+        assertEquals(user.getCustomAttNames(), Arrays.asList("attr1=val1"));
+    }
+
+    @Test
+    public void testParseUserXContentMalformedCustomAttributeNamesThrows() throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+
+        builder
+            .startObject() // Start a JSON object
+            .field(User.NAME_FIELD, "myuser") // Add a field
+            .startArray(User.BACKEND_ROLES_FIELD) // Start an array
+            .value("backend-role-1")
+            .value("backend-role-2")
+            .endArray() // End the array
+            .startArray(User.ROLES_FIELD) // Start an array
+            .value("role-1")
+            .value("role-2")
+            .endArray() // End the array
+            .field(User.REQUESTED_TENANT_FIELD, "tenant-1")
+            .startArray(User.CUSTOM_ATTRIBUTE_NAMES_FIELD) // Start a nested object
+            .value("attr1")
+            .endArray() // End the array
+            .endObject(); // End the main object
+
+        MediaType mediaType = MediaTypeRegistry.JSON;
+        XContentParser parser = mediaType
+            .xContent()
+            .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.IGNORE_DEPRECATIONS, builder.toString());
+
+        parser.nextToken();
+        assertThrows(IllegalArgumentException.class, () -> User.parse(parser));
     }
 
     @Test
@@ -519,14 +582,14 @@ public class UserTest {
     }
 
     @Test
-    public void testUserCustomAttributeNamesBackwardsCompatibility() {
-        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1"));
+    public void testUserCustomAttributeNamesBackwardsCompatibility() throws IllegalArgumentException {
+        User user = new User("chip", Arrays.asList("admin", "ops"), Arrays.asList("ops_data"), Arrays.asList("attr1=val1"));
         assertFalse(Strings.isNullOrEmpty(user.getName()));
         assertEquals(2, user.getBackendRoles().size());
         assertEquals(1, user.getRoles().size());
         assertEquals(1, user.getCustomAttributes().size());
         assertTrue(user.getCustomAttributes().containsKey("attr1"));
-        assertTrue(user.getCustomAttributes().containsValue("null"));
+        assertTrue(user.getCustomAttributes().containsValue("val1"));
         assertNull(user.getRequestedTenant());
     }
 
@@ -541,9 +604,9 @@ public class UserTest {
                 "roles": ["ops_data"],
                 "user_requested_tenant": null,
                 "user_requested_tenant_access": null,
-                "custom_attributes": {
-                    "attr1": "value1"
-                }
+                "custom_attribute_names": [
+                    "attr1=value1"
+                ]
             }
             """;
         assertEquals(expectedUserJson.replace("\n", "").replace("\s", ""), xcontent.toString().replace("\n", ""));
