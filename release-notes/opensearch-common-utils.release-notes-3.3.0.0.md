@@ -13,7 +13,3 @@ Compatible with OpenSearch and OpenSearch Dashboards version 3.3.0
 
 ### Documentation
 * Added release notes for 2.13 ([#869](https://github.com/opensearch-project/common-utils/pull/869))
-
-### Maintenance
-* Add cwperks as a maintainer and codeowner ([#868](https://github.com/opensearch-project/common-utils/pull/868))
-* Adding toepkerd to MAINTAINERS.md ([#879](https://github.com/opensearch-project/common-utils/pull/879))
