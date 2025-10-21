@@ -9,14 +9,14 @@ buildscript {
         opensearch_version = System.getProperty("opensearch.version", "3.4.0-SNAPSHOT")
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
-        kotlin_version = System.getProperty("kotlin.version", "1.9.25")
+        kotlin_version = System.getProperty("kotlin.version", "2.2.20")
     }
 
     repositories {
         mavenLocal()
         mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
-        maven { url "https://ci.opensearch.org/ci/dbc/snapshots/maven/" }
+        maven { url = "https://plugins.gradle.org/m2/" }
+        maven { url = "https://ci.opensearch.org/ci/dbc/snapshots/maven/" }
     }
 
     dependencies {
@@ -36,12 +36,12 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url "https://plugins.gradle.org/m2/" }
-    maven { url "https://ci.opensearch.org/ci/dbc/snapshots/maven/" }
+    maven { url = "https://plugins.gradle.org/m2/" }
+    maven { url = "https://ci.opensearch.org/ci/dbc/snapshots/maven/" }
 }
 
 allprojects {
-    group 'org.opensearch.commons'
+    group = 'org.opensearch.commons'
     version = opensearch_version.tokenize('-')[0] + '.0'
     if (buildVersionQualifier) {
         version += "-${buildVersionQualifier}"
@@ -51,8 +51,10 @@ allprojects {
     }
 }
 
-targetCompatibility = JavaVersion.VERSION_21
-sourceCompatibility = JavaVersion.VERSION_21
+java {
+    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_21
+}
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -103,9 +105,9 @@ dependencies {
 test {
     useJUnitPlatform()
     testLogging {
-        exceptionFormat "full"
+        exceptionFormat = "full"
         events "skipped", "passed", "failed" // "started"
-        showStandardStreams true
+        showStandardStreams = true
     }
 }
 
@@ -127,7 +129,7 @@ spotless {
 
 tasks.register('ktlint', JavaExec) {
     description = "Check Kotlin code style."
-    main = "com.pinterest.ktlint.Main"
+    mainClass = "com.pinterest.ktlint.Main"
     classpath = configurations.ktlint
     args "src/**/*.kt"
     // to generate report in checkstyle format prepend following args:
