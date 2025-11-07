@@ -27,7 +27,8 @@ class Finding(
      * Keeps the track of the workflow-monitor exact execution.
      * Used for filtering the data when chaining monitors in a workflow.
      */
-    val executionId: String? = null
+    val executionId: String? = null,
+    val additionalFields: Map<String, Any>? = mapOf()
 ) : Writeable, ToXContent {
 
     constructor(
@@ -46,7 +47,8 @@ class Finding(
         index = index,
         docLevelQueries = docLevelQueries,
         timestamp = timestamp,
-        executionId = null
+        executionId = null,
+        additionalFields = null
     )
 
     @Throws(IOException::class)
@@ -59,7 +61,8 @@ class Finding(
         index = sin.readString(),
         docLevelQueries = sin.readList((DocLevelQuery)::readFrom),
         timestamp = sin.readInstant(),
-        executionId = sin.readOptionalString()
+        executionId = sin.readOptionalString(),
+        additionalFields = sin.readMap()
     )
 
     fun asTemplateArg(): Map<String, Any?> {
@@ -87,6 +90,7 @@ class Finding(
             .field(QUERIES_FIELD, docLevelQueries.toTypedArray())
             .field(TIMESTAMP_FIELD, timestamp.toEpochMilli())
             .field(EXECUTION_ID_FIELD, executionId)
+            .field(ADDITIONAL_FIELDS_FIELD, additionalFields)
         builder.endObject()
         return builder
     }
@@ -102,6 +106,7 @@ class Finding(
         out.writeCollection(docLevelQueries)
         out.writeInstant(timestamp)
         out.writeOptionalString(executionId)
+        out.writeMap(additionalFields)
     }
 
     companion object {
@@ -115,6 +120,7 @@ class Finding(
         const val TIMESTAMP_FIELD = "timestamp"
         const val EXECUTION_ID_FIELD = "execution_id"
         const val NO_ID = ""
+        const val ADDITIONAL_FIELDS_FIELD = "additional_fields"
 
         @JvmStatic
         @Throws(IOException::class)
@@ -128,6 +134,7 @@ class Finding(
             val queries: MutableList<DocLevelQuery> = mutableListOf()
             lateinit var timestamp: Instant
             var executionId: String? = null
+            var additionalFields: Map<String, Any>? = null
 
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -161,6 +168,7 @@ class Finding(
                         timestamp = requireNotNull(xcp.instant())
                     }
                     EXECUTION_ID_FIELD -> executionId = xcp.textOrNull()
+                    ADDITIONAL_FIELDS_FIELD -> additionalFields = xcp.map()
                 }
             }
 
@@ -173,7 +181,8 @@ class Finding(
                 index = index,
                 docLevelQueries = queries,
                 timestamp = timestamp,
-                executionId = executionId
+                executionId = executionId,
+                additionalFields = additionalFields
             )
         }
 
