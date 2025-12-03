@@ -27,7 +27,7 @@ class GetWorkflowAlertsRequest : ActionRequest {
         monitorIds: List<String>? = null,
         workflowIds: List<String>? = null,
         alertIds: List<String>? = null,
-        getAssociatedAlerts: Boolean
+        getAssociatedAlerts: Boolean,
     ) : super() {
         this.table = table
         this.severityLevel = severityLevel
@@ -50,12 +50,10 @@ class GetWorkflowAlertsRequest : ActionRequest {
         monitorIds = sin.readOptionalStringList(),
         workflowIds = sin.readOptionalStringList(),
         alertIds = sin.readOptionalStringList(),
-        getAssociatedAlerts = sin.readBoolean()
+        getAssociatedAlerts = sin.readBoolean(),
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

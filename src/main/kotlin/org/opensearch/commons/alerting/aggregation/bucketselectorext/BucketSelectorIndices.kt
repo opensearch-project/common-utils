@@ -16,7 +16,7 @@ open class BucketSelectorIndices : InternalAggregation {
         name: String?,
         parentBucketPath: String,
         bucketIndices: List<Int?>,
-        metaData: Map<String?, Any?>?
+        metaData: Map<String?, Any?>?,
     ) : super(name, metaData) {
         this.parentBucketPath = parentBucketPath
         this.bucketIndices = bucketIndices
@@ -37,21 +37,16 @@ open class BucketSelectorIndices : InternalAggregation {
         out.writeIntArray(bucketIndices.stream().mapToInt { i: Int? -> i!! }.toArray())
     }
 
-    override fun getWriteableName(): String {
-        return BucketSelectorExtAggregationBuilder.NAME.preferredName
-    }
+    override fun getWriteableName(): String = BucketSelectorExtAggregationBuilder.NAME.preferredName
 
-    override fun reduce(aggregations: List<InternalAggregation>, reduceContext: ReduceContext): BucketSelectorIndices {
-        throw UnsupportedOperationException("Not supported")
-    }
+    override fun reduce(
+        aggregations: List<InternalAggregation>,
+        reduceContext: ReduceContext,
+    ): BucketSelectorIndices = throw UnsupportedOperationException("Not supported")
 
-    override fun mustReduceOnSingleInternalAgg(): Boolean {
-        return false
-    }
+    override fun mustReduceOnSingleInternalAgg(): Boolean = false
 
-    override fun getProperty(path: MutableList<String>?): Any {
-        throw UnsupportedOperationException("Not supported")
-    }
+    override fun getProperty(path: MutableList<String>?): Any = throw UnsupportedOperationException("Not supported")
 
     object Fields {
         const val PARENT_BUCKET_PATH = "parent_bucket_path"
@@ -59,7 +54,10 @@ open class BucketSelectorIndices : InternalAggregation {
     }
 
     @Throws(IOException::class)
-    override fun doXContentBody(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun doXContentBody(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         builder.field(Fields.PARENT_BUCKET_PATH, parentBucketPath)
         builder.field(Fields.BUCKET_INDICES, bucketIndices)
         otherStatsToXContent(builder)
@@ -67,13 +65,9 @@ open class BucketSelectorIndices : InternalAggregation {
     }
 
     @Throws(IOException::class)
-    protected fun otherStatsToXContent(builder: XContentBuilder): XContentBuilder {
-        return builder
-    }
+    protected fun otherStatsToXContent(builder: XContentBuilder): XContentBuilder = builder
 
-    override fun hashCode(): Int {
-        return Objects.hash(super.hashCode(), parentBucketPath)
-    }
+    override fun hashCode(): Int = Objects.hash(super.hashCode(), parentBucketPath)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

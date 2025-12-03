@@ -10,7 +10,6 @@ import org.opensearch.commons.notifications.model.MethodType.Companion.enumParse
 import org.opensearch.commons.notifications.model.MethodType.Companion.fromTagOrDefault
 
 internal class MethodTypeTests {
-
     @Test
     fun `toString should return tag`() {
         MethodType.values().forEach {

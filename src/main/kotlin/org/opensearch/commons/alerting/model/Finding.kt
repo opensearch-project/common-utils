@@ -27,9 +27,9 @@ class Finding(
      * Keeps the track of the workflow-monitor exact execution.
      * Used for filtering the data when chaining monitors in a workflow.
      */
-    val executionId: String? = null
-) : Writeable, ToXContent {
-
+    val executionId: String? = null,
+) : Writeable,
+    ToXContent {
     constructor(
         id: String = NO_ID,
         relatedDocIds: List<String>,
@@ -37,7 +37,7 @@ class Finding(
         monitorName: String,
         index: String,
         docLevelQueries: List<DocLevelQuery>,
-        timestamp: Instant
+        timestamp: Instant,
     ) : this (
         id = id,
         relatedDocIds = relatedDocIds,
@@ -46,7 +46,7 @@ class Finding(
         index = index,
         docLevelQueries = docLevelQueries,
         timestamp = timestamp,
-        executionId = null
+        executionId = null,
     )
 
     @Throws(IOException::class)
@@ -59,11 +59,11 @@ class Finding(
         index = sin.readString(),
         docLevelQueries = sin.readList((DocLevelQuery)::readFrom),
         timestamp = sin.readInstant(),
-        executionId = sin.readOptionalString()
+        executionId = sin.readOptionalString(),
     )
 
-    fun asTemplateArg(): Map<String, Any?> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any?> =
+        mapOf(
             FINDING_ID_FIELD to id,
             RELATED_DOC_IDS_FIELD to relatedDocIds,
             CORRELATED_DOC_IDS_FIELD to correlatedDocIds,
@@ -72,12 +72,15 @@ class Finding(
             INDEX_FIELD to index,
             QUERIES_FIELD to docLevelQueries,
             TIMESTAMP_FIELD to timestamp.toEpochMilli(),
-            EXECUTION_ID_FIELD to executionId
+            EXECUTION_ID_FIELD to executionId,
         )
-    }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field(FINDING_ID_FIELD, id)
             .field(RELATED_DOC_IDS_FIELD, relatedDocIds)
             .field(CORRELATED_DOC_IDS_FIELD, correlatedDocIds)
@@ -135,32 +138,50 @@ class Finding(
                 xcp.nextToken()
 
                 when (fieldName) {
-                    FINDING_ID_FIELD -> id = xcp.text()
+                    FINDING_ID_FIELD -> {
+                        id = xcp.text()
+                    }
+
                     RELATED_DOC_IDS_FIELD -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             relatedDocIds.add(xcp.text())
                         }
                     }
+
                     CORRELATED_DOC_IDS_FIELD -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             correlatedDocIds.add(xcp.text())
                         }
                     }
-                    MONITOR_ID_FIELD -> monitorId = xcp.text()
-                    MONITOR_NAME_FIELD -> monitorName = xcp.text()
-                    INDEX_FIELD -> index = xcp.text()
+
+                    MONITOR_ID_FIELD -> {
+                        monitorId = xcp.text()
+                    }
+
+                    MONITOR_NAME_FIELD -> {
+                        monitorName = xcp.text()
+                    }
+
+                    INDEX_FIELD -> {
+                        index = xcp.text()
+                    }
+
                     QUERIES_FIELD -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             queries.add(DocLevelQuery.parse(xcp))
                         }
                     }
+
                     TIMESTAMP_FIELD -> {
                         timestamp = requireNotNull(xcp.instant())
                     }
-                    EXECUTION_ID_FIELD -> executionId = xcp.textOrNull()
+
+                    EXECUTION_ID_FIELD -> {
+                        executionId = xcp.textOrNull()
+                    }
                 }
             }
 
@@ -173,14 +194,12 @@ class Finding(
                 index = index,
                 docLevelQueries = queries,
                 timestamp = timestamp,
-                executionId = executionId
+                executionId = executionId,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Finding {
-            return Finding(sin)
-        }
+        fun readFrom(sin: StreamInput): Finding = Finding(sin)
     }
 }

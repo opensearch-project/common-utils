@@ -23,20 +23,23 @@ data class ChainedAlertTrigger(
     override val name: String,
     override val severity: String,
     override val actions: List<Action>,
-    val condition: Script
+    val condition: Script,
 ) : Trigger {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // id
         sin.readString(), // name
         sin.readString(), // severity
         sin.readList(::Action), // actions
-        Script(sin)
+        Script(sin),
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startObject(CHAINED_ALERT_TRIGGER_FIELD)
             .field(ID_FIELD, id)
             .field(NAME_FIELD, name)
@@ -50,19 +53,16 @@ data class ChainedAlertTrigger(
         return builder
     }
 
-    override fun name(): String {
-        return CHAINED_ALERT_TRIGGER_FIELD
-    }
+    override fun name(): String = CHAINED_ALERT_TRIGGER_FIELD
 
     /** Returns a representation of the trigger suitable for passing into painless and mustache scripts. */
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any> =
+        mapOf(
             ID_FIELD to id,
             NAME_FIELD to name,
             SEVERITY_FIELD to severity,
-            ACTIONS_FIELD to actions.map { it.asTemplateArg() }
+            ACTIONS_FIELD to actions.map { it.asTemplateArg() },
         )
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -79,11 +79,12 @@ data class ChainedAlertTrigger(
         const val SCRIPT_FIELD = "script"
         const val QUERY_IDS_FIELD = "query_ids"
 
-        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java,
-            ParseField(CHAINED_ALERT_TRIGGER_FIELD),
-            CheckedFunction { parseInner(it) }
-        )
+        val XCONTENT_REGISTRY =
+            NamedXContentRegistry.Entry(
+                Trigger::class.java,
+                ParseField(CHAINED_ALERT_TRIGGER_FIELD),
+                CheckedFunction { parseInner(it) },
+            )
 
         @JvmStatic
         @Throws(IOException::class)
@@ -107,9 +108,18 @@ data class ChainedAlertTrigger(
 
                 xcp.nextToken()
                 when (fieldName) {
-                    ID_FIELD -> id = xcp.text()
-                    NAME_FIELD -> name = xcp.text()
-                    SEVERITY_FIELD -> severity = xcp.text()
+                    ID_FIELD -> {
+                        id = xcp.text()
+                    }
+
+                    NAME_FIELD -> {
+                        name = xcp.text()
+                    }
+
+                    SEVERITY_FIELD -> {
+                        severity = xcp.text()
+                    }
+
                     CONDITION_FIELD -> {
                         xcp.nextToken()
                         condition = Script.parse(xcp)
@@ -118,11 +128,12 @@ data class ChainedAlertTrigger(
                         }
                         xcp.nextToken()
                     }
+
                     ACTIONS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             actions.add(Action.parse(xcp))
@@ -137,14 +148,12 @@ data class ChainedAlertTrigger(
                 severity = requireNotNull(severity) { "Trigger severity is null" },
                 condition = requireNotNull(condition) { "Trigger condition is null" },
                 actions = requireNotNull(actions) { "Trigger actions are null" },
-                id = requireNotNull(id) { "Trigger id is null." }
+                id = requireNotNull(id) { "Trigger id is null." },
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): ChainedAlertTrigger {
-            return ChainedAlertTrigger(sin)
-        }
+        fun readFrom(sin: StreamInput): ChainedAlertTrigger = ChainedAlertTrigger(sin)
     }
 }

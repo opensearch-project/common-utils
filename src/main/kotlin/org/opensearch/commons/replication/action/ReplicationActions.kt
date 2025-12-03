@@ -11,7 +11,6 @@ import org.opensearch.action.support.clustermanager.AcknowledgedResponse
  * Information related to the transport stop replication action for the Replication plugin
  */
 object ReplicationActions {
-
     /**
      * Action names for stopping replication
      * STOP_REPLICATION_ACTION_NAME: action used for _replication/_stop REST API

@@ -31,20 +31,40 @@ data class EventStatus(
     val configName: String,
     val configType: ConfigType,
     val emailRecipientStatus: List<EmailRecipientStatus> = listOf(),
-    val deliveryStatus: DeliveryStatus? = null
+    val deliveryStatus: DeliveryStatus? = null,
 ) : BaseModel {
-
     init {
         require(!Strings.isNullOrEmpty(configId)) { "config id is null or empty" }
         require(!Strings.isNullOrEmpty(configName)) { "config name is null or empty" }
         when (configType) {
-            ConfigType.CHIME -> requireNotNull(deliveryStatus)
-            ConfigType.WEBHOOK -> requireNotNull(deliveryStatus)
-            ConfigType.SLACK -> requireNotNull(deliveryStatus)
-            ConfigType.EMAIL -> require(emailRecipientStatus.isNotEmpty())
-            ConfigType.SNS -> requireNotNull(deliveryStatus)
-            ConfigType.MICROSOFT_TEAMS -> requireNotNull(deliveryStatus)
-            ConfigType.NONE -> log.info("Some config field not recognized")
+            ConfigType.CHIME -> {
+                requireNotNull(deliveryStatus)
+            }
+
+            ConfigType.WEBHOOK -> {
+                requireNotNull(deliveryStatus)
+            }
+
+            ConfigType.SLACK -> {
+                requireNotNull(deliveryStatus)
+            }
+
+            ConfigType.EMAIL -> {
+                require(emailRecipientStatus.isNotEmpty())
+            }
+
+            ConfigType.SNS -> {
+                requireNotNull(deliveryStatus)
+            }
+
+            ConfigType.MICROSOFT_TEAMS -> {
+                requireNotNull(deliveryStatus)
+            }
+
+            ConfigType.NONE -> {
+                log.info("Some config field not recognized")
+            }
+
             else -> {
                 log.info("non-allowed config type for Status")
             }
@@ -75,17 +95,32 @@ data class EventStatus(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    CONFIG_NAME_TAG -> configName = parser.text()
-                    CONFIG_ID_TAG -> configId = parser.text()
-                    CONFIG_TYPE_TAG -> configType = ConfigType.fromTagOrDefault(parser.text())
-                    EMAIL_RECIPIENT_STATUS_TAG -> emailRecipientStatus = parser.objectList { EmailRecipientStatus.parse(it) }
-                    DELIVERY_STATUS_TAG -> deliveryStatus = DeliveryStatus.parse(parser)
+                    CONFIG_NAME_TAG -> {
+                        configName = parser.text()
+                    }
+
+                    CONFIG_ID_TAG -> {
+                        configId = parser.text()
+                    }
+
+                    CONFIG_TYPE_TAG -> {
+                        configType = ConfigType.fromTagOrDefault(parser.text())
+                    }
+
+                    EMAIL_RECIPIENT_STATUS_TAG -> {
+                        emailRecipientStatus = parser.objectList { EmailRecipientStatus.parse(it) }
+                    }
+
+                    DELIVERY_STATUS_TAG -> {
+                        deliveryStatus = DeliveryStatus.parse(parser)
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing EventStatus")
@@ -101,7 +136,7 @@ data class EventStatus(
                 configName,
                 configType,
                 emailRecipientStatus,
-                deliveryStatus
+                deliveryStatus,
             )
         }
     }
@@ -115,7 +150,7 @@ data class EventStatus(
         configName = input.readString(),
         configType = input.readEnum(ConfigType::class.java),
         emailRecipientStatus = input.readList(EmailRecipientStatus.reader),
-        deliveryStatus = input.readOptionalWriteable(DeliveryStatus.reader)
+        deliveryStatus = input.readOptionalWriteable(DeliveryStatus.reader),
     )
 
     /**
@@ -132,9 +167,13 @@ data class EventStatus(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(CONFIG_ID_TAG, configId)
             .field(CONFIG_TYPE_TAG, configType.tag)
             .field(CONFIG_NAME_TAG, configName)

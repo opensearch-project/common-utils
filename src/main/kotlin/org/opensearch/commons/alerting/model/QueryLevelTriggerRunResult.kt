@@ -18,16 +18,15 @@ open class QueryLevelTriggerRunResult(
     override var triggerName: String,
     open var triggered: Boolean,
     override var error: Exception?,
-    open var actionResults: MutableMap<String, ActionRunResult> = mutableMapOf()
+    open var actionResults: MutableMap<String, ActionRunResult> = mutableMapOf(),
 ) : TriggerRunResult(triggerName, error) {
-
     @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
     constructor(sin: StreamInput) : this(
         triggerName = sin.readString(),
         error = sin.readException(),
         triggered = sin.readBoolean(),
-        actionResults = sin.readMap() as MutableMap<String, ActionRunResult>
+        actionResults = sin.readMap() as MutableMap<String, ActionRunResult>,
     )
 
     override fun alertError(): AlertError? {
@@ -42,7 +41,10 @@ open class QueryLevelTriggerRunResult(
         return null
     }
 
-    override fun internalXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun internalXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         if (error is ScriptException) error = Exception((error as ScriptException).toJsonString(), error)
         return builder
             .field("triggered", triggered)
@@ -59,8 +61,6 @@ open class QueryLevelTriggerRunResult(
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): TriggerRunResult {
-            return QueryLevelTriggerRunResult(sin)
-        }
+        fun readFrom(sin: StreamInput): TriggerRunResult = QueryLevelTriggerRunResult(sin)
     }
 }

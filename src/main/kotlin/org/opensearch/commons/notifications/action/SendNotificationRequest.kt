@@ -29,7 +29,9 @@ import java.io.IOException
 /**
  * Action Request to send notification.
  */
-class SendNotificationRequest : ActionRequest, ToXContentObject {
+class SendNotificationRequest :
+    ActionRequest,
+    ToXContentObject {
     val eventSource: EventSource
     val channelMessage: ChannelMessage
     val channelIds: List<String>
@@ -58,16 +60,28 @@ class SendNotificationRequest : ActionRequest, ToXContentObject {
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    EVENT_SOURCE_TAG -> eventSource = EventSource.parse(parser)
-                    CHANNEL_MESSAGE_TAG -> channelMessage = ChannelMessage.parse(parser)
-                    CHANNEL_ID_LIST_TAG -> channelIds = parser.stringList()
-                    THREAD_CONTEXT_TAG -> threadContext = parser.textOrNull()
+                    EVENT_SOURCE_TAG -> {
+                        eventSource = EventSource.parse(parser)
+                    }
+
+                    CHANNEL_MESSAGE_TAG -> {
+                        channelMessage = ChannelMessage.parse(parser)
+                    }
+
+                    CHANNEL_ID_LIST_TAG -> {
+                        channelIds = parser.stringList()
+                    }
+
+                    THREAD_CONTEXT_TAG -> {
+                        threadContext = parser.textOrNull()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing SendNotificationRequest")
@@ -92,7 +106,7 @@ class SendNotificationRequest : ActionRequest, ToXContentObject {
         eventSource: EventSource,
         channelMessage: ChannelMessage,
         channelIds: List<String>,
-        threadContext: String?
+        threadContext: String?,
     ) {
         this.eventSource = eventSource
         this.channelMessage = channelMessage
@@ -126,9 +140,13 @@ class SendNotificationRequest : ActionRequest, ToXContentObject {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(EVENT_SOURCE_TAG, eventSource)
             .field(CHANNEL_MESSAGE_TAG, channelMessage)
             .field(CHANNEL_ID_LIST_TAG, channelIds)

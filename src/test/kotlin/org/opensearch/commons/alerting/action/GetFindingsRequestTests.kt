@@ -11,7 +11,6 @@ import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.index.query.QueryBuilders
 
 internal class GetFindingsRequestTests {
-
     @Test
     fun `test get findings request`() {
         val table = Table("asc", "sortString", null, 1, 0, "")

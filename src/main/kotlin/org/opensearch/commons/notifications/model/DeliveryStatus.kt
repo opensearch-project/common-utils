@@ -22,9 +22,8 @@ import java.io.IOException
  */
 data class DeliveryStatus(
     val statusCode: String,
-    val statusText: String
+    val statusText: String,
 ) : BaseModel {
-
     init {
         require(!Strings.isNullOrEmpty(statusCode)) { "StatusCode is null or empty" }
         require(!Strings.isNullOrEmpty(statusText)) { "statusText is null or empty" }
@@ -51,14 +50,20 @@ data class DeliveryStatus(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    STATUS_CODE_TAG -> statusCode = parser.text()
-                    STATUS_TEXT_TAG -> statusText = parser.text()
+                    STATUS_CODE_TAG -> {
+                        statusCode = parser.text()
+                    }
+
+                    STATUS_TEXT_TAG -> {
+                        statusText = parser.text()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing deliveryStatus")
@@ -69,7 +74,7 @@ data class DeliveryStatus(
             statusText ?: throw IllegalArgumentException("$STATUS_TEXT_TAG field absent")
             return DeliveryStatus(
                 statusCode,
-                statusText
+                statusText,
             )
         }
     }
@@ -80,7 +85,7 @@ data class DeliveryStatus(
      */
     constructor(input: StreamInput) : this(
         statusCode = input.readString(),
-        statusText = input.readString()
+        statusText = input.readString(),
     )
 
     /**
@@ -94,9 +99,13 @@ data class DeliveryStatus(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(STATUS_CODE_TAG, statusCode)
             .field(STATUS_TEXT_TAG, statusText)
             .endObject()

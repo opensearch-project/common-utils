@@ -22,16 +22,16 @@ data class WorkflowMetadata(
     val workflowId: String,
     val monitorIds: List<String>,
     val latestRunTime: Instant,
-    val latestExecutionId: String
-) : Writeable, ToXContent {
-
+    val latestExecutionId: String,
+) : Writeable,
+    ToXContent {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         id = sin.readString(),
         workflowId = sin.readString(),
         monitorIds = sin.readStringList(),
         latestRunTime = sin.readInstant(),
-        latestExecutionId = sin.readString()
+        latestExecutionId = sin.readString(),
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -42,10 +42,14 @@ data class WorkflowMetadata(
         out.writeString(latestExecutionId)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         builder.startObject()
         if (params.paramAsBoolean("with_type", false)) builder.startObject(METADATA)
-        builder.field(WORKFLOW_ID_FIELD, workflowId)
+        builder
+            .field(WORKFLOW_ID_FIELD, workflowId)
             .field(MONITOR_IDS_FIELD, monitorIds)
             .optionalTimeField(LATEST_RUN_TIME, latestRunTime)
             .field(LATEST_EXECUTION_ID, latestExecutionId)
@@ -75,15 +79,24 @@ data class WorkflowMetadata(
                 xcp.nextToken()
 
                 when (fieldName) {
-                    WORKFLOW_ID_FIELD -> workflowId = xcp.text()
+                    WORKFLOW_ID_FIELD -> {
+                        workflowId = xcp.text()
+                    }
+
                     MONITOR_IDS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             monitorIds.add(xcp.text())
                         }
                     }
-                    LATEST_RUN_TIME -> latestRunTime = xcp.instant()!!
-                    LATEST_EXECUTION_ID -> latestExecutionId = xcp.text()
+
+                    LATEST_RUN_TIME -> {
+                        latestRunTime = xcp.instant()!!
+                    }
+
+                    LATEST_EXECUTION_ID -> {
+                        latestExecutionId = xcp.text()
+                    }
                 }
             }
             return WorkflowMetadata(
@@ -91,15 +104,13 @@ data class WorkflowMetadata(
                 workflowId = workflowId,
                 monitorIds = monitorIds,
                 latestRunTime = latestRunTime,
-                latestExecutionId = latestExecutionId
+                latestExecutionId = latestExecutionId,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): WorkflowMetadata {
-            return WorkflowMetadata(sin)
-        }
+        fun readFrom(sin: StreamInput): WorkflowMetadata = WorkflowMetadata(sin)
 
         fun getId(workflowId: String? = null) = "$workflowId-metadata"
     }

@@ -8,7 +8,6 @@ import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 
 class DeleteMonitorRequest : ActionRequest {
-
     val monitorId: String
     val refreshPolicy: WriteRequest.RefreshPolicy
 
@@ -20,12 +19,10 @@ class DeleteMonitorRequest : ActionRequest {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         monitorId = sin.readString(),
-        refreshPolicy = WriteRequest.RefreshPolicy.readFrom(sin)
+        refreshPolicy = WriteRequest.RefreshPolicy.readFrom(sin),
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

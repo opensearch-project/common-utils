@@ -18,7 +18,7 @@ class GetWorkflowRequest : ActionRequest {
 
     constructor(
         workflowId: String,
-        method: RestRequest.Method
+        method: RestRequest.Method,
     ) : super() {
         this.workflowId = workflowId
         this.method = method
@@ -27,12 +27,10 @@ class GetWorkflowRequest : ActionRequest {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // workflowId
-        sin.readEnum(RestRequest.Method::class.java) // method
+        sin.readEnum(RestRequest.Method::class.java), // method
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

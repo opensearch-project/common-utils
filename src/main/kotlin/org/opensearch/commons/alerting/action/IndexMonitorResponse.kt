@@ -24,7 +24,7 @@ class IndexMonitorResponse : BaseResponse {
         version: Long,
         seqNo: Long,
         primaryTerm: Long,
-        monitor: Monitor
+        monitor: Monitor,
     ) : super() {
         this.id = id
         this.version = version
@@ -39,7 +39,7 @@ class IndexMonitorResponse : BaseResponse {
         sin.readLong(), // version
         sin.readLong(), // seqNo
         sin.readLong(), // primaryTerm
-        Monitor.readFrom(sin) as Monitor // monitor
+        Monitor.readFrom(sin) as Monitor, // monitor
     )
 
     @Throws(IOException::class)
@@ -52,13 +52,16 @@ class IndexMonitorResponse : BaseResponse {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(_ID, id)
             .field(_VERSION, version)
             .field(_SEQ_NO, seqNo)
             .field(_PRIMARY_TERM, primaryTerm)
             .field("monitor", monitor)
             .endObject()
-    }
 }

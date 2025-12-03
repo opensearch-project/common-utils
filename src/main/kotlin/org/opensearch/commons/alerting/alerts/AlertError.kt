@@ -12,7 +12,11 @@ import org.opensearch.core.xcontent.XContentParserUtils.ensureExpectedToken
 import java.io.IOException
 import java.time.Instant
 
-data class AlertError(val timestamp: Instant, var message: String) : Writeable, ToXContent {
+data class AlertError(
+    val timestamp: Instant,
+    var message: String,
+) : Writeable,
+    ToXContent {
     init {
         this.message = obfuscateIPAddresses(message)
     }
@@ -20,7 +24,7 @@ data class AlertError(val timestamp: Instant, var message: String) : Writeable, 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readInstant(), // timestamp
-        sin.readString() // message
+        sin.readString(), // message
     )
 
     @Throws(IOException::class)
@@ -28,8 +32,8 @@ data class AlertError(val timestamp: Instant, var message: String) : Writeable, 
         out.writeInstant(timestamp)
         out.writeString(message)
     }
-    companion object {
 
+    companion object {
         const val TIMESTAMP_FIELD = "timestamp"
         const val MESSAGE_FIELD = "message"
 
@@ -54,9 +58,7 @@ data class AlertError(val timestamp: Instant, var message: String) : Writeable, 
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): AlertError {
-            return AlertError(sin)
-        }
+        fun readFrom(sin: StreamInput): AlertError = AlertError(sin)
 
         fun obfuscateIPAddresses(exceptionMessage: String): String {
             val ipAddressPattern = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"
@@ -65,10 +67,13 @@ data class AlertError(val timestamp: Instant, var message: String) : Writeable, 
         }
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .optionalTimeField(TIMESTAMP_FIELD, timestamp)
             .field(MESSAGE_FIELD, message)
             .endObject()
-    }
 }

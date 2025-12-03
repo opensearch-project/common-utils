@@ -87,14 +87,20 @@ fun randomQueryLevelMonitor(
     triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomQueryLevelTrigger() },
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    withMetadata: Boolean = false
-): Monitor {
-    return Monitor(
-        name = name, monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
-        schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
+    withMetadata: Boolean = false,
+): Monitor =
+    Monitor(
+        name = name,
+        monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR.value,
+        enabled = enabled,
+        inputs = inputs,
+        schedule = schedule,
+        triggers = triggers,
+        enabledTime = enabledTime,
+        lastUpdateTime = lastUpdateTime,
+        user = user,
+        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf(),
     )
-}
 
 // Monitor of older versions without security.
 fun randomQueryLevelMonitorWithoutUser(
@@ -105,38 +111,52 @@ fun randomQueryLevelMonitorWithoutUser(
     triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomQueryLevelTrigger() },
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    withMetadata: Boolean = false
-): Monitor {
-    return Monitor(
-        name = name, monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
-        schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = null,
-        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
+    withMetadata: Boolean = false,
+): Monitor =
+    Monitor(
+        name = name,
+        monitorType = Monitor.MonitorType.QUERY_LEVEL_MONITOR.value,
+        enabled = enabled,
+        inputs = inputs,
+        schedule = schedule,
+        triggers = triggers,
+        enabledTime = enabledTime,
+        lastUpdateTime = lastUpdateTime,
+        user = null,
+        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf(),
     )
-}
 
 fun randomBucketLevelMonitor(
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
     user: User = randomUser(),
-    inputs: List<Input> = listOf(
-        SearchInput(
-            emptyList(),
-            SearchSourceBuilder().query(QueryBuilders.matchAllQuery())
-                .aggregation(TermsAggregationBuilder("test_agg").field("test_field"))
-        )
-    ),
+    inputs: List<Input> =
+        listOf(
+            SearchInput(
+                emptyList(),
+                SearchSourceBuilder()
+                    .query(QueryBuilders.matchAllQuery())
+                    .aggregation(TermsAggregationBuilder("test_agg").field("test_field")),
+            ),
+        ),
     schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
     enabled: Boolean = Random().nextBoolean(),
     triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomBucketLevelTrigger() },
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    withMetadata: Boolean = false
-): Monitor {
-    return Monitor(
-        name = name, monitorType = Monitor.MonitorType.BUCKET_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
-        schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
+    withMetadata: Boolean = false,
+): Monitor =
+    Monitor(
+        name = name,
+        monitorType = Monitor.MonitorType.BUCKET_LEVEL_MONITOR.value,
+        enabled = enabled,
+        inputs = inputs,
+        schedule = schedule,
+        triggers = triggers,
+        enabledTime = enabledTime,
+        lastUpdateTime = lastUpdateTime,
+        user = user,
+        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf(),
     )
-}
 
 fun randomClusterMetricsMonitor(
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
@@ -147,14 +167,20 @@ fun randomClusterMetricsMonitor(
     triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomQueryLevelTrigger() },
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    withMetadata: Boolean = false
-): Monitor {
-    return Monitor(
-        name = name, monitorType = Monitor.MonitorType.CLUSTER_METRICS_MONITOR.value, enabled = enabled, inputs = inputs,
-        schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
+    withMetadata: Boolean = false,
+): Monitor =
+    Monitor(
+        name = name,
+        monitorType = Monitor.MonitorType.CLUSTER_METRICS_MONITOR.value,
+        enabled = enabled,
+        inputs = inputs,
+        schedule = schedule,
+        triggers = triggers,
+        enabledTime = enabledTime,
+        lastUpdateTime = lastUpdateTime,
+        user = user,
+        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf(),
     )
-}
 
 fun randomDocumentLevelMonitor(
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
@@ -165,14 +191,20 @@ fun randomDocumentLevelMonitor(
     triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomDocumentLevelTrigger() },
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    withMetadata: Boolean = false
-): Monitor {
-    return Monitor(
-        name = name, monitorType = Monitor.MonitorType.DOC_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
-        schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
+    withMetadata: Boolean = false,
+): Monitor =
+    Monitor(
+        name = name,
+        monitorType = Monitor.MonitorType.DOC_LEVEL_MONITOR.value,
+        enabled = enabled,
+        inputs = inputs,
+        schedule = schedule,
+        triggers = triggers,
+        enabledTime = enabledTime,
+        lastUpdateTime = lastUpdateTime,
+        user = user,
+        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf(),
     )
-}
 
 fun randomWorkflow(
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
@@ -183,30 +215,38 @@ fun randomWorkflow(
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
     triggers: List<Trigger> = listOf(randomChainedAlertTrigger()),
-    auditDelegateMonitorAlerts: Boolean? = true
+    auditDelegateMonitorAlerts: Boolean? = true,
 ): Workflow {
     val delegates = mutableListOf<Delegate>()
     if (!monitorIds.isNullOrEmpty()) {
         delegates.add(Delegate(1, monitorIds[0]))
         for (i in 1 until monitorIds.size) {
             // Order of monitors in workflow will be the same like forwarded meaning that the first monitorId will be used as second monitor chained finding
-            delegates.add(Delegate(i + 1, monitorIds [i], ChainedMonitorFindings(monitorIds[i - 1])))
+            delegates.add(Delegate(i + 1, monitorIds[i], ChainedMonitorFindings(monitorIds[i - 1])))
         }
     }
     var input = listOf(CompositeInput(Sequence(delegates)))
     if (input == null) {
-        input = listOf(
-            CompositeInput(
-                Sequence(
-                    listOf(Delegate(1, "delegate1"))
-                )
+        input =
+            listOf(
+                CompositeInput(
+                    Sequence(
+                        listOf(Delegate(1, "delegate1")),
+                    ),
+                ),
             )
-        )
     }
     return Workflow(
-        name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
-        schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        triggers = triggers, auditDelegateMonitorAlerts = auditDelegateMonitorAlerts
+        name = name,
+        workflowType = Workflow.WorkflowType.COMPOSITE,
+        enabled = enabled,
+        inputs = input,
+        schedule = schedule,
+        enabledTime = enabledTime,
+        lastUpdateTime = lastUpdateTime,
+        user = user,
+        triggers = triggers,
+        auditDelegateMonitorAlerts = auditDelegateMonitorAlerts,
     )
 }
 
@@ -218,33 +258,32 @@ fun randomWorkflowWithDelegates(
     enabled: Boolean = Random().nextBoolean(),
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() }
-): Workflow {
-    return Workflow(
-        name = name, workflowType = Workflow.WorkflowType.COMPOSITE, enabled = enabled, inputs = input,
-        schedule = schedule, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
-        triggers = triggers
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomChainedAlertTrigger() },
+): Workflow =
+    Workflow(
+        name = name,
+        workflowType = Workflow.WorkflowType.COMPOSITE,
+        enabled = enabled,
+        inputs = input,
+        schedule = schedule,
+        enabledTime = enabledTime,
+        lastUpdateTime = lastUpdateTime,
+        user = user,
+        triggers = triggers,
     )
-}
 
 fun Workflow.toJsonStringWithUser(): String {
     val builder = XContentFactory.jsonBuilder()
     return this.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS).string()
 }
 
-fun randomSequence(
-    delegates: List<Delegate> = listOf(randomDelegate())
-): Sequence {
-    return Sequence(delegates)
-}
+fun randomSequence(delegates: List<Delegate> = listOf(randomDelegate())): Sequence = Sequence(delegates)
 
 fun randomDelegate(
     order: Int = 1,
     monitorId: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
-    chainedMonitorFindings: ChainedMonitorFindings? = null
-): Delegate {
-    return Delegate(order, monitorId, chainedMonitorFindings)
-}
+    chainedMonitorFindings: ChainedMonitorFindings? = null,
+): Delegate = Delegate(order, monitorId, chainedMonitorFindings)
 
 fun randomQueryLevelTrigger(
     id: String = UUIDs.base64UUID(),
@@ -252,16 +291,22 @@ fun randomQueryLevelTrigger(
     severity: String = "1",
     condition: Script = randomScript(),
     actions: List<Action> = mutableListOf(),
-    destinationId: String = ""
-): QueryLevelTrigger {
-    return QueryLevelTrigger(
+    destinationId: String = "",
+): QueryLevelTrigger =
+    QueryLevelTrigger(
         id = id,
         name = name,
         severity = severity,
         condition = condition,
-        actions = if (actions.isEmpty()) (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) } else actions
+        actions =
+            if (actions.isEmpty()) {
+                (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map {
+                    randomAction(destinationId = destinationId)
+                }
+            } else {
+                actions
+            },
     )
-}
 
 fun randomBucketLevelTrigger(
     id: String = UUIDs.base64UUID(),
@@ -269,19 +314,21 @@ fun randomBucketLevelTrigger(
     severity: String = "1",
     bucketSelector: BucketSelectorExtAggregationBuilder = randomBucketSelectorExtAggregationBuilder(name = id),
     actions: List<Action> = mutableListOf(),
-    destinationId: String = ""
-): BucketLevelTrigger {
-    return BucketLevelTrigger(
+    destinationId: String = "",
+): BucketLevelTrigger =
+    BucketLevelTrigger(
         id = id,
         name = name,
         severity = severity,
         bucketSelector = bucketSelector,
-        actions = if (actions.isEmpty()) randomActionsForBucketLevelTrigger(destinationId = destinationId) else actions
+        actions = if (actions.isEmpty()) randomActionsForBucketLevelTrigger(destinationId = destinationId) else actions,
     )
-}
 
-fun randomActionsForBucketLevelTrigger(min: Int = 0, max: Int = 10, destinationId: String = ""): List<Action> =
-    (min..RandomNumbers.randomIntBetween(Random(), 0, max)).map { randomActionWithPolicy(destinationId = destinationId) }
+fun randomActionsForBucketLevelTrigger(
+    min: Int = 0,
+    max: Int = 10,
+    destinationId: String = "",
+): List<Action> = (min..RandomNumbers.randomIntBetween(Random(), 0, max)).map { randomActionWithPolicy(destinationId = destinationId) }
 
 fun randomDocumentLevelTrigger(
     id: String = UUIDs.base64UUID(),
@@ -289,20 +336,20 @@ fun randomDocumentLevelTrigger(
     severity: String = "1",
     condition: Script = randomScript(),
     actions: List<Action> = mutableListOf(),
-    destinationId: String = ""
-): DocumentLevelTrigger {
-    return DocumentLevelTrigger(
+    destinationId: String = "",
+): DocumentLevelTrigger =
+    DocumentLevelTrigger(
         id = id,
         name = name,
         severity = severity,
         condition = condition,
-        actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
-            (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
-        } else {
-            actions
-        }
+        actions =
+            if (actions.isEmpty() && destinationId.isNotBlank()) {
+                (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
+            } else {
+                actions
+            },
     )
-}
 
 fun randomChainedAlertTrigger(
     id: String = UUIDs.base64UUID(),
@@ -310,43 +357,39 @@ fun randomChainedAlertTrigger(
     severity: String = "1",
     condition: Script = randomScript(),
     actions: List<Action> = mutableListOf(),
-    destinationId: String = ""
-): ChainedAlertTrigger {
-    return ChainedAlertTrigger(
+    destinationId: String = "",
+): ChainedAlertTrigger =
+    ChainedAlertTrigger(
         id = id,
         name = name,
         severity = severity,
         condition = condition,
-        actions = if (actions.isEmpty() && destinationId.isNotBlank()) {
-            (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
-        } else {
-            actions
-        }
+        actions =
+            if (actions.isEmpty() && destinationId.isNotBlank()) {
+                (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = destinationId) }
+            } else {
+                actions
+            },
     )
-}
 
 fun randomBucketSelectorExtAggregationBuilder(
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
     bucketsPathsMap: MutableMap<String, String> = mutableMapOf("avg" to "10"),
     script: Script = randomBucketSelectorScript(params = bucketsPathsMap),
     parentBucketPath: String = "testPath",
-    filter: BucketSelectorExtFilter = BucketSelectorExtFilter(IncludeExclude("foo*", "bar*"))
-): BucketSelectorExtAggregationBuilder {
-    return BucketSelectorExtAggregationBuilder(name, bucketsPathsMap, script, parentBucketPath, filter)
-}
+    filter: BucketSelectorExtFilter = BucketSelectorExtFilter(IncludeExclude("foo*", "bar*")),
+): BucketSelectorExtAggregationBuilder = BucketSelectorExtAggregationBuilder(name, bucketsPathsMap, script, parentBucketPath, filter)
 
 fun randomBucketSelectorScript(
     idOrCode: String = "params.avg >= 0",
-    params: Map<String, String> = mutableMapOf("avg" to "10")
-): Script {
-    return Script(Script.DEFAULT_SCRIPT_TYPE, Script.DEFAULT_SCRIPT_LANG, idOrCode, emptyMap<String, String>(), params)
-}
+    params: Map<String, String> = mutableMapOf("avg" to "10"),
+): Script = Script(Script.DEFAULT_SCRIPT_TYPE, Script.DEFAULT_SCRIPT_LANG, idOrCode, emptyMap<String, String>(), params)
 
 fun randomScript(source: String = "return " + Random().nextBoolean().toString()): Script = Script(source)
 
 fun randomTemplateScript(
     source: String,
-    params: Map<String, String> = emptyMap()
+    params: Map<String, String> = emptyMap(),
 ): Script = Script(ScriptType.INLINE, Script.DEFAULT_TEMPLATE_LANG, source, params)
 
 fun randomAction(
@@ -354,7 +397,7 @@ fun randomAction(
     template: Script = randomTemplateScript("Hello World"),
     destinationId: String = "",
     throttleEnabled: Boolean = false,
-    throttle: Throttle = randomThrottle()
+    throttle: Throttle = randomThrottle(),
 ) = Action(name, destinationId, template, template, throttleEnabled, throttle, actionExecutionPolicy = null)
 
 fun randomActionWithPolicy(
@@ -363,68 +406,77 @@ fun randomActionWithPolicy(
     destinationId: String = "",
     throttleEnabled: Boolean = false,
     throttle: Throttle = randomThrottle(),
-    actionExecutionPolicy: ActionExecutionPolicy? = randomActionExecutionPolicy()
-): Action {
-    return if (actionExecutionPolicy?.actionExecutionScope is PerExecutionActionScope) {
+    actionExecutionPolicy: ActionExecutionPolicy? = randomActionExecutionPolicy(),
+): Action =
+    if (actionExecutionPolicy?.actionExecutionScope is PerExecutionActionScope) {
         // Return null for throttle when using PerExecutionActionScope since throttling is currently not supported for it
         Action(name, destinationId, template, template, throttleEnabled, null, actionExecutionPolicy = actionExecutionPolicy)
     } else {
         Action(name, destinationId, template, template, throttleEnabled, throttle, actionExecutionPolicy = actionExecutionPolicy)
     }
-}
 
 fun randomThrottle(
     value: Int = RandomNumbers.randomIntBetween(Random(), 60, 120),
-    unit: ChronoUnit = ChronoUnit.MINUTES
+    unit: ChronoUnit = ChronoUnit.MINUTES,
 ) = Throttle(value, unit)
 
-fun randomActionExecutionPolicy(
-    actionExecutionScope: ActionExecutionScope = randomActionExecutionScope()
-) = ActionExecutionPolicy(actionExecutionScope)
+fun randomActionExecutionPolicy(actionExecutionScope: ActionExecutionScope = randomActionExecutionScope()) =
+    ActionExecutionPolicy(actionExecutionScope)
 
-fun randomActionExecutionScope(): ActionExecutionScope {
-    return if (Random().nextBoolean()) {
+fun randomActionExecutionScope(): ActionExecutionScope =
+    if (Random().nextBoolean()) {
         val alertCategories = AlertCategory.values()
-        PerAlertActionScope(actionableAlerts = (1..RandomNumbers.randomIntBetween(Random(), 0, alertCategories.size)).map { alertCategories[it - 1] }.toSet())
+        PerAlertActionScope(
+            actionableAlerts =
+                (1..RandomNumbers.randomIntBetween(Random(), 0, alertCategories.size))
+                    .map {
+                        alertCategories[
+                            it -
+                                1,
+                        ]
+                    }.toSet(),
+        )
     } else {
         PerExecutionActionScope()
     }
-}
 
 fun randomDocLevelQuery(
     id: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
     query: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
     name: String = "${RandomNumbers.randomIntBetween(Random(), 0, 5)}",
-    tags: List<String> = mutableListOf(0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { RandomStrings.randomAsciiLettersOfLength(Random(), 10) }
-): DocLevelQuery {
-    return DocLevelQuery(id = id, query = query, name = name, tags = tags, fields = listOf("*"))
-}
+    tags: List<String> =
+        mutableListOf(0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map {
+            RandomStrings.randomAsciiLettersOfLength(Random(), 10)
+        },
+): DocLevelQuery = DocLevelQuery(id = id, query = query, name = name, tags = tags, fields = listOf("*"))
 
 fun randomDocLevelMonitorInput(
     description: String = RandomStrings.randomAsciiLettersOfLength(Random(), RandomNumbers.randomIntBetween(Random(), 0, 10)),
-    indices: List<String> = listOf(1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { RandomStrings.randomAsciiLettersOfLength(Random(), 10) },
-    queries: List<DocLevelQuery> = listOf(1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomDocLevelQuery() }
-): DocLevelMonitorInput {
-    return DocLevelMonitorInput(description = description, indices = indices, queries = queries)
-}
+    indices: List<String> =
+        listOf(1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map {
+            RandomStrings.randomAsciiLettersOfLength(Random(), 10)
+        },
+    queries: List<DocLevelQuery> = listOf(1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomDocLevelQuery() },
+): DocLevelMonitorInput = DocLevelMonitorInput(description = description, indices = indices, queries = queries)
 
 fun randomSearchInput(
-    indices: List<String> = listOf(1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { RandomStrings.randomAsciiLettersOfLength(Random(), 10) },
-    query: SearchSourceBuilder = SearchSourceBuilder().query(QueryBuilders.matchAllQuery())
-): SearchInput {
-    return SearchInput(indices, query)
-}
+    indices: List<String> =
+        listOf(1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map {
+            RandomStrings.randomAsciiLettersOfLength(Random(), 10)
+        },
+    query: SearchSourceBuilder = SearchSourceBuilder().query(QueryBuilders.matchAllQuery()),
+): SearchInput = SearchInput(indices, query)
 
 fun randomClusterMetricsInput(
-    path: String = ClusterMetricsInput.ClusterMetricType.values()
-        .filter { it.defaultPath.isNotBlank() && !it.requiresPathParams }
-        .random()
-        .defaultPath,
+    path: String =
+        ClusterMetricsInput.ClusterMetricType
+            .values()
+            .filter { it.defaultPath.isNotBlank() && !it.requiresPathParams }
+            .random()
+            .defaultPath,
     pathParams: String = "",
-    url: String = ""
-): ClusterMetricsInput {
-    return ClusterMetricsInput(path, pathParams, url)
-}
+    url: String = "",
+): ClusterMetricsInput = ClusterMetricsInput(path, pathParams, url)
 
 fun ChainedMonitorFindings.toJsonString(): String {
     val builder = XContentFactory.jsonBuilder()
@@ -446,21 +498,18 @@ fun Monitor.toJsonStringWithUser(): String {
     return this.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS).string()
 }
 
-fun randomUser(): User {
-    return User(
+fun randomUser(): User =
+    User(
         RandomStrings.randomAsciiLettersOfLength(Random(), 10),
         listOf(
             RandomStrings.randomAsciiLettersOfLength(Random(), 10),
-            RandomStrings.randomAsciiLettersOfLength(Random(), 10)
+            RandomStrings.randomAsciiLettersOfLength(Random(), 10),
         ),
         listOf(RandomStrings.randomAsciiLettersOfLength(Random(), 10), ALL_ACCESS_ROLE),
-        mapOf("test_attr" to "test")
+        mapOf("test_attr" to "test"),
     )
-}
 
-fun randomUserEmpty(): User {
-    return User("", listOf(), listOf(), mapOf())
-}
+fun randomUserEmpty(): User = User("", listOf(), listOf(), mapOf())
 
 /**
  * Wrapper for [RestClient.performRequest] which was deprecated in ES 6.5 and is used in tests. This provides
@@ -473,7 +522,7 @@ fun RestClient.makeRequest(
     endpoint: String,
     params: Map<String, String> = emptyMap(),
     entity: HttpEntity? = null,
-    vararg headers: Header
+    vararg headers: Header,
 ): Response {
     val request = Request(method, endpoint)
     // TODO: remove PERMISSIVE option after moving system index access to REST API call
@@ -498,7 +547,7 @@ fun RestClient.makeRequest(
     method: String,
     endpoint: String,
     entity: HttpEntity? = null,
-    vararg headers: Header
+    vararg headers: Header,
 ): Response {
     val request = Request(method, endpoint)
     val options = RequestOptions.DEFAULT.toBuilder()
@@ -512,9 +561,7 @@ fun RestClient.makeRequest(
     return performRequest(request)
 }
 
-fun builder(): XContentBuilder {
-    return XContentBuilder.builder(XContentType.JSON.xContent())
-}
+fun builder(): XContentBuilder = XContentBuilder.builder(XContentType.JSON.xContent())
 
 fun parser(xc: String): XContentParser {
     val parser = XContentType.JSON.xContent().createParser(xContentRegistry(), LoggingDeprecationHandler.INSTANCE, xc)
@@ -528,8 +575,8 @@ fun parser(xc: ByteArray): XContentParser {
     return parser
 }
 
-fun xContentRegistry(): NamedXContentRegistry {
-    return NamedXContentRegistry(
+fun xContentRegistry(): NamedXContentRegistry =
+    NamedXContentRegistry(
         listOf(
             SearchInput.XCONTENT_REGISTRY,
             DocLevelMonitorInput.XCONTENT_REGISTRY,
@@ -538,10 +585,9 @@ fun xContentRegistry(): NamedXContentRegistry {
             DocumentLevelTrigger.XCONTENT_REGISTRY,
             ChainedAlertTrigger.XCONTENT_REGISTRY,
             NoOpTrigger.XCONTENT_REGISTRY,
-            RemoteMonitorTrigger.XCONTENT_REGISTRY
-        ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
+            RemoteMonitorTrigger.XCONTENT_REGISTRY,
+        ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents,
     )
-}
 
 fun assertUserNull(map: Map<String, Any?>) {
     val user = map["user"]
@@ -563,15 +609,15 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
         Instant.now().truncatedTo(ChronoUnit.MILLIS),
         null,
         actionExecutionResults = actionExecutionResults,
-        clusters = clusters
+        clusters = clusters,
     )
 }
 
 fun randomChainedAlert(
     workflow: Workflow = randomWorkflow(),
-    trigger: ChainedAlertTrigger = randomChainedAlertTrigger()
-): Alert {
-    return Alert(
+    trigger: ChainedAlertTrigger = randomChainedAlertTrigger(),
+): Alert =
+    Alert(
         startTime = Instant.now(),
         lastNotificationTime = Instant.now(),
         state = Alert.State.ACTIVE,
@@ -579,14 +625,13 @@ fun randomChainedAlert(
         executionId = UUID.randomUUID().toString(),
         chainedAlertTrigger = trigger,
         workflow = workflow,
-        associatedAlertIds = listOf("a1")
+        associatedAlertIds = listOf("a1"),
     )
-}
 
 fun randomActionExecutionResult(
     actionId: String = UUIDs.base64UUID(),
     lastExecutionTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-    throttledCount: Int = 0
+    throttledCount: Int = 0,
 ) = ActionExecutionResult(actionId, lastExecutionTime, throttledCount)
 
 fun randomAlertWithAggregationResultBucket(monitor: Monitor = randomBucketLevelMonitor()): Alert {
@@ -598,11 +643,12 @@ fun randomAlertWithAggregationResultBucket(monitor: Monitor = randomBucketLevelM
         Instant.now().truncatedTo(ChronoUnit.MILLIS),
         null,
         actionExecutionResults = actionExecutionResults,
-        aggregationResultBucket = AggregationResultBucket(
-            "parent_bucket_path_1",
-            listOf("bucket_key_1"),
-            mapOf("k1" to "val1", "k2" to "val2")
-        )
+        aggregationResultBucket =
+            AggregationResultBucket(
+                "parent_bucket_path_1",
+                listOf("bucket_key_1"),
+                mapOf("k1" to "val1", "k2" to "val2"),
+            ),
     )
 }
 
@@ -613,22 +659,21 @@ fun randomFinding(
     monitorName: String = UUIDs.base64UUID(),
     index: String = UUIDs.base64UUID(),
     docLevelQueries: List<DocLevelQuery> = listOf(randomDocLevelQuery()),
-    timestamp: Instant = Instant.now()
-): Finding {
-    return Finding(
+    timestamp: Instant = Instant.now(),
+): Finding =
+    Finding(
         id = id,
         relatedDocIds = relatedDocIds,
         monitorId = monitorId,
         monitorName = monitorName,
         index = index,
         docLevelQueries = docLevelQueries,
-        timestamp = timestamp
+        timestamp = timestamp,
     )
-}
 
 fun randomCorrelationAlert(
     id: String,
-    state: Alert.State
+    state: Alert.State,
 ): CorrelationAlert {
     val correlatedFindingIds = listOf("finding1", "finding2")
     val correlationRuleId = "rule1"
@@ -647,15 +692,26 @@ fun randomCorrelationAlert(
     val actionExecutionResults = listOf(randomActionExecutionResult())
 
     return CorrelationAlert(
-        correlatedFindingIds, correlationRuleId, correlationRuleName,
-        id, version, schemaVersion, user, triggerName, state,
-        startTime, endTime, acknowledgedTime, errorMessage, severity,
-        actionExecutionResults
+        correlatedFindingIds,
+        correlationRuleId,
+        correlationRuleName,
+        id,
+        version,
+        schemaVersion,
+        user,
+        triggerName,
+        state,
+        startTime,
+        endTime,
+        acknowledgedTime,
+        errorMessage,
+        severity,
+        actionExecutionResults,
     )
 }
 
-fun createUnifiedAlertTemplateArgs(unifiedAlert: BaseAlert): Map<String, Any?> {
-    return mapOf(
+fun createUnifiedAlertTemplateArgs(unifiedAlert: BaseAlert): Map<String, Any?> =
+    mapOf(
         BaseAlert.ALERT_ID_FIELD to unifiedAlert.id,
         BaseAlert.ALERT_VERSION_FIELD to unifiedAlert.version,
         BaseAlert.SCHEMA_VERSION_FIELD to unifiedAlert.schemaVersion,
@@ -667,22 +723,20 @@ fun createUnifiedAlertTemplateArgs(unifiedAlert: BaseAlert): Map<String, Any?> {
         BaseAlert.ACKNOWLEDGED_TIME_FIELD to unifiedAlert.acknowledgedTime,
         BaseAlert.ERROR_MESSAGE_FIELD to unifiedAlert.errorMessage,
         BaseAlert.SEVERITY_FIELD to unifiedAlert.severity,
-        BaseAlert.ACTION_EXECUTION_RESULTS_FIELD to unifiedAlert.actionExecutionResults
+        BaseAlert.ACTION_EXECUTION_RESULTS_FIELD to unifiedAlert.actionExecutionResults,
     )
-}
 
 fun createCorrelationAlertTemplateArgs(correlationAlert: CorrelationAlert): Map<String, Any?> {
     val unifiedAlertTemplateArgs = createUnifiedAlertTemplateArgs(correlationAlert)
-    return unifiedAlertTemplateArgs + mapOf(
-        CorrelationAlert.CORRELATED_FINDING_IDS to correlationAlert.correlatedFindingIds,
-        CorrelationAlert.CORRELATION_RULE_ID to correlationAlert.correlationRuleId,
-        CorrelationAlert.CORRELATION_RULE_NAME to correlationAlert.correlationRuleName
-    )
+    return unifiedAlertTemplateArgs +
+        mapOf(
+            CorrelationAlert.CORRELATED_FINDING_IDS to correlationAlert.correlatedFindingIds,
+            CorrelationAlert.CORRELATION_RULE_ID to correlationAlert.correlationRuleId,
+            CorrelationAlert.CORRELATION_RULE_NAME to correlationAlert.correlationRuleName,
+        )
 }
 
-fun randomInputRunResults(): InputRunResults {
-    return InputRunResults(listOf(), null)
-}
+fun randomInputRunResults(): InputRunResults = InputRunResults(listOf(), null)
 
 fun randomActionRunResult(): ActionRunResult {
     val map = mutableMapOf<String, String>()
@@ -694,7 +748,7 @@ fun randomActionRunResult(): ActionRunResult {
         map,
         false,
         Instant.now(),
-        null
+        null,
     )
 }
 
@@ -706,9 +760,10 @@ fun randomDocumentLevelTriggerRunResult(): DocumentLevelTriggerRunResult {
         "trigger-name",
         mutableListOf(UUIDs.randomBase64UUID().toString()),
         null,
-        mutableMapOf(Pair("alertId", map))
+        mutableMapOf(Pair("alertId", map)),
     )
 }
+
 fun randomDocumentLevelMonitorRunResult(): MonitorRunResult<DocumentLevelTriggerRunResult> {
     val triggerResults = mutableMapOf<String, DocumentLevelTriggerRunResult>()
     val triggerRunResult = randomDocumentLevelTriggerRunResult()
@@ -720,7 +775,7 @@ fun randomDocumentLevelMonitorRunResult(): MonitorRunResult<DocumentLevelTrigger
         Instant.now(),
         null,
         randomInputRunResults(),
-        triggerResults
+        triggerResults,
     )
 }
 
@@ -729,16 +784,18 @@ fun randomBucketLevelTriggerRunResult(): BucketLevelTriggerRunResult {
     map.plus(Pair("key1", randomActionRunResult()))
     map.plus(Pair("key2", randomActionRunResult()))
 
-    val aggBucket1 = AggregationResultBucket(
-        "parent_bucket_path_1",
-        listOf("bucket_key_1"),
-        mapOf("k1" to "val1", "k2" to "val2")
-    )
-    val aggBucket2 = AggregationResultBucket(
-        "parent_bucket_path_2",
-        listOf("bucket_key_2"),
-        mapOf("k1" to "val1", "k2" to "val2")
-    )
+    val aggBucket1 =
+        AggregationResultBucket(
+            "parent_bucket_path_1",
+            listOf("bucket_key_1"),
+            mapOf("k1" to "val1", "k2" to "val2"),
+        )
+    val aggBucket2 =
+        AggregationResultBucket(
+            "parent_bucket_path_2",
+            listOf("bucket_key_2"),
+            mapOf("k1" to "val1", "k2" to "val2"),
+        )
 
     val actionResultsMap: MutableMap<String, MutableMap<String, ActionRunResult>> = mutableMapOf()
     actionResultsMap[aggBucket1.getBucketKeysHash()] = map
@@ -749,9 +806,9 @@ fun randomBucketLevelTriggerRunResult(): BucketLevelTriggerRunResult {
         null,
         mapOf(
             aggBucket1.getBucketKeysHash() to aggBucket1,
-            aggBucket2.getBucketKeysHash() to aggBucket2
+            aggBucket2.getBucketKeysHash() to aggBucket2,
         ),
-        actionResultsMap
+        actionResultsMap,
     )
 }
 
@@ -766,7 +823,7 @@ fun randomBucketLevelMonitorRunResult(): MonitorRunResult<BucketLevelTriggerRunR
         Instant.now(),
         null,
         randomInputRunResults(),
-        triggerResults
+        triggerResults,
     )
 }
 
@@ -788,6 +845,6 @@ fun randomQueryLevelMonitorRunResult(): MonitorRunResult<QueryLevelTriggerRunRes
         Instant.now(),
         null,
         randomInputRunResults(),
-        triggerResults
+        triggerResults,
     )
 }

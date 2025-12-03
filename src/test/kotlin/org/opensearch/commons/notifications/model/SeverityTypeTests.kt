@@ -10,7 +10,6 @@ import org.opensearch.commons.notifications.model.SeverityType.Companion.enumPar
 import org.opensearch.commons.notifications.model.SeverityType.Companion.fromTagOrDefault
 
 internal class SeverityTypeTests {
-
     @Test
     fun `toString should return tag`() {
         SeverityType.values().forEach {

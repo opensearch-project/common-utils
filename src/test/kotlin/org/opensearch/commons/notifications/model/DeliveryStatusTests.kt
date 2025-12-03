@@ -16,20 +16,22 @@ import org.opensearch.commons.utils.recreateObject
 internal class DeliveryStatusTests {
     @Test
     fun `DeliveryStatus serialize and deserialize should be equal`() {
-        val sampleDeliveryStatus = DeliveryStatus(
-            "404",
-            "invalid recipient"
-        )
+        val sampleDeliveryStatus =
+            DeliveryStatus(
+                "404",
+                "invalid recipient",
+            )
         val recreatedObject = recreateObject(sampleDeliveryStatus) { DeliveryStatus(it) }
         assertEquals(sampleDeliveryStatus, recreatedObject)
     }
 
     @Test
     fun `DeliveryStatus serialize and deserialize using json should be equal`() {
-        val sampleDeliveryStatus = DeliveryStatus(
-            "404",
-            "invalid recipient"
-        )
+        val sampleDeliveryStatus =
+            DeliveryStatus(
+                "404",
+                "invalid recipient",
+            )
         val jsonString = getJsonString(sampleDeliveryStatus)
         val recreatedObject = createObjectFromJsonString(jsonString) { DeliveryStatus.parse(it) }
         assertEquals(sampleDeliveryStatus, recreatedObject)
@@ -45,17 +47,19 @@ internal class DeliveryStatusTests {
 
     @Test
     fun `DeliveryStatus should safely ignore extra field in json object`() {
-        val sampleDeliveryStatus = DeliveryStatus(
-            "404",
-            "invalid recipient"
-        )
-        val jsonString = """
-        {
-            "status_code": "404",
-            "status_text": "invalid recipient",
-            "extra": "field"
-        }    
-        """.trimIndent()
+        val sampleDeliveryStatus =
+            DeliveryStatus(
+                "404",
+                "invalid recipient",
+            )
+        val jsonString =
+            """
+            {
+                "status_code": "404",
+                "status_text": "invalid recipient",
+                "extra": "field"
+            }    
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { DeliveryStatus.parse(it) }
         assertEquals(sampleDeliveryStatus, recreatedObject)
     }

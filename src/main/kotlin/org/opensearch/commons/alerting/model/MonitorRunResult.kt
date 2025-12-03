@@ -24,9 +24,9 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
     val periodEnd: Instant,
     val error: Exception? = null,
     val inputResults: InputRunResults = InputRunResults(),
-    val triggerResults: Map<String, TriggerResult> = mapOf()
-) : Writeable, ToXContent {
-
+    val triggerResults: Map<String, TriggerResult> = mapOf(),
+) : Writeable,
+    ToXContent {
     @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
     constructor(sin: StreamInput) : this(
@@ -35,11 +35,15 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
         sin.readInstant(), // periodEnd
         sin.readException(), // error
         InputRunResults.readFrom(sin), // inputResults
-        suppressWarning(sin.readMap()) as Map<String, TriggerResult> // triggerResults
+        suppressWarning(sin.readMap()) as Map<String, TriggerResult>, // triggerResults
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field("monitor_name", monitorName)
             .optionalTimeField("period_start", periodStart)
             .optionalTimeField("period_end", periodEnd)
@@ -47,7 +51,6 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
             .field("input_results", inputResults)
             .field("trigger_results", triggerResults)
             .endObject()
-    }
 
     /** Returns error information to store in the Alert. Currently it's just the stack trace but it can be more */
     fun alertError(): AlertError? {
@@ -61,21 +64,15 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
         return null
     }
 
-    fun scriptContextError(trigger: Trigger): Exception? {
-        return error ?: inputResults.error ?: triggerResults[trigger.id]?.error
-    }
+    fun scriptContextError(trigger: Trigger): Exception? = error ?: inputResults.error ?: triggerResults[trigger.id]?.error
 
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): MonitorRunResult<TriggerRunResult> {
-            return MonitorRunResult(sin)
-        }
+        fun readFrom(sin: StreamInput): MonitorRunResult<TriggerRunResult> = MonitorRunResult(sin)
 
         @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, TriggerRunResult> {
-            return map as Map<String, TriggerRunResult>
-        }
+        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, TriggerRunResult> = map as Map<String, TriggerRunResult>
     }
 
     @Throws(IOException::class)
@@ -92,15 +89,18 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
 data class InputRunResults(
     val results: List<Map<String, Any>> = listOf(),
     val error: Exception? = null,
-    val aggTriggersAfterKey: MutableMap<String, TriggerAfterKey>? = null
-) : Writeable, ToXContent {
-
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    val aggTriggersAfterKey: MutableMap<String, TriggerAfterKey>? = null,
+) : Writeable,
+    ToXContent {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field("results", results)
             .field("error", error?.message)
             .endObject()
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -125,9 +125,7 @@ data class InputRunResults(
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, Any> {
-            return map as Map<String, Any>
-        }
+        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, Any> = map as Map<String, Any>
     }
 
     fun afterKeysPresent(): Boolean {
@@ -140,7 +138,10 @@ data class InputRunResults(
     }
 }
 
-data class TriggerAfterKey(val afterKey: Map<String, Any>?, val lastPage: Boolean)
+data class TriggerAfterKey(
+    val afterKey: Map<String, Any>?,
+    val lastPage: Boolean,
+)
 
 data class ActionRunResult(
     val actionId: String,
@@ -148,9 +149,9 @@ data class ActionRunResult(
     val output: Map<String, String>,
     val throttled: Boolean = false,
     val executionTime: Instant? = null,
-    val error: Exception? = null
-) : Writeable, ToXContent {
-
+    val error: Exception? = null,
+) : Writeable,
+    ToXContent {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // actionId
@@ -158,11 +159,15 @@ data class ActionRunResult(
         suppressWarning(sin.readMap()), // output
         sin.readBoolean(), // throttled
         sin.readOptionalInstant(), // executionTime
-        sin.readException() // error
+        sin.readException(), // error
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field("id", actionId)
             .field("name", actionName)
             .field("output", output)
@@ -170,7 +175,6 @@ data class ActionRunResult(
             .optionalTimeField("executionTime", executionTime)
             .field("error", error?.message)
             .endObject()
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -185,31 +189,33 @@ data class ActionRunResult(
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): ActionRunResult {
-            return ActionRunResult(sin)
-        }
+        fun readFrom(sin: StreamInput): ActionRunResult = ActionRunResult(sin)
 
         @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, String> {
-            return map as MutableMap<String, String>
-        }
+        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, String> = map as MutableMap<String, String>
     }
 }
 
 private val logger = LogManager.getLogger(MonitorRunResult::class.java)
 
 /** Constructs an error message from an exception suitable for human consumption. */
-fun Throwable.userErrorMessage(): String {
-    return when {
-        this is ScriptException -> this.scriptStack.joinToString(separator = "\n", limit = 100)
-        this is OpenSearchException -> this.detailedMessage
+fun Throwable.userErrorMessage(): String =
+    when {
+        this is ScriptException -> {
+            this.scriptStack.joinToString(separator = "\n", limit = 100)
+        }
+
+        this is OpenSearchException -> {
+            this.detailedMessage
+        }
+
         this.message != null -> {
             logger.info("Internal error: ${this.message}. See the opensearch.log for details", this)
             this.message!!
         }
+
         else -> {
             logger.info("Unknown Internal error. See the OpenSearch log for details.", this)
             "Unknown Internal error. See the OpenSearch log for details."
         }
     }
-}

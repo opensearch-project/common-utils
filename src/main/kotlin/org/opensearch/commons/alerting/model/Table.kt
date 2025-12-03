@@ -11,9 +11,8 @@ data class Table(
     val missing: String?,
     val size: Int,
     val startIndex: Int,
-    val searchString: String?
+    val searchString: String?,
 ) : Writeable {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sortOrder = sin.readString(),
@@ -21,7 +20,7 @@ data class Table(
         missing = sin.readOptionalString(),
         size = sin.readInt(),
         startIndex = sin.readInt(),
-        searchString = sin.readOptionalString()
+        searchString = sin.readOptionalString(),
     )
 
     @Throws(IOException::class)
@@ -37,8 +36,6 @@ data class Table(
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Table {
-            return Table(sin)
-        }
+        fun readFrom(sin: StreamInput): Table = Table(sin)
     }
 }

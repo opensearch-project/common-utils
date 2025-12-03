@@ -11,19 +11,17 @@ import java.io.IOException
 
 /** Delegate monitors passed as input for composite monitors. */
 data class Sequence(
-    val delegates: List<Delegate>
+    val delegates: List<Delegate>,
 ) : BaseModel {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        sin.readList(::Delegate)
+        sin.readList(::Delegate),
     )
 
-    fun asTemplateArg(): Map<String, Any?> {
-        return mapOf(
-            DELEGATES_FIELD to delegates
+    fun asTemplateArg(): Map<String, Any?> =
+        mapOf(
+            DELEGATES_FIELD to delegates,
         )
-    }
 
     companion object {
         const val SEQUENCE_FIELD = "sequence"
@@ -44,7 +42,7 @@ data class Sequence(
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             delegates.add(Delegate.parse(xcp))
@@ -57,9 +55,7 @@ data class Sequence(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): DocLevelMonitorInput {
-            return DocLevelMonitorInput(sin)
-        }
+        fun readFrom(sin: StreamInput): DocLevelMonitorInput = DocLevelMonitorInput(sin)
     }
 
     @Throws(IOException::class)
@@ -67,9 +63,12 @@ data class Sequence(
         out.writeCollection(delegates)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(DELEGATES_FIELD, delegates.toTypedArray())
             .endObject()
-    }
 }

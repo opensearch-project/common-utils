@@ -13,17 +13,17 @@ import org.opensearch.commons.alerting.randomDocumentLevelTriggerRunResult
 import org.opensearch.core.common.io.stream.StreamInput
 
 class DocLevelMonitorFanOutResponseTests {
-
     @Test
     fun `test doc level monitor fan out response with errors as stream`() {
-        val docLevelMonitorFanOutResponse = DocLevelMonitorFanOutResponse(
-            "nodeid",
-            "eid",
-            "monitorId",
-            mutableMapOf("index" to mutableMapOf("1" to "1")),
-            InputRunResults(error = null),
-            mapOf("1" to randomDocumentLevelTriggerRunResult(), "2" to randomDocumentLevelTriggerRunResult())
-        )
+        val docLevelMonitorFanOutResponse =
+            DocLevelMonitorFanOutResponse(
+                "nodeid",
+                "eid",
+                "monitorId",
+                mutableMapOf("index" to mutableMapOf("1" to "1")),
+                InputRunResults(error = null),
+                mapOf("1" to randomDocumentLevelTriggerRunResult(), "2" to randomDocumentLevelTriggerRunResult()),
+            )
         val out = BytesStreamOutput()
         docLevelMonitorFanOutResponse.writeTo(out)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
@@ -38,14 +38,15 @@ class DocLevelMonitorFanOutResponseTests {
 
     @Test
     fun `test doc level monitor fan out response as stream`() {
-        val workflow = DocLevelMonitorFanOutResponse(
-            "nodeid",
-            "eid",
-            "monitorId",
-            mapOf("index" to mapOf("1" to "1")) as MutableMap<String, Any>,
-            InputRunResults(),
-            mapOf("1" to randomDocumentLevelTriggerRunResult(), "2" to randomDocumentLevelTriggerRunResult())
-        )
+        val workflow =
+            DocLevelMonitorFanOutResponse(
+                "nodeid",
+                "eid",
+                "monitorId",
+                mapOf("index" to mapOf("1" to "1")) as MutableMap<String, Any>,
+                InputRunResults(),
+                mapOf("1" to randomDocumentLevelTriggerRunResult(), "2" to randomDocumentLevelTriggerRunResult()),
+            )
         val out = BytesStreamOutput()
         workflow.writeTo(out)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)

@@ -38,10 +38,16 @@ class IndexUtils {
 
         const val MONITOR_MAX_TRIGGERS = 10
 
+        @Suppress("ktlint:standard:property-naming", "ktlint:standard:backing-property-naming")
         const val _ID = "_id"
+
+        @Suppress("ktlint:standard:property-naming", "ktlint:standard:backing-property-naming")
         const val _VERSION = "_version"
 
+        @Suppress("ktlint:standard:property-naming", "ktlint:standard:backing-property-naming")
         const val _SEQ_NO = "_seq_no"
+
+        @Suppress("ktlint:standard:property-naming", "ktlint:standard:backing-property-naming")
         const val _PRIMARY_TERM = "_primary_term"
 
         var supportedClusterMetricsSettings: SupportedClusterMetricsSettings? = null
@@ -52,21 +58,30 @@ fun Monitor.isBucketLevelMonitor(): Boolean =
     isMonitorOfStandardType() &&
         Monitor.MonitorType.valueOf(this.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.BUCKET_LEVEL_MONITOR
 
-fun XContentBuilder.optionalUserField(name: String, user: User?): XContentBuilder {
+fun XContentBuilder.optionalUserField(
+    name: String,
+    user: User?,
+): XContentBuilder {
     if (user == null) {
         return nullField(name)
     }
     return this.field(name, user)
 }
 
-fun XContentBuilder.optionalUsernameField(name: String, user: User?): XContentBuilder {
+fun XContentBuilder.optionalUsernameField(
+    name: String,
+    user: User?,
+): XContentBuilder {
     if (user == null) {
         return nullField(name)
     }
     return this.field(name, user.name)
 }
 
-fun XContentBuilder.optionalTimeField(name: String, instant: Instant?): XContentBuilder {
+fun XContentBuilder.optionalTimeField(
+    name: String,
+    instant: Instant?,
+): XContentBuilder {
     if (instant == null) {
         return nullField(name)
     }
@@ -74,16 +89,21 @@ fun XContentBuilder.optionalTimeField(name: String, instant: Instant?): XContent
     return this.timeField(name, "${name}_in_millis", instant.toEpochMilli())
 }
 
-fun XContentParser.instant(): Instant? {
-    return when {
-        currentToken() == XContentParser.Token.VALUE_NULL -> null
-        currentToken().isValue -> Instant.ofEpochMilli(longValue())
+fun XContentParser.instant(): Instant? =
+    when {
+        currentToken() == XContentParser.Token.VALUE_NULL -> {
+            null
+        }
+
+        currentToken().isValue -> {
+            Instant.ofEpochMilli(longValue())
+        }
+
         else -> {
             XContentParserUtils.throwUnknownToken(currentToken(), tokenLocation)
             null // unreachable
         }
     }
-}
 
 /**
  * Extension function for ES 6.3 and above that duplicates the ES 6.2 XContentBuilder.string() method.
@@ -91,7 +111,11 @@ fun XContentParser.instant(): Instant? {
 fun XContentBuilder.string(): String = BytesReference.bytes(this).utf8ToString()
 
 fun Monitor.isMonitorOfStandardType(): Boolean {
-    val standardMonitorTypes = Monitor.MonitorType.values().map { it.value.uppercase(Locale.ROOT) }.toSet()
+    val standardMonitorTypes =
+        Monitor.MonitorType
+            .values()
+            .map { it.value.uppercase(Locale.ROOT) }
+            .toSet()
     return standardMonitorTypes.contains(this.monitorType.uppercase(Locale.ROOT))
 }
 

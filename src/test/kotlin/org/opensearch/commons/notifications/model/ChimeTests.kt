@@ -14,7 +14,6 @@ import org.opensearch.commons.utils.recreateObject
 import java.net.MalformedURLException
 
 internal class ChimeTests {
-
     @Test
     fun `Chime serialize and deserialize transport object should be equal`() {
         val sampleChime = Chime("https://domain.com/sample_url#1234567890")

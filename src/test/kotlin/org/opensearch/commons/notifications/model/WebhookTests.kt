@@ -14,7 +14,6 @@ import org.opensearch.commons.utils.recreateObject
 import java.net.MalformedURLException
 
 internal class WebhookTests {
-
     @Test
     fun `Webhook serialize and deserialize transport object should be equal`() {
         val sampleWebhook = Webhook("https://domain.com/sample_url#1234567890", mapOf(Pair("key", "value")))
@@ -24,11 +23,12 @@ internal class WebhookTests {
 
     @Test
     fun `Webhook serialize and deserialize using json object should be equal`() {
-        val sampleWebhook = Webhook(
-            "http://domain.com/sample_url#1234567890",
-            mapOf(Pair("key", "value")),
-            HttpMethodType.PUT
-        )
+        val sampleWebhook =
+            Webhook(
+                "http://domain.com/sample_url#1234567890",
+                mapOf(Pair("key", "value")),
+                HttpMethodType.PUT,
+            )
         val jsonString = getJsonString(sampleWebhook)
         val recreatedObject = createObjectFromJsonString(jsonString) { Webhook.parse(it) }
         assertEquals(sampleWebhook, recreatedObject)
@@ -36,12 +36,14 @@ internal class WebhookTests {
 
     @Test
     fun `Webhook should deserialize json object using parser`() {
-        val sampleWebhook = Webhook(
-            "https://domain.com/sample_url#1234567890",
-            mapOf(Pair("key", "value")),
-            HttpMethodType.PATCH
-        )
-        val jsonString = """
+        val sampleWebhook =
+            Webhook(
+                "https://domain.com/sample_url#1234567890",
+                mapOf(Pair("key", "value")),
+                HttpMethodType.PATCH,
+            )
+        val jsonString =
+            """
             {
                 "url":"${sampleWebhook.url}",
                 "header_params":{
@@ -49,7 +51,7 @@ internal class WebhookTests {
                 },
                 "method":"PATCH"
             }
-        """.trimIndent()
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { Webhook.parse(it) }
         assertEquals(sampleWebhook, recreatedObject)
     }

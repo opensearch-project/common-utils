@@ -47,14 +47,20 @@ class GetPluginFeaturesResponse : BaseResponse {
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    ALLOWED_CONFIG_TYPE_LIST_TAG -> allowedConfigTypeList = parser.stringList()
-                    PLUGIN_FEATURES_TAG -> pluginFeatures = parser.mapStrings()
+                    ALLOWED_CONFIG_TYPE_LIST_TAG -> {
+                        allowedConfigTypeList = parser.stringList()
+                    }
+
+                    PLUGIN_FEATURES_TAG -> {
+                        pluginFeatures = parser.mapStrings()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing DeleteNotificationConfigResponse")
@@ -70,12 +76,15 @@ class GetPluginFeaturesResponse : BaseResponse {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return builder!!.startObject()
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder =
+        builder!!
+            .startObject()
             .field(ALLOWED_CONFIG_TYPE_LIST_TAG, allowedConfigTypeList)
             .field(PLUGIN_FEATURES_TAG, pluginFeatures)
             .endObject()
-    }
 
     /**
      * constructor for creating the class
@@ -84,7 +93,7 @@ class GetPluginFeaturesResponse : BaseResponse {
      */
     constructor(
         allowedConfigTypeList: List<String>,
-        pluginFeatures: Map<String, String>
+        pluginFeatures: Map<String, String>,
     ) {
         this.allowedConfigTypeList = allowedConfigTypeList
         this.pluginFeatures = pluginFeatures

@@ -38,7 +38,7 @@ class LegacyPublishNotificationRequest : ActionRequest {
      * @param baseMessage the base message to send
      */
     constructor(
-        baseMessage: LegacyBaseMessage
+        baseMessage: LegacyBaseMessage,
     ) {
         this.baseMessage = baseMessage
     }
@@ -48,13 +48,14 @@ class LegacyPublishNotificationRequest : ActionRequest {
      */
     @Throws(IOException::class)
     constructor(input: StreamInput) : super(input) {
-        baseMessage = when (requireNotNull(input.readEnum(LegacyDestinationType::class.java)) { "Destination type cannot be null" }) {
-            LegacyDestinationType.LEGACY_CHIME -> LegacyChimeMessage(input)
-            LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK -> LegacyCustomWebhookMessage(input)
-            LegacyDestinationType.LEGACY_SLACK -> LegacySlackMessage(input)
-            LegacyDestinationType.LEGACY_EMAIL -> LegacyEmailMessage(input)
-            LegacyDestinationType.LEGACY_SNS -> LegacySNSMessage(input)
-        }
+        baseMessage =
+            when (requireNotNull(input.readEnum(LegacyDestinationType::class.java)) { "Destination type cannot be null" }) {
+                LegacyDestinationType.LEGACY_CHIME -> LegacyChimeMessage(input)
+                LegacyDestinationType.LEGACY_CUSTOM_WEBHOOK -> LegacyCustomWebhookMessage(input)
+                LegacyDestinationType.LEGACY_SLACK -> LegacySlackMessage(input)
+                LegacyDestinationType.LEGACY_EMAIL -> LegacyEmailMessage(input)
+                LegacyDestinationType.LEGACY_SNS -> LegacySNSMessage(input)
+            }
     }
 
     /**

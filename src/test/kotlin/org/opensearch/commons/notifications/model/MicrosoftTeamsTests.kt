@@ -14,7 +14,6 @@ import org.opensearch.commons.utils.recreateObject
 import java.net.MalformedURLException
 
 internal class MicrosoftTeamsTests {
-
     @Test
     fun `Microsoft Teams serialize and deserialize transport object should be equal`() {
         val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_url#1234567890")

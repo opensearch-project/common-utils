@@ -28,9 +28,8 @@ data class Channel(
     val name: String,
     val description: String,
     val configType: ConfigType,
-    val isEnabled: Boolean = true
+    val isEnabled: Boolean = true,
 ) : BaseModel {
-
     init {
         require(!Strings.isNullOrEmpty(name)) { "name is null or empty" }
         require(!Strings.isNullOrEmpty(configId)) { "config id is null or empty" }
@@ -61,17 +60,32 @@ data class Channel(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    CONFIG_ID_TAG -> configId = parser.text()
-                    NAME_TAG -> name = parser.text()
-                    DESCRIPTION_TAG -> description = parser.text()
-                    CONFIG_TYPE_TAG -> configType = ConfigType.fromTagOrDefault(parser.text())
-                    IS_ENABLED_TAG -> isEnabled = parser.booleanValue()
+                    CONFIG_ID_TAG -> {
+                        configId = parser.text()
+                    }
+
+                    NAME_TAG -> {
+                        name = parser.text()
+                    }
+
+                    DESCRIPTION_TAG -> {
+                        description = parser.text()
+                    }
+
+                    CONFIG_TYPE_TAG -> {
+                        configType = ConfigType.fromTagOrDefault(parser.text())
+                    }
+
+                    IS_ENABLED_TAG -> {
+                        isEnabled = parser.booleanValue()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing Channel")
@@ -86,7 +100,7 @@ data class Channel(
                 name,
                 description,
                 configType,
-                isEnabled
+                isEnabled,
             )
         }
     }
@@ -100,7 +114,7 @@ data class Channel(
         name = input.readString(),
         description = input.readString(),
         configType = input.readEnum(ConfigType::class.java),
-        isEnabled = input.readBoolean()
+        isEnabled = input.readBoolean(),
     )
 
     /**
@@ -117,9 +131,13 @@ data class Channel(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(CONFIG_ID_TAG, configId)
             .field(NAME_TAG, name)
             .field(DESCRIPTION_TAG, description)

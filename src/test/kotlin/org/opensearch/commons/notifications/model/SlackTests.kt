@@ -14,7 +14,6 @@ import org.opensearch.commons.utils.recreateObject
 import java.net.MalformedURLException
 
 internal class SlackTests {
-
     @Test
     fun `Slack serialize and deserialize transport object should be equal`() {
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")

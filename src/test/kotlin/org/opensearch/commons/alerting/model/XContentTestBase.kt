@@ -9,9 +9,7 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.search.SearchModule
 
 interface XContentTestBase {
-    fun builder(): XContentBuilder {
-        return XContentBuilder.builder(XContentType.JSON.xContent())
-    }
+    fun builder(): XContentBuilder = XContentBuilder.builder(XContentType.JSON.xContent())
 
     fun parser(xc: String): XContentParser {
         val parser = XContentType.JSON.xContent().createParser(xContentRegistry(), LoggingDeprecationHandler.INSTANCE, xc)
@@ -19,9 +17,8 @@ interface XContentTestBase {
         return parser
     }
 
-    fun xContentRegistry(): NamedXContentRegistry {
-        return NamedXContentRegistry(
-            listOf(SearchInput.XCONTENT_REGISTRY) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
+    fun xContentRegistry(): NamedXContentRegistry =
+        NamedXContentRegistry(
+            listOf(SearchInput.XCONTENT_REGISTRY) + SearchModule(Settings.EMPTY, emptyList()).namedXContents,
         )
-    }
 }

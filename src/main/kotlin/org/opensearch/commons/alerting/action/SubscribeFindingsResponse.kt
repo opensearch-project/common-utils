@@ -9,7 +9,6 @@ import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
 
 class SubscribeFindingsResponse : BaseResponse {
-
     private var status: RestStatus
 
     constructor(status: RestStatus) : super() {
@@ -26,13 +25,15 @@ class SubscribeFindingsResponse : BaseResponse {
         out.writeEnum(status)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field("status", status.status)
         return builder.endObject()
     }
 
-    override fun getStatus(): RestStatus {
-        return this.status
-    }
+    override fun getStatus(): RestStatus = this.status
 }

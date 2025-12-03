@@ -31,7 +31,7 @@ class BucketSelectorExtAggregator : SiblingPipelineAggregator {
         script: Script,
         gapPolicy: BucketHelpers.GapPolicy,
         filter: BucketSelectorExtFilter?,
-        metadata: Map<String, Any>?
+        metadata: Map<String, Any>?,
     ) : super(name, bucketsPathsMap.values.toTypedArray(), metadata) {
         this.bucketsPathsMap = bucketsPathsMap
         this.parentBucketPath = parentBucketPath
@@ -57,7 +57,10 @@ class BucketSelectorExtAggregator : SiblingPipelineAggregator {
         }
     }
 
-    override fun doReduce(aggregations: Aggregations, reduceContext: InternalAggregation.ReduceContext): InternalAggregation {
+    override fun doReduce(
+        aggregations: Aggregations,
+        reduceContext: InternalAggregation.ReduceContext,
+    ): InternalAggregation {
         val parentBucketPathList = AggregationPath.parse(parentBucketPath).pathElementsAsStringList
         var subAggregations: Aggregations = aggregations
         for (i in 0 until parentBucketPathList.size - 1) {
@@ -111,27 +114,32 @@ class BucketSelectorExtAggregator : SiblingPipelineAggregator {
             name(),
             parentBucketPath,
             selectedBucketsIndex,
-            originalAgg.metadata
+            originalAgg.metadata,
         )
     }
 
-    private fun isAccepted(obj: Any, filter: IncludeExclude?): Boolean {
-        return when (obj.javaClass) {
+    private fun isAccepted(
+        obj: Any,
+        filter: IncludeExclude?,
+    ): Boolean =
+        when (obj.javaClass) {
             String::class.java -> {
                 val stringFilter = filter!!.convertToStringFilter(DocValueFormat.RAW)
                 stringFilter.accept(BytesRef(obj as String))
             }
+
             java.lang.Long::class.java, Long::class.java -> {
                 val longFilter = filter!!.convertToLongFilter(DocValueFormat.RAW)
                 longFilter.accept(obj as Long)
             }
+
             java.lang.Double::class.java, Double::class.java -> {
                 val doubleFilter = filter!!.convertToDoubleFilter()
                 doubleFilter.accept(obj as Long)
             }
+
             else -> {
                 throw IllegalStateException("Object is not comparable. Please use one of String, Long or Double type.")
             }
         }
-    }
 }

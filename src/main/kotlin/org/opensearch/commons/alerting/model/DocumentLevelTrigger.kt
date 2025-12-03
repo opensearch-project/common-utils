@@ -23,20 +23,23 @@ data class DocumentLevelTrigger(
     override val name: String,
     override val severity: String,
     override val actions: List<Action>,
-    val condition: Script
+    val condition: Script,
 ) : Trigger {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // id
         sin.readString(), // name
         sin.readString(), // severity
         sin.readList(::Action), // actions
-        Script(sin)
+        Script(sin),
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startObject(DOCUMENT_LEVEL_TRIGGER_FIELD)
             .field(ID_FIELD, id)
             .field(NAME_FIELD, name)
@@ -50,25 +53,24 @@ data class DocumentLevelTrigger(
         return builder
     }
 
-    override fun name(): String {
-        return DOCUMENT_LEVEL_TRIGGER_FIELD
-    }
+    override fun name(): String = DOCUMENT_LEVEL_TRIGGER_FIELD
 
     /** Returns a representation of the trigger suitable for passing into painless and mustache scripts. */
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any> =
+        mapOf(
             ID_FIELD to id,
             NAME_FIELD to name,
             SEVERITY_FIELD to severity,
             ACTIONS_FIELD to actions.map { it.asTemplateArg() },
-            CONDITION_FIELD to mapOf(
-                SCRIPT_FIELD to mapOf(
-                    SOURCE_FIELD to condition.idOrCode,
-                    LANG_FIELD to condition.lang
-                )
-            )
+            CONDITION_FIELD to
+                mapOf(
+                    SCRIPT_FIELD to
+                        mapOf(
+                            SOURCE_FIELD to condition.idOrCode,
+                            LANG_FIELD to condition.lang,
+                        ),
+                ),
         )
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -87,11 +89,12 @@ data class DocumentLevelTrigger(
         const val SOURCE_FIELD = "source"
         const val LANG_FIELD = "lang"
 
-        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java,
-            ParseField(DOCUMENT_LEVEL_TRIGGER_FIELD),
-            CheckedFunction { parseInner(it) }
-        )
+        val XCONTENT_REGISTRY =
+            NamedXContentRegistry.Entry(
+                Trigger::class.java,
+                ParseField(DOCUMENT_LEVEL_TRIGGER_FIELD),
+                CheckedFunction { parseInner(it) },
+            )
 
         @JvmStatic
         @Throws(IOException::class)
@@ -116,9 +119,18 @@ data class DocumentLevelTrigger(
 
                 xcp.nextToken()
                 when (fieldName) {
-                    ID_FIELD -> id = xcp.text()
-                    NAME_FIELD -> name = xcp.text()
-                    SEVERITY_FIELD -> severity = xcp.text()
+                    ID_FIELD -> {
+                        id = xcp.text()
+                    }
+
+                    NAME_FIELD -> {
+                        name = xcp.text()
+                    }
+
+                    SEVERITY_FIELD -> {
+                        severity = xcp.text()
+                    }
+
                     CONDITION_FIELD -> {
                         xcp.nextToken()
                         condition = Script.parse(xcp)
@@ -127,21 +139,23 @@ data class DocumentLevelTrigger(
                         }
                         xcp.nextToken()
                     }
+
                     QUERY_IDS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             queryIds.add(xcp.text())
                         }
                     }
+
                     ACTIONS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             actions.add(Action.parse(xcp))
@@ -156,14 +170,12 @@ data class DocumentLevelTrigger(
                 severity = requireNotNull(severity) { "Trigger severity is null" },
                 condition = requireNotNull(condition) { "Trigger condition is null" },
                 actions = requireNotNull(actions) { "Trigger actions are null" },
-                id = requireNotNull(id) { "Trigger id is null." }
+                id = requireNotNull(id) { "Trigger id is null." },
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): DocumentLevelTrigger {
-            return DocumentLevelTrigger(sin)
-        }
+        fun readFrom(sin: StreamInput): DocumentLevelTrigger = DocumentLevelTrigger(sin)
     }
 }

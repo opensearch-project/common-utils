@@ -23,36 +23,38 @@ data class BucketLevelTrigger(
     override val name: String,
     override val severity: String,
     val bucketSelector: BucketSelectorExtAggregationBuilder,
-    override val actions: List<Action>
+    override val actions: List<Action>,
 ) : Trigger {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // id
         sin.readString(), // name
         sin.readString(), // severity
         BucketSelectorExtAggregationBuilder(sin), // condition
-        sin.readList(::Action) // actions
+        sin.readList(::Action), // actions
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startObject(BUCKET_LEVEL_TRIGGER_FIELD)
             .field(ID_FIELD, id)
             .field(NAME_FIELD, name)
             .field(SEVERITY_FIELD, severity)
             .startObject(CONDITION_FIELD)
         bucketSelector.internalXContent(builder, params)
-        builder.endObject()
+        builder
+            .endObject()
             .field(ACTIONS_FIELD, actions.toTypedArray())
             .endObject()
             .endObject()
         return builder
     }
 
-    override fun name(): String {
-        return BUCKET_LEVEL_TRIGGER_FIELD
-    }
+    override fun name(): String = BUCKET_LEVEL_TRIGGER_FIELD
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -63,29 +65,26 @@ data class BucketLevelTrigger(
         out.writeCollection(actions)
     }
 
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any> =
+        mapOf(
             ID_FIELD to id,
             NAME_FIELD to name,
             SEVERITY_FIELD to severity,
             ACTIONS_FIELD to actions.map { it.asTemplateArg() },
             PARENT_BUCKET_PATH to getParentBucketPath(),
-            CONDITION_FIELD to mapOf(
-                SCRIPT_FIELD to mapOf(
-                    SOURCE_FIELD to bucketSelector.script.idOrCode,
-                    LANG_FIELD to bucketSelector.script.lang
-                )
-            )
+            CONDITION_FIELD to
+                mapOf(
+                    SCRIPT_FIELD to
+                        mapOf(
+                            SOURCE_FIELD to bucketSelector.script.idOrCode,
+                            LANG_FIELD to bucketSelector.script.lang,
+                        ),
+                ),
         )
-    }
 
-    fun getParentBucketPath(): String {
-        return bucketSelector.parentBucketPath
-    }
+    fun getParentBucketPath(): String = bucketSelector.parentBucketPath
 
-    fun getCondition(): String {
-        return bucketSelector.script.idOrCode
-    }
+    fun getCondition(): String = bucketSelector.script.idOrCode
 
     companion object {
         const val BUCKET_LEVEL_TRIGGER_FIELD = "bucket_level_trigger"
@@ -95,11 +94,12 @@ data class BucketLevelTrigger(
         const val SOURCE_FIELD = "source"
         const val LANG_FIELD = "lang"
 
-        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java,
-            ParseField(BUCKET_LEVEL_TRIGGER_FIELD),
-            CheckedFunction { parseInner(it) }
-        )
+        val XCONTENT_REGISTRY =
+            NamedXContentRegistry.Entry(
+                Trigger::class.java,
+                ParseField(BUCKET_LEVEL_TRIGGER_FIELD),
+                CheckedFunction { parseInner(it) },
+            )
 
         @JvmStatic
         @Throws(IOException::class)
@@ -116,9 +116,18 @@ data class BucketLevelTrigger(
 
                 xcp.nextToken()
                 when (fieldName) {
-                    ID_FIELD -> id = xcp.text()
-                    NAME_FIELD -> name = xcp.text()
-                    SEVERITY_FIELD -> severity = xcp.text()
+                    ID_FIELD -> {
+                        id = xcp.text()
+                    }
+
+                    NAME_FIELD -> {
+                        name = xcp.text()
+                    }
+
+                    SEVERITY_FIELD -> {
+                        severity = xcp.text()
+                    }
+
                     CONDITION_FIELD -> {
                         // Using the trigger id as the name in the bucket selector since it is validated for uniqueness within Monitors.
                         // The contents of the trigger definition are round-tripped through parse and toXContent during Monitor creation
@@ -126,11 +135,12 @@ data class BucketLevelTrigger(
                         // user submitted a custom trigger id after the condition definition.
                         bucketSelector = BucketSelectorExtAggregationBuilder.parse(id, xcp)
                     }
+
                     ACTIONS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             actions.add(Action.parse(xcp))
@@ -144,14 +154,12 @@ data class BucketLevelTrigger(
                 name = requireNotNull(name) { "Trigger name is null" },
                 severity = requireNotNull(severity) { "Trigger severity is null" },
                 bucketSelector = requireNotNull(bucketSelector) { "Trigger condition is null" },
-                actions = requireNotNull(actions) { "Trigger actions are null" }
+                actions = requireNotNull(actions) { "Trigger actions are null" },
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): BucketLevelTrigger {
-            return BucketLevelTrigger(sin)
-        }
+        fun readFrom(sin: StreamInput): BucketLevelTrigger = BucketLevelTrigger(sin)
     }
 }

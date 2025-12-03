@@ -13,7 +13,6 @@ import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.core.common.io.stream.StreamInput
 
 class AcknowledgeAlertRequestTests {
-
     @Test
     fun `test acknowledge alert request`() {
         val req = AcknowledgeAlertRequest("1234", mutableListOf("1", "2", "3", "4"), WriteRequest.RefreshPolicy.IMMEDIATE)

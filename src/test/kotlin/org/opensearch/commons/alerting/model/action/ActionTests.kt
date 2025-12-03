@@ -9,7 +9,6 @@ import org.opensearch.commons.alerting.model.action.Action.Companion.THROTTLE_EN
 import org.opensearch.commons.alerting.randomAction
 
 class ActionTests {
-
     @Test
     fun `test action asTemplateArgs`() {
         val action = randomAction()
@@ -19,22 +18,22 @@ class ActionTests {
         assertEquals(
             action.id,
             templateArgs[ID_FIELD],
-            "Template arg field 'id' doesn't match"
+            "Template arg field 'id' doesn't match",
         )
         assertEquals(
             action.name,
             templateArgs[NAME_FIELD],
-            "Template arg field 'name' doesn't match"
+            "Template arg field 'name' doesn't match",
         )
         assertEquals(
             action.destinationId,
             templateArgs[DESTINATION_ID_FIELD],
-            "Template arg field 'destinationId' doesn't match"
+            "Template arg field 'destinationId' doesn't match",
         )
         assertEquals(
             action.throttleEnabled,
             templateArgs[THROTTLE_ENABLED_FIELD],
-            "Template arg field 'throttleEnabled' doesn't match"
+            "Template arg field 'throttleEnabled' doesn't match",
         )
     }
 }

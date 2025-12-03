@@ -11,22 +11,25 @@ class DeleteCommentResponse : BaseResponse {
     var commentId: String
 
     constructor(
-        id: String
+        id: String,
     ) : super() {
         this.commentId = id
     }
 
     constructor(sin: StreamInput) : this(
-        sin.readString() // commentId
+        sin.readString(), // commentId
     )
 
     override fun writeTo(out: StreamOutput) {
         out.writeString(commentId)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(IndexUtils._ID, commentId)
             .endObject()
-    }
 }

@@ -10,7 +10,6 @@ import org.opensearch.commons.notifications.model.ConfigType.Companion.enumParse
 import org.opensearch.commons.notifications.model.ConfigType.Companion.fromTagOrDefault
 
 internal class ConfigTypeTests {
-
     @Test
     fun `toString should return tag`() {
         ConfigType.values().forEach {

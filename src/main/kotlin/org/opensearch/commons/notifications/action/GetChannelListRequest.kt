@@ -21,7 +21,9 @@ import java.io.IOException
 /**
  * This request is plugin-only call. i.e. REST interface is not exposed.
  */
-class GetChannelListRequest : ActionRequest, ToXContentObject {
+class GetChannelListRequest :
+    ActionRequest,
+    ToXContentObject {
     val compact: Boolean // Dummy request parameter for transport request
 
     companion object {
@@ -44,13 +46,16 @@ class GetChannelListRequest : ActionRequest, ToXContentObject {
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    COMPACT_TAG -> compact = parser.booleanValue()
+                    COMPACT_TAG -> {
+                        compact = parser.booleanValue()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing GetChannelListRequest")
@@ -64,11 +69,14 @@ class GetChannelListRequest : ActionRequest, ToXContentObject {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return builder!!.startObject()
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder =
+        builder!!
+            .startObject()
             .field(COMPACT_TAG, compact)
             .endObject()
-    }
 
     /**
      * constructor for creating the class
@@ -98,7 +106,5 @@ class GetChannelListRequest : ActionRequest, ToXContentObject {
     /**
      * {@inheritDoc}
      */
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 }

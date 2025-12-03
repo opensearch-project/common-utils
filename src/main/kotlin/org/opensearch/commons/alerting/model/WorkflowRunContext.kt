@@ -20,12 +20,11 @@ data class WorkflowRunContext(
     val chainedMonitorId: String?,
     val matchingDocIdsPerIndex: Map<String, List<String>>,
     val auditDelegateMonitorAlerts: Boolean,
-    val findingIds: List<String>? = null
-) : Writeable, ToXContentObject {
+    val findingIds: List<String>? = null,
+) : Writeable,
+    ToXContentObject {
     companion object {
-        fun readFrom(sin: StreamInput): WorkflowRunContext {
-            return WorkflowRunContext(sin)
-        }
+        fun readFrom(sin: StreamInput): WorkflowRunContext = WorkflowRunContext(sin)
     }
 
     constructor(sin: StreamInput) : this(
@@ -34,7 +33,7 @@ data class WorkflowRunContext(
         chainedMonitorId = sin.readOptionalString(),
         matchingDocIdsPerIndex = sin.readMap() as Map<String, List<String>>,
         auditDelegateMonitorAlerts = sin.readBoolean(),
-        findingIds = if (sin.version.onOrAfter(Version.V_2_15_0)) sin.readOptionalStringList() else emptyList()
+        findingIds = if (sin.version.onOrAfter(Version.V_2_15_0)) sin.readOptionalStringList() else emptyList(),
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -48,8 +47,12 @@ data class WorkflowRunContext(
         }
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params?): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field("workflow_id", workflowId)
             .field("workflow_metadata_id", workflowMetadataId)
             .field("chained_monitor_id", chainedMonitorId)

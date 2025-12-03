@@ -23,8 +23,9 @@ data class Comment(
     val content: String,
     val createdTime: Instant,
     val lastUpdatedTime: Instant?,
-    val user: User?
-) : Writeable, ToXContent {
+    val user: User?,
+) : Writeable,
+    ToXContent {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         id = sin.readString(),
@@ -33,7 +34,7 @@ data class Comment(
         content = sin.readString(),
         createdTime = sin.readInstant(),
         lastUpdatedTime = sin.readOptionalInstant(),
-        user = if (sin.readBoolean()) User(sin) else null
+        user = if (sin.readBoolean()) User(sin) else null,
     )
 
     constructor(
@@ -41,14 +42,14 @@ data class Comment(
         entityType: String,
         content: String,
         createdTime: Instant,
-        user: User?
+        user: User?,
     ) : this (
         entityId = entityId,
         entityType = entityType,
         content = content,
         createdTime = createdTime,
         lastUpdatedTime = null,
-        user = user
+        user = user,
     )
 
     @Throws(IOException::class)
@@ -63,30 +64,32 @@ data class Comment(
         user?.writeTo(out)
     }
 
-    fun asTemplateArg(): Map<String, Any?> {
-        return mapOf<String, Any?>(
+    fun asTemplateArg(): Map<String, Any?> =
+        mapOf<String, Any?>(
             _ID to id,
             ENTITY_ID_FIELD to entityId,
             ENTITY_TYPE_FIELD to entityType,
             COMMENT_CONTENT_FIELD to content,
             COMMENT_CREATED_TIME_FIELD to createdTime,
             COMMENT_LAST_UPDATED_TIME_FIELD to lastUpdatedTime,
-            COMMENT_USER_FIELD to user?.name
+            COMMENT_USER_FIELD to user?.name,
         )
-    }
 
     // used to create the Comment JSON object for an API response (displayed to user)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return createXContentBuilder(builder, false)
-    }
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder = createXContentBuilder(builder, false)
 
     // used to create the Comment JSON object for indexing a doc into an index (not displayed to user)
-    fun toXContentWithUser(builder: XContentBuilder): XContentBuilder {
-        return createXContentBuilder(builder, true)
-    }
+    fun toXContentWithUser(builder: XContentBuilder): XContentBuilder = createXContentBuilder(builder, true)
 
-    private fun createXContentBuilder(builder: XContentBuilder, includeFullUser: Boolean): XContentBuilder {
-        builder.startObject()
+    private fun createXContentBuilder(
+        builder: XContentBuilder,
+        includeFullUser: Boolean,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field(ENTITY_ID_FIELD, entityId)
             .field(ENTITY_TYPE_FIELD, entityType)
             .field(COMMENT_CONTENT_FIELD, content)
@@ -117,7 +120,10 @@ data class Comment(
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, id: String = NO_ID): Comment {
+        fun parse(
+            xcp: XContentParser,
+            id: String = NO_ID,
+        ): Comment {
             lateinit var entityId: String
             lateinit var entityType: String
             var content = ""
@@ -131,17 +137,34 @@ data class Comment(
                 xcp.nextToken()
 
                 when (fieldName) {
-                    ENTITY_ID_FIELD -> entityId = xcp.text()
-                    ENTITY_TYPE_FIELD -> entityType = xcp.text()
-                    COMMENT_CONTENT_FIELD -> content = xcp.text()
-                    COMMENT_CREATED_TIME_FIELD -> createdTime = requireNotNull(xcp.instant())
-                    COMMENT_LAST_UPDATED_TIME_FIELD -> lastUpdatedTime = xcp.instant()
-                    COMMENT_USER_FIELD ->
-                        user = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                            null
-                        } else {
-                            User.parse(xcp)
-                        }
+                    ENTITY_ID_FIELD -> {
+                        entityId = xcp.text()
+                    }
+
+                    ENTITY_TYPE_FIELD -> {
+                        entityType = xcp.text()
+                    }
+
+                    COMMENT_CONTENT_FIELD -> {
+                        content = xcp.text()
+                    }
+
+                    COMMENT_CREATED_TIME_FIELD -> {
+                        createdTime = requireNotNull(xcp.instant())
+                    }
+
+                    COMMENT_LAST_UPDATED_TIME_FIELD -> {
+                        lastUpdatedTime = xcp.instant()
+                    }
+
+                    COMMENT_USER_FIELD -> {
+                        user =
+                            if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                                null
+                            } else {
+                                User.parse(xcp)
+                            }
+                    }
                 }
             }
 
@@ -152,14 +175,12 @@ data class Comment(
                 content = content,
                 createdTime = createdTime,
                 lastUpdatedTime = lastUpdatedTime,
-                user = user
+                user = user,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Comment {
-            return Comment(sin)
-        }
+        fun readFrom(sin: StreamInput): Comment = Comment(sin)
     }
 }

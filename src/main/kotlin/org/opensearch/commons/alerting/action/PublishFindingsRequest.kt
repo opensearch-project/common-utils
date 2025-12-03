@@ -8,14 +8,13 @@ import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 
 class PublishFindingsRequest : ActionRequest {
-
     val monitorId: String
 
     val finding: Finding
 
     constructor(
         monitorId: String,
-        finding: Finding
+        finding: Finding,
     ) : super() {
         this.monitorId = monitorId
         this.finding = finding
@@ -24,12 +23,10 @@ class PublishFindingsRequest : ActionRequest {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         monitorId = sin.readString(),
-        finding = Finding.readFrom(sin)
+        finding = Finding.readFrom(sin),
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     override fun writeTo(out: StreamOutput) {
         out.writeString(monitorId)

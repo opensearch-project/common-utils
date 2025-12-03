@@ -7,7 +7,6 @@ import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 
 class DeleteWorkflowRequest : ActionRequest {
-
     val workflowId: String
 
     /**
@@ -24,12 +23,10 @@ class DeleteWorkflowRequest : ActionRequest {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         workflowId = sin.readString(),
-        deleteDelegateMonitors = sin.readOptionalBoolean()
+        deleteDelegateMonitors = sin.readOptionalBoolean(),
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

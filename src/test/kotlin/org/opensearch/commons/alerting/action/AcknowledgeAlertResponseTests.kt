@@ -12,67 +12,68 @@ import org.opensearch.core.common.io.stream.StreamInput
 import java.time.Instant
 
 class AcknowledgeAlertResponseTests {
-
     @Test
     fun `test acknowledge alert response`() {
-        val acknowledged = mutableListOf(
-            Alert(
-                id = "1234",
-                version = 0L,
-                schemaVersion = 1,
-                monitorId = "monitor-1234",
-                workflowId = "",
-                workflowName = "",
-                monitorName = "test-monitor",
-                monitorVersion = 0L,
-                monitorUser = randomUser(),
-                triggerId = "trigger-14",
-                triggerName = "test-trigger",
-                findingIds = ArrayList(),
-                relatedDocIds = ArrayList(),
-                state = Alert.State.ACKNOWLEDGED,
-                startTime = Instant.now(),
-                endTime = Instant.now(),
-                lastNotificationTime = Instant.now(),
-                acknowledgedTime = Instant.now(),
-                errorMessage = null,
-                errorHistory = ArrayList(),
-                severity = "sev-2",
-                actionExecutionResults = ArrayList(),
-                aggregationResultBucket = null,
-                executionId = null,
-                associatedAlertIds = emptyList()
+        val acknowledged =
+            mutableListOf(
+                Alert(
+                    id = "1234",
+                    version = 0L,
+                    schemaVersion = 1,
+                    monitorId = "monitor-1234",
+                    workflowId = "",
+                    workflowName = "",
+                    monitorName = "test-monitor",
+                    monitorVersion = 0L,
+                    monitorUser = randomUser(),
+                    triggerId = "trigger-14",
+                    triggerName = "test-trigger",
+                    findingIds = ArrayList(),
+                    relatedDocIds = ArrayList(),
+                    state = Alert.State.ACKNOWLEDGED,
+                    startTime = Instant.now(),
+                    endTime = Instant.now(),
+                    lastNotificationTime = Instant.now(),
+                    acknowledgedTime = Instant.now(),
+                    errorMessage = null,
+                    errorHistory = ArrayList(),
+                    severity = "sev-2",
+                    actionExecutionResults = ArrayList(),
+                    aggregationResultBucket = null,
+                    executionId = null,
+                    associatedAlertIds = emptyList(),
+                ),
             )
-        )
-        val failed = mutableListOf(
-            Alert(
-                id = "1234",
-                version = 0L,
-                schemaVersion = 1,
-                monitorId = "monitor-1234",
-                workflowId = "",
-                workflowName = "",
-                monitorName = "test-monitor",
-                monitorVersion = 0L,
-                monitorUser = randomUser(),
-                triggerId = "trigger-14",
-                triggerName = "test-trigger",
-                findingIds = ArrayList(),
-                relatedDocIds = ArrayList(),
-                state = Alert.State.ERROR,
-                startTime = Instant.now(),
-                endTime = Instant.now(),
-                lastNotificationTime = Instant.now(),
-                acknowledgedTime = Instant.now(),
-                errorMessage = null,
-                errorHistory = mutableListOf(AlertError(Instant.now(), "Error msg")),
-                severity = "sev-2",
-                actionExecutionResults = mutableListOf(ActionExecutionResult("7890", null, 0)),
-                aggregationResultBucket = null,
-                executionId = null,
-                associatedAlertIds = emptyList()
+        val failed =
+            mutableListOf(
+                Alert(
+                    id = "1234",
+                    version = 0L,
+                    schemaVersion = 1,
+                    monitorId = "monitor-1234",
+                    workflowId = "",
+                    workflowName = "",
+                    monitorName = "test-monitor",
+                    monitorVersion = 0L,
+                    monitorUser = randomUser(),
+                    triggerId = "trigger-14",
+                    triggerName = "test-trigger",
+                    findingIds = ArrayList(),
+                    relatedDocIds = ArrayList(),
+                    state = Alert.State.ERROR,
+                    startTime = Instant.now(),
+                    endTime = Instant.now(),
+                    lastNotificationTime = Instant.now(),
+                    acknowledgedTime = Instant.now(),
+                    errorMessage = null,
+                    errorHistory = mutableListOf(AlertError(Instant.now(), "Error msg")),
+                    severity = "sev-2",
+                    actionExecutionResults = mutableListOf(ActionExecutionResult("7890", null, 0)),
+                    aggregationResultBucket = null,
+                    executionId = null,
+                    associatedAlertIds = emptyList(),
+                ),
             )
-        )
         val missing = mutableListOf("1", "2", "3", "4")
 
         val req = AcknowledgeAlertResponse(acknowledged, failed, missing)

@@ -11,7 +11,6 @@ import java.io.IOException
 import java.time.Instant
 
 class CorrelationAlert : BaseAlert {
-
     // CorrelationAlert-specific properties
     val correlatedFindingIds: List<String>
     val correlationRuleId: String
@@ -32,7 +31,7 @@ class CorrelationAlert : BaseAlert {
         acknowledgedTime: Instant?,
         errorMessage: String?,
         severity: String,
-        actionExecutionResults: List<ActionExecutionResult>
+        actionExecutionResults: List<ActionExecutionResult>,
     ) : super(
         id = id,
         version = version,
@@ -45,7 +44,7 @@ class CorrelationAlert : BaseAlert {
         acknowledgedTime = acknowledgedTime,
         errorMessage = errorMessage,
         severity = severity,
-        actionExecutionResults = actionExecutionResults
+        actionExecutionResults = actionExecutionResults,
     ) {
         this.correlatedFindingIds = correlatedFindingIds
         this.correlationRuleId = correlationRuleId
@@ -60,13 +59,18 @@ class CorrelationAlert : BaseAlert {
     }
 
     // Override to include CorrelationAlert specific fields
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startArray(CORRELATED_FINDING_IDS)
         correlatedFindingIds.forEach { id ->
             builder.value(id)
         }
-        builder.endArray()
+        builder
+            .endArray()
             .field(CORRELATION_RULE_ID, correlationRuleId)
             .field(CORRELATION_RULE_NAME, correlationRuleName)
         super.toXContentWithUser(builder)
@@ -81,15 +85,18 @@ class CorrelationAlert : BaseAlert {
         out.writeString(correlationRuleId)
         out.writeString(correlationRuleName)
     }
+
     override fun asTemplateArg(): Map<String, Any?> {
         val superTemplateArgs = super.asTemplateArg()
-        val correlationSpecificArgs = mapOf(
-            CORRELATED_FINDING_IDS to correlatedFindingIds,
-            CORRELATION_RULE_ID to correlationRuleId,
-            CORRELATION_RULE_NAME to correlationRuleName
-        )
+        val correlationSpecificArgs =
+            mapOf(
+                CORRELATED_FINDING_IDS to correlatedFindingIds,
+                CORRELATION_RULE_ID to correlationRuleId,
+                CORRELATION_RULE_NAME to correlationRuleName,
+            )
         return superTemplateArgs + correlationSpecificArgs
     }
+
     companion object {
         const val CORRELATED_FINDING_IDS = "correlated_finding_ids"
         const val CORRELATION_RULE_ID = "correlation_rule_id"
@@ -97,7 +104,11 @@ class CorrelationAlert : BaseAlert {
 
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): CorrelationAlert {
+        fun parse(
+            xcp: XContentParser,
+            id: String = NO_ID,
+            version: Long = NO_VERSION,
+        ): CorrelationAlert {
             // Parse additional CorrelationAlert-specific fields
             val correlatedFindingIds: MutableList<String> = mutableListOf()
             var correlationRuleId: String? = null
@@ -114,8 +125,14 @@ class CorrelationAlert : BaseAlert {
                             correlatedFindingIds.add(xcp.text())
                         }
                     }
-                    CORRELATION_RULE_ID -> correlationRuleId = xcp.text()
-                    CORRELATION_RULE_NAME -> correlationRuleName = xcp.text()
+
+                    CORRELATION_RULE_ID -> {
+                        correlationRuleId = xcp.text()
+                    }
+
+                    CORRELATION_RULE_NAME -> {
+                        correlationRuleName = xcp.text()
+                    }
                 }
             }
 
@@ -135,7 +152,7 @@ class CorrelationAlert : BaseAlert {
                 acknowledgedTime = unifiedAlert.acknowledgedTime,
                 errorMessage = unifiedAlert.errorMessage,
                 severity = requireNotNull(unifiedAlert.severity),
-                actionExecutionResults = unifiedAlert.actionExecutionResults
+                actionExecutionResults = unifiedAlert.actionExecutionResults,
             )
         }
     }
