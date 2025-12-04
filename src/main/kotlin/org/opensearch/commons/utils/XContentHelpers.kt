@@ -16,10 +16,10 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.rest.RestRequest
 
-fun StreamInput.createJsonParser(): XContentParser {
-    return XContentType.JSON.xContent()
+fun StreamInput.createJsonParser(): XContentParser =
+    XContentType.JSON
+        .xContent()
         .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.IGNORE_DEPRECATIONS, this)
-}
 
 fun RestRequest.contentParserNextToken(): XContentParser {
     val parser = this.contentParser()
@@ -36,14 +36,20 @@ fun XContentParser.stringList(): List<String> {
     return retList
 }
 
-fun XContentBuilder.fieldIfNotNull(name: String, value: Any?): XContentBuilder {
+fun XContentBuilder.fieldIfNotNull(
+    name: String,
+    value: Any?,
+): XContentBuilder {
     if (value != null) {
         this.field(name, value)
     }
     return this
 }
 
-fun XContentBuilder.objectIfNotNull(name: String, xContentObject: ToXContentObject?): XContentBuilder {
+fun XContentBuilder.objectIfNotNull(
+    name: String,
+    xContentObject: ToXContentObject?,
+): XContentBuilder {
     if (xContentObject != null) {
         this.field(name)
         xContentObject.toXContent(this, ToXContent.EMPTY_PARAMS)

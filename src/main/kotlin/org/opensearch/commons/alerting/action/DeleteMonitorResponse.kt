@@ -13,7 +13,7 @@ class DeleteMonitorResponse : BaseResponse {
 
     constructor(
         id: String,
-        version: Long
+        version: Long,
     ) : super() {
         this.id = id
         this.version = version
@@ -21,7 +21,7 @@ class DeleteMonitorResponse : BaseResponse {
 
     constructor(sin: StreamInput) : this(
         sin.readString(), // id
-        sin.readLong() // version
+        sin.readLong(), // version
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -29,10 +29,13 @@ class DeleteMonitorResponse : BaseResponse {
         out.writeLong(version)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(IndexUtils._ID, id)
             .field(IndexUtils._VERSION, version)
             .endObject()
-    }
 }

@@ -23,7 +23,7 @@ class GetMonitorRequest : ActionRequest {
         monitorId: String,
         version: Long,
         method: RestRequest.Method,
-        srcContext: FetchSourceContext?
+        srcContext: FetchSourceContext?,
     ) : super() {
         this.monitorId = monitorId
         this.version = version
@@ -40,12 +40,10 @@ class GetMonitorRequest : ActionRequest {
             FetchSourceContext(sin) // srcContext
         } else {
             null
-        }
+        },
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

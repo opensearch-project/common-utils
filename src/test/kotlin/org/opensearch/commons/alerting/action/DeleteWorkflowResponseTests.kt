@@ -6,7 +6,6 @@ import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.core.common.io.stream.StreamInput
 
 class DeleteWorkflowResponseTests {
-
     @Test
     fun `test delete workflow response`() {
         val res = DeleteWorkflowResponse(id = "w1", version = 1, nonDeletedMonitors = listOf("m1"))

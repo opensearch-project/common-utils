@@ -28,9 +28,8 @@ data class Delegate(
      * Keeps the track of the previously executed monitor in a chain list.
      * Used for pre-filtering by getting the findings doc ids for the given monitor
      */
-    val chainedMonitorFindings: ChainedMonitorFindings? = null
+    val chainedMonitorFindings: ChainedMonitorFindings? = null,
 ) : BaseModel {
-
     init {
         validateId(monitorId)
         validateOrder(order)
@@ -40,19 +39,19 @@ data class Delegate(
     constructor(sin: StreamInput) : this(
         order = sin.readInt(),
         monitorId = sin.readString(),
-        chainedMonitorFindings = if (sin.readBoolean()) {
-            ChainedMonitorFindings(sin)
-        } else {
-            null
-        }
+        chainedMonitorFindings =
+            if (sin.readBoolean()) {
+                ChainedMonitorFindings(sin)
+            } else {
+                null
+            },
     )
 
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any> =
+        mapOf(
             ORDER_FIELD to order,
-            MONITOR_ID_FIELD to monitorId
+            MONITOR_ID_FIELD to monitorId,
         )
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -62,8 +61,12 @@ data class Delegate(
         chainedMonitorFindings?.writeTo(out)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field(ORDER_FIELD, order)
             .field(MONITOR_ID_FIELD, monitorId)
         if (chainedMonitorFindings != null) {
@@ -95,10 +98,12 @@ data class Delegate(
                         order = xcp.intValue()
                         validateOrder(order)
                     }
+
                     MONITOR_ID_FIELD -> {
                         monitorId = xcp.text()
                         validateId(monitorId)
                     }
+
                     CHAINED_FINDINGS_FIELD -> {
                         chainedMonitorFindings = ChainedMonitorFindings.parse(xcp)
                     }
@@ -109,9 +114,7 @@ data class Delegate(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Delegate {
-            return Delegate(sin)
-        }
+        fun readFrom(sin: StreamInput): Delegate = Delegate(sin)
 
         fun validateOrder(order: Int) {
             require(order > 0) { "Invalid delgate order" }

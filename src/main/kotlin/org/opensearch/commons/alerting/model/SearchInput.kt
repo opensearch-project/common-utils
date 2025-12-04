@@ -12,26 +12,29 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.search.builder.SearchSourceBuilder
 import java.io.IOException
 
-data class SearchInput(val indices: List<String>, val query: SearchSourceBuilder) : Input {
-
+data class SearchInput(
+    val indices: List<String>,
+    val query: SearchSourceBuilder,
+) : Input {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readStringList(), // indices
-        SearchSourceBuilder(sin) // query
+        SearchSourceBuilder(sin), // query
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .startObject(SEARCH_FIELD)
             .field(INDICES_FIELD, indices.toTypedArray())
             .field(QUERY_FIELD, query)
             .endObject()
             .endObject()
-    }
 
-    override fun name(): String {
-        return SEARCH_FIELD
-    }
+    override fun name(): String = SEARCH_FIELD
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -61,12 +64,13 @@ data class SearchInput(val indices: List<String>, val query: SearchSourceBuilder
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             indices.add(xcp.text())
                         }
                     }
+
                     QUERY_FIELD -> {
                         searchSourceBuilder = SearchSourceBuilder.fromXContent(xcp, false)
                     }
@@ -75,22 +79,21 @@ data class SearchInput(val indices: List<String>, val query: SearchSourceBuilder
 
             return SearchInput(
                 indices,
-                requireNotNull(searchSourceBuilder) { "SearchInput query is null" }
+                requireNotNull(searchSourceBuilder) { "SearchInput query is null" },
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): SearchInput {
-            return SearchInput(sin)
-        }
+        fun readFrom(sin: StreamInput): SearchInput = SearchInput(sin)
     }
 
     override fun asTemplateArg(): Map<String, Any> =
         mapOf(
-            SEARCH_FIELD to mapOf(
-                INDICES_FIELD to indices,
-                QUERY_FIELD to query.toString()
-            )
+            SEARCH_FIELD to
+                mapOf(
+                    INDICES_FIELD to indices,
+                    QUERY_FIELD to query.toString(),
+                ),
         )
 }

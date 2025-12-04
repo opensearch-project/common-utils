@@ -13,22 +13,23 @@ import org.opensearch.commons.utils.recreateObject
 import java.time.Instant
 
 internal class NotificationConfigInfoTests {
-
     @Test
     fun `Config info serialize and deserialize with config object should be equal`() {
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            "description",
-            ConfigType.SLACK,
-            configData = sampleSlack
-        )
-        val configInfo = NotificationConfigInfo(
-            "config_id",
-            Instant.now(),
-            Instant.now(),
-            sampleConfig
-        )
+        val sampleConfig =
+            NotificationConfig(
+                "name",
+                "description",
+                ConfigType.SLACK,
+                configData = sampleSlack,
+            )
+        val configInfo =
+            NotificationConfigInfo(
+                "config_id",
+                Instant.now(),
+                Instant.now(),
+                sampleConfig,
+            )
         val recreatedObject = recreateObject(configInfo) { NotificationConfigInfo(it) }
         assertEquals(configInfo, recreatedObject)
     }
@@ -38,18 +39,20 @@ internal class NotificationConfigInfoTests {
         val lastUpdatedTimeMs = Instant.ofEpochMilli(Instant.now().toEpochMilli())
         val createdTimeMs = lastUpdatedTimeMs.minusSeconds(1000)
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            "description",
-            ConfigType.SLACK,
-            configData = sampleSlack
-        )
-        val configInfo = NotificationConfigInfo(
-            "config_id",
-            lastUpdatedTimeMs,
-            createdTimeMs,
-            sampleConfig
-        )
+        val sampleConfig =
+            NotificationConfig(
+                "name",
+                "description",
+                ConfigType.SLACK,
+                configData = sampleSlack,
+            )
+        val configInfo =
+            NotificationConfigInfo(
+                "config_id",
+                lastUpdatedTimeMs,
+                createdTimeMs,
+                sampleConfig,
+            )
         val jsonString = getJsonString(configInfo)
         val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfigInfo.parse(it) }
         assertEquals(configInfo, recreatedObject)
@@ -60,37 +63,40 @@ internal class NotificationConfigInfoTests {
         val lastUpdatedTimeMs = Instant.ofEpochMilli(Instant.now().toEpochMilli())
         val createdTimeMs = lastUpdatedTimeMs.minusSeconds(1000)
         val sampleSlack = Slack("https://domain.com/sample_slack_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            "description",
-            ConfigType.SLACK,
-            configData = sampleSlack,
-            isEnabled = true
-        )
-        val configInfo = NotificationConfigInfo(
-            "config-Id",
-            lastUpdatedTimeMs,
-            createdTimeMs,
-            sampleConfig
-        )
-        val jsonString = """
-        {
-            "config_id":"config-Id",
-            "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "config":{
-                "name":"name",
-                "description":"description",
-                "config_type":"slack",
-                "feature_list":["index_management"],
-                "is_enabled":true,
-                "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
-            },
-            "extra_field_1":["extra", "value"],
-            "extra_field_2":{"extra":"value"},
-            "extra_field_3":"extra value 3"
-        }
-        """.trimIndent()
+        val sampleConfig =
+            NotificationConfig(
+                "name",
+                "description",
+                ConfigType.SLACK,
+                configData = sampleSlack,
+                isEnabled = true,
+            )
+        val configInfo =
+            NotificationConfigInfo(
+                "config-Id",
+                lastUpdatedTimeMs,
+                createdTimeMs,
+                sampleConfig,
+            )
+        val jsonString =
+            """
+            {
+                "config_id":"config-Id",
+                "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
+                "created_time_ms":"${createdTimeMs.toEpochMilli()}",
+                "config":{
+                    "name":"name",
+                    "description":"description",
+                    "config_type":"slack",
+                    "feature_list":["index_management"],
+                    "is_enabled":true,
+                    "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
+                },
+                "extra_field_1":["extra", "value"],
+                "extra_field_2":{"extra":"value"},
+                "extra_field_3":"extra value 3"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { NotificationConfigInfo.parse(it) }
         assertEquals(configInfo, recreatedObject)
     }
@@ -98,18 +104,19 @@ internal class NotificationConfigInfoTests {
     @Test
     fun `Config info should throw exception if configId is empty`() {
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            "description",
-            ConfigType.SLACK,
-            configData = sampleSlack
-        )
+        val sampleConfig =
+            NotificationConfig(
+                "name",
+                "description",
+                ConfigType.SLACK,
+                configData = sampleSlack,
+            )
         Assertions.assertThrows(IllegalArgumentException::class.java) {
             NotificationConfigInfo(
                 "",
                 Instant.now(),
                 Instant.now(),
-                sampleConfig
+                sampleConfig,
             )
         }
     }
@@ -118,20 +125,21 @@ internal class NotificationConfigInfoTests {
     fun `Config info should throw exception if configId is absent in json`() {
         val lastUpdatedTimeMs = Instant.ofEpochMilli(Instant.now().toEpochMilli())
         val createdTimeMs = lastUpdatedTimeMs.minusSeconds(1000)
-        val jsonString = """
-        {
-            "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "config":{
-                "name":"name",
-                "description":"description",
-                "config_type":"slack",
-                "feature_list":["index_management"],
-                "is_enabled":true,
-                "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
+        val jsonString =
+            """
+            {
+                "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
+                "created_time_ms":"${createdTimeMs.toEpochMilli()}",
+                "config":{
+                    "name":"name",
+                    "description":"description",
+                    "config_type":"slack",
+                    "feature_list":["index_management"],
+                    "is_enabled":true,
+                    "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
+                }
             }
-        }
-        """.trimIndent()
+            """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
             createObjectFromJsonString(jsonString) { NotificationConfigInfo.parse(it) }
         }
@@ -141,20 +149,21 @@ internal class NotificationConfigInfoTests {
     fun `Config info should throw exception if lastUpdatedTimeMs is absent in json`() {
         val lastUpdatedTimeMs = Instant.ofEpochMilli(Instant.now().toEpochMilli())
         val createdTimeMs = lastUpdatedTimeMs.minusSeconds(1000)
-        val jsonString = """
-        {
-            "config_id":"config-Id",
-            "created_time_ms":"${createdTimeMs.toEpochMilli()}",
-            "config":{
-                "name":"name",
-                "description":"description",
-                "config_type":"slack",
-                "feature_list":["index_management"],
-                "is_enabled":true,
-                "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
+        val jsonString =
+            """
+            {
+                "config_id":"config-Id",
+                "created_time_ms":"${createdTimeMs.toEpochMilli()}",
+                "config":{
+                    "name":"name",
+                    "description":"description",
+                    "config_type":"slack",
+                    "feature_list":["index_management"],
+                    "is_enabled":true,
+                    "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
+                }
             }
-        }
-        """.trimIndent()
+            """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
             createObjectFromJsonString(jsonString) { NotificationConfigInfo.parse(it) }
         }
@@ -163,20 +172,21 @@ internal class NotificationConfigInfoTests {
     @Test
     fun `Config info should throw exception if createdTimeMs is absent in json`() {
         val lastUpdatedTimeMs = Instant.ofEpochMilli(Instant.now().toEpochMilli())
-        val jsonString = """
-        {
-            "config_id":"config-Id",
-            "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "config":{
-                "name":"name",
-                "description":"description",
-                "config_type":"slack",
-                "feature_list":["index_management"],
-                "is_enabled":true,
-                "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
+        val jsonString =
+            """
+            {
+                "config_id":"config-Id",
+                "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
+                "config":{
+                    "name":"name",
+                    "description":"description",
+                    "config_type":"slack",
+                    "feature_list":["index_management"],
+                    "is_enabled":true,
+                    "slack":{"url":"https://domain.com/sample_slack_url#1234567890"}
+                }
             }
-        }
-        """.trimIndent()
+            """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
             createObjectFromJsonString(jsonString) { NotificationConfigInfo.parse(it) }
         }
@@ -186,13 +196,14 @@ internal class NotificationConfigInfoTests {
     fun `Config info should throw exception if notificationConfig is absent in json`() {
         val lastUpdatedTimeMs = Instant.ofEpochMilli(Instant.now().toEpochMilli())
         val createdTimeMs = lastUpdatedTimeMs.minusSeconds(1000)
-        val jsonString = """
-        {
-            "config_id":"config-Id",
-            "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
-            "created_time_ms":"${createdTimeMs.toEpochMilli()}"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "config_id":"config-Id",
+                "last_updated_time_ms":"${lastUpdatedTimeMs.toEpochMilli()}",
+                "created_time_ms":"${createdTimeMs.toEpochMilli()}"
+            }
+            """.trimIndent()
         Assertions.assertThrows(IllegalArgumentException::class.java) {
             createObjectFromJsonString(jsonString) { NotificationConfigInfo.parse(it) }
         }

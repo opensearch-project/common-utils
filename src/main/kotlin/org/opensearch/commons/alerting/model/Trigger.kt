@@ -9,18 +9,18 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 interface Trigger : BaseModel {
-
-    enum class Type(val value: String) {
+    enum class Type(
+        val value: String,
+    ) {
         DOCUMENT_LEVEL_TRIGGER(DocumentLevelTrigger.DOCUMENT_LEVEL_TRIGGER_FIELD),
         QUERY_LEVEL_TRIGGER(QueryLevelTrigger.QUERY_LEVEL_TRIGGER_FIELD),
         BUCKET_LEVEL_TRIGGER(BucketLevelTrigger.BUCKET_LEVEL_TRIGGER_FIELD),
         NOOP_TRIGGER(NoOpTrigger.NOOP_TRIGGER_FIELD),
         CHAINED_ALERT_TRIGGER(ChainedAlertTrigger.CHAINED_ALERT_TRIGGER_FIELD),
-        REMOTE_MONITOR_TRIGGER(RemoteMonitorTrigger.REMOTE_MONITOR_TRIGGER_FIELD);
+        REMOTE_MONITOR_TRIGGER(RemoteMonitorTrigger.REMOTE_MONITOR_TRIGGER_FIELD),
+        ;
 
-        override fun toString(): String {
-            return value
-        }
+        override fun toString(): String = value
     }
 
     companion object {
@@ -51,18 +51,22 @@ interface Trigger : BaseModel {
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Trigger {
-            return when (val type = sin.readEnum(Trigger.Type::class.java)) {
+        fun readFrom(sin: StreamInput): Trigger =
+            when (val type = sin.readEnum(Trigger.Type::class.java)) {
                 Type.QUERY_LEVEL_TRIGGER -> QueryLevelTrigger(sin)
+
                 Type.BUCKET_LEVEL_TRIGGER -> BucketLevelTrigger(sin)
+
                 Type.DOCUMENT_LEVEL_TRIGGER -> DocumentLevelTrigger(sin)
+
                 Type.CHAINED_ALERT_TRIGGER -> ChainedAlertTrigger(sin)
+
                 Type.REMOTE_MONITOR_TRIGGER -> RemoteMonitorTrigger(sin)
+
                 // This shouldn't be reachable but ensuring exhaustiveness as Kotlin warns
                 // enum can be null in Java
                 else -> throw IllegalStateException("Unexpected input [$type] when reading Trigger")
             }
-        }
     }
 
     /** The id of the Trigger in the [SCHEDULED_JOBS_INDEX] */

@@ -26,17 +26,17 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class IndexWorkflowRequestTests {
-
     @Test
     fun `test index workflow post request`() {
-        val req = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.POST,
-            randomWorkflow(auditDelegateMonitorAlerts = false)
-        )
+        val req =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.POST,
+                randomWorkflow(auditDelegateMonitorAlerts = false),
+            )
         Assertions.assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -53,14 +53,15 @@ class IndexWorkflowRequestTests {
 
     @Test
     fun `test index composite workflow post request`() {
-        val req = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.POST,
-            randomWorkflow()
-        )
+        val req =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.POST,
+                randomWorkflow(),
+            )
         Assertions.assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -77,19 +78,21 @@ class IndexWorkflowRequestTests {
 
     @Test
     fun `Index composite workflow serialize and deserialize transport object should be equal`() {
-        val compositeWorkflowRequest = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.POST,
-            randomWorkflow()
-        )
+        val compositeWorkflowRequest =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.POST,
+                randomWorkflow(),
+            )
 
-        val recreatedObject = recreateObject(
-            compositeWorkflowRequest,
-            NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)
-        ) { IndexWorkflowRequest(it) }
+        val recreatedObject =
+            recreateObject(
+                compositeWorkflowRequest,
+                NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables),
+            ) { IndexWorkflowRequest(it) }
         Assertions.assertEquals(compositeWorkflowRequest.workflowId, recreatedObject.workflowId)
         Assertions.assertEquals(compositeWorkflowRequest.seqNo, recreatedObject.seqNo)
         Assertions.assertEquals(compositeWorkflowRequest.primaryTerm, recreatedObject.primaryTerm)
@@ -100,14 +103,15 @@ class IndexWorkflowRequestTests {
 
     @Test
     fun `test index workflow put request`() {
-        val req = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflow()
-        )
+        val req =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflow(),
+            )
         Assertions.assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -123,85 +127,93 @@ class IndexWorkflowRequestTests {
 
     @Test
     fun `test validate`() {
-        val req = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflow(monitorIds = emptyList())
-        )
+        val req =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflow(monitorIds = emptyList()),
+            )
         Assertions.assertNotNull(req)
         // Empty input list
         var validate = req.validate()
         Assert.assertTrue(validate != null)
         Assert.assertTrue(validate!!.message!!.contains("Delegates list can not be empty.;"))
         // Duplicate delegate
-        val req1 = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflow(monitorIds = listOf("1L", "1L", "2L"))
-        )
+        val req1 =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflow(monitorIds = listOf("1L", "1L", "2L")),
+            )
         validate = req1.validate()
         Assert.assertTrue(validate != null)
         Assert.assertTrue(validate!!.message!!.contains("Duplicate delegates not allowed"))
         // Sequence not correct
-        var delegates = listOf(
-            Delegate(1, "monitor-1"),
-            Delegate(1, "monitor-2"),
-            Delegate(2, "monitor-3")
-        )
-        val req2 = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflowWithDelegates(
-                input = listOf(CompositeInput(Sequence(delegates = delegates)))
+        var delegates =
+            listOf(
+                Delegate(1, "monitor-1"),
+                Delegate(1, "monitor-2"),
+                Delegate(2, "monitor-3"),
             )
-        )
+        val req2 =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflowWithDelegates(
+                    input = listOf(CompositeInput(Sequence(delegates = delegates))),
+                ),
+            )
         validate = req2.validate()
         Assert.assertTrue(validate != null)
         Assert.assertTrue(validate!!.message!!.contains("Sequence ordering of delegate monitor shouldn't contain duplicate order values"))
         // Chained finding sequence not correct
-        delegates = listOf(
-            Delegate(1, "monitor-1"),
-            Delegate(2, "monitor-2", ChainedMonitorFindings("monitor-1")),
-            Delegate(3, "monitor-3", ChainedMonitorFindings("monitor-x"))
-        )
-        val req3 = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflowWithDelegates(
-                input = listOf(CompositeInput(Sequence(delegates = delegates)))
+        delegates =
+            listOf(
+                Delegate(1, "monitor-1"),
+                Delegate(2, "monitor-2", ChainedMonitorFindings("monitor-1")),
+                Delegate(3, "monitor-3", ChainedMonitorFindings("monitor-x")),
             )
-        )
+        val req3 =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflowWithDelegates(
+                    input = listOf(CompositeInput(Sequence(delegates = delegates))),
+                ),
+            )
         validate = req3.validate()
         Assert.assertTrue(validate != null)
         Assert.assertTrue(validate!!.message!!.contains("Chained Findings Monitor monitor-x doesn't exist in sequence"))
         // Order not correct
-        delegates = listOf(
-            Delegate(1, "monitor-1"),
-            Delegate(3, "monitor-2", ChainedMonitorFindings("monitor-1")),
-            Delegate(2, "monitor-3", ChainedMonitorFindings("monitor-2"))
-        )
-        val req4 = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflowWithDelegates(
-                input = listOf(CompositeInput(Sequence(delegates = delegates)))
+        delegates =
+            listOf(
+                Delegate(1, "monitor-1"),
+                Delegate(3, "monitor-2", ChainedMonitorFindings("monitor-1")),
+                Delegate(2, "monitor-3", ChainedMonitorFindings("monitor-2")),
             )
-        )
+        val req4 =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflowWithDelegates(
+                    input = listOf(CompositeInput(Sequence(delegates = delegates))),
+                ),
+            )
         validate = req4.validate()
         Assert.assertTrue(validate != null)
         Assert.assertTrue(validate!!.message!!.contains("Chained Findings Monitor monitor-2 should be executed before monitor monitor-3"))
@@ -210,55 +222,59 @@ class IndexWorkflowRequestTests {
         for (i in 0..25) {
             monitorsIds.add(UUID.randomUUID().toString())
         }
-        val req5 = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflow(
-                monitorIds = monitorsIds
+        val req5 =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflow(
+                    monitorIds = monitorsIds,
+                ),
             )
-        )
         validate = req5.validate()
         Assert.assertTrue(validate != null)
         Assert.assertTrue(validate!!.message!!.contains("Delegates list can not be larger then 25."))
         // Input list empty
-        val req6 = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflowWithDelegates(
-                input = emptyList()
+        val req6 =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflowWithDelegates(
+                    input = emptyList(),
+                ),
             )
-        )
         validate = req6.validate()
         Assert.assertTrue(validate != null)
         Assert.assertTrue(validate!!.message!!.contains("Input list can not be empty."))
         // Input list multiple elements
-        delegates = listOf(
-            Delegate(1, "monitor-1")
-        )
+        delegates =
+            listOf(
+                Delegate(1, "monitor-1"),
+            )
 
         // Chained finding list of monitors valid
-        delegates = listOf(
-            Delegate(1, "monitor-1"),
-            Delegate(2, "monitor-2"),
-            Delegate(3, "monitor-3", ChainedMonitorFindings(null, listOf("monitor-1", "monitor-2")))
-
-        )
-        val req7 = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflowWithDelegates(
-                input = listOf(CompositeInput(Sequence(delegates = delegates)))
+        delegates =
+            listOf(
+                Delegate(1, "monitor-1"),
+                Delegate(2, "monitor-2"),
+                Delegate(3, "monitor-3", ChainedMonitorFindings(null, listOf("monitor-1", "monitor-2"))),
             )
-        )
+        val req7 =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflowWithDelegates(
+                    input = listOf(CompositeInput(Sequence(delegates = delegates))),
+                ),
+            )
         assertNull(req7.validate())
         try {
             IndexWorkflowRequest(
@@ -268,8 +284,8 @@ class IndexWorkflowRequestTests {
                 WriteRequest.RefreshPolicy.IMMEDIATE,
                 RestRequest.Method.PUT,
                 randomWorkflowWithDelegates(
-                    input = listOf(CompositeInput(Sequence(delegates = delegates)), CompositeInput(Sequence(delegates = delegates)))
-                )
+                    input = listOf(CompositeInput(Sequence(delegates = delegates)), CompositeInput(Sequence(delegates = delegates))),
+                ),
             )
         } catch (ex: Exception) {
             Assert.assertTrue(ex is IllegalArgumentException)
@@ -277,22 +293,23 @@ class IndexWorkflowRequestTests {
         }
 
         // Chained finding list of monitors invalid order and old field null
-        delegates = listOf(
-            Delegate(1, "monitor-1"),
-            Delegate(3, "monitor-2"),
-            Delegate(2, "monitor-3", ChainedMonitorFindings(null, listOf("monitor-1", "monitor-2")))
-
-        )
-        val req8 = IndexWorkflowRequest(
-            "1234",
-            1L,
-            2L,
-            WriteRequest.RefreshPolicy.IMMEDIATE,
-            RestRequest.Method.PUT,
-            randomWorkflowWithDelegates(
-                input = listOf(CompositeInput(Sequence(delegates = delegates)))
+        delegates =
+            listOf(
+                Delegate(1, "monitor-1"),
+                Delegate(3, "monitor-2"),
+                Delegate(2, "monitor-3", ChainedMonitorFindings(null, listOf("monitor-1", "monitor-2"))),
             )
-        )
+        val req8 =
+            IndexWorkflowRequest(
+                "1234",
+                1L,
+                2L,
+                WriteRequest.RefreshPolicy.IMMEDIATE,
+                RestRequest.Method.PUT,
+                randomWorkflowWithDelegates(
+                    input = listOf(CompositeInput(Sequence(delegates = delegates))),
+                ),
+            )
         assertNotNull(req8.validate())
         assertTrue(req8.validate()!!.message!!.contains("should be executed before monitor"))
     }

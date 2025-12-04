@@ -55,7 +55,6 @@ import java.time.Instant
 @Suppress("UNCHECKED_CAST")
 @ExtendWith(MockitoExtension::class)
 internal class NotificationsPluginInterfaceTests {
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private lateinit var client: NodeClient
 
@@ -126,14 +125,15 @@ internal class NotificationsPluginInterfaceTests {
     @Test
     fun getPluginFeatures() {
         val request = mock(GetPluginFeaturesRequest::class.java)
-        val response = GetPluginFeaturesResponse(
-            listOf("config_type_1", "config_type_2", "config_type_3"),
-            mapOf(
-                Pair("FeatureKey1", "FeatureValue1"),
-                Pair("FeatureKey2", "FeatureValue2"),
-                Pair("FeatureKey3", "FeatureValue3")
+        val response =
+            GetPluginFeaturesResponse(
+                listOf("config_type_1", "config_type_2", "config_type_3"),
+                mapOf(
+                    Pair("FeatureKey1", "FeatureValue1"),
+                    Pair("FeatureKey2", "FeatureValue2"),
+                    Pair("FeatureKey3", "FeatureValue3"),
+                ),
             )
-        )
         val listener: ActionListener<GetPluginFeaturesResponse> =
             mock(ActionListener::class.java) as ActionListener<GetPluginFeaturesResponse>
 
@@ -148,12 +148,13 @@ internal class NotificationsPluginInterfaceTests {
 
     @Test
     fun getChannelList() {
-        val sampleConfig = Channel(
-            "config_id",
-            "name",
-            "description",
-            ConfigType.SLACK
-        )
+        val sampleConfig =
+            Channel(
+                "config_id",
+                "name",
+                "description",
+                ConfigType.SLACK,
+            )
 
         val request = mock(GetChannelListRequest::class.java)
         val response = GetChannelListResponse(ChannelList(sampleConfig))
@@ -171,24 +172,27 @@ internal class NotificationsPluginInterfaceTests {
 
     @Test
     fun sendNotification() {
-        val notificationInfo = EventSource(
-            "title",
-            "reference_id",
-            SeverityType.HIGH,
-            listOf("tag1", "tag2")
-        )
-        val channelMessage = ChannelMessage(
-            "text_description",
-            "<b>htmlDescription</b>",
-            null
-        )
+        val notificationInfo =
+            EventSource(
+                "title",
+                "reference_id",
+                SeverityType.HIGH,
+                listOf("tag1", "tag2"),
+            )
+        val channelMessage =
+            ChannelMessage(
+                "text_description",
+                "<b>htmlDescription</b>",
+                null,
+            )
 
-        val sampleStatus = EventStatus(
-            "config_id",
-            "name",
-            ConfigType.SLACK,
-            deliveryStatus = DeliveryStatus("404", "invalid recipient")
-        )
+        val sampleStatus =
+            EventStatus(
+                "config_id",
+                "name",
+                ConfigType.SLACK,
+                deliveryStatus = DeliveryStatus("404", "invalid recipient"),
+            )
 
         val sampleEvent = NotificationEvent(notificationInfo, listOf(sampleStatus))
 
@@ -206,7 +210,7 @@ internal class NotificationsPluginInterfaceTests {
             notificationInfo,
             channelMessage,
             listOf("channelId1", "channelId2"),
-            listener
+            listener,
         )
         verify(listener, times(1)).onResponse(eq(response))
     }
@@ -214,7 +218,14 @@ internal class NotificationsPluginInterfaceTests {
     @Test
     fun publishLegacyNotification() {
         val request = mock(LegacyPublishNotificationRequest::class.java)
-        val res = LegacyPublishNotificationResponse(LegacyDestinationResponse.Builder().withStatusCode(200).withResponseContent("Nice!").build())
+        val res =
+            LegacyPublishNotificationResponse(
+                LegacyDestinationResponse
+                    .Builder()
+                    .withStatusCode(200)
+                    .withResponseContent("Nice!")
+                    .build(),
+            )
         val l: ActionListener<LegacyPublishNotificationResponse> =
             mock(ActionListener::class.java) as ActionListener<LegacyPublishNotificationResponse>
 
@@ -229,18 +240,20 @@ internal class NotificationsPluginInterfaceTests {
 
     private fun mockGetNotificationConfigResponse(): GetNotificationConfigResponse {
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
-        val sampleConfig = NotificationConfig(
-            "name",
-            "description",
-            ConfigType.SLACK,
-            configData = sampleSlack
-        )
-        val configInfo = NotificationConfigInfo(
-            "config_id",
-            Instant.now(),
-            Instant.now(),
-            sampleConfig
-        )
+        val sampleConfig =
+            NotificationConfig(
+                "name",
+                "description",
+                ConfigType.SLACK,
+                configData = sampleSlack,
+            )
+        val configInfo =
+            NotificationConfigInfo(
+                "config_id",
+                Instant.now(),
+                Instant.now(),
+                sampleConfig,
+            )
         return GetNotificationConfigResponse(NotificationConfigSearchResult(configInfo))
     }
 }

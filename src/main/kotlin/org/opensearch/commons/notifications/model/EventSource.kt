@@ -27,9 +27,8 @@ data class EventSource(
     val title: String,
     val referenceId: String,
     val severity: SeverityType = SeverityType.INFO,
-    val tags: List<String> = listOf()
+    val tags: List<String> = listOf(),
 ) : BaseModel {
-
     init {
         require(!Strings.isNullOrEmpty(title)) { "name is null or empty" }
     }
@@ -57,16 +56,28 @@ data class EventSource(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    TITLE_TAG -> title = parser.text()
-                    REFERENCE_ID_TAG -> referenceId = parser.text()
-                    SEVERITY_TAG -> severity = SeverityType.fromTagOrDefault(parser.text())
-                    TAGS_TAG -> tags = parser.stringList()
+                    TITLE_TAG -> {
+                        title = parser.text()
+                    }
+
+                    REFERENCE_ID_TAG -> {
+                        referenceId = parser.text()
+                    }
+
+                    SEVERITY_TAG -> {
+                        severity = SeverityType.fromTagOrDefault(parser.text())
+                    }
+
+                    TAGS_TAG -> {
+                        tags = parser.stringList()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing EventSource")
@@ -80,7 +91,7 @@ data class EventSource(
                 title,
                 referenceId,
                 severity,
-                tags
+                tags,
             )
         }
     }
@@ -88,9 +99,13 @@ data class EventSource(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(TITLE_TAG, title)
             .field(REFERENCE_ID_TAG, referenceId)
             .field(SEVERITY_TAG, severity.tag)
@@ -106,7 +121,7 @@ data class EventSource(
         title = input.readString(),
         referenceId = input.readString(),
         severity = input.readEnum(SeverityType::class.java),
-        tags = input.readStringList()
+        tags = input.readStringList(),
     )
 
     /**

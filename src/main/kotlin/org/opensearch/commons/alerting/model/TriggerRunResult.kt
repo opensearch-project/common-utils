@@ -15,22 +15,30 @@ import java.time.Instant
 
 abstract class TriggerRunResult(
     open var triggerName: String,
-    open var error: Exception? = null
-) : Writeable, ToXContent {
-
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    open var error: Exception? = null,
+) : Writeable,
+    ToXContent {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field("name", triggerName)
 
         internalXContent(builder, params)
         val msg = error?.message
 
-        builder.field("error", msg)
+        builder
+            .field("error", msg)
             .endObject()
         return builder
     }
 
-    abstract fun internalXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder
+    abstract fun internalXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder
 
     /** Returns error information to store in the Alert. Currently it's just the stack trace but it can be more */
     open fun alertError(): AlertError? {
@@ -48,8 +56,7 @@ abstract class TriggerRunResult(
 
     companion object {
         @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, ActionRunResult> {
-            return map as MutableMap<String, ActionRunResult>
-        }
+        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, ActionRunResult> =
+            map as MutableMap<String, ActionRunResult>
     }
 }

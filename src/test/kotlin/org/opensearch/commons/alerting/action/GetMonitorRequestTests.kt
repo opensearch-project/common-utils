@@ -10,9 +10,10 @@ import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.rest.RestRequest
 import org.opensearch.search.fetch.subphase.FetchSourceContext
 import org.opensearch.test.OpenSearchTestCase
+import kotlin.test.Test
 
 class GetMonitorRequestTests : OpenSearchTestCase() {
-
+    @Test
     fun `test get monitor request`() {
         val req = GetMonitorRequest("1234", 1L, RestRequest.Method.GET, FetchSourceContext.FETCH_SOURCE)
         assertNotNull(req)
@@ -27,6 +28,7 @@ class GetMonitorRequestTests : OpenSearchTestCase() {
         assertEquals(FetchSourceContext.FETCH_SOURCE, newReq.srcContext)
     }
 
+    @Test
     fun `test get monitor request without src context`() {
         val req = GetMonitorRequest("1234", 1L, RestRequest.Method.GET, null)
         assertNotNull(req)
@@ -41,6 +43,7 @@ class GetMonitorRequestTests : OpenSearchTestCase() {
         assertEquals(null, newReq.srcContext)
     }
 
+    @Test
     fun `test head monitor request`() {
         val req = GetMonitorRequest("1234", 2L, RestRequest.Method.HEAD, FetchSourceContext.FETCH_SOURCE)
         assertNotNull(req)

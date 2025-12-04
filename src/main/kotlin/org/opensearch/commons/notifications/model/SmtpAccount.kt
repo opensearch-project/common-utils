@@ -27,9 +27,8 @@ data class SmtpAccount(
     val host: String,
     val port: Int,
     val method: MethodType,
-    val fromAddress: String
+    val fromAddress: String,
 ) : BaseConfigData {
-
     init {
         require(!Strings.isNullOrEmpty(host)) { "host is null or empty" }
         require(port > 0) { "port should be positive value" }
@@ -60,16 +59,28 @@ data class SmtpAccount(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    HOST_TAG -> host = parser.text()
-                    PORT_TAG -> port = parser.intValue()
-                    METHOD_TAG -> method = MethodType.fromTagOrDefault(parser.text())
-                    FROM_ADDRESS_TAG -> fromAddress = parser.text()
+                    HOST_TAG -> {
+                        host = parser.text()
+                    }
+
+                    PORT_TAG -> {
+                        port = parser.intValue()
+                    }
+
+                    METHOD_TAG -> {
+                        method = MethodType.fromTagOrDefault(parser.text())
+                    }
+
+                    FROM_ADDRESS_TAG -> {
+                        fromAddress = parser.text()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing SmtpAccount")
@@ -84,7 +95,7 @@ data class SmtpAccount(
                 host,
                 port,
                 method,
-                fromAddress
+                fromAddress,
             )
         }
     }
@@ -92,14 +103,17 @@ data class SmtpAccount(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return builder!!.startObject()
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder =
+        builder!!
+            .startObject()
             .field(HOST_TAG, host)
             .field(PORT_TAG, port)
             .field(METHOD_TAG, method.tag)
             .field(FROM_ADDRESS_TAG, fromAddress)
             .endObject()
-    }
 
     /**
      * Constructor used in transport action communication.
@@ -109,7 +123,7 @@ data class SmtpAccount(
         host = input.readString(),
         port = input.readInt(),
         method = input.readEnum(MethodType::class.java),
-        fromAddress = input.readString()
+        fromAddress = input.readString(),
     )
 
     /**

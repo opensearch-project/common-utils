@@ -9,7 +9,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class SearchInputTests {
-
     @Test
     fun `test SearchInput asTemplateArgs`() {
         val searchInput = randomSearchInput()
@@ -21,12 +20,12 @@ class SearchInputTests {
         assertEquals(
             searchInput.indices,
             search[INDICES_FIELD],
-            "Template arg field 'indices' doesn't match"
+            "Template arg field 'indices' doesn't match",
         )
         assertEquals(
             searchInput.query.toString(),
             search[QUERY_FIELD],
-            "Template arg field 'query' doesn't match"
+            "Template arg field 'query' doesn't match",
         )
     }
 }

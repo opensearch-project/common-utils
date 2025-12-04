@@ -42,7 +42,6 @@ import java.time.temporal.ChronoUnit
 import kotlin.test.assertTrue
 
 class WriteableTests {
-
     @Test
     fun `test throttle as stream`() {
         val throttle = randomThrottle()
@@ -216,7 +215,7 @@ class WriteableTests {
         Assertions.assertEquals(
             actionExecutionPolicy,
             newActionExecutionPolicy,
-            "Round tripping ActionExecutionPolicy doesn't work"
+            "Round tripping ActionExecutionPolicy doesn't work",
         )
     }
 
@@ -230,7 +229,7 @@ class WriteableTests {
         OpenSearchTestCase.assertEquals(
             "Round tripping ActionRunResult doesn't work",
             actionRunResult,
-            newActionRunResult
+            newActionRunResult,
         )
     }
 
@@ -354,11 +353,12 @@ class WriteableTests {
         val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
         val myObjOut = BytesStreamOutput()
         myMonitorInput.writeTo(myObjOut)
-        val docLevelMonitorInput = DocLevelMonitorInput(
-            "test",
-            listOf("test"),
-            listOf(randomDocLevelQuery())
-        )
+        val docLevelMonitorInput =
+            DocLevelMonitorInput(
+                "test",
+                listOf("test"),
+                listOf(randomDocLevelQuery()),
+            )
         val remoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(myObjOut.bytes(), docLevelMonitorInput)
 
         val out = BytesStreamOutput()
@@ -377,11 +377,12 @@ class WriteableTests {
         val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
         var myObjOut = BytesStreamOutput()
         myMonitorInput.writeTo(myObjOut)
-        val docLevelMonitorInput = DocLevelMonitorInput(
-            "test",
-            listOf("test"),
-            listOf(randomDocLevelQuery())
-        )
+        val docLevelMonitorInput =
+            DocLevelMonitorInput(
+                "test",
+                listOf("test"),
+                listOf(randomDocLevelQuery()),
+            )
         val remoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(myObjOut.bytes(), docLevelMonitorInput)
 
         val myMonitorTrigger = MyMonitorTrigger(1, "hello", MyMonitorTrigger(2, "world", null))
@@ -389,21 +390,22 @@ class WriteableTests {
         myMonitorTrigger.writeTo(myObjOut)
         val remoteMonitorTrigger = RemoteMonitorTrigger("id", "name", "1", listOf(), myObjOut.bytes())
 
-        val monitor = Monitor(
-            Monitor.NO_ID,
-            Monitor.NO_VERSION,
-            "hello",
-            true,
-            IntervalSchedule(1, ChronoUnit.MINUTES),
-            Instant.now(),
-            Instant.now(),
-            "remote_doc_level_monitor",
-            null,
-            IndexUtils.NO_SCHEMA_VERSION,
-            listOf(remoteDocLevelMonitorInput),
-            listOf(remoteMonitorTrigger),
-            mapOf()
-        )
+        val monitor =
+            Monitor(
+                Monitor.NO_ID,
+                Monitor.NO_VERSION,
+                "hello",
+                true,
+                IntervalSchedule(1, ChronoUnit.MINUTES),
+                Instant.now(),
+                Instant.now(),
+                "remote_doc_level_monitor",
+                null,
+                IndexUtils.NO_SCHEMA_VERSION,
+                listOf(remoteDocLevelMonitorInput),
+                listOf(remoteMonitorTrigger),
+                mapOf(),
+            )
 
         val out = BytesStreamOutput()
         monitor.writeTo(out)
@@ -417,15 +419,16 @@ class WriteableTests {
     fun `test Comment object`() {
         val user = randomUser()
         val createdTime = Instant.now()
-        val comment = Comment(
-            "123",
-            "456",
-            "alert",
-            "content",
-            createdTime,
-            null,
-            user
-        )
+        val comment =
+            Comment(
+                "123",
+                "456",
+                "alert",
+                "content",
+                createdTime,
+                null,
+                user,
+            )
         Assertions.assertNotNull(comment)
         val out = BytesStreamOutput()
         comment.writeTo(out)
@@ -447,7 +450,7 @@ class WriteableTests {
             "trigger-name",
             mutableListOf(UUIDs.randomBase64UUID().toString()),
             null,
-            mutableMapOf(Pair("alertId", map))
+            mutableMapOf(Pair("alertId", map)),
         )
     }
 
@@ -461,18 +464,21 @@ class WriteableTests {
             map,
             false,
             Instant.now(),
-            null
+            null,
         )
     }
 }
 
-data class MyMonitorInput(val a: Int, val b: String, val c: MyMonitorInput?) : Writeable {
-
+data class MyMonitorInput(
+    val a: Int,
+    val b: String,
+    val c: MyMonitorInput?,
+) : Writeable {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readInt(),
         sin.readString(),
-        sin.readOptionalWriteable { MyMonitorInput(it) }
+        sin.readOptionalWriteable { MyMonitorInput(it) },
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -482,13 +488,16 @@ data class MyMonitorInput(val a: Int, val b: String, val c: MyMonitorInput?) : W
     }
 }
 
-data class MyMonitorTrigger(val a: Int, val b: String, val c: MyMonitorTrigger?) : Writeable {
-
+data class MyMonitorTrigger(
+    val a: Int,
+    val b: String,
+    val c: MyMonitorTrigger?,
+) : Writeable {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readInt(),
         sin.readString(),
-        sin.readOptionalWriteable { MyMonitorTrigger(it) }
+        sin.readOptionalWriteable { MyMonitorTrigger(it) },
     )
 
     override fun writeTo(out: StreamOutput) {

@@ -9,7 +9,6 @@ import java.io.IOException
 import java.time.Instant
 
 interface ScheduledJob : BaseModel {
-
     fun toXContentWithType(builder: XContentBuilder): XContentBuilder = toXContent(builder, XCONTENT_WITH_TYPE)
 
     companion object {
@@ -32,7 +31,11 @@ interface ScheduledJob : BaseModel {
          * If the job comes from an OpenSearch index it's [id] and [version] can also be supplied.
          */
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
+        fun parse(
+            xcp: XContentParser,
+            id: String = NO_ID,
+            version: Long = NO_VERSION,
+        ): ScheduledJob {
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp)
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
@@ -48,7 +51,12 @@ interface ScheduledJob : BaseModel {
          * the above parse function.
          */
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, type: String, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
+        fun parse(
+            xcp: XContentParser,
+            type: String,
+            id: String = NO_ID,
+            version: Long = NO_VERSION,
+        ): ScheduledJob {
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
             val job = xcp.namedObject(ScheduledJob::class.java, type, null)
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp)
@@ -81,5 +89,8 @@ interface ScheduledJob : BaseModel {
     val enabledTime: Instant?
 
     /** Copy constructor for persisted jobs */
-    fun fromDocument(id: String, version: Long): ScheduledJob
+    fun fromDocument(
+        id: String,
+        version: Long,
+    ): ScheduledJob
 }

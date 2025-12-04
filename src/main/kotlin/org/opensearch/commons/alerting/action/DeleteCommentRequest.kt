@@ -15,7 +15,7 @@ class DeleteCommentRequest : ActionRequest {
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        commentId = sin.readString()
+        commentId = sin.readString(),
     )
 
     override fun validate(): ActionRequestValidationException? {

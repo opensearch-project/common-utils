@@ -20,9 +20,8 @@ import java.io.IOException
  * Data class representing Email group.
  */
 data class EmailGroup(
-    val recipients: List<EmailRecipient>
+    val recipients: List<EmailRecipient>,
 ) : BaseConfigData {
-
     companion object {
         private val log by logger(EmailGroup::class.java)
 
@@ -48,13 +47,16 @@ data class EmailGroup(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    RECIPIENT_LIST_TAG -> recipients = parser.objectList { EmailRecipient.parse(it) }
+                    RECIPIENT_LIST_TAG -> {
+                        recipients = parser.objectList { EmailRecipient.parse(it) }
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing EmailGroup")
@@ -71,7 +73,7 @@ data class EmailGroup(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        recipients = input.readList(EmailRecipient.reader)
+        recipients = input.readList(EmailRecipient.reader),
     )
 
     /**
@@ -84,9 +86,13 @@ data class EmailGroup(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(RECIPIENT_LIST_TAG, recipients)
             .endObject()
     }

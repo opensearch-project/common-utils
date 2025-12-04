@@ -14,7 +14,6 @@ import org.opensearch.commons.utils.recreateObject
 import org.opensearch.core.rest.RestStatus
 
 internal class DeleteNotificationConfigResponseTests {
-
     @Test
     fun `Delete response serialize and deserialize transport object should be equal`() {
         val configResponse = DeleteNotificationConfigResponse(mapOf(Pair("sample_config_id", RestStatus.OK)))
@@ -34,13 +33,14 @@ internal class DeleteNotificationConfigResponseTests {
     fun `Delete response should deserialize json object using parser`() {
         val configId = "sample_config_id"
         val configResponse = DeleteNotificationConfigResponse(mapOf(Pair(configId, RestStatus.OK)))
-        val jsonString = """
-        {
-            "delete_response_list":{
-                "$configId":"OK"
+        val jsonString =
+            """
+            {
+                "delete_response_list":{
+                    "$configId":"OK"
+                }
             }
-        }
-        """.trimIndent()
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { DeleteNotificationConfigResponse.parse(it) }
         assertEquals(configResponse.configIdToStatus, recreatedObject.configIdToStatus)
     }
@@ -65,16 +65,17 @@ internal class DeleteNotificationConfigResponseTests {
     fun `Delete response should safely ignore extra field in json object`() {
         val configId = "sample_config_id"
         val configResponse = DeleteNotificationConfigResponse(mapOf(Pair(configId, RestStatus.OK)))
-        val jsonString = """
-        {
-            "delete_response_list":{
-                "$configId":"OK"
-            },
-            "extra_field_1":["extra", "value"],
-            "extra_field_2":{"extra":"value"},
-            "extra_field_3":"extra value 3"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "delete_response_list":{
+                    "$configId":"OK"
+                },
+                "extra_field_1":["extra", "value"],
+                "extra_field_2":{"extra":"value"},
+                "extra_field_3":"extra value 3"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { DeleteNotificationConfigResponse.parse(it) }
         assertEquals(configResponse.configIdToStatus, recreatedObject.configIdToStatus)
     }

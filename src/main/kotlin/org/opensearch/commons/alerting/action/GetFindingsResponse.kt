@@ -17,7 +17,7 @@ class GetFindingsResponse : BaseResponse {
     constructor(
         status: RestStatus,
         totalFindings: Int?,
-        findings: List<FindingWithDocs>
+        findings: List<FindingWithDocs>,
     ) : super() {
         this.status = status
         this.totalFindings = totalFindings
@@ -47,15 +47,17 @@ class GetFindingsResponse : BaseResponse {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field("total_findings", totalFindings)
             .field("findings", findings)
 
         return builder.endObject()
     }
 
-    override fun getStatus(): RestStatus {
-        return this.status
-    }
+    override fun getStatus(): RestStatus = this.status
 }

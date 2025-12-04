@@ -21,7 +21,7 @@ class IndexCommentResponse : BaseResponse {
         id: String,
         seqNo: Long,
         primaryTerm: Long,
-        comment: Comment
+        comment: Comment,
     ) : super() {
         this.id = id
         this.seqNo = seqNo
@@ -34,7 +34,7 @@ class IndexCommentResponse : BaseResponse {
         sin.readString(), // id
         sin.readLong(), // seqNo
         sin.readLong(), // primaryTerm
-        Comment.readFrom(sin) // comment
+        Comment.readFrom(sin), // comment
     )
 
     @Throws(IOException::class)
@@ -46,12 +46,15 @@ class IndexCommentResponse : BaseResponse {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(_ID, id)
             .field(_SEQ_NO, seqNo)
             .field(_PRIMARY_TERM, primaryTerm)
             .field("comment", comment)
             .endObject()
-    }
 }

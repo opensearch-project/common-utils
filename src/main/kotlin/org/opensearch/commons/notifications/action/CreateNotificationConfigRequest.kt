@@ -25,7 +25,9 @@ import java.io.IOException
 /**
  * Action request for creating new configuration.
  */
-class CreateNotificationConfigRequest : ActionRequest, ToXContentObject {
+class CreateNotificationConfigRequest :
+    ActionRequest,
+    ToXContentObject {
     val configId: String?
     val notificationConfig: NotificationConfig
 
@@ -44,21 +46,30 @@ class CreateNotificationConfigRequest : ActionRequest, ToXContentObject {
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser, id: String? = null): CreateNotificationConfigRequest {
+        fun parse(
+            parser: XContentParser,
+            id: String? = null,
+        ): CreateNotificationConfigRequest {
             var configId: String? = id
             var notificationConfig: NotificationConfig? = null
 
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    CONFIG_ID_TAG -> configId = parser.textOrNull()
-                    CONFIG_TAG -> notificationConfig = NotificationConfig.parse(parser)
+                    CONFIG_ID_TAG -> {
+                        configId = parser.textOrNull()
+                    }
+
+                    CONFIG_TAG -> {
+                        notificationConfig = NotificationConfig.parse(parser)
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing CreateNotificationConfigRequest")
@@ -76,9 +87,13 @@ class CreateNotificationConfigRequest : ActionRequest, ToXContentObject {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .fieldIfNotNull(CONFIG_ID_TAG, configId)
             .field(CONFIG_TAG, notificationConfig)
             .endObject()
@@ -116,7 +131,5 @@ class CreateNotificationConfigRequest : ActionRequest, ToXContentObject {
     /**
      * {@inheritDoc}
      */
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 }

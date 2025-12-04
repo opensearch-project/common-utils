@@ -19,15 +19,13 @@ inline fun <reified E : Enum<E>> XContentParser.enumSet(enumParser: EnumParser<E
     return retSet
 }
 
-inline fun <reified E : Enum<E>> enumReader(enumClass: Class<E>): Writeable.Reader<E> {
-    return Writeable.Reader<E> {
+inline fun <reified E : Enum<E>> enumReader(enumClass: Class<E>): Writeable.Reader<E> =
+    Writeable.Reader<E> {
         it.readEnum(enumClass)
     }
-}
 
 @Suppress("UnusedPrivateMember")
-inline fun <reified E : Enum<E>> enumWriter(ignore: Class<E>): Writeable.Writer<E> {
-    return Writeable.Writer<E> { streamOutput: StreamOutput, value: E ->
+inline fun <reified E : Enum<E>> enumWriter(ignore: Class<E>): Writeable.Writer<E> =
+    Writeable.Writer<E> { streamOutput: StreamOutput, value: E ->
         streamOutput.writeEnum(value)
     }
-}

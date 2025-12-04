@@ -17,7 +17,7 @@ class CompositeInputTests {
         Assertions.assertEquals(
             templateDelegates[Sequence.DELEGATES_FIELD],
             sequence.delegates,
-            "Template args 'id' field does not match:"
+            "Template args 'id' field does not match:",
         )
     }
 
@@ -32,12 +32,12 @@ class CompositeInputTests {
         Assertions.assertEquals(
             templateDelegates[Delegate.ORDER_FIELD],
             delegate.order,
-            "Template args 'id' field does not match:"
+            "Template args 'id' field does not match:",
         )
         Assertions.assertEquals(
             templateDelegates[Delegate.MONITOR_ID_FIELD],
             delegate.monitorId,
-            "Template args 'id' field does not match:"
+            "Template args 'id' field does not match:",
         )
     }
 
@@ -49,7 +49,7 @@ class CompositeInputTests {
         } catch (e: IllegalArgumentException) {
             Assertions.assertEquals(
                 "Invalid delgate order",
-                e.message
+                e.message,
             )
         }
     }
@@ -62,8 +62,7 @@ class CompositeInputTests {
         } catch (e: IllegalArgumentException) {
             e.message?.let {
                 Assertions.assertTrue(
-                    it.contains("Invalid characters in id")
-
+                    it.contains("Invalid characters in id"),
                 )
             }
         }
@@ -77,8 +76,7 @@ class CompositeInputTests {
         } catch (e: IllegalArgumentException) {
             e.message?.let {
                 Assertions.assertTrue(
-                    it.contains("at least one of fields, 'monitorIds' and 'monitorId' should be provided")
-
+                    it.contains("at least one of fields, 'monitorIds' and 'monitorId' should be provided"),
                 )
             }
         }
@@ -92,8 +90,7 @@ class CompositeInputTests {
         } catch (e: IllegalArgumentException) {
             e.message?.let {
                 Assertions.assertTrue(
-                    it.contains("Invalid characters in id")
-
+                    it.contains("Invalid characters in id"),
                 )
             }
         }

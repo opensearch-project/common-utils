@@ -24,7 +24,6 @@ open class BaseAlert(
     open val schemaVersion: Int = NO_SCHEMA_VERSION,
     open val user: User?,
     open val triggerName: String,
-
     // State will be later moved to this Class  (after `monitorBasedAlerts` extend this Class)
     open val state: Alert.State,
     open val startTime: Instant,
@@ -32,9 +31,9 @@ open class BaseAlert(
     open val acknowledgedTime: Instant? = null,
     open val errorMessage: String? = null,
     open val severity: String,
-    open val actionExecutionResults: List<ActionExecutionResult>
-) : Writeable, ToXContent {
-
+    open val actionExecutionResults: List<ActionExecutionResult>,
+) : Writeable,
+    ToXContent {
     init {
         if (errorMessage != null) {
             require((state == Alert.State.DELETED) || (state == Alert.State.ERROR) || (state == Alert.State.AUDIT)) {
@@ -48,11 +47,12 @@ open class BaseAlert(
         id = sin.readString(),
         version = sin.readLong(),
         schemaVersion = sin.readInt(),
-        user = if (sin.readBoolean()) {
-            User(sin)
-        } else {
-            null
-        },
+        user =
+            if (sin.readBoolean()) {
+                User(sin)
+            } else {
+                null
+            },
         triggerName = sin.readString(),
         state = sin.readEnum(Alert.State::class.java),
         startTime = sin.readInstant(),
@@ -60,7 +60,7 @@ open class BaseAlert(
         acknowledgedTime = sin.readOptionalInstant(),
         errorMessage = sin.readOptionalString(),
         severity = sin.readString(),
-        actionExecutionResults = sin.readList(::ActionExecutionResult)
+        actionExecutionResults = sin.readList(::ActionExecutionResult),
     )
 
     fun isAcknowledged(): Boolean = (state == Alert.State.ACKNOWLEDGED)
@@ -101,7 +101,10 @@ open class BaseAlert(
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, version: Long = NO_VERSION): BaseAlert {
+        fun parse(
+            xcp: XContentParser,
+            version: Long = NO_VERSION,
+        ): BaseAlert {
             lateinit var id: String
             var schemaVersion = NO_SCHEMA_VERSION
             var version: Long = Versions.NOT_FOUND
@@ -118,27 +121,60 @@ open class BaseAlert(
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
                 when (fieldName) {
-                    USER_FIELD -> user = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else User.parse(xcp)
-                    ALERT_ID_FIELD -> id = xcp.text()
-                    ALERT_VERSION_FIELD -> version = xcp.longValue()
-                    SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
-                    TRIGGER_NAME_FIELD -> triggerName = xcp.text()
-                    STATE_FIELD -> state = Alert.State.valueOf(xcp.text())
-                    ERROR_MESSAGE_FIELD -> errorMessage = xcp.textOrNull()
-                    SEVERITY_FIELD -> severity = xcp.text()
+                    USER_FIELD -> {
+                        user = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else User.parse(xcp)
+                    }
+
+                    ALERT_ID_FIELD -> {
+                        id = xcp.text()
+                    }
+
+                    ALERT_VERSION_FIELD -> {
+                        version = xcp.longValue()
+                    }
+
+                    SCHEMA_VERSION_FIELD -> {
+                        schemaVersion = xcp.intValue()
+                    }
+
+                    TRIGGER_NAME_FIELD -> {
+                        triggerName = xcp.text()
+                    }
+
+                    STATE_FIELD -> {
+                        state = Alert.State.valueOf(xcp.text())
+                    }
+
+                    ERROR_MESSAGE_FIELD -> {
+                        errorMessage = xcp.textOrNull()
+                    }
+
+                    SEVERITY_FIELD -> {
+                        severity = xcp.text()
+                    }
+
                     ACTION_EXECUTION_RESULTS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             actionExecutionResults.add(ActionExecutionResult.parse(xcp))
                         }
                     }
-                    START_TIME_FIELD -> startTime = requireNotNull(xcp.instant())
-                    END_TIME_FIELD -> endTime = requireNotNull(xcp.instant())
-                    ACKNOWLEDGED_TIME_FIELD -> acknowledgedTime = xcp.instant()
+
+                    START_TIME_FIELD -> {
+                        startTime = requireNotNull(xcp.instant())
+                    }
+
+                    END_TIME_FIELD -> {
+                        endTime = requireNotNull(xcp.instant())
+                    }
+
+                    ACKNOWLEDGED_TIME_FIELD -> {
+                        acknowledgedTime = xcp.instant()
+                    }
                 }
             }
 
@@ -154,26 +190,26 @@ open class BaseAlert(
                 user = user,
                 triggerName = requireNotNull(triggerName),
                 severity = severity,
-                acknowledgedTime = acknowledgedTime
+                acknowledgedTime = acknowledgedTime,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Alert {
-            return Alert(sin)
-        }
+        fun readFrom(sin: StreamInput): Alert = Alert(sin)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return createXContentBuilder(builder, true)
-    }
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder = createXContentBuilder(builder, true)
 
-    fun toXContentWithUser(builder: XContentBuilder): XContentBuilder {
-        return createXContentBuilder(builder, false)
-    }
+    fun toXContentWithUser(builder: XContentBuilder): XContentBuilder = createXContentBuilder(builder, false)
 
-    fun createXContentBuilder(builder: XContentBuilder, secure: Boolean): XContentBuilder {
+    fun createXContentBuilder(
+        builder: XContentBuilder,
+        secure: Boolean,
+    ): XContentBuilder {
         if (!secure) {
             builder.optionalUserField(USER_FIELD, user)
         }
@@ -192,8 +228,8 @@ open class BaseAlert(
         return builder
     }
 
-    open fun asTemplateArg(): Map<String, Any?> {
-        return mapOf(
+    open fun asTemplateArg(): Map<String, Any?> =
+        mapOf(
             ACKNOWLEDGED_TIME_FIELD to acknowledgedTime?.toEpochMilli(),
             ALERT_ID_FIELD to id,
             ALERT_VERSION_FIELD to version,
@@ -202,7 +238,6 @@ open class BaseAlert(
             SEVERITY_FIELD to severity,
             START_TIME_FIELD to startTime.toEpochMilli(),
             STATE_FIELD to state.toString(),
-            TRIGGER_NAME_FIELD to triggerName
+            TRIGGER_NAME_FIELD to triggerName,
         )
-    }
 }

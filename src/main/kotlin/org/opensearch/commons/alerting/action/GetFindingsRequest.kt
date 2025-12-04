@@ -21,7 +21,7 @@ class GetFindingsRequest : ActionRequest {
         monitorId: String? = null,
         findingIndexName: String? = null,
         monitorIds: List<String>? = null,
-        boolQueryBuilder: BoolQueryBuilder? = null
+        boolQueryBuilder: BoolQueryBuilder? = null,
     ) : super() {
         this.findingId = findingId
         this.table = table
@@ -38,12 +38,10 @@ class GetFindingsRequest : ActionRequest {
         monitorId = sin.readOptionalString(),
         findingIndexName = sin.readOptionalString(),
         monitorIds = sin.readOptionalStringList(),
-        boolQueryBuilder = BoolQueryBuilder(sin)
+        boolQueryBuilder = BoolQueryBuilder(sin),
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

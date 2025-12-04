@@ -21,14 +21,13 @@ data class ClusterMetricsTriggerRunResult(
     override var triggered: Boolean,
     override var error: Exception?,
     override var actionResults: MutableMap<String, ActionRunResult> = mutableMapOf(),
-    var clusterTriggerResults: List<ClusterTriggerResult> = listOf()
+    var clusterTriggerResults: List<ClusterTriggerResult> = listOf(),
 ) : QueryLevelTriggerRunResult(
-    triggerName = triggerName,
-    error = error,
-    triggered = triggered,
-    actionResults = actionResults
-) {
-
+        triggerName = triggerName,
+        error = error,
+        triggered = triggered,
+        actionResults = actionResults,
+    ) {
     @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
     constructor(sin: StreamInput) : this(
@@ -36,7 +35,7 @@ data class ClusterMetricsTriggerRunResult(
         error = sin.readException(),
         triggered = sin.readBoolean(),
         actionResults = sin.readMap() as MutableMap<String, ActionRunResult>,
-        clusterTriggerResults = sin.readList((ClusterTriggerResult)::readFrom)
+        clusterTriggerResults = sin.readList((ClusterTriggerResult)::readFrom),
     )
 
     override fun alertError(): AlertError? {
@@ -51,7 +50,10 @@ data class ClusterMetricsTriggerRunResult(
         return null
     }
 
-    override fun internalXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun internalXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         if (error is ScriptException) error = Exception((error as ScriptException).toJsonString(), error)
         builder
             .field(TRIGGERED_FIELD, triggered)
@@ -77,22 +79,25 @@ data class ClusterMetricsTriggerRunResult(
 
     data class ClusterTriggerResult(
         val cluster: String,
-        val triggered: Boolean
-    ) : ToXContentObject, Writeable {
-
+        val triggered: Boolean,
+    ) : ToXContentObject,
+        Writeable {
         @Throws(IOException::class)
         constructor(sin: StreamInput) : this(
             cluster = sin.readString(),
-            triggered = sin.readBoolean()
+            triggered = sin.readBoolean(),
         )
 
-        override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-            return builder.startObject()
+        override fun toXContent(
+            builder: XContentBuilder,
+            params: ToXContent.Params,
+        ): XContentBuilder =
+            builder
+                .startObject()
                 .startObject(cluster)
                 .field(TRIGGERED_FIELD, triggered)
                 .endObject()
                 .endObject()
-        }
 
         override fun writeTo(out: StreamOutput) {
             out.writeString(cluster)
@@ -102,9 +107,7 @@ data class ClusterMetricsTriggerRunResult(
         companion object {
             @JvmStatic
             @Throws(IOException::class)
-            fun readFrom(sin: StreamInput): ClusterTriggerResult {
-                return ClusterTriggerResult(sin)
-            }
+            fun readFrom(sin: StreamInput): ClusterTriggerResult = ClusterTriggerResult(sin)
         }
     }
 }

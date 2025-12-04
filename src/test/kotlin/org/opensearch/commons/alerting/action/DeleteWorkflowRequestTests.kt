@@ -6,7 +6,6 @@ import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.core.common.io.stream.StreamInput
 
 class DeleteWorkflowRequestTests {
-
     @Test
     fun `test delete workflow request`() {
         val req = DeleteWorkflowRequest("1234", true)

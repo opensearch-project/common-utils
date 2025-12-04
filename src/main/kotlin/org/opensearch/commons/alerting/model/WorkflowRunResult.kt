@@ -22,9 +22,9 @@ data class WorkflowRunResult(
     var executionEndTime: Instant? = null,
     val executionId: String,
     val error: Exception? = null,
-    val triggerResults: Map<String, ChainedAlertTriggerRunResult> = mapOf()
-) : Writeable, ToXContent {
-
+    val triggerResults: Map<String, ChainedAlertTriggerRunResult> = mapOf(),
+) : Writeable,
+    ToXContent {
     @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
     constructor(sin: StreamInput) : this(
@@ -35,7 +35,7 @@ data class WorkflowRunResult(
         executionEndTime = sin.readOptionalInstant(),
         executionId = sin.readString(),
         error = sin.readException(),
-        triggerResults = suppressWarning(sin.readMap()) as Map<String, ChainedAlertTriggerRunResult>
+        triggerResults = suppressWarning(sin.readMap()) as Map<String, ChainedAlertTriggerRunResult>,
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -49,7 +49,10 @@ data class WorkflowRunResult(
         out.writeMap(triggerResults)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         builder.startObject()
         builder.field("execution_id", executionId)
         builder.field("workflow_name", workflowName)
@@ -59,7 +62,8 @@ data class WorkflowRunResult(
         for (monitorResult in monitorRunResults) {
             monitorResult.toXContent(builder, ToXContent.EMPTY_PARAMS)
         }
-        builder.endArray()
+        builder
+            .endArray()
             .field("execution_start_time", executionStartTime)
             .field("execution_end_time", executionEndTime)
             .field("error", error?.message)
@@ -70,13 +74,9 @@ data class WorkflowRunResult(
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): WorkflowRunResult {
-            return WorkflowRunResult(sin)
-        }
+        fun readFrom(sin: StreamInput): WorkflowRunResult = WorkflowRunResult(sin)
 
         @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, TriggerRunResult> {
-            return map as Map<String, TriggerRunResult>
-        }
+        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, TriggerRunResult> = map as Map<String, TriggerRunResult>
     }
 }

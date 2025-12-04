@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class MonitorsTests {
-
     @Test
     fun `test monitor asTemplateArgs`() {
         val monitor = randomQueryLevelMonitor(enabled = true)
@@ -18,28 +17,28 @@ class MonitorsTests {
         assertEquals(
             monitor.version,
             templateArgs[IndexUtils._VERSION],
-            "Template arg field 'version' doesn't match"
+            "Template arg field 'version' doesn't match",
         )
         assertEquals(monitor.name, templateArgs[Monitor.NAME_FIELD], "Template arg field 'name' doesn't match")
         assertEquals(
             monitor.enabled,
             templateArgs[Monitor.ENABLED_FIELD],
-            "Template arg field 'enabled' doesn't match"
+            "Template arg field 'enabled' doesn't match",
         )
         assertEquals(
             monitor.monitorType.toString(),
             templateArgs[Monitor.MONITOR_TYPE_FIELD],
-            "Template arg field 'monitoryType' doesn't match"
+            "Template arg field 'monitoryType' doesn't match",
         )
         assertEquals(
             monitor.enabledTime?.toEpochMilli(),
             templateArgs[Monitor.ENABLED_TIME_FIELD],
-            "Template arg field 'enabledTime' doesn't match"
+            "Template arg field 'enabledTime' doesn't match",
         )
         assertEquals(
             monitor.lastUpdateTime.toEpochMilli(),
             templateArgs[Monitor.LAST_UPDATE_TIME_FIELD],
-            "Template arg field 'lastUpdateTime' doesn't match"
+            "Template arg field 'lastUpdateTime' doesn't match",
         )
         assertNotNull(templateArgs[Monitor.SCHEDULE_FIELD], "Template arg field 'schedule' not set")
         val inputs = templateArgs[Monitor.INPUTS_FIELD] as? List<*>

@@ -15,30 +15,33 @@ data class BucketLevelTriggerRunResult(
     override var triggerName: String,
     override var error: Exception? = null,
     var aggregationResultBuckets: Map<String, AggregationResultBucket>,
-    var actionResultsMap: MutableMap<String, MutableMap<String, ActionRunResult>> = mutableMapOf()
+    var actionResultsMap: MutableMap<String, MutableMap<String, ActionRunResult>> = mutableMapOf(),
 ) : TriggerRunResult(triggerName, error) {
-
     @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
     constructor(sin: StreamInput) : this(
         sin.readString(),
         sin.readException() as Exception?, // error
         sin.readMap(StreamInput::readString, ::AggregationResultBucket),
-        sin.readMap() as MutableMap<String, MutableMap<String, ActionRunResult>>
+        sin.readMap() as MutableMap<String, MutableMap<String, ActionRunResult>>,
     )
 
-    override fun internalXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder
+    override fun internalXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
             .field(AGG_RESULT_BUCKETS, aggregationResultBuckets)
             .field(ACTIONS_RESULTS, actionResultsMap as Map<String, Any>)
-    }
 
     @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
     override fun writeTo(out: StreamOutput) {
         super.writeTo(out)
         out.writeMap(aggregationResultBuckets, StreamOutput::writeString) {
-                valueOut: StreamOutput, aggResultBucket: AggregationResultBucket ->
+            valueOut: StreamOutput,
+            aggResultBucket: AggregationResultBucket,
+            ->
             aggResultBucket.writeTo(valueOut)
         }
         out.writeMap(actionResultsMap as Map<String, Any>)
@@ -50,8 +53,6 @@ data class BucketLevelTriggerRunResult(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): TriggerRunResult {
-            return BucketLevelTriggerRunResult(sin)
-        }
+        fun readFrom(sin: StreamInput): TriggerRunResult = BucketLevelTriggerRunResult(sin)
     }
 }

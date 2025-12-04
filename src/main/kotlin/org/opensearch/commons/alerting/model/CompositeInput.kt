@@ -12,26 +12,29 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 data class CompositeInput(
-    val sequence: Sequence
+    val sequence: Sequence,
 ) : WorkflowInput {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        Sequence(sin)
+        Sequence(sin),
     )
 
-    fun asTemplateArg(): Map<String, Any?> {
-        return mapOf(
-            SEQUENCE_FIELD to sequence
+    fun asTemplateArg(): Map<String, Any?> =
+        mapOf(
+            SEQUENCE_FIELD to sequence,
         )
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
         sequence.writeTo(out)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startObject(COMPOSITE_INPUT_FIELD)
             .field(SEQUENCE_FIELD, sequence)
             .endObject()
@@ -39,23 +42,20 @@ data class CompositeInput(
         return builder
     }
 
-    override fun name(): String {
-        return COMPOSITE_INPUT_FIELD
-    }
+    override fun name(): String = COMPOSITE_INPUT_FIELD
 
-    fun getMonitorIds(): List<String> {
-        return sequence.delegates.map { delegate -> delegate.monitorId }
-    }
+    fun getMonitorIds(): List<String> = sequence.delegates.map { delegate -> delegate.monitorId }
 
     companion object {
         const val COMPOSITE_INPUT_FIELD = "composite_input"
         const val SEQUENCE_FIELD = "sequence"
 
-        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            WorkflowInput::class.java,
-            ParseField(COMPOSITE_INPUT_FIELD),
-            CheckedFunction { CompositeInput.parse(it) }
-        )
+        val XCONTENT_REGISTRY =
+            NamedXContentRegistry.Entry(
+                WorkflowInput::class.java,
+                ParseField(COMPOSITE_INPUT_FIELD),
+                CheckedFunction { CompositeInput.parse(it) },
+            )
 
         @JvmStatic
         @Throws(IOException::class)
@@ -78,8 +78,6 @@ data class CompositeInput(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): CompositeInput {
-            return CompositeInput(sin)
-        }
+        fun readFrom(sin: StreamInput): CompositeInput = CompositeInput(sin)
     }
 }

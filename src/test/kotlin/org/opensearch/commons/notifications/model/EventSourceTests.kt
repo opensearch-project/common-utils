@@ -12,25 +12,26 @@ import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
 internal class EventSourceTests {
-
     @Test
     fun `Event source serialize and deserialize should be equal`() {
-        val sampleEventSource = EventSource(
-            "title",
-            "reference_id",
-            severity = SeverityType.INFO
-        )
+        val sampleEventSource =
+            EventSource(
+                "title",
+                "reference_id",
+                severity = SeverityType.INFO,
+            )
         val recreatedObject = recreateObject(sampleEventSource) { EventSource(it) }
         assertEquals(sampleEventSource, recreatedObject)
     }
 
     @Test
     fun `Event source serialize and deserialize using json should be equal`() {
-        val sampleEventSource = EventSource(
-            "title",
-            "reference_id",
-            severity = SeverityType.INFO
-        )
+        val sampleEventSource =
+            EventSource(
+                "title",
+                "reference_id",
+                severity = SeverityType.INFO,
+            )
 
         val jsonString = getJsonString(sampleEventSource)
         val recreatedObject = createObjectFromJsonString(jsonString) { EventSource.parse(it) }
@@ -39,45 +40,49 @@ internal class EventSourceTests {
 
     @Test
     fun `Event source should safely ignore extra field in json object`() {
-        val sampleEventSource = EventSource(
-            "title",
-            "reference_id",
-            severity = SeverityType.INFO,
-            tags = listOf("tag1", "tag2")
-        )
-        val jsonString = """
-        { 
-            "title":"title",
-            "reference_id":"reference_id",
-            "feature":"alerting",
-            "severity":"info",
-            "tags":["tag1", "tag2"],
-            "extra_field_1":["extra", "value"],
-            "extra_field_2":{"extra":"value"},
-            "extra_field_3":"extra value 3"
-        }
-        """.trimIndent()
+        val sampleEventSource =
+            EventSource(
+                "title",
+                "reference_id",
+                severity = SeverityType.INFO,
+                tags = listOf("tag1", "tag2"),
+            )
+        val jsonString =
+            """
+            { 
+                "title":"title",
+                "reference_id":"reference_id",
+                "feature":"alerting",
+                "severity":"info",
+                "tags":["tag1", "tag2"],
+                "extra_field_1":["extra", "value"],
+                "extra_field_2":{"extra":"value"},
+                "extra_field_3":"extra value 3"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { EventSource.parse(it) }
         assertEquals(sampleEventSource, recreatedObject)
     }
 
     @Test
     fun `Event source should safely accepts unknown feature type in json object`() {
-        val sampleEventSource = EventSource(
-            "title",
-            "reference_id",
-            severity = SeverityType.INFO,
-            tags = listOf("tag1", "tag2")
-        )
-        val jsonString = """
-        {
-            "title":"title",
-            "reference_id":"reference_id",
-            "feature": "NewFeature",
-            "severity":"info",
-            "tags":["tag1", "tag2"]
-        }
-        """.trimIndent()
+        val sampleEventSource =
+            EventSource(
+                "title",
+                "reference_id",
+                severity = SeverityType.INFO,
+                tags = listOf("tag1", "tag2"),
+            )
+        val jsonString =
+            """
+            {
+                "title":"title",
+                "reference_id":"reference_id",
+                "feature": "NewFeature",
+                "severity":"info",
+                "tags":["tag1", "tag2"]
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { EventSource.parse(it) }
         assertEquals(sampleEventSource, recreatedObject)
     }
@@ -89,7 +94,7 @@ internal class EventSourceTests {
                 "",
                 "reference_id",
                 severity = SeverityType.INFO,
-                tags = listOf("tag1", "tag2")
+                tags = listOf("tag1", "tag2"),
             )
         }
     }

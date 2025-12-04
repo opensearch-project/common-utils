@@ -13,7 +13,6 @@ import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
 internal class UpdateNotificationConfigResponseTests {
-
     @Test
     fun `Update response serialize and deserialize transport object should be equal`() {
         val configResponse = UpdateNotificationConfigResponse("sample_config_id")
@@ -56,14 +55,15 @@ internal class UpdateNotificationConfigResponseTests {
     @Test
     fun `Update response should safely ignore extra field in json object`() {
         val configId = "sample_config_id"
-        val jsonString = """
-        {
-            "config_id":"$configId",
-            "extra_field_1":["extra", "value"],
-            "extra_field_2":{"extra":"value"},
-            "extra_field_3":"extra value 3"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "config_id":"$configId",
+                "extra_field_1":["extra", "value"],
+                "extra_field_2":{"extra":"value"},
+                "extra_field_3":"extra value 3"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { UpdateNotificationConfigResponse.parse(it) }
         assertEquals(configId, recreatedObject.configId)
     }

@@ -15,7 +15,6 @@ import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
 internal class SnsTests {
-
     @Test
     fun `SNS should throw exception if empty topic`() {
         assertThrows(IllegalArgumentException::class.java) {
@@ -55,7 +54,7 @@ internal class SnsTests {
         try {
             Sns(
                 "arn:aws:sns:ap-southeast-2:333654771707:sns-fifo-alerting.fifo",
-                "arn:aws:iam::012345678912:role/iam-test"
+                "arn:aws:iam::012345678912:role/iam-test",
             )
         } catch (e: Exception) {
             fail("Expected fifo sns topic ARN to be validated successfully", e)

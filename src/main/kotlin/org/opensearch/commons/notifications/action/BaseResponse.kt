@@ -14,8 +14,9 @@ import java.io.IOException
 /**
  * Base response which give REST status.
  */
-abstract class BaseResponse : ActionResponse, ToXContentObject {
-
+abstract class BaseResponse :
+    ActionResponse,
+    ToXContentObject {
     /**
      * constructor for creating the class
      */
@@ -31,7 +32,5 @@ abstract class BaseResponse : ActionResponse, ToXContentObject {
      * get rest status for the response. Useful override for multi-status response.
      * @return RestStatus for the response
      */
-    open fun getStatus(): RestStatus {
-        return RestStatus.OK
-    }
+    open fun getStatus(): RestStatus = RestStatus.OK
 }

@@ -31,9 +31,8 @@ data class NotificationConfig(
     val description: String,
     val configType: ConfigType,
     val configData: BaseConfigData?,
-    val isEnabled: Boolean = true
+    val isEnabled: Boolean = true,
 ) : BaseModel {
-
     init {
         require(!Strings.isNullOrEmpty(name)) { "name is null or empty" }
         if (!validateConfigData(configType, configData)) {
@@ -68,16 +67,28 @@ data class NotificationConfig(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    NAME_TAG -> name = parser.text()
-                    DESCRIPTION_TAG -> description = parser.text()
-                    CONFIG_TYPE_TAG -> configType = ConfigType.fromTagOrDefault(parser.text())
-                    IS_ENABLED_TAG -> isEnabled = parser.booleanValue()
+                    NAME_TAG -> {
+                        name = parser.text()
+                    }
+
+                    DESCRIPTION_TAG -> {
+                        description = parser.text()
+                    }
+
+                    CONFIG_TYPE_TAG -> {
+                        configType = ConfigType.fromTagOrDefault(parser.text())
+                    }
+
+                    IS_ENABLED_TAG -> {
+                        isEnabled = parser.booleanValue()
+                    }
+
                     else -> {
                         val configTypeForTag = ConfigType.fromTagOrDefault(fieldName)
                         if (configTypeForTag != ConfigType.NONE && configData == null) {
@@ -96,7 +107,7 @@ data class NotificationConfig(
                 description,
                 configType,
                 configData,
-                isEnabled
+                isEnabled,
             )
         }
     }
@@ -104,9 +115,13 @@ data class NotificationConfig(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(NAME_TAG, name)
             .field(DESCRIPTION_TAG, description)
             .field(CONFIG_TYPE_TAG, configType.tag)
@@ -124,7 +139,7 @@ data class NotificationConfig(
         description = input.readString(),
         configType = input.readEnum(ConfigType::class.java),
         isEnabled = input.readBoolean(),
-        configData = input.readOptionalWriteable(getReaderForConfigType(input.readEnum(ConfigType::class.java)))
+        configData = input.readOptionalWriteable(getReaderForConfigType(input.readEnum(ConfigType::class.java))),
     )
 
     /**

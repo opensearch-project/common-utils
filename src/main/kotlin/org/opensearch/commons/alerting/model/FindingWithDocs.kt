@@ -14,13 +14,13 @@ private val log = LogManager.getLogger(Finding::class.java)
 
 class FindingWithDocs(
     val finding: Finding,
-    val documents: List<FindingDocument>
-) : Writeable, ToXContent {
-
+    val documents: List<FindingDocument>,
+) : Writeable,
+    ToXContent {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         finding = Finding.readFrom(sin),
-        documents = sin.readList((FindingDocument)::readFrom)
+        documents = sin.readList((FindingDocument)::readFrom),
     )
 
     @Throws(IOException::class)
@@ -29,8 +29,12 @@ class FindingWithDocs(
         out.writeCollection(documents)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field(FINDING_FIELD, finding)
             .field(DOCUMENTS_FIELD, documents)
         builder.endObject()
@@ -53,7 +57,10 @@ class FindingWithDocs(
                 xcp.nextToken()
 
                 when (fieldName) {
-                    FINDING_FIELD -> finding = Finding.parse(xcp)
+                    FINDING_FIELD -> {
+                        finding = Finding.parse(xcp)
+                    }
+
                     DOCUMENTS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
@@ -65,14 +72,12 @@ class FindingWithDocs(
 
             return FindingWithDocs(
                 finding = finding,
-                documents = documents
+                documents = documents,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): FindingWithDocs {
-            return FindingWithDocs(sin)
-        }
+        fun readFrom(sin: StreamInput): FindingWithDocs = FindingWithDocs(sin)
     }
 }

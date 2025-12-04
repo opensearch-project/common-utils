@@ -10,16 +10,19 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 data class ActionExecutionPolicy(
-    val actionExecutionScope: ActionExecutionScope
+    val actionExecutionScope: ActionExecutionScope,
 ) : BaseModel {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this (
-        ActionExecutionScope.readFrom(sin) // actionExecutionScope
+        ActionExecutionScope.readFrom(sin), // actionExecutionScope
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field(ACTION_EXECUTION_SCOPE, actionExecutionScope)
         return builder.endObject()
     }
@@ -53,15 +56,13 @@ data class ActionExecutionPolicy(
             }
 
             return ActionExecutionPolicy(
-                requireNotNull(actionExecutionScope) { "Action execution scope is null" }
+                requireNotNull(actionExecutionScope) { "Action execution scope is null" },
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): ActionExecutionPolicy {
-            return ActionExecutionPolicy(sin)
-        }
+        fun readFrom(sin: StreamInput): ActionExecutionPolicy = ActionExecutionPolicy(sin)
 
         /**
          * The default [ActionExecutionPolicy] configuration for Bucket-Level Monitors.
@@ -70,9 +71,10 @@ data class ActionExecutionPolicy(
          * will need to be made depending on the desired behavior.
          */
         fun getDefaultConfigurationForBucketLevelMonitor(): ActionExecutionPolicy {
-            val defaultActionExecutionScope = PerAlertActionScope(
-                actionableAlerts = setOf(AlertCategory.DEDUPED, AlertCategory.NEW)
-            )
+            val defaultActionExecutionScope =
+                PerAlertActionScope(
+                    actionableAlerts = setOf(AlertCategory.DEDUPED, AlertCategory.NEW),
+                )
             return ActionExecutionPolicy(actionExecutionScope = defaultActionExecutionScope)
         }
 
@@ -83,9 +85,10 @@ data class ActionExecutionPolicy(
          * will need to be made depending on the desired behavior.
          */
         fun getDefaultConfigurationForDocumentLevelMonitor(): ActionExecutionPolicy {
-            val defaultActionExecutionScope = PerAlertActionScope(
-                actionableAlerts = setOf(AlertCategory.DEDUPED, AlertCategory.NEW)
-            )
+            val defaultActionExecutionScope =
+                PerAlertActionScope(
+                    actionableAlerts = setOf(AlertCategory.DEDUPED, AlertCategory.NEW),
+                )
             return ActionExecutionPolicy(actionExecutionScope = defaultActionExecutionScope)
         }
     }
