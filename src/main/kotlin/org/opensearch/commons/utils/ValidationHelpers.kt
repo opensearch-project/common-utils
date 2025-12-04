@@ -5,6 +5,7 @@
 
 package org.opensearch.commons.utils
 
+import java.net.URI
 import java.net.URL
 import java.util.regex.Pattern
 
@@ -45,8 +46,17 @@ fun validateId(idString: String) {
 }
 
 fun isValidUrl(urlString: String): Boolean {
-    val url = URL(urlString) // throws MalformedURLException if URL is invalid
-    return ("https" == url.protocol || "http" == url.protocol) // Support only http/https, other protocols not supported
+    return try {
+        val uri = URI(urlString)
+
+        // Must have http/https
+        val scheme = uri.scheme ?: return false
+        // Support only http/https, other protocols not supported
+        (scheme == "http" || scheme == "https")
+    } catch (e: Exception) {
+        // throws MalformedURLException if URL is invalid
+        false
+    }
 }
 
 /**

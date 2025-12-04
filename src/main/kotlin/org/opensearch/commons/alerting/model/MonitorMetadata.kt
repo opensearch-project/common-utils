@@ -37,7 +37,10 @@ data class MonitorMetadata(
         monitorId = sin.readString(),
         lastActionExecutionTimes = sin.readList(ActionExecutionTime.Companion::readFrom),
         lastRunContext = Monitor.suppressWarning(sin.readMap()),
-        sourceToQueryIndexMapping = sin.readMap() as MutableMap<String, String>,
+        sourceToQueryIndexMapping =
+            sin
+                .readMap(StreamInput::readString, StreamInput::readString)
+                .toMutableMap(),
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -47,7 +50,11 @@ data class MonitorMetadata(
         out.writeString(monitorId)
         out.writeCollection(lastActionExecutionTimes)
         out.writeMap(lastRunContext)
-        out.writeMap(sourceToQueryIndexMapping as MutableMap<String, Any>)
+        out.writeMap(
+            sourceToQueryIndexMapping,
+            StreamOutput::writeString,
+            StreamOutput::writeString,
+        )
     }
 
     override fun toXContent(
@@ -61,7 +68,8 @@ data class MonitorMetadata(
             .field(LAST_ACTION_EXECUTION_FIELD, lastActionExecutionTimes.toTypedArray())
         if (lastRunContext.isNotEmpty()) builder.field(LAST_RUN_CONTEXT_FIELD, lastRunContext)
         if (sourceToQueryIndexMapping.isNotEmpty()) {
-            builder.field(SOURCE_TO_QUERY_INDEX_MAP_FIELD, sourceToQueryIndexMapping as MutableMap<String, Any>)
+            val sourceToQueryIndexMapForXContent: Map<String, Any> = sourceToQueryIndexMapping
+            builder.field(SOURCE_TO_QUERY_INDEX_MAP_FIELD, sourceToQueryIndexMapForXContent)
         }
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
@@ -110,7 +118,7 @@ data class MonitorMetadata(
                     }
 
                     SOURCE_TO_QUERY_INDEX_MAP_FIELD -> {
-                        sourceToQueryIndexMapping = xcp.map() as MutableMap<String, String>
+                        sourceToQueryIndexMapping = xcp.mapStrings().toMutableMap()
                     }
                 }
             }

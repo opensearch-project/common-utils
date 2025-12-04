@@ -65,7 +65,6 @@ data class WorkflowMetadata(
         const val LATEST_EXECUTION_ID = "latest_execution_id"
 
         @JvmStatic
-        @JvmOverloads
         @Throws(IOException::class)
         fun parse(xcp: XContentParser): WorkflowMetadata {
             lateinit var workflowId: String

@@ -226,16 +226,6 @@ fun randomWorkflow(
         }
     }
     var input = listOf(CompositeInput(Sequence(delegates)))
-    if (input == null) {
-        input =
-            listOf(
-                CompositeInput(
-                    Sequence(
-                        listOf(Delegate(1, "delegate1")),
-                    ),
-                ),
-            )
-    }
     return Workflow(
         name = name,
         workflowType = Workflow.WorkflowType.COMPOSITE,

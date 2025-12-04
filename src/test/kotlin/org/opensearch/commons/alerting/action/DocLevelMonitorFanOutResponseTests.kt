@@ -43,7 +43,7 @@ class DocLevelMonitorFanOutResponseTests {
                 "nodeid",
                 "eid",
                 "monitorId",
-                mapOf("index" to mapOf("1" to "1")) as MutableMap<String, Any>,
+                mutableMapOf("index" to mapOf("1" to "1")),
                 InputRunResults(),
                 mapOf("1" to randomDocumentLevelTriggerRunResult(), "2" to randomDocumentLevelTriggerRunResult()),
             )

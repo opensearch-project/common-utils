@@ -260,7 +260,7 @@ data class Monitor(
             it.writeTo(out)
         }
         out.writeMap(uiMetadata)
-        out.writeBoolean(dataSources != null) // for backward compatibility with pre-existing monitors which don't have datasources field
+        out.writeBoolean(true) // for backward compatibility with pre-existing monitors which don't have datasources field
         dataSources.writeTo(out)
         if (out.version.onOrAfter(Version.V_2_15_0)) {
             out.writeOptionalBoolean(deleteQueryIndexInEveryRun)
