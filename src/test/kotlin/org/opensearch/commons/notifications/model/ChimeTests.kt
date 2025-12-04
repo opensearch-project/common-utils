@@ -56,11 +56,11 @@ internal class ChimeTests {
 
     @Test
     fun `Chime should throw exception when url is not proper`() {
-        assertThrows<MalformedURLException> {
+        assertThrows<IllegalArgumentException> {
             Chime("domain.com/sample_url#1234567890")
         }
         val jsonString = "{\"url\":\"domain.com/sample_url\"}"
-        assertThrows<MalformedURLException> {
+        assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { Chime.parse(it) }
         }
     }

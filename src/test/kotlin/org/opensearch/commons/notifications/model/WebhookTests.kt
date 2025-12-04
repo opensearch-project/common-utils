@@ -75,11 +75,11 @@ internal class WebhookTests {
 
     @Test
     fun `Webhook should throw exception when url is not proper`() {
-        assertThrows<MalformedURLException> {
+        assertThrows<IllegalArgumentException> {
             Webhook("domain.com/sample_url#1234567890")
         }
         val jsonString = "{\"url\":\"domain.com/sample_url\"}"
-        assertThrows<MalformedURLException> {
+        assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { Webhook.parse(it) }
         }
     }

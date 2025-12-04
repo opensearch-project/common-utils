@@ -56,11 +56,11 @@ internal class MicrosoftTeamsTests {
 
     @Test
     fun `Microsoft Teams should throw exception when url is not proper`() {
-        assertThrows<MalformedURLException> {
+        assertThrows<IllegalArgumentException> {
             MicrosoftTeams("domain.com/sample_url#1234567890")
         }
         val jsonString = "{\"url\":\"domain.com/sample_url\"}"
-        assertThrows<MalformedURLException> {
+        assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { MicrosoftTeams.parse(it) }
         }
     }

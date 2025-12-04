@@ -44,7 +44,7 @@ data class WorkflowRunContext(
         out.writeString(workflowId)
         out.writeString(workflowMetadataId)
         out.writeOptionalString(chainedMonitorId)
-        out.writeMap(matchingDocIdsPerIndex)
+        out.writeMapOfLists(matchingDocIdsPerIndex, StreamOutput::writeString, StreamOutput::writeString)
         out.writeBoolean(auditDelegateMonitorAlerts)
         if (out.version.onOrAfter(Version.V_2_15_0)) {
             out.writeOptionalStringCollection(findingIds)

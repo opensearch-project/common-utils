@@ -14,6 +14,7 @@ import org.apache.lucene.search.Query
 import org.apache.lucene.tests.index.RandomIndexWriter
 import org.apache.lucene.util.BytesRef
 import org.hamcrest.CoreMatchers
+import org.junit.Test
 import org.opensearch.common.CheckedConsumer
 import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
@@ -45,7 +46,6 @@ import java.io.IOException
 import java.util.Collections
 import java.util.function.Consumer
 import java.util.function.Function
-import kotlin.test.Test
 
 class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
     private var scriptName = "bucket_selector_script"
