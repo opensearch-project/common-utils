@@ -5,6 +5,7 @@
 
 package org.opensearch.commons.alerting.action
 
+import org.junit.Test
 import org.opensearch.action.search.SearchRequest
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.unit.TimeValue
@@ -12,7 +13,6 @@ import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.search.builder.SearchSourceBuilder
 import org.opensearch.test.OpenSearchTestCase
 import java.util.concurrent.TimeUnit
-import kotlin.test.Test
 
 class SearchMonitorRequestTests : OpenSearchTestCase() {
     @Test
