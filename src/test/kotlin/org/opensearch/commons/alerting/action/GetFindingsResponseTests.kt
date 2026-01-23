@@ -24,13 +24,20 @@ internal class GetFindingsResponseTests {
             "monitor_name1",
             "test_index1",
             listOf(DocLevelQuery("1", "myQuery", listOf(), "fieldA:valABC", listOf())),
-            Instant.now()
+            Instant.now(),
+            additionalFields = mapOf(Pair("field1", 1), Pair("field2", "value"))
         )
         val findingDocument1 = FindingDocument("test_index1", "doc1", true, "document 1 payload")
         val findingDocument2 = FindingDocument("test_index1", "doc2", true, "document 2 payload")
         val findingDocument3 = FindingDocument("test_index1", "doc3", true, "document 3 payload")
+        val findingDocument4 = FindingDocument(
+            "test_index1",
+            "doc4",
+            true,
+            "document 4 payload"
+        )
 
-        val findingWithDocs1 = FindingWithDocs(finding1, listOf(findingDocument1, findingDocument2, findingDocument3))
+        val findingWithDocs1 = FindingWithDocs(finding1, listOf(findingDocument1, findingDocument2, findingDocument3, findingDocument4))
 
         // Alerting GetFindingsResponse mock #2
 
@@ -43,12 +50,19 @@ internal class GetFindingsResponseTests {
             "monitor_name2",
             "test_index2",
             listOf(DocLevelQuery("1", "myQuery", listOf(), "fieldA:valABC", listOf())),
-            Instant.now()
+            Instant.now(),
+            additionalFields = mapOf(Pair("field1", 1), Pair("field2", "value"))
         )
         val findingDocument21 = FindingDocument("test_index2", "doc21", true, "document 21 payload")
         val findingDocument22 = FindingDocument("test_index2", "doc22", true, "document 22 payload")
+        val findingDocument24 = FindingDocument(
+            "test_index2",
+            "doc22",
+            true,
+            "document 22 payload"
+        )
 
-        val findingWithDocs2 = FindingWithDocs(finding2, listOf(findingDocument21, findingDocument22))
+        val findingWithDocs2 = FindingWithDocs(finding2, listOf(findingDocument21, findingDocument22, findingDocument24))
 
         val req = GetFindingsResponse(RestStatus.OK, 2, listOf(findingWithDocs1, findingWithDocs2))
         Assertions.assertNotNull(req)

@@ -18,6 +18,7 @@ import org.opensearch.commons.alerting.randomBucketLevelTrigger
 import org.opensearch.commons.alerting.randomBucketLevelTriggerRunResult
 import org.opensearch.commons.alerting.randomChainedAlertTrigger
 import org.opensearch.commons.alerting.randomDocLevelQuery
+import org.opensearch.commons.alerting.randomDocumentLevelMonitor
 import org.opensearch.commons.alerting.randomDocumentLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomDocumentLevelTrigger
 import org.opensearch.commons.alerting.randomInputRunResults
@@ -111,6 +112,20 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newWorkflow = Workflow(sin)
         Assertions.assertEquals(newWorkflow, workflow, "Round tripping Workflow failed")
+    }
+
+    @Test
+    fun `test query-level monitor with metadata for findings as stream`() {
+        val monitor = randomDocumentLevelMonitor().copy(
+            inputs = listOf(DocLevelMonitorInput(indices = listOf("<test-{now/d}>"), queries = emptyList())),
+            triggers = emptyList(),
+            metadataForFindings = listOf("field1", "field2")
+        )
+        val out = BytesStreamOutput()
+        monitor.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newMonitor = Monitor(sin)
+        Assertions.assertEquals(monitor, newMonitor, "Round tripping QueryLevelMonitor doesn't work")
     }
 
     @Test
