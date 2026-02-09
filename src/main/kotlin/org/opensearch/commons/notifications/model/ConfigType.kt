@@ -40,15 +40,11 @@ enum class ConfigType(
         override fun toString(): String = tag
     },
     MICROSOFT_TEAMS("microsoft_teams") {
-        override fun toString(): String {
-            return tag
-        }
+        override fun toString(): String = tag
     },
     MATTERMOST("mattermost") {
-        override fun toString(): String {
-            return tag
-        }
-    };
+        override fun toString(): String = tag
+    }, ;
 
     companion object {
         private val tagMap = values().associateBy { it.tag }
