@@ -39,9 +39,14 @@ class GetAlertsResponse : BaseResponse {
     @Throws(IOException::class)
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         builder.startObject()
-            .field("alerts", alerts)
-            .field("totalAlerts", totalAlerts)
+            .field(ALERTS_FIELD, alerts)
+            .field(TOTAL_ALERTS_FIELD, totalAlerts)
 
         return builder.endObject()
+    }
+
+    companion object {
+        const val ALERTS_FIELD = "alerts"
+        const val TOTAL_ALERTS_FIELD = "totalAlerts"
     }
 }
