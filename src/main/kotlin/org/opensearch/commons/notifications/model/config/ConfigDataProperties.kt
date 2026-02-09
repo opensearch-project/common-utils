@@ -29,18 +29,18 @@ internal object ConfigDataProperties {
         val configDataParser: XParser<out BaseConfigData>,
     )
 
-    private val CONFIG_PROPERTIES_MAP =
-        mapOf(
-            Pair(ConfigType.SLACK, ConfigProperty(Slack.reader, Slack.xParser)),
-            Pair(ConfigType.CHIME, ConfigProperty(Chime.reader, Chime.xParser)),
-            Pair(ConfigType.WEBHOOK, ConfigProperty(Webhook.reader, Webhook.xParser)),
-            Pair(ConfigType.EMAIL, ConfigProperty(Email.reader, Email.xParser)),
-            Pair(ConfigType.SNS, ConfigProperty(Sns.reader, Sns.xParser)),
-            Pair(ConfigType.SES_ACCOUNT, ConfigProperty(SesAccount.reader, SesAccount.xParser)),
-            Pair(ConfigType.EMAIL_GROUP, ConfigProperty(EmailGroup.reader, EmailGroup.xParser)),
-            Pair(ConfigType.SMTP_ACCOUNT, ConfigProperty(SmtpAccount.reader, SmtpAccount.xParser)),
-            Pair(ConfigType.MICROSOFT_TEAMS, ConfigProperty(MicrosoftTeams.reader, MicrosoftTeams.xParser)),
-        )
+    private val CONFIG_PROPERTIES_MAP = mapOf(
+        Pair(ConfigType.SLACK, ConfigProperty(Slack.reader, Slack.xParser)),
+        Pair(ConfigType.CHIME, ConfigProperty(Chime.reader, Chime.xParser)),
+        Pair(ConfigType.WEBHOOK, ConfigProperty(Webhook.reader, Webhook.xParser)),
+        Pair(ConfigType.EMAIL, ConfigProperty(Email.reader, Email.xParser)),
+        Pair(ConfigType.SNS, ConfigProperty(Sns.reader, Sns.xParser)),
+        Pair(ConfigType.SES_ACCOUNT, ConfigProperty(SesAccount.reader, SesAccount.xParser)),
+        Pair(ConfigType.EMAIL_GROUP, ConfigProperty(EmailGroup.reader, EmailGroup.xParser)),
+        Pair(ConfigType.SMTP_ACCOUNT, ConfigProperty(SmtpAccount.reader, SmtpAccount.xParser)),
+        Pair(ConfigType.MICROSOFT_TEAMS, ConfigProperty(MicrosoftTeams.reader, MicrosoftTeams.xParser)),
+        Pair(ConfigType.MATTERMOST, ConfigProperty(Slack.reader, Slack.xParser))
+    )
 
     /**
      * Get Reader for provided config type
@@ -68,6 +68,7 @@ internal object ConfigDataProperties {
             ConfigType.SNS -> configData is Sns
             ConfigType.SES_ACCOUNT -> configData is SesAccount
             ConfigType.MICROSOFT_TEAMS -> configData is MicrosoftTeams
+            ConfigType.MATTERMOST -> configData is Slack
             ConfigType.NONE -> true
         }
 
