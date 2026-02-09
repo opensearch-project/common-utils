@@ -16,7 +16,8 @@ interface Trigger : BaseModel {
         BUCKET_LEVEL_TRIGGER(BucketLevelTrigger.BUCKET_LEVEL_TRIGGER_FIELD),
         NOOP_TRIGGER(NoOpTrigger.NOOP_TRIGGER_FIELD),
         CHAINED_ALERT_TRIGGER(ChainedAlertTrigger.CHAINED_ALERT_TRIGGER_FIELD),
-        REMOTE_MONITOR_TRIGGER(RemoteMonitorTrigger.REMOTE_MONITOR_TRIGGER_FIELD);
+        REMOTE_MONITOR_TRIGGER(RemoteMonitorTrigger.REMOTE_MONITOR_TRIGGER_FIELD),
+        PPL_SQL_TRIGGER(PPLSQLTrigger.PPL_SQL_TRIGGER_FIELD);
 
         override fun toString(): String {
             return value
@@ -78,4 +79,6 @@ interface Trigger : BaseModel {
     val actions: List<Action>
 
     fun name(): String
+
+    fun asTemplateArg(): Map<String, Any>
 }

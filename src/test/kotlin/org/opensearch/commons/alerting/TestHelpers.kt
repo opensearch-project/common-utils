@@ -557,13 +557,20 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
     val clusterCount = (-1..5).random()
     val clusters = if (clusterCount == -1) null else (0..clusterCount).map { "index-$it" }
+    val pplQuery = "source=logs | where status=200"
+    val pplQueryResults = listOf(
+        mapOf("k1" to "v1", "num" to 42, "user" to mapOf("name" to "bob", "age" to 32), "vals" to listOf(1, 2, 3)),
+        mapOf("k1" to "v2", "num" to 17, "user" to mapOf("name" to "ana", "age" to 45), "vals" to listOf("a", "b", "c"))
+    )
     return Alert(
         monitor,
         trigger,
         Instant.now().truncatedTo(ChronoUnit.MILLIS),
         null,
         actionExecutionResults = actionExecutionResults,
-        clusters = clusters
+        clusters = clusters,
+        pplQuery = pplQuery,
+        pplQueryResults = pplQueryResults
     )
 }
 

@@ -55,7 +55,7 @@ data class ChainedAlertTrigger(
     }
 
     /** Returns a representation of the trigger suitable for passing into painless and mustache scripts. */
-    fun asTemplateArg(): Map<String, Any> {
+    override fun asTemplateArg(): Map<String, Any> {
         return mapOf(
             ID_FIELD to id,
             NAME_FIELD to name,

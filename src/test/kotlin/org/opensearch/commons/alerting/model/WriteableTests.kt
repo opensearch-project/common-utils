@@ -13,6 +13,7 @@ import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorInput
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
+import org.opensearch.commons.alerting.randomAlert
 import org.opensearch.commons.alerting.randomBucketLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
 import org.opensearch.commons.alerting.randomBucketLevelTriggerRunResult
@@ -42,6 +43,16 @@ import java.time.temporal.ChronoUnit
 import kotlin.test.assertTrue
 
 class WriteableTests {
+
+    @Test
+    fun `test alert as stream`() {
+        val alert = randomAlert()
+        val out = BytesStreamOutput()
+        alert.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newAlert = Alert(sin)
+        Assertions.assertEquals(alert, newAlert, "Round tripping Alert doesn't work")
+    }
 
     @Test
     fun `test throttle as stream`() {

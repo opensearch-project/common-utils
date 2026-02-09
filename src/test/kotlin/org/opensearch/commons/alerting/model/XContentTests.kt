@@ -69,6 +69,7 @@ class XContentTests {
         Assertions.assertEquals(action, parsedAction, "Round tripping Action doesn't work")
     }
 
+    @Test
     fun `test action parsing with throttled enabled and null throttle`() {
         val action = randomAction().copy(throttle = null).copy(throttleEnabled = true)
         val actionString = action.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
