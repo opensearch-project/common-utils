@@ -17,14 +17,17 @@ data class NoOpTrigger(
     override val id: String = UUIDs.base64UUID(),
     override val name: String = "NoOp trigger",
     override val severity: String = "",
-    override val actions: List<Action> = listOf()
+    override val actions: List<Action> = listOf(),
 ) : Trigger {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this()
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startObject(NOOP_TRIGGER_FIELD)
             .field(ID_FIELD, id)
             .endObject()
@@ -32,13 +35,9 @@ data class NoOpTrigger(
         return builder
     }
 
-    override fun name(): String {
-        return NOOP_TRIGGER_FIELD
-    }
+    override fun name(): String = NOOP_TRIGGER_FIELD
 
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf()
-    }
+    fun asTemplateArg(): Map<String, Any> = mapOf()
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -47,11 +46,12 @@ data class NoOpTrigger(
     companion object {
         const val ID_FIELD = "id"
         const val NOOP_TRIGGER_FIELD = "noop_trigger"
-        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java,
-            ParseField(NOOP_TRIGGER_FIELD),
-            CheckedFunction { parseInner(it) }
-        )
+        val XCONTENT_REGISTRY =
+            NamedXContentRegistry.Entry(
+                Trigger::class.java,
+                ParseField(NOOP_TRIGGER_FIELD),
+                CheckedFunction { parseInner(it) },
+            )
 
         @JvmStatic
         @Throws(IOException::class)
@@ -71,8 +71,6 @@ data class NoOpTrigger(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): NoOpTrigger {
-            return NoOpTrigger(sin)
-        }
+        fun readFrom(sin: StreamInput): NoOpTrigger = NoOpTrigger(sin)
     }
 }

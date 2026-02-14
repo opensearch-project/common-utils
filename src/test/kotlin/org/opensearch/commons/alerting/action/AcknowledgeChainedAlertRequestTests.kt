@@ -13,7 +13,6 @@ import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.core.common.io.stream.StreamInput
 
 class AcknowledgeChainedAlertRequestTests {
-
     @Test
     fun `test acknowledge chained alert request`() {
         val req = AcknowledgeChainedAlertRequest("1234", mutableListOf("1", "2", "3", "4"))

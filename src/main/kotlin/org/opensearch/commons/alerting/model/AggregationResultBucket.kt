@@ -16,9 +16,9 @@ import java.util.Locale
 data class AggregationResultBucket(
     val parentBucketPath: String?,
     val bucketKeys: List<String>,
-    val bucket: Map<String, Any>? // TODO: Should reduce contents to only top-level to not include sub-aggs here
-) : Writeable, ToXContentObject {
-
+    val bucket: Map<String, Any>?, // TODO: Should reduce contents to only top-level to not include sub-aggs here
+) : Writeable,
+    ToXContentObject {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(sin.readString(), sin.readStringList(), sin.readMap())
 
@@ -28,14 +28,18 @@ data class AggregationResultBucket(
         out.writeMap(bucket)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         builder.startObject()
         innerXContent(builder)
         return builder.endObject()
     }
 
     fun innerXContent(builder: XContentBuilder): XContentBuilder {
-        builder.startObject(CONFIG_NAME)
+        builder
+            .startObject(CONFIG_NAME)
             .field(PARENTS_BUCKET_PATH, parentBucketPath)
             .field(BUCKET_KEYS, bucketKeys.toTypedArray())
             .field(BUCKET, bucket)
@@ -62,22 +66,28 @@ data class AggregationResultBucket(
                         Locale.ROOT,
                         "Failed to parse object: expecting token with name [%s] but found [%s]",
                         CONFIG_NAME,
-                        xcp.currentName()
-                    )
+                        xcp.currentName(),
+                    ),
                 )
             }
             while (xcp.nextToken() != Token.END_OBJECT) {
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
                 when (fieldName) {
-                    PARENTS_BUCKET_PATH -> parentBucketPath = xcp.text()
+                    PARENTS_BUCKET_PATH -> {
+                        parentBucketPath = xcp.text()
+                    }
+
                     BUCKET_KEYS -> {
                         ensureExpectedToken(Token.START_ARRAY, xcp.currentToken(), xcp)
                         while (xcp.nextToken() != Token.END_ARRAY) {
                             bucketKeys.add(xcp.text())
                         }
                     }
-                    BUCKET -> bucket = xcp.map()
+
+                    BUCKET -> {
+                        bucket = xcp.map()
+                    }
                 }
             }
             return AggregationResultBucket(parentBucketPath, bucketKeys, bucket)

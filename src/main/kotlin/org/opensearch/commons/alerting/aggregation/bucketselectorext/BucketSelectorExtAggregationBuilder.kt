@@ -18,8 +18,7 @@ import java.util.Objects
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class BucketSelectorExtAggregationBuilder :
-    AbstractPipelineAggregationBuilder<BucketSelectorExtAggregationBuilder> {
+class BucketSelectorExtAggregationBuilder : AbstractPipelineAggregationBuilder<BucketSelectorExtAggregationBuilder> {
     private val bucketsPathsMap: Map<String, String>
     val parentBucketPath: String
     val script: Script
@@ -31,7 +30,7 @@ class BucketSelectorExtAggregationBuilder :
         bucketsPathsMap: Map<String, String>,
         script: Script,
         parentBucketPath: String,
-        filter: BucketSelectorExtFilter?
+        filter: BucketSelectorExtFilter?,
     ) : super(name, NAME.preferredName, listOf<String>(parentBucketPath).toTypedArray<String>()) {
         this.bucketsPathsMap = bucketsPathsMap
         this.script = script
@@ -46,11 +45,12 @@ class BucketSelectorExtAggregationBuilder :
         script = Script(sin)
         gapPolicy = BucketHelpers.GapPolicy.readFrom(sin)
         parentBucketPath = sin.readString()
-        filter = if (sin.readBoolean()) {
-            BucketSelectorExtFilter(sin)
-        } else {
-            null
-        }
+        filter =
+            if (sin.readBoolean()) {
+                BucketSelectorExtFilter(sin)
+            } else {
+                null
+            }
     }
 
     @Throws(IOException::class)
@@ -76,23 +76,28 @@ class BucketSelectorExtAggregationBuilder :
         return this
     }
 
-    override fun createInternal(metaData: Map<String, Any>?): PipelineAggregator {
-        return BucketSelectorExtAggregator(name, bucketsPathsMap, parentBucketPath, script, gapPolicy, filter, metaData)
-    }
+    override fun createInternal(metaData: Map<String, Any>?): PipelineAggregator =
+        BucketSelectorExtAggregator(name, bucketsPathsMap, parentBucketPath, script, gapPolicy, filter, metaData)
 
     @Throws(IOException::class)
-    public override fun internalXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.field(PipelineAggregator.Parser.BUCKETS_PATH.preferredName, bucketsPathsMap as Map<String, Any>?)
+    public override fun internalXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .field(PipelineAggregator.Parser.BUCKETS_PATH.preferredName, bucketsPathsMap as Map<String, Any>?)
             .field(PARENT_BUCKET_PATH.preferredName, parentBucketPath)
             .field(Script.SCRIPT_PARSE_FIELD.preferredName, script)
             .field(PipelineAggregator.Parser.GAP_POLICY.preferredName, gapPolicy.getName())
         if (filter != null) {
             if (filter.isCompositeAggregation) {
-                builder.startObject(BUCKET_SELECTOR_COMPOSITE_AGG_FILTER.preferredName)
+                builder
+                    .startObject(BUCKET_SELECTOR_COMPOSITE_AGG_FILTER.preferredName)
                     .value(filter)
                     .endObject()
             } else {
-                builder.startObject(BUCKET_SELECTOR_FILTER.preferredName)
+                builder
+                    .startObject(BUCKET_SELECTOR_FILTER.preferredName)
                     .value(filter)
                     .endObject()
             }
@@ -100,17 +105,13 @@ class BucketSelectorExtAggregationBuilder :
         return builder
     }
 
-    override fun overrideBucketsPath(): Boolean {
-        return true
-    }
+    override fun overrideBucketsPath(): Boolean = true
 
     override fun validate(context: ValidationContext) {
         // Nothing to check
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(super.hashCode(), bucketsPathsMap, script, gapPolicy)
-    }
+    override fun hashCode(): Int = Objects.hash(super.hashCode(), bucketsPathsMap, script, gapPolicy)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -121,19 +122,20 @@ class BucketSelectorExtAggregationBuilder :
             bucketsPathsMap == otherCast.bucketsPathsMap &&
                 script == otherCast.script &&
                 gapPolicy == otherCast.gapPolicy
-            )
+        )
     }
 
-    override fun getWriteableName(): String {
-        return NAME.preferredName
-    }
+    override fun getWriteableName(): String = NAME.preferredName
 
     companion object {
         val NAME = ParseField("bucket_selector_ext")
         val PARENT_BUCKET_PATH = ParseField("parent_bucket_path")
 
         @Throws(IOException::class)
-        fun parse(reducerName: String, parser: XContentParser): BucketSelectorExtAggregationBuilder {
+        fun parse(
+            reducerName: String,
+            parser: XContentParser,
+        ): BucketSelectorExtAggregationBuilder {
             var token: XContentParser.Token
             var script: Script? = null
             var currentFieldName: String? = null
@@ -150,19 +152,23 @@ class BucketSelectorExtAggregationBuilder :
                             bucketsPathsMap = HashMap()
                             bucketsPathsMap["_value"] = parser.text()
                         }
+
                         PipelineAggregator.Parser.GAP_POLICY.match(currentFieldName, parser.deprecationHandler) -> {
                             gapPolicy = BucketHelpers.GapPolicy.parse(parser.text(), parser.tokenLocation)
                         }
+
                         Script.SCRIPT_PARSE_FIELD.match(currentFieldName, parser.deprecationHandler) -> {
                             script = Script.parse(parser)
                         }
+
                         PARENT_BUCKET_PATH.match(currentFieldName, parser.deprecationHandler) -> {
                             parentBucketPath = parser.text()
                         }
+
                         else -> {
                             throw ParsingException(
                                 parser.tokenLocation,
-                                "Unknown key for a $token in [$reducerName]: [$currentFieldName]."
+                                "Unknown key for a $token in [$reducerName]: [$currentFieldName].",
                             )
                         }
                     }
@@ -180,7 +186,7 @@ class BucketSelectorExtAggregationBuilder :
                     } else {
                         throw ParsingException(
                             parser.tokenLocation,
-                            "Unknown key for a $token in [$reducerName]: [$currentFieldName]."
+                            "Unknown key for a $token in [$reducerName]: [$currentFieldName].",
                         )
                     }
                 } else if (token === XContentParser.Token.START_OBJECT) {
@@ -188,6 +194,7 @@ class BucketSelectorExtAggregationBuilder :
                         Script.SCRIPT_PARSE_FIELD.match(currentFieldName, parser.deprecationHandler) -> {
                             script = Script.parse(parser)
                         }
+
                         PipelineAggregator.Parser.BUCKETS_PATH.match(currentFieldName, parser.deprecationHandler) -> {
                             val map = parser.map()
                             bucketsPathsMap = HashMap()
@@ -195,19 +202,22 @@ class BucketSelectorExtAggregationBuilder :
                                 bucketsPathsMap[key] = value.toString()
                             }
                         }
+
                         BUCKET_SELECTOR_FILTER.match(currentFieldName, parser.deprecationHandler) -> {
                             filter = BucketSelectorExtFilter.parse(reducerName, false, parser)
                         }
+
                         BUCKET_SELECTOR_COMPOSITE_AGG_FILTER.match(
                             currentFieldName,
-                            parser.deprecationHandler
+                            parser.deprecationHandler,
                         ) -> {
                             filter = BucketSelectorExtFilter.parse(reducerName, true, parser)
                         }
+
                         else -> {
                             throw ParsingException(
                                 parser.tokenLocation,
-                                "Unknown key for a $token in [$reducerName]: [$currentFieldName]."
+                                "Unknown key for a $token in [$reducerName]: [$currentFieldName].",
                             )
                         }
                     }
@@ -218,20 +228,25 @@ class BucketSelectorExtAggregationBuilder :
             if (bucketsPathsMap == null) {
                 throw ParsingException(
                     parser.tokenLocation,
-                    "Missing required field [" + PipelineAggregator.Parser.BUCKETS_PATH.preferredName + "] for bucket_selector aggregation [" + reducerName + "]"
+                    "Missing required field [" + PipelineAggregator.Parser.BUCKETS_PATH.preferredName +
+                        "] for bucket_selector aggregation [" +
+                        reducerName +
+                        "]",
                 )
             }
             if (script == null) {
                 throw ParsingException(
                     parser.tokenLocation,
-                    "Missing required field [" + Script.SCRIPT_PARSE_FIELD.preferredName + "] for bucket_selector aggregation [" + reducerName + "]"
+                    "Missing required field [" + Script.SCRIPT_PARSE_FIELD.preferredName + "] for bucket_selector aggregation [" +
+                        reducerName +
+                        "]",
                 )
             }
 
             if (parentBucketPath == null) {
                 throw ParsingException(
                     parser.tokenLocation,
-                    "Missing required field [" + PARENT_BUCKET_PATH + "] for bucket_selector aggregation [" + reducerName + "]"
+                    "Missing required field [" + PARENT_BUCKET_PATH + "] for bucket_selector aggregation [" + reducerName + "]",
                 )
             }
             val factory = BucketSelectorExtAggregationBuilder(reducerName, bucketsPathsMap, script, parentBucketPath, filter)

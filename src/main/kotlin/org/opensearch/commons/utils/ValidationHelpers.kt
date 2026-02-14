@@ -5,6 +5,7 @@
 
 package org.opensearch.commons.utils
 
+import java.net.URI
 import java.net.URL
 import java.util.regex.Pattern
 
@@ -45,8 +46,17 @@ fun validateId(idString: String) {
 }
 
 fun isValidUrl(urlString: String): Boolean {
-    val url = URL(urlString) // throws MalformedURLException if URL is invalid
-    return ("https" == url.protocol || "http" == url.protocol) // Support only http/https, other protocols not supported
+    return try {
+        val uri = URI(urlString)
+
+        // Must have http/https
+        val scheme = uri.scheme ?: return false
+        // Support only http/https, other protocols not supported
+        (scheme == "http" || scheme == "https")
+    } catch (e: Exception) {
+        // throws MalformedURLException if URL is invalid
+        false
+    }
 }
 
 /**
@@ -54,21 +64,20 @@ fun isValidUrl(urlString: String): Boolean {
  * Regex was based off of this post: https://stackoverflow.com/a/201378
  */
 fun isValidEmail(email: String): Boolean {
-    val validEmailPattern = Regex(
-        "(?:[a-z0-9!#\$%&'*+\\/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+\\/=?^_`{|}~-]+)*" +
-            "|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")" +
-            "@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" +
-            "|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}" +
-            "(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:" +
-            "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])",
-        RegexOption.IGNORE_CASE
-    )
+    val validEmailPattern =
+        Regex(
+            "(?:[a-z0-9!#\$%&'*+\\/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+\\/=?^_`{|}~-]+)*" +
+                "|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")" +
+                "@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?" +
+                "|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}" +
+                "(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:" +
+                "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])",
+            RegexOption.IGNORE_CASE,
+        )
     return validEmailPattern.matches(email)
 }
 
-fun isValidId(idString: String): Boolean {
-    return idString.isNotBlank() && idString.all { VALID_ID_CHARS.contains(it) }
-}
+fun isValidId(idString: String): Boolean = idString.isNotBlank() && idString.all { VALID_ID_CHARS.contains(it) }
 
 fun validateIamRoleArn(roleArn: String) {
     val roleArnRegex = Pattern.compile("^arn:aws(-[^:]+)?:iam::([0-9]{12}):([a-zA-Z_0-9+=,.@\\-_/]+)$")
@@ -83,6 +92,4 @@ fun isValidName(name: String): Boolean {
     return name.matches(regex)
 }
 
-fun getInvalidNameChars(): String {
-    return INVALID_NAME_CHARS
-}
+fun getInvalidNameChars(): String = INVALID_NAME_CHARS

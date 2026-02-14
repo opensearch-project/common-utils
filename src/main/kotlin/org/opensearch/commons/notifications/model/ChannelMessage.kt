@@ -26,9 +26,8 @@ import java.io.IOException
 data class ChannelMessage(
     val textDescription: String,
     val htmlDescription: String?,
-    val attachment: Attachment?
+    val attachment: Attachment?,
 ) : BaseModel {
-
     init {
         require(!Strings.isNullOrEmpty(textDescription)) { "text message part is null or empty" }
     }
@@ -55,16 +54,25 @@ data class ChannelMessage(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
 
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    TEXT_DESCRIPTION_TAG -> textDescription = parser.text()
-                    HTML_DESCRIPTION_TAG -> htmlDescription = parser.textOrNull()
-                    ATTACHMENT_TAG -> attachment = Attachment.parse(parser)
+                    TEXT_DESCRIPTION_TAG -> {
+                        textDescription = parser.text()
+                    }
+
+                    HTML_DESCRIPTION_TAG -> {
+                        htmlDescription = parser.textOrNull()
+                    }
+
+                    ATTACHMENT_TAG -> {
+                        attachment = Attachment.parse(parser)
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Skipping Unknown field $fieldName")
@@ -76,7 +84,7 @@ data class ChannelMessage(
             return ChannelMessage(
                 textDescription,
                 htmlDescription,
-                attachment
+                attachment,
             )
         }
     }
@@ -88,7 +96,7 @@ data class ChannelMessage(
     constructor(input: StreamInput) : this(
         textDescription = input.readString(),
         htmlDescription = input.readOptionalString(),
-        attachment = input.readOptionalWriteable(Attachment.reader)
+        attachment = input.readOptionalWriteable(Attachment.reader),
     )
 
     /**
@@ -103,9 +111,13 @@ data class ChannelMessage(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(TEXT_DESCRIPTION_TAG, textDescription)
             .fieldIfNotNull(HTML_DESCRIPTION_TAG, htmlDescription)
             .fieldIfNotNull(ATTACHMENT_TAG, attachment)

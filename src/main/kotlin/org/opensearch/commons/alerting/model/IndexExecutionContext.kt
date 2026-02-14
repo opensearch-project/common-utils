@@ -23,9 +23,9 @@ data class IndexExecutionContext(
     val concreteIndexNames: List<String>,
     val conflictingFields: List<String>,
     val docIds: List<String>? = emptyList(),
-    val findingIds: List<String>? = emptyList()
-) : Writeable, ToXContent {
-
+    val findingIds: List<String>? = emptyList(),
+) : Writeable,
+    ToXContent {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         queries = sin.readList { DocLevelQuery(sin) },
@@ -37,7 +37,7 @@ data class IndexExecutionContext(
         concreteIndexNames = sin.readStringList(),
         conflictingFields = sin.readStringList(),
         docIds = sin.readOptionalStringList(),
-        findingIds = if (sin.version.onOrAfter(Version.V_2_15_0)) sin.readOptionalStringList() else emptyList()
+        findingIds = if (sin.version.onOrAfter(Version.V_2_15_0)) sin.readOptionalStringList() else emptyList(),
     )
 
     override fun writeTo(out: StreamOutput?) {
@@ -55,8 +55,12 @@ data class IndexExecutionContext(
         }
     }
 
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        builder!!.startObject()
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
+        builder!!
+            .startObject()
             .field("queries", queries)
             .field("last_run_context", lastRunContext)
             .field("updated_last_run_context", updatedLastRunContext)

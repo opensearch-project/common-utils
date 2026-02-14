@@ -20,7 +20,6 @@ class SendNotificationResponse : BaseResponse {
     val notificationEvent: NotificationEvent
 
     companion object {
-
         /**
          * reader to create instance of class from writable.
          */
@@ -32,9 +31,7 @@ class SendNotificationResponse : BaseResponse {
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): SendNotificationResponse {
-            return SendNotificationResponse(NotificationEvent.parse(parser))
-        }
+        fun parse(parser: XContentParser): SendNotificationResponse = SendNotificationResponse(NotificationEvent.parse(parser))
     }
 
     /**
@@ -64,7 +61,8 @@ class SendNotificationResponse : BaseResponse {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return notificationEvent.toXContent(builder, params)
-    }
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder = notificationEvent.toXContent(builder, params)
 }

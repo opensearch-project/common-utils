@@ -23,6 +23,7 @@ import java.util.Locale
 
 sealed class Schedule : BaseModel {
     enum class TYPE { CRON, INTERVAL }
+
     companion object {
         const val CRON_FIELD = "cron"
         const val EXPRESSION_FIELD = "expression"
@@ -62,6 +63,7 @@ sealed class Schedule : BaseModel {
                             }
                         }
                     }
+
                     PERIOD_FIELD -> {
                         type = TYPE.INTERVAL
                         while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -73,21 +75,24 @@ sealed class Schedule : BaseModel {
                             }
                         }
                     }
+
                     else -> {
                         throw IllegalArgumentException("Invalid field: [$fieldname] found in schedule.")
                     }
                 }
             }
             if (type == TYPE.CRON) {
-                schedule = CronSchedule(
-                    requireNotNull(expression) { "Expression in cron schedule is null." },
-                    requireNotNull(timezone) { "Timezone in cron schedule is null." }
-                )
+                schedule =
+                    CronSchedule(
+                        requireNotNull(expression) { "Expression in cron schedule is null." },
+                        requireNotNull(timezone) { "Timezone in cron schedule is null." },
+                    )
             } else if (type == TYPE.INTERVAL) {
-                schedule = IntervalSchedule(
-                    requireNotNull(interval) { "Interval in period schedule is null." },
-                    requireNotNull(unit) { "Unit in period schedule is null." }
-                )
+                schedule =
+                    IntervalSchedule(
+                        requireNotNull(interval) { "Interval in period schedule is null." },
+                        requireNotNull(unit) { "Unit in period schedule is null." },
+                    )
             }
             return requireNotNull(schedule) { "Schedule is null." }
         }
@@ -125,7 +130,10 @@ sealed class Schedule : BaseModel {
      * @param expectedPreviousExecutionTime is the calculated previous execution time that should always be correct,
      * the first time this is called the value passed in is the enabledTime which acts as the expectedPreviousExecutionTime
      */
-    abstract fun getExpectedNextExecutionTime(enabledTime: Instant, expectedPreviousExecutionTime: Instant?): Instant?
+    abstract fun getExpectedNextExecutionTime(
+        enabledTime: Instant,
+        expectedPreviousExecutionTime: Instant?,
+    ): Instant?
 
     /**
      * Returns the start and end time for this schedule starting at the given start time (if provided).
@@ -158,7 +166,7 @@ data class CronSchedule(
     val expression: String,
     val timezone: ZoneId,
     // visible for testing
-    @Transient val testInstant: Instant? = null
+    @Transient val testInstant: Instant? = null,
 ) : Schedule() {
     @Transient
     val executionTime: ExecutionTime = ExecutionTime.forCron(cronParser.parse(expression))
@@ -166,15 +174,13 @@ data class CronSchedule(
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // expression
-        sin.readZoneId() // timezone
+        sin.readZoneId(), // timezone
     )
 
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): CronSchedule {
-            return CronSchedule(sin)
-        }
+        fun readFrom(sin: StreamInput): CronSchedule = CronSchedule(sin)
     }
 
     /*
@@ -186,42 +192,47 @@ data class CronSchedule(
         return timeToNextExecution.orElse(null)
     }
 
-    override fun getExpectedNextExecutionTime(enabledTime: Instant, expectedPreviousExecutionTime: Instant?): Instant? {
+    override fun getExpectedNextExecutionTime(
+        enabledTime: Instant,
+        expectedPreviousExecutionTime: Instant?,
+    ): Instant? {
         val zonedDateTime = ZonedDateTime.ofInstant(expectedPreviousExecutionTime ?: testInstant ?: Instant.now(), timezone)
         val nextExecution = executionTime.nextExecution(zonedDateTime)
         return nextExecution.orElse(null)?.toInstant()
     }
 
     override fun getPeriodStartingAt(startTime: Instant?): Pair<Instant, Instant> {
-        val realStartTime = if (startTime != null) {
-            startTime
-        } else {
-            // Probably the first time we're running. Try to figure out the last execution time
-            val lastExecutionTime = executionTime.lastExecution(ZonedDateTime.now(timezone))
-            // This shouldn't happen unless the cron is configured to run only once, which our current cron syntax doesn't support
-            if (!lastExecutionTime.isPresent) {
-                val currentTime = Instant.now()
-                return Pair(currentTime, currentTime)
+        val realStartTime =
+            if (startTime != null) {
+                startTime
+            } else {
+                // Probably the first time we're running. Try to figure out the last execution time
+                val lastExecutionTime = executionTime.lastExecution(ZonedDateTime.now(timezone))
+                // This shouldn't happen unless the cron is configured to run only once, which our current cron syntax doesn't support
+                if (!lastExecutionTime.isPresent) {
+                    val currentTime = Instant.now()
+                    return Pair(currentTime, currentTime)
+                }
+                lastExecutionTime.get().toInstant()
             }
-            lastExecutionTime.get().toInstant()
-        }
         val zonedDateTime = ZonedDateTime.ofInstant(realStartTime, timezone)
         val newEndTime = executionTime.nextExecution(zonedDateTime).orElse(null)
         return Pair(realStartTime, newEndTime?.toInstant() ?: realStartTime)
     }
 
     override fun getPeriodEndingAt(endTime: Instant?): Pair<Instant, Instant> {
-        val realEndTime = if (endTime != null) {
-            endTime
-        } else {
-            val nextExecutionTime = executionTime.nextExecution(ZonedDateTime.now(timezone))
-            // This shouldn't happen unless the cron is configured to run only once which our current cron syntax doesn't support
-            if (!nextExecutionTime.isPresent) {
-                val currentTime = Instant.now()
-                return Pair(currentTime, currentTime)
+        val realEndTime =
+            if (endTime != null) {
+                endTime
+            } else {
+                val nextExecutionTime = executionTime.nextExecution(ZonedDateTime.now(timezone))
+                // This shouldn't happen unless the cron is configured to run only once which our current cron syntax doesn't support
+                if (!nextExecutionTime.isPresent) {
+                    val currentTime = Instant.now()
+                    return Pair(currentTime, currentTime)
+                }
+                nextExecutionTime.get().toInstant()
             }
-            nextExecutionTime.get().toInstant()
-        }
         val zonedDateTime = ZonedDateTime.ofInstant(realEndTime, timezone)
         val newStartTime = executionTime.lastExecution(zonedDateTime).orElse(null)
         return Pair(newStartTime?.toInstant() ?: realEndTime, realEndTime)
@@ -245,8 +256,12 @@ data class CronSchedule(
         return ChronoUnit.SECONDS.between(expectedExecutionTime.get(), actualExecutionTime) == 0L
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startObject(CRON_FIELD)
             .field(EXPRESSION_FIELD, expression)
             .field(TIMEZONE_FIELD, timezone.id)
@@ -263,10 +278,11 @@ data class CronSchedule(
 
     override fun asTemplateArg(): Map<String, Any> =
         mapOf(
-            CRON_FIELD to mapOf(
-                EXPRESSION_FIELD to expression,
-                TIMEZONE_FIELD to timezone.toString()
-            )
+            CRON_FIELD to
+                mapOf(
+                    EXPRESSION_FIELD to expression,
+                    TIMEZONE_FIELD to timezone.toString(),
+                ),
         )
 }
 
@@ -274,13 +290,14 @@ data class IntervalSchedule(
     val interval: Int,
     val unit: ChronoUnit,
     // visible for testing
-    @Transient val testInstant: Instant? = null
+    @Transient val testInstant: Instant? = null,
 ) : Schedule() {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readInt(), // interval
-        sin.readEnum(ChronoUnit::class.java) // unit
+        sin.readEnum(ChronoUnit::class.java), // unit
     )
+
     companion object {
         // Including SECONDS in this list for testing purposes to run test monitors in order of seconds
         @Transient
@@ -288,9 +305,7 @@ data class IntervalSchedule(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): IntervalSchedule {
-            return IntervalSchedule(sin)
-        }
+        fun readFrom(sin: StreamInput): IntervalSchedule = IntervalSchedule(sin)
     }
 
     init {
@@ -317,7 +332,10 @@ data class IntervalSchedule(
         return Duration.of(remainingScheduleTime, ChronoUnit.MILLIS)
     }
 
-    override fun getExpectedNextExecutionTime(enabledTime: Instant, expectedPreviousExecutionTime: Instant?): Instant? {
+    override fun getExpectedNextExecutionTime(
+        enabledTime: Instant,
+        expectedPreviousExecutionTime: Instant?,
+    ): Instant? {
         val expectedPreviousExecutionTimeEpochMillis = (expectedPreviousExecutionTime ?: enabledTime).toEpochMilli()
         // We still need to calculate the delta even when using expectedPreviousExecutionTime because the initial value passed in
         // is the enabledTime (which also happens with cluster/node restart)
@@ -351,8 +369,12 @@ data class IntervalSchedule(
         return 0 < delta && delta < intervalInMills
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startObject(PERIOD_FIELD)
             .field(INTERVAL_FIELD, interval)
             .field(UNIT_FIELD, unit.name)
@@ -369,9 +391,10 @@ data class IntervalSchedule(
 
     override fun asTemplateArg(): Map<String, Any> =
         mapOf(
-            PERIOD_FIELD to mapOf(
-                INTERVAL_FIELD to interval,
-                UNIT_FIELD to unit.toString()
-            )
+            PERIOD_FIELD to
+                mapOf(
+                    INTERVAL_FIELD to interval,
+                    UNIT_FIELD to unit.toString(),
+                ),
         )
 }

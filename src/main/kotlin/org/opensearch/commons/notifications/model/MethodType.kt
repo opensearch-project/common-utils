@@ -2,22 +2,18 @@ package org.opensearch.commons.notifications.model
 
 import org.opensearch.commons.utils.EnumParser
 
-enum class MethodType(val tag: String) {
+enum class MethodType(
+    val tag: String,
+) {
     NONE("none") {
-        override fun toString(): String {
-            return tag
-        }
+        override fun toString(): String = tag
     },
     SSL("ssl") {
-        override fun toString(): String {
-            return tag
-        }
+        override fun toString(): String = tag
     },
     START_TLS("start_tls") {
-        override fun toString(): String {
-            return tag
-        }
-    };
+        override fun toString(): String = tag
+    }, ;
 
     companion object {
         private val tagMap = values().associateBy { it.tag }
@@ -29,8 +25,6 @@ enum class MethodType(val tag: String) {
          * @param tag the tag
          * @return MethodType corresponding to tag. NONE if invalid tag.
          */
-        fun fromTagOrDefault(tag: String): MethodType {
-            return tagMap[tag] ?: NONE
-        }
+        fun fromTagOrDefault(tag: String): MethodType = tagMap[tag] ?: NONE
     }
 }

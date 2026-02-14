@@ -14,7 +14,6 @@ import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
 internal class EmailRecipientTests {
-
     private fun checkValidEmailAddress(emailAddress: String) {
         assertDoesNotThrow("should accept $emailAddress") {
             EmailRecipient(emailAddress)
@@ -73,11 +72,12 @@ internal class EmailRecipientTests {
     @Test
     fun `EmailRecipient should deserialize json object using parser`() {
         val sampleEmailRecipient = EmailRecipient("email1@email.com")
-        val jsonString = """
+        val jsonString =
+            """
             {
                 "recipient": "${sampleEmailRecipient.recipient}"
             }"
-        """.trimIndent()
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { EmailRecipient.parse(it) }
         assertEquals(sampleEmailRecipient, recreatedObject)
     }
@@ -93,11 +93,12 @@ internal class EmailRecipientTests {
     @Test
     fun `EmailRecipient should throw exception when recipients is replaced with recipients2 in json object`() {
         val sampleEmailRecipient = EmailRecipient("email1@email.com")
-        val jsonString = """
+        val jsonString =
+            """
             {
                 "recipient2": "${sampleEmailRecipient.recipient}"
             }"
-        """.trimIndent()
+            """.trimIndent()
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { EmailRecipient.parse(it) }
         }
@@ -106,14 +107,15 @@ internal class EmailRecipientTests {
     @Test
     fun `EmailRecipient should safely ignore extra field in json object`() {
         val sampleEmailRecipient = EmailRecipient("email@email.com")
-        val jsonString = """
+        val jsonString =
+            """
             {
                 "recipient": "${sampleEmailRecipient.recipient}",
                 "extra_field_1":["extra", "value"],
                 "extra_field_2":{"extra":"value"},
                 "extra_field_3":"extra value 3"
             }"
-        """.trimIndent()
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { EmailRecipient.parse(it) }
         assertEquals(sampleEmailRecipient, recreatedObject)
     }

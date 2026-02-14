@@ -21,9 +21,8 @@ import java.io.IOException
  * Data class representing Chime channel.
  */
 data class Chime(
-    val url: String
+    val url: String,
 ) : BaseConfigData {
-
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
         validateUrl(url)
@@ -54,13 +53,16 @@ data class Chime(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    URL_TAG -> url = parser.text()
+                    URL_TAG -> {
+                        url = parser.text()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing Chime destination")
@@ -77,7 +79,7 @@ data class Chime(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        url = input.readString()
+        url = input.readString(),
     )
 
     /**
@@ -90,9 +92,13 @@ data class Chime(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(URL_TAG, url)
             .endObject()
     }

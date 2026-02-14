@@ -10,4 +10,6 @@ import org.opensearch.core.xcontent.ToXContentObject
 /**
  * interface for representing objects.
  */
-interface BaseModel : Writeable, ToXContentObject
+interface BaseModel :
+    Writeable,
+    ToXContentObject

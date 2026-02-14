@@ -27,9 +27,8 @@ import java.io.IOException
 data class Webhook(
     val url: String,
     val headerParams: Map<String, String> = mapOf(),
-    val method: HttpMethodType = HttpMethodType.POST
+    val method: HttpMethodType = HttpMethodType.POST,
 ) : BaseConfigData {
-
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
         validateUrl(url)
@@ -62,15 +61,24 @@ data class Webhook(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    URL_TAG -> url = parser.text()
-                    HEADER_PARAMS_TAG -> headerParams = parser.mapStrings()
-                    METHOD_TAG -> method = HttpMethodType.fromTagOrDefault(parser.text())
+                    URL_TAG -> {
+                        url = parser.text()
+                    }
+
+                    HEADER_PARAMS_TAG -> {
+                        headerParams = parser.mapStrings()
+                    }
+
+                    METHOD_TAG -> {
+                        method = HttpMethodType.fromTagOrDefault(parser.text())
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing Webhook destination")
@@ -85,9 +93,13 @@ data class Webhook(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(URL_TAG, url)
             .field(HEADER_PARAMS_TAG, headerParams)
             .field(METHOD_TAG, method.tag)
@@ -101,7 +113,7 @@ data class Webhook(
     constructor(input: StreamInput) : this(
         url = input.readString(),
         headerParams = input.readMap(STRING_READER, STRING_READER),
-        method = input.readEnum(HttpMethodType::class.java)
+        method = input.readEnum(HttpMethodType::class.java),
     )
 
     /**

@@ -19,9 +19,8 @@ data class ChainedAlertTriggerRunResult(
     var triggered: Boolean,
     override var error: Exception?,
     var actionResults: MutableMap<String, ActionRunResult> = mutableMapOf(),
-    val associatedAlertIds: Set<String>
+    val associatedAlertIds: Set<String>,
 ) : TriggerRunResult(triggerName, error) {
-
     @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
     constructor(sin: StreamInput) : this(
@@ -29,7 +28,7 @@ data class ChainedAlertTriggerRunResult(
         error = sin.readException(),
         triggered = sin.readBoolean(),
         actionResults = sin.readMap() as MutableMap<String, ActionRunResult>,
-        associatedAlertIds = sin.readStringList().toSet()
+        associatedAlertIds = sin.readStringList().toSet(),
     )
 
     override fun alertError(): AlertError? {
@@ -44,7 +43,10 @@ data class ChainedAlertTriggerRunResult(
         return null
     }
 
-    override fun internalXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun internalXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         if (error is ScriptException) error = Exception((error as ScriptException).toJsonString(), error)
         return builder
             .field("triggered", triggered)
@@ -62,8 +64,6 @@ data class ChainedAlertTriggerRunResult(
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): TriggerRunResult {
-            return ChainedAlertTriggerRunResult(sin)
-        }
+        fun readFrom(sin: StreamInput): TriggerRunResult = ChainedAlertTriggerRunResult(sin)
     }
 }

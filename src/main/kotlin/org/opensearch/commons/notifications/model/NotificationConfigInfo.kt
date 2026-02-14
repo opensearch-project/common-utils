@@ -28,9 +28,8 @@ data class NotificationConfigInfo(
     val configId: String,
     val lastUpdatedTime: Instant,
     val createdTime: Instant,
-    val notificationConfig: NotificationConfig
+    val notificationConfig: NotificationConfig,
 ) : BaseModel {
-
     init {
         require(!Strings.isNullOrEmpty(configId)) { "config id is null or empty" }
     }
@@ -58,16 +57,28 @@ data class NotificationConfigInfo(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    CONFIG_ID_TAG -> configId = parser.text()
-                    UPDATED_TIME_TAG -> lastUpdatedTime = Instant.ofEpochMilli(parser.longValue())
-                    CREATED_TIME_TAG -> createdTime = Instant.ofEpochMilli(parser.longValue())
-                    CONFIG_TAG -> notificationConfig = NotificationConfig.parse(parser)
+                    CONFIG_ID_TAG -> {
+                        configId = parser.text()
+                    }
+
+                    UPDATED_TIME_TAG -> {
+                        lastUpdatedTime = Instant.ofEpochMilli(parser.longValue())
+                    }
+
+                    CREATED_TIME_TAG -> {
+                        createdTime = Instant.ofEpochMilli(parser.longValue())
+                    }
+
+                    CONFIG_TAG -> {
+                        notificationConfig = NotificationConfig.parse(parser)
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing configuration")
@@ -82,7 +93,7 @@ data class NotificationConfigInfo(
                 configId,
                 lastUpdatedTime,
                 createdTime,
-                notificationConfig
+                notificationConfig,
             )
         }
     }
@@ -95,7 +106,7 @@ data class NotificationConfigInfo(
         configId = input.readString(),
         lastUpdatedTime = input.readInstant(),
         createdTime = input.readInstant(),
-        notificationConfig = NotificationConfig.reader.read(input)
+        notificationConfig = NotificationConfig.reader.read(input),
     )
 
     /**
@@ -111,9 +122,13 @@ data class NotificationConfigInfo(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(CONFIG_ID_TAG, configId)
             .field(UPDATED_TIME_TAG, lastUpdatedTime.toEpochMilli())
             .field(CREATED_TIME_TAG, createdTime.toEpochMilli())

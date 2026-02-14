@@ -16,25 +16,28 @@ class FindingDocument(
     val index: String,
     val id: String,
     val found: Boolean,
-    val document: String
-) : Writeable, ToXContent {
-
+    val document: String,
+) : Writeable,
+    ToXContent {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         index = sin.readString(),
         id = sin.readString(),
         found = sin.readBoolean(),
-        document = sin.readString()
+        document = sin.readString(),
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(INDEX_FIELD, index)
             .field(FINDING_DOCUMENT_ID_FIELD, id)
             .field(FOUND_FIELD, found)
             .field(DOCUMENT_FIELD, document)
             .endObject()
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -55,7 +58,11 @@ class FindingDocument(
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, id: String = NO_ID, index: String = NO_INDEX): FindingDocument {
+        fun parse(
+            xcp: XContentParser,
+            id: String = NO_ID,
+            index: String = NO_INDEX,
+        ): FindingDocument {
             var found = false
             var document: String = ""
 
@@ -74,14 +81,12 @@ class FindingDocument(
                 index = index,
                 id = id,
                 found = found,
-                document = document
+                document = document,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): FindingDocument {
-            return FindingDocument(sin)
-        }
+        fun readFrom(sin: StreamInput): FindingDocument = FindingDocument(sin)
     }
 }

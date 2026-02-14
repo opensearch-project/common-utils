@@ -15,20 +15,25 @@ import org.opensearch.core.common.io.stream.Writeable
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-val STRING_READER = Writeable.Reader {
-    it.readString()
-}
+val STRING_READER =
+    Writeable.Reader {
+        it.readString()
+    }
 
-val STRING_WRITER = Writeable.Writer { output: StreamOutput, value: String ->
-    output.writeString(value)
-}
+val STRING_WRITER =
+    Writeable.Writer { output: StreamOutput, value: String ->
+        output.writeString(value)
+    }
 
 /**
  * Re create the object from the writeable.
  * This method needs to be inline and reified so that when this is called from
  * doExecute() of transport action, the object may be created from other JVM.
  */
-inline fun <reified Request> recreateObject(writeable: Writeable, block: (StreamInput) -> Request): Request {
+inline fun <reified Request> recreateObject(
+    writeable: Writeable,
+    block: (StreamInput) -> Request,
+): Request {
     ByteArrayOutputStream().use { byteArrayOutputStream ->
         OutputStreamStreamOutput(byteArrayOutputStream).use {
             writeable.writeTo(it)
@@ -44,7 +49,11 @@ inline fun <reified Request> recreateObject(writeable: Writeable, block: (Stream
  * This method needs to be inline and reified so that when this is called from
  * doExecute() of transport action, the object may be created from other JVM.
  */
-inline fun <reified Request> recreateObject(writeable: Writeable, namedWriteableRegistry: NamedWriteableRegistry, block: (StreamInput) -> Request): Request {
+inline fun <reified Request> recreateObject(
+    writeable: Writeable,
+    namedWriteableRegistry: NamedWriteableRegistry,
+    block: (StreamInput) -> Request,
+): Request {
     ByteArrayOutputStream().use { byteArrayOutputStream ->
         OutputStreamStreamOutput(byteArrayOutputStream).use {
             writeable.writeTo(it)

@@ -21,7 +21,9 @@ class IndexWorkflowRequest : ActionRequest {
     var workflow: Workflow
     val rbacRoles: List<String>?
 
-    private val MAX_DELEGATE_SIZE = 25
+    companion object {
+        private const val MAX_DELEGATE_SIZE = 25
+    }
 
     constructor(
         workflowId: String,
@@ -30,7 +32,7 @@ class IndexWorkflowRequest : ActionRequest {
         refreshPolicy: WriteRequest.RefreshPolicy,
         method: RestRequest.Method,
         workflow: Workflow,
-        rbacRoles: List<String>? = null
+        rbacRoles: List<String>? = null,
     ) : super() {
         this.workflowId = workflowId
         this.seqNo = seqNo
@@ -49,64 +51,80 @@ class IndexWorkflowRequest : ActionRequest {
         refreshPolicy = WriteRequest.RefreshPolicy.readFrom(sin),
         method = sin.readEnum(RestRequest.Method::class.java),
         workflow = Workflow.readFrom(sin) as Workflow,
-        rbacRoles = sin.readOptionalStringList()
+        rbacRoles = sin.readOptionalStringList(),
     )
 
     override fun validate(): ActionRequestValidationException? {
         var validationException: ActionRequestValidationException? = null
 
         if (workflow.inputs.isEmpty()) {
-            validationException = ValidateActions.addValidationError(
-                "Input list can not be empty.",
-                validationException
-            )
+            validationException =
+                ValidateActions.addValidationError(
+                    "Input list can not be empty.",
+                    validationException,
+                )
             return validationException
         }
         if (workflow.inputs.size > 1) {
-            validationException = ValidateActions.addValidationError(
-                "Input list can contain only one element.",
-                validationException
-            )
+            validationException =
+                ValidateActions.addValidationError(
+                    "Input list can contain only one element.",
+                    validationException,
+                )
             return validationException
         }
         if (workflow.inputs[0] !is CompositeInput) {
-            validationException = ValidateActions.addValidationError(
-                "When creating a workflow input must be CompositeInput",
-                validationException
-            )
+            validationException =
+                ValidateActions.addValidationError(
+                    "When creating a workflow input must be CompositeInput",
+                    validationException,
+                )
         }
         val compositeInput = workflow.inputs[0] as CompositeInput
-        val monitorIds = compositeInput.sequence.delegates.stream().map { it.monitorId }.collect(Collectors.toList())
+        val monitorIds =
+            compositeInput.sequence.delegates
+                .stream()
+                .map { it.monitorId }
+                .collect(Collectors.toList())
 
         if (monitorIds.isNullOrEmpty()) {
-            validationException = ValidateActions.addValidationError(
-                "Delegates list can not be empty.",
-                validationException
-            )
+            validationException =
+                ValidateActions.addValidationError(
+                    "Delegates list can not be empty.",
+                    validationException,
+                )
             // Break the flow because next checks are dependant on non-null monitorIds
             return validationException
         }
 
         if (monitorIds.size > MAX_DELEGATE_SIZE) {
-            validationException = ValidateActions.addValidationError(
-                "Delegates list can not be larger then $MAX_DELEGATE_SIZE.",
-                validationException
-            )
+            validationException =
+                ValidateActions.addValidationError(
+                    "Delegates list can not be larger then $MAX_DELEGATE_SIZE.",
+                    validationException,
+                )
         }
 
         if (monitorIds.toSet().size != monitorIds.size) {
-            validationException = ValidateActions.addValidationError(
-                "Duplicate delegates not allowed",
-                validationException
-            )
+            validationException =
+                ValidateActions.addValidationError(
+                    "Duplicate delegates not allowed",
+                    validationException,
+                )
         }
         val delegates = compositeInput.sequence.delegates
-        val orderSet = delegates.stream().filter { it.order > 0 }.map { it.order }.collect(Collectors.toSet())
+        val orderSet =
+            delegates
+                .stream()
+                .filter { it.order > 0 }
+                .map { it.order }
+                .collect(Collectors.toSet())
         if (orderSet.size != delegates.size) {
-            validationException = ValidateActions.addValidationError(
-                "Sequence ordering of delegate monitor shouldn't contain duplicate order values",
-                validationException
-            )
+            validationException =
+                ValidateActions.addValidationError(
+                    "Sequence ordering of delegate monitor shouldn't contain duplicate order values",
+                    validationException,
+                )
         }
 
         val monitorIdOrderMap: Map<String, Int> = delegates.associate { it.monitorId to it.order }
@@ -114,34 +132,38 @@ class IndexWorkflowRequest : ActionRequest {
             if (it.chainedMonitorFindings != null) {
                 if (it.chainedMonitorFindings.monitorId != null) {
                     if (monitorIdOrderMap.containsKey(it.chainedMonitorFindings.monitorId) == false) {
-                        validationException = ValidateActions.addValidationError(
-                            "Chained Findings Monitor ${it.chainedMonitorFindings.monitorId} doesn't exist in sequence",
-                            validationException
-                        )
+                        validationException =
+                            ValidateActions.addValidationError(
+                                "Chained Findings Monitor ${it.chainedMonitorFindings.monitorId} doesn't exist in sequence",
+                                validationException,
+                            )
                         // Break the flow because next check will generate the NPE
                         return validationException
                     }
                     if (it.order <= monitorIdOrderMap[it.chainedMonitorFindings.monitorId]!!) {
-                        validationException = ValidateActions.addValidationError(
-                            "Chained Findings Monitor ${it.chainedMonitorFindings.monitorId} should be executed before monitor ${it.monitorId}",
-                            validationException
-                        )
+                        validationException =
+                            ValidateActions.addValidationError(
+                                "Chained Findings Monitor ${it.chainedMonitorFindings.monitorId} should be executed before monitor ${it.monitorId}",
+                                validationException,
+                            )
                     }
                 } else {
                     for (monitorId in it.chainedMonitorFindings.monitorIds) {
                         if (!monitorIdOrderMap.containsKey(monitorId)) {
-                            validationException = ValidateActions.addValidationError(
-                                "Chained Findings Monitor $monitorId doesn't exist in sequence",
-                                validationException
-                            )
+                            validationException =
+                                ValidateActions.addValidationError(
+                                    "Chained Findings Monitor $monitorId doesn't exist in sequence",
+                                    validationException,
+                                )
                             return validationException
                         } else {
                             val order = monitorIdOrderMap.get(monitorId)!!
                             if (order >= it.order) {
                                 return ValidateActions.addValidationError(
-                                    "Chained Findings Monitor ${it.chainedMonitorFindings.monitorId} should be executed before monitor ${it.monitorId}. " +
-                                        "Order of monitor being chained [$order] should be smaller than order of monitor using findings as source data [${it.order}] in sequence",
-                                    validationException
+                                    "Chained Findings Monitor ${it.chainedMonitorFindings.monitorId} should be executed before " +
+                                        "monitor ${it.monitorId}. Order of monitor being chained [$order] should be smaller than " +
+                                        "order of monitor using findings as source data [${it.order}] in sequence",
+                                    validationException,
                                 )
                             }
                         }

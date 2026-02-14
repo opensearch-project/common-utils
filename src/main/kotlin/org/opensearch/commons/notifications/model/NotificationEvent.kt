@@ -25,9 +25,8 @@ import java.io.IOException
  */
 data class NotificationEvent(
     val eventSource: EventSource,
-    val statusList: List<EventStatus> = listOf()
+    val statusList: List<EventStatus> = listOf(),
 ) : BaseModel {
-
     init {
         require(statusList.isNotEmpty()) { "statusList is null or empty" }
     }
@@ -53,14 +52,20 @@ data class NotificationEvent(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    EVENT_SOURCE_TAG -> eventSource = EventSource.parse(parser)
-                    STATUS_LIST_TAG -> statusList = parser.objectList { EventStatus.parse(it) }
+                    EVENT_SOURCE_TAG -> {
+                        eventSource = EventSource.parse(parser)
+                    }
+
+                    STATUS_LIST_TAG -> {
+                        statusList = parser.objectList { EventStatus.parse(it) }
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing notification event")
@@ -73,7 +78,7 @@ data class NotificationEvent(
             }
             return NotificationEvent(
                 eventSource,
-                statusList
+                statusList,
             )
         }
     }
@@ -84,7 +89,7 @@ data class NotificationEvent(
      */
     constructor(input: StreamInput) : this(
         eventSource = EventSource.reader.read(input),
-        statusList = input.readList(EventStatus.reader)
+        statusList = input.readList(EventStatus.reader),
     )
 
     /**
@@ -98,21 +103,24 @@ data class NotificationEvent(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(EVENT_SOURCE_TAG, eventSource)
             .field(STATUS_LIST_TAG, statusList)
             .endObject()
     }
 
     // Overriding toString so consuming plugins can log/output this from the  sendNotification response if needed
-    override fun toString(): String {
-        return try {
+    override fun toString(): String =
+        try {
             XContentHelper.toXContent(this, XContentType.JSON, EMPTY_PARAMS, true).utf8ToString()
         } catch (e: IOException) {
             log.debug("Failed to convert NotificationEvent to string", e)
             super.toString() + " threw " + e.toString()
         }
-    }
 }

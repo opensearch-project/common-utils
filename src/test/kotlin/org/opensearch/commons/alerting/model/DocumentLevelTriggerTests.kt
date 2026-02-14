@@ -14,7 +14,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class DocumentLevelTriggerTests {
-
     @Test
     fun `test DocumentLevelTrigger asTemplateArgs`() {
         val trigger = randomDocumentLevelTrigger()
@@ -28,7 +27,7 @@ class DocumentLevelTriggerTests {
         assertEquals(
             trigger.actions.size,
             actions.size,
-            "Template arg field 'actions' doesn't match"
+            "Template arg field 'actions' doesn't match",
         )
         val condition = templateArgs[CONDITION_FIELD] as? Map<*, *>
         assertNotNull(condition, "Template arg field 'condition' is empty")
@@ -37,12 +36,12 @@ class DocumentLevelTriggerTests {
         assertEquals(
             trigger.condition.idOrCode,
             script[SOURCE_FIELD],
-            "Template arg field 'script.source' doesn't match"
+            "Template arg field 'script.source' doesn't match",
         )
         assertEquals(
             trigger.condition.lang,
             script[LANG_FIELD],
-            "Template arg field 'script.lang' doesn't match"
+            "Template arg field 'script.lang' doesn't match",
         )
     }
 }

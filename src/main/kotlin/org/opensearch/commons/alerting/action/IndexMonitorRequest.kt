@@ -28,7 +28,7 @@ class IndexMonitorRequest : ActionRequest {
         refreshPolicy: WriteRequest.RefreshPolicy,
         method: RestRequest.Method,
         monitor: Monitor,
-        rbacRoles: List<String>? = null
+        rbacRoles: List<String>? = null,
     ) : super() {
         this.monitorId = monitorId
         this.seqNo = seqNo
@@ -47,7 +47,7 @@ class IndexMonitorRequest : ActionRequest {
         refreshPolicy = WriteRequest.RefreshPolicy.readFrom(sin),
         method = sin.readEnum(RestRequest.Method::class.java),
         monitor = Monitor.readFrom(sin) as Monitor,
-        rbacRoles = sin.readOptionalStringList()
+        rbacRoles = sin.readOptionalStringList(),
     )
 
     override fun validate(): ActionRequestValidationException? {
@@ -65,10 +65,15 @@ class IndexMonitorRequest : ActionRequest {
     private fun hasDocLeveMonitorInput() = monitor.inputs.isNotEmpty() && monitor.inputs[0] is DocLevelMonitorInput
 
     private fun isDocLevelMonitor() =
-        monitor.monitorType.isNotBlank() && isMonitorOfStandardType(monitor.monitorType) && Monitor.MonitorType.valueOf(this.monitor.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.DOC_LEVEL_MONITOR
+        monitor.monitorType.isNotBlank() && isMonitorOfStandardType(monitor.monitorType) &&
+            Monitor.MonitorType.valueOf(this.monitor.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.DOC_LEVEL_MONITOR
 
     private fun isMonitorOfStandardType(monitorType: String): Boolean {
-        val standardMonitorTypes = Monitor.MonitorType.values().map { it.value.uppercase(Locale.ROOT) }.toSet()
+        val standardMonitorTypes =
+            Monitor.MonitorType
+                .values()
+                .map { it.value.uppercase(Locale.ROOT) }
+                .toSet()
         return standardMonitorTypes.contains(monitorType.uppercase(Locale.ROOT))
     }
 

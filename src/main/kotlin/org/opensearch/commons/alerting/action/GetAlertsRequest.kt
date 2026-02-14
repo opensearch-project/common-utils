@@ -28,7 +28,7 @@ class GetAlertsRequest : ActionRequest {
         monitorIds: List<String>? = null,
         workflowIds: List<String>? = null,
         alertIds: List<String>? = null,
-        boolQueryBuilder: BoolQueryBuilder? = null
+        boolQueryBuilder: BoolQueryBuilder? = null,
     ) : super() {
         this.table = table
         this.severityLevel = severityLevel
@@ -51,12 +51,10 @@ class GetAlertsRequest : ActionRequest {
         monitorIds = sin.readOptionalStringList(),
         workflowIds = sin.readOptionalStringList(),
         alertIds = sin.readOptionalStringList(),
-        boolQueryBuilder = if (sin.readOptionalBoolean() == true) BoolQueryBuilder(sin) else null
+        boolQueryBuilder = if (sin.readOptionalBoolean() == true) BoolQueryBuilder(sin) else null,
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

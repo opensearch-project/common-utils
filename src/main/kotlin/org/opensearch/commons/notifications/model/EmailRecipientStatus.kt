@@ -23,9 +23,8 @@ import java.io.IOException
  */
 data class EmailRecipientStatus(
     val recipient: String,
-    val deliveryStatus: DeliveryStatus
+    val deliveryStatus: DeliveryStatus,
 ) : BaseModel {
-
     init {
         validateEmail(recipient)
     }
@@ -51,14 +50,20 @@ data class EmailRecipientStatus(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    RECIPIENT_TAG -> recipient = parser.text()
-                    DELIVERY_STATUS_TAG -> deliveryStatus = DeliveryStatus.parse(parser)
+                    RECIPIENT_TAG -> {
+                        recipient = parser.text()
+                    }
+
+                    DELIVERY_STATUS_TAG -> {
+                        deliveryStatus = DeliveryStatus.parse(parser)
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing Email Recipient Status")
@@ -77,7 +82,7 @@ data class EmailRecipientStatus(
      */
     constructor(input: StreamInput) : this(
         recipient = input.readString(),
-        deliveryStatus = DeliveryStatus.reader.read(input)
+        deliveryStatus = DeliveryStatus.reader.read(input),
     )
 
     /**
@@ -91,9 +96,13 @@ data class EmailRecipientStatus(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(RECIPIENT_TAG, recipient)
             .field(DELIVERY_STATUS_TAG, deliveryStatus)
             .endObject()

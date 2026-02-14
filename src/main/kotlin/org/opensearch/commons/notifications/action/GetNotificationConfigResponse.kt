@@ -20,7 +20,6 @@ class GetNotificationConfigResponse : BaseResponse {
     val searchResult: NotificationConfigSearchResult
 
     companion object {
-
         /**
          * reader to create instance of class from writable.
          */
@@ -32,9 +31,8 @@ class GetNotificationConfigResponse : BaseResponse {
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): GetNotificationConfigResponse {
-            return GetNotificationConfigResponse(NotificationConfigSearchResult(parser))
-        }
+        fun parse(parser: XContentParser): GetNotificationConfigResponse =
+            GetNotificationConfigResponse(NotificationConfigSearchResult(parser))
     }
 
     /**
@@ -64,7 +62,8 @@ class GetNotificationConfigResponse : BaseResponse {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return searchResult.toXContent(builder, params)
-    }
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder = searchResult.toXContent(builder, params)
 }

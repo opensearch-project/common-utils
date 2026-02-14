@@ -50,7 +50,6 @@ import org.opensearch.transport.client.node.NodeClient
 @Suppress("UNCHECKED_CAST")
 @ExtendWith(MockitoExtension::class)
 internal class AlertingPluginInterfaceTests {
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private lateinit var client: NodeClient
 
@@ -59,21 +58,24 @@ internal class AlertingPluginInterfaceTests {
         val monitor = randomQueryLevelMonitor()
 
         val request = mock(IndexMonitorRequest::class.java)
-        val response = IndexMonitorResponse(
-            Monitor.NO_ID,
-            Monitor.NO_VERSION,
-            SequenceNumbers.UNASSIGNED_SEQ_NO,
-            SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
-            monitor
-        )
+        val response =
+            IndexMonitorResponse(
+                Monitor.NO_ID,
+                Monitor.NO_VERSION,
+                SequenceNumbers.UNASSIGNED_SEQ_NO,
+                SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
+                monitor,
+            )
         val listener: ActionListener<IndexMonitorResponse> =
             mock(ActionListener::class.java) as ActionListener<IndexMonitorResponse>
         val namedWriteableRegistry = NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<IndexMonitorResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<IndexMonitorResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
         AlertingPluginInterface.indexMonitor(client, request, namedWriteableRegistry, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
@@ -84,20 +86,23 @@ internal class AlertingPluginInterfaceTests {
         val workflow = randomWorkflow()
 
         val request = mock(IndexWorkflowRequest::class.java)
-        val response = IndexWorkflowResponse(
-            Workflow.NO_ID,
-            Workflow.NO_VERSION,
-            SequenceNumbers.UNASSIGNED_SEQ_NO,
-            SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
-            workflow
-        )
+        val response =
+            IndexWorkflowResponse(
+                Workflow.NO_ID,
+                Workflow.NO_VERSION,
+                SequenceNumbers.UNASSIGNED_SEQ_NO,
+                SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
+                workflow,
+            )
         val listener: ActionListener<IndexWorkflowResponse> =
             mock(ActionListener::class.java) as ActionListener<IndexWorkflowResponse>
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<IndexWorkflowResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<IndexWorkflowResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
         AlertingPluginInterface.indexWorkflow(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
@@ -108,21 +113,24 @@ internal class AlertingPluginInterfaceTests {
         val monitor = randomBucketLevelMonitor()
 
         val request = mock(IndexMonitorRequest::class.java)
-        val response = IndexMonitorResponse(
-            Monitor.NO_ID,
-            Monitor.NO_VERSION,
-            SequenceNumbers.UNASSIGNED_SEQ_NO,
-            SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
-            monitor
-        )
+        val response =
+            IndexMonitorResponse(
+                Monitor.NO_ID,
+                Monitor.NO_VERSION,
+                SequenceNumbers.UNASSIGNED_SEQ_NO,
+                SequenceNumbers.UNASSIGNED_PRIMARY_TERM,
+                monitor,
+            )
         val listener: ActionListener<IndexMonitorResponse> =
             mock(ActionListener::class.java) as ActionListener<IndexMonitorResponse>
         val namedWriteableRegistry = NamedWriteableRegistry(SearchModule(Settings.EMPTY, emptyList()).namedWriteables)
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<IndexMonitorResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<IndexMonitorResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.indexMonitor(client, request, namedWriteableRegistry, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
@@ -135,10 +143,12 @@ internal class AlertingPluginInterfaceTests {
         val listener: ActionListener<DeleteMonitorResponse> =
             mock(ActionListener::class.java) as ActionListener<DeleteMonitorResponse>
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<DeleteMonitorResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<DeleteMonitorResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
         AlertingPluginInterface.deleteMonitor(client, request, listener)
     }
@@ -150,10 +160,12 @@ internal class AlertingPluginInterfaceTests {
         val listener: ActionListener<DeleteWorkflowResponse> =
             mock(ActionListener::class.java) as ActionListener<DeleteWorkflowResponse>
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<DeleteWorkflowResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<DeleteWorkflowResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
         AlertingPluginInterface.deleteWorkflow(client, request, listener)
     }
@@ -161,21 +173,24 @@ internal class AlertingPluginInterfaceTests {
     @Test
     fun getWorkflow() {
         val request = mock(GetWorkflowRequest::class.java)
-        val response = GetWorkflowResponse(
-            id = "id",
-            version = 1,
-            seqNo = 1,
-            primaryTerm = 1,
-            status = RestStatus.OK,
-            workflow = randomWorkflow()
-        )
+        val response =
+            GetWorkflowResponse(
+                id = "id",
+                version = 1,
+                seqNo = 1,
+                primaryTerm = 1,
+                status = RestStatus.OK,
+                workflow = randomWorkflow(),
+            )
         val listener: ActionListener<GetWorkflowResponse> =
             mock(ActionListener::class.java) as ActionListener<GetWorkflowResponse>
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<GetWorkflowResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<GetWorkflowResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
 
         AlertingPluginInterface.getWorkflow(client, request, listener)
     }
@@ -189,10 +204,12 @@ internal class AlertingPluginInterfaceTests {
         val listener: ActionListener<GetAlertsResponse> =
             mock(ActionListener::class.java) as ActionListener<GetAlertsResponse>
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<GetAlertsResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<GetAlertsResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.getAlerts(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
@@ -204,10 +221,12 @@ internal class AlertingPluginInterfaceTests {
         val listener: ActionListener<GetWorkflowAlertsResponse> =
             mock(ActionListener::class.java) as ActionListener<GetWorkflowAlertsResponse>
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<GetWorkflowAlertsResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<GetWorkflowAlertsResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.getWorkflowAlerts(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
@@ -228,10 +247,12 @@ internal class AlertingPluginInterfaceTests {
         val listener: ActionListener<GetFindingsResponse> =
             mock(ActionListener::class.java) as ActionListener<GetFindingsResponse>
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<GetFindingsResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<GetFindingsResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.getFindings(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
@@ -243,10 +264,12 @@ internal class AlertingPluginInterfaceTests {
         val listener: ActionListener<SubscribeFindingsResponse> =
             mock(ActionListener::class.java) as ActionListener<SubscribeFindingsResponse>
 
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<SubscribeFindingsResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<SubscribeFindingsResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.publishFinding(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
@@ -257,10 +280,12 @@ internal class AlertingPluginInterfaceTests {
         val response = AcknowledgeAlertResponse(acknowledged = listOf(), failed = listOf(), missing = listOf())
         val listener: ActionListener<AcknowledgeAlertResponse> =
             mock(ActionListener::class.java) as ActionListener<AcknowledgeAlertResponse>
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<AcknowledgeAlertResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<AcknowledgeAlertResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.acknowledgeAlerts(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
@@ -271,10 +296,12 @@ internal class AlertingPluginInterfaceTests {
         val response = AcknowledgeAlertResponse(acknowledged = listOf(), failed = listOf(), missing = listOf())
         val listener: ActionListener<AcknowledgeAlertResponse> =
             mock(ActionListener::class.java) as ActionListener<AcknowledgeAlertResponse>
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<AcknowledgeAlertResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<AcknowledgeAlertResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.acknowledgeChainedAlerts(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
@@ -285,10 +312,12 @@ internal class AlertingPluginInterfaceTests {
         val response = GetMonitorResponse("test-id", 1, 1, 1, null, null)
         val listener: ActionListener<GetMonitorResponse> =
             mock(ActionListener::class.java) as ActionListener<GetMonitorResponse>
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<GetMonitorResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<GetMonitorResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.getMonitor(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }
@@ -299,10 +328,12 @@ internal class AlertingPluginInterfaceTests {
         val response = mock(SearchResponse::class.java)
         val listener: ActionListener<SearchResponse> =
             mock(ActionListener::class.java) as ActionListener<SearchResponse>
-        Mockito.doAnswer {
-            (it.getArgument(2) as ActionListener<SearchResponse>)
-                .onResponse(response)
-        }.whenever(client).execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
+        Mockito
+            .doAnswer {
+                (it.getArgument(2) as ActionListener<SearchResponse>)
+                    .onResponse(response)
+            }.whenever(client)
+            .execute(Mockito.any(ActionType::class.java), Mockito.any(), Mockito.any())
         AlertingPluginInterface.searchMonitors(client, request, listener)
         Mockito.verify(listener, Mockito.times(1)).onResponse(ArgumentMatchers.eq(response))
     }

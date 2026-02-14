@@ -21,7 +21,7 @@ data class RemoteMonitorTrigger(
     override val name: String,
     override val severity: String,
     override val actions: List<Action>,
-    val trigger: BytesReference
+    val trigger: BytesReference,
 ) : Trigger {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
@@ -29,7 +29,7 @@ data class RemoteMonitorTrigger(
         sin.readString(),
         sin.readString(),
         sin.readList(::Action),
-        sin.readBytesReference()
+        sin.readBytesReference(),
     )
 
     fun asTemplateArg(): Map<String, Any?> {
@@ -40,13 +40,11 @@ data class RemoteMonitorTrigger(
             Trigger.SEVERITY_FIELD to severity,
             Trigger.ACTIONS_FIELD to actions.map { it.asTemplateArg() },
             TRIGGER_SIZE to bytes.size,
-            TRIGGER_FIELD to bytes
+            TRIGGER_FIELD to bytes,
         )
     }
 
-    override fun name(): String {
-        return REMOTE_MONITOR_TRIGGER_FIELD
-    }
+    override fun name(): String = REMOTE_MONITOR_TRIGGER_FIELD
 
     override fun writeTo(out: StreamOutput) {
         out.writeString(id)
@@ -56,9 +54,13 @@ data class RemoteMonitorTrigger(
         out.writeBytesReference(trigger)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         val bytes = trigger.toBytesRef().bytes
-        return builder.startObject()
+        return builder
+            .startObject()
             .startObject(REMOTE_MONITOR_TRIGGER_FIELD)
             .field(Trigger.ID_FIELD, id)
             .field(Trigger.NAME_FIELD, name)
@@ -75,11 +77,12 @@ data class RemoteMonitorTrigger(
         const val TRIGGER_SIZE = "size"
         const val REMOTE_MONITOR_TRIGGER_FIELD = "remote_monitor_trigger"
 
-        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            Trigger::class.java,
-            ParseField(REMOTE_MONITOR_TRIGGER_FIELD),
-            CheckedFunction { parseInner(it) }
-        )
+        val XCONTENT_REGISTRY =
+            NamedXContentRegistry.Entry(
+                Trigger::class.java,
+                ParseField(REMOTE_MONITOR_TRIGGER_FIELD),
+                CheckedFunction { parseInner(it) },
+            )
 
         fun parseInner(xcp: XContentParser): RemoteMonitorTrigger {
             var id = UUIDs.base64UUID() // assign a default triggerId if one is not specified
@@ -101,21 +104,36 @@ data class RemoteMonitorTrigger(
                 xcp.nextToken()
 
                 when (fieldName) {
-                    Trigger.ID_FIELD -> id = xcp.text()
-                    Trigger.NAME_FIELD -> name = xcp.text()
-                    Trigger.SEVERITY_FIELD -> severity = xcp.text()
+                    Trigger.ID_FIELD -> {
+                        id = xcp.text()
+                    }
+
+                    Trigger.NAME_FIELD -> {
+                        name = xcp.text()
+                    }
+
+                    Trigger.SEVERITY_FIELD -> {
+                        severity = xcp.text()
+                    }
+
                     Trigger.ACTIONS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             actions.add(Action.parse(xcp))
                         }
                     }
-                    TRIGGER_FIELD -> bytes = xcp.binaryValue()
-                    TRIGGER_SIZE -> size = xcp.intValue()
+
+                    TRIGGER_FIELD -> {
+                        bytes = xcp.binaryValue()
+                    }
+
+                    TRIGGER_SIZE -> {
+                        size = xcp.intValue()
+                    }
                 }
                 xcp.nextToken()
             }

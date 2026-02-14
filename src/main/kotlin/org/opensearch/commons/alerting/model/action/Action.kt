@@ -19,9 +19,8 @@ data class Action(
     val throttleEnabled: Boolean,
     val throttle: Throttle?,
     val id: String = UUIDs.base64UUID(),
-    val actionExecutionPolicy: ActionExecutionPolicy? = null
+    val actionExecutionPolicy: ActionExecutionPolicy? = null,
 ) : BaseModel {
-
     init {
         if (subjectTemplate != null) {
             require(subjectTemplate.lang == MUSTACHE) { "subject_template must be a mustache script" }
@@ -42,16 +41,21 @@ data class Action(
         sin.readBoolean(), // throttleEnabled
         sin.readOptionalWriteable(::Throttle), // throttle
         sin.readString(), // id
-        sin.readOptionalWriteable(::ActionExecutionPolicy) // actionExecutionPolicy
+        sin.readOptionalWriteable(::ActionExecutionPolicy), // actionExecutionPolicy
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        val xContentBuilder = builder.startObject()
-            .field(ID_FIELD, id)
-            .field(NAME_FIELD, name)
-            .field(DESTINATION_ID_FIELD, destinationId)
-            .field(MESSAGE_TEMPLATE_FIELD, messageTemplate)
-            .field(THROTTLE_ENABLED_FIELD, throttleEnabled)
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        val xContentBuilder =
+            builder
+                .startObject()
+                .field(ID_FIELD, id)
+                .field(NAME_FIELD, name)
+                .field(DESTINATION_ID_FIELD, destinationId)
+                .field(MESSAGE_TEMPLATE_FIELD, messageTemplate)
+                .field(THROTTLE_ENABLED_FIELD, throttleEnabled)
         if (subjectTemplate != null) {
             xContentBuilder.field(SUBJECT_TEMPLATE_FIELD, subjectTemplate)
         }
@@ -64,14 +68,13 @@ data class Action(
         return xContentBuilder.endObject()
     }
 
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any> =
+        mapOf(
             ID_FIELD to id,
             NAME_FIELD to name,
             DESTINATION_ID_FIELD to destinationId,
-            THROTTLE_ENABLED_FIELD to throttleEnabled
+            THROTTLE_ENABLED_FIELD to throttleEnabled,
         )
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -131,30 +134,48 @@ data class Action(
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
                 when (fieldName) {
-                    ID_FIELD -> id = xcp.text()
-                    NAME_FIELD -> name = xcp.textOrNull()
-                    DESTINATION_ID_FIELD -> destinationId = xcp.textOrNull()
-                    SUBJECT_TEMPLATE_FIELD -> {
-                        subjectTemplate = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                            null
-                        } else {
-                            Script.parse(xcp, Script.DEFAULT_TEMPLATE_LANG)
-                        }
+                    ID_FIELD -> {
+                        id = xcp.text()
                     }
-                    MESSAGE_TEMPLATE_FIELD -> messageTemplate = Script.parse(xcp, Script.DEFAULT_TEMPLATE_LANG)
+
+                    NAME_FIELD -> {
+                        name = xcp.textOrNull()
+                    }
+
+                    DESTINATION_ID_FIELD -> {
+                        destinationId = xcp.textOrNull()
+                    }
+
+                    SUBJECT_TEMPLATE_FIELD -> {
+                        subjectTemplate =
+                            if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                                null
+                            } else {
+                                Script.parse(xcp, Script.DEFAULT_TEMPLATE_LANG)
+                            }
+                    }
+
+                    MESSAGE_TEMPLATE_FIELD -> {
+                        messageTemplate = Script.parse(xcp, Script.DEFAULT_TEMPLATE_LANG)
+                    }
+
                     THROTTLE_FIELD -> {
                         throttle = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else Throttle.parse(xcp)
                     }
+
                     THROTTLE_ENABLED_FIELD -> {
                         throttleEnabled = xcp.booleanValue()
                     }
+
                     ACTION_EXECUTION_POLICY_FIELD -> {
-                        actionExecutionPolicy = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                            null
-                        } else {
-                            ActionExecutionPolicy.parse(xcp)
-                        }
+                        actionExecutionPolicy =
+                            if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                                null
+                            } else {
+                                ActionExecutionPolicy.parse(xcp)
+                            }
                     }
+
                     else -> {
                         throw IllegalStateException("Unexpected field: $fieldName, while parsing action")
                     }
@@ -173,14 +194,12 @@ data class Action(
                 throttleEnabled,
                 throttle,
                 id = requireNotNull(id),
-                actionExecutionPolicy = actionExecutionPolicy
+                actionExecutionPolicy = actionExecutionPolicy,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Action {
-            return Action(sin)
-        }
+        fun readFrom(sin: StreamInput): Action = Action(sin)
     }
 }

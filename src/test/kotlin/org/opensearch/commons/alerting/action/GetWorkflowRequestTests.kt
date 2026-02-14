@@ -7,7 +7,6 @@ import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.rest.RestRequest
 
 class GetWorkflowRequestTests {
-
     @Test
     fun testGetWorkflowRequest() {
         val request = GetWorkflowRequest("w1", RestRequest.Method.GET)

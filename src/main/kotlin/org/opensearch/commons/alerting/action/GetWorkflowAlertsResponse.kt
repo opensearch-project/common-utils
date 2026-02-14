@@ -20,7 +20,7 @@ class GetWorkflowAlertsResponse : BaseResponse {
     constructor(
         alerts: List<Alert>,
         associatedAlerts: List<Alert>,
-        totalAlerts: Int?
+        totalAlerts: Int?,
     ) : super() {
         this.alerts = alerts
         this.associatedAlerts = associatedAlerts
@@ -31,7 +31,7 @@ class GetWorkflowAlertsResponse : BaseResponse {
     constructor(sin: StreamInput) : this(
         alerts = Collections.unmodifiableList(sin.readList(::Alert)),
         associatedAlerts = Collections.unmodifiableList(sin.readList(::Alert)),
-        totalAlerts = sin.readOptionalInt()
+        totalAlerts = sin.readOptionalInt(),
     )
 
     @Throws(IOException::class)
@@ -42,8 +42,12 @@ class GetWorkflowAlertsResponse : BaseResponse {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field("alerts", alerts)
             .field("associatedAlerts", associatedAlerts)
             .field("totalAlerts", totalAlerts)

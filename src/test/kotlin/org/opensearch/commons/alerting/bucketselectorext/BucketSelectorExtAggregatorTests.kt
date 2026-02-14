@@ -14,6 +14,7 @@ import org.apache.lucene.search.Query
 import org.apache.lucene.tests.index.RandomIndexWriter
 import org.apache.lucene.util.BytesRef
 import org.hamcrest.CoreMatchers
+import org.junit.Test
 import org.opensearch.common.CheckedConsumer
 import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
@@ -47,45 +48,47 @@ import java.util.function.Consumer
 import java.util.function.Function
 
 class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
-
-    private var SCRIPTNAME = "bucket_selector_script"
+    private var scriptName = "bucket_selector_script"
     private var paramName = "the_avg"
     private var paramValue = 19.0
 
     override fun getMockScriptService(): ScriptService {
-        val scriptEngine = MockScriptEngine(
-            MockScriptEngine.NAME,
-            Collections.singletonMap(
-                SCRIPTNAME,
-                Function<Map<String?, Any?>, Any> { script: Map<String?, Any?> ->
-                    script[paramName].toString().toDouble() == paramValue
-                }
-            ),
-            emptyMap()
-        )
+        val scriptEngine =
+            MockScriptEngine(
+                MockScriptEngine.NAME,
+                Collections.singletonMap(
+                    scriptName,
+                    Function<Map<String?, Any?>, Any> { script: Map<String?, Any?> ->
+                        script[paramName].toString().toDouble() == paramValue
+                    },
+                ),
+                emptyMap(),
+            )
         val engines: Map<String, ScriptEngine> = Collections.singletonMap(scriptEngine.type, scriptEngine)
         return ScriptService(Settings.EMPTY, engines, ScriptModule.CORE_CONTEXTS)
     }
 
+    @Test
     @Throws(Exception::class)
     fun `test bucket selector script`() {
         val fieldType: MappedFieldType = NumberFieldType("number_field", NumberFieldMapper.NumberType.INTEGER)
         val fieldType1: MappedFieldType = KeywordFieldType("the_field")
 
-        val filters: FiltersAggregationBuilder = FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
-            .subAggregation(
-                TermsAggregationBuilder("the_terms").field("the_field")
-                    .subAggregation(AvgAggregationBuilder("the_avg").field("number_field"))
-            )
-            .subAggregation(
-                BucketSelectorExtAggregationBuilder(
-                    "test_bucket_selector_ext",
-                    Collections.singletonMap("the_avg", "the_avg.value"),
-                    Script(ScriptType.INLINE, MockScriptEngine.NAME, SCRIPTNAME, emptyMap()),
-                    "the_terms",
-                    null
+        val filters: FiltersAggregationBuilder =
+            FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
+                .subAggregation(
+                    TermsAggregationBuilder("the_terms")
+                        .field("the_field")
+                        .subAggregation(AvgAggregationBuilder("the_avg").field("number_field")),
+                ).subAggregation(
+                    BucketSelectorExtAggregationBuilder(
+                        "test_bucket_selector_ext",
+                        Collections.singletonMap("the_avg", "the_avg.value"),
+                        Script(ScriptType.INLINE, MockScriptEngine.NAME, scriptName, emptyMap()),
+                        "the_terms",
+                        null,
+                    ),
                 )
-            )
         paramName = "the_avg"
         paramValue = 19.0
         testCase(
@@ -105,49 +108,52 @@ class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
                 val bucketSelectorIndices = f.buckets[0].aggregations.get<Aggregation>("test_bucket_selector_ext") as BucketSelectorIndices
                 assertThat(
                     bucketSelectorIndices.bucketIndices[0],
-                    CoreMatchers.equalTo(1)
+                    CoreMatchers.equalTo(1),
                 )
                 assertEquals(BucketSelectorExtAggregationBuilder.NAME.preferredName, bucketSelectorIndices.writeableName)
             },
             fieldType,
-            fieldType1
+            fieldType1,
         )
     }
 
+    @Test
     @Throws(Exception::class)
     fun `test bucket selector filter include`() {
         val fieldType: MappedFieldType = NumberFieldType("number_field", NumberFieldMapper.NumberType.INTEGER)
         val fieldType1: MappedFieldType = KeywordFieldType("the_field")
 
-        val selectorAgg1: FiltersAggregationBuilder = FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
-            .subAggregation(
-                TermsAggregationBuilder("the_terms").field("the_field")
-                    .subAggregation(AvgAggregationBuilder("the_avg").field("number_field"))
-            )
-            .subAggregation(
-                BucketSelectorExtAggregationBuilder(
-                    "test_bucket_selector_ext",
-                    Collections.singletonMap("the_avg", "the_avg.value"),
-                    Script(ScriptType.INLINE, MockScriptEngine.NAME, SCRIPTNAME, emptyMap()),
-                    "the_terms",
-                    BucketSelectorExtFilter(IncludeExclude(arrayOf("test1"), arrayOf()))
+        val selectorAgg1: FiltersAggregationBuilder =
+            FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
+                .subAggregation(
+                    TermsAggregationBuilder("the_terms")
+                        .field("the_field")
+                        .subAggregation(AvgAggregationBuilder("the_avg").field("number_field")),
+                ).subAggregation(
+                    BucketSelectorExtAggregationBuilder(
+                        "test_bucket_selector_ext",
+                        Collections.singletonMap("the_avg", "the_avg.value"),
+                        Script(ScriptType.INLINE, MockScriptEngine.NAME, scriptName, emptyMap()),
+                        "the_terms",
+                        BucketSelectorExtFilter(IncludeExclude(arrayOf("test1"), arrayOf())),
+                    ),
                 )
-            )
 
-        val selectorAgg2: FiltersAggregationBuilder = FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
-            .subAggregation(
-                TermsAggregationBuilder("the_terms").field("the_field")
-                    .subAggregation(AvgAggregationBuilder("the_avg").field("number_field"))
-            )
-            .subAggregation(
-                BucketSelectorExtAggregationBuilder(
-                    "test_bucket_selector_ext",
-                    Collections.singletonMap("the_avg", "the_avg.value"),
-                    Script(ScriptType.INLINE, MockScriptEngine.NAME, SCRIPTNAME, emptyMap()),
-                    "the_terms",
-                    BucketSelectorExtFilter(IncludeExclude(arrayOf("test2"), arrayOf()))
+        val selectorAgg2: FiltersAggregationBuilder =
+            FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
+                .subAggregation(
+                    TermsAggregationBuilder("the_terms")
+                        .field("the_field")
+                        .subAggregation(AvgAggregationBuilder("the_avg").field("number_field")),
+                ).subAggregation(
+                    BucketSelectorExtAggregationBuilder(
+                        "test_bucket_selector_ext",
+                        Collections.singletonMap("the_avg", "the_avg.value"),
+                        Script(ScriptType.INLINE, MockScriptEngine.NAME, scriptName, emptyMap()),
+                        "the_terms",
+                        BucketSelectorExtFilter(IncludeExclude(arrayOf("test2"), arrayOf())),
+                    ),
                 )
-            )
 
         paramName = "the_avg"
         paramValue = 19.0
@@ -169,12 +175,12 @@ class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
                 val bucketSelectorIndices = f.buckets[0].aggregations.get<Aggregation>("test_bucket_selector_ext") as BucketSelectorIndices
                 assertThat(
                     bucketSelectorIndices.bucketIndices.size,
-                    CoreMatchers.equalTo(0)
+                    CoreMatchers.equalTo(0),
                 )
                 assertEquals(BucketSelectorExtAggregationBuilder.NAME.preferredName, bucketSelectorIndices.writeableName)
             },
             fieldType,
-            fieldType1
+            fieldType1,
         )
 
         testCase(
@@ -194,34 +200,36 @@ class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
                 val bucketSelectorIndices = f.buckets[0].aggregations.get<Aggregation>("test_bucket_selector_ext") as BucketSelectorIndices
                 assertThat(
                     bucketSelectorIndices.bucketIndices[0],
-                    CoreMatchers.equalTo(1)
+                    CoreMatchers.equalTo(1),
                 )
                 assertEquals(BucketSelectorExtAggregationBuilder.NAME.preferredName, bucketSelectorIndices.writeableName)
             },
             fieldType,
-            fieldType1
+            fieldType1,
         )
     }
 
+    @Test
     @Throws(Exception::class)
     fun `test bucket selector filter exclude`() {
         val fieldType: MappedFieldType = NumberFieldType("number_field", NumberFieldMapper.NumberType.INTEGER)
         val fieldType1: MappedFieldType = KeywordFieldType("the_field")
 
-        val selectorAgg1: FiltersAggregationBuilder = FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
-            .subAggregation(
-                TermsAggregationBuilder("the_terms").field("the_field")
-                    .subAggregation(AvgAggregationBuilder("the_avg").field("number_field"))
-            )
-            .subAggregation(
-                BucketSelectorExtAggregationBuilder(
-                    "test_bucket_selector_ext",
-                    Collections.singletonMap("the_avg", "the_avg.value"),
-                    Script(ScriptType.INLINE, MockScriptEngine.NAME, SCRIPTNAME, emptyMap()),
-                    "the_terms",
-                    BucketSelectorExtFilter(IncludeExclude(arrayOf(), arrayOf("test2")))
+        val selectorAgg1: FiltersAggregationBuilder =
+            FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
+                .subAggregation(
+                    TermsAggregationBuilder("the_terms")
+                        .field("the_field")
+                        .subAggregation(AvgAggregationBuilder("the_avg").field("number_field")),
+                ).subAggregation(
+                    BucketSelectorExtAggregationBuilder(
+                        "test_bucket_selector_ext",
+                        Collections.singletonMap("the_avg", "the_avg.value"),
+                        Script(ScriptType.INLINE, MockScriptEngine.NAME, scriptName, emptyMap()),
+                        "the_terms",
+                        BucketSelectorExtFilter(IncludeExclude(arrayOf(), arrayOf("test2"))),
+                    ),
                 )
-            )
         paramName = "the_avg"
         paramValue = 19.0
         testCase(
@@ -241,34 +249,36 @@ class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
                 val bucketSelectorIndices = f.buckets[0].aggregations.get<Aggregation>("test_bucket_selector_ext") as BucketSelectorIndices
                 assertThat(
                     bucketSelectorIndices.bucketIndices.size,
-                    CoreMatchers.equalTo(0)
+                    CoreMatchers.equalTo(0),
                 )
                 assertEquals(BucketSelectorExtAggregationBuilder.NAME.preferredName, bucketSelectorIndices.writeableName)
             },
             fieldType,
-            fieldType1
+            fieldType1,
         )
     }
 
+    @Test
     @Throws(Exception::class)
     fun `test bucket selector filter numeric key`() {
         val fieldType: MappedFieldType = NumberFieldType("number_field", NumberFieldMapper.NumberType.INTEGER)
         val fieldType1: MappedFieldType = KeywordFieldType("the_field")
 
-        val selectorAgg1: FiltersAggregationBuilder = FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
-            .subAggregation(
-                TermsAggregationBuilder("number_agg").field("number_field")
-                    .subAggregation(ValueCountAggregationBuilder("count").field("number_field"))
-            )
-            .subAggregation(
-                BucketSelectorExtAggregationBuilder(
-                    "test_bucket_selector_ext",
-                    Collections.singletonMap("count", "count"),
-                    Script(ScriptType.INLINE, MockScriptEngine.NAME, SCRIPTNAME, emptyMap()),
-                    "number_agg",
-                    BucketSelectorExtFilter(IncludeExclude(doubleArrayOf(19.0), doubleArrayOf()))
+        val selectorAgg1: FiltersAggregationBuilder =
+            FiltersAggregationBuilder("placeholder", MatchAllQueryBuilder())
+                .subAggregation(
+                    TermsAggregationBuilder("number_agg")
+                        .field("number_field")
+                        .subAggregation(ValueCountAggregationBuilder("count").field("number_field")),
+                ).subAggregation(
+                    BucketSelectorExtAggregationBuilder(
+                        "test_bucket_selector_ext",
+                        Collections.singletonMap("count", "count"),
+                        Script(ScriptType.INLINE, MockScriptEngine.NAME, scriptName, emptyMap()),
+                        "number_agg",
+                        BucketSelectorExtFilter(IncludeExclude(doubleArrayOf(19.0), doubleArrayOf())),
+                    ),
                 )
-            )
 
         paramName = "count"
         paramValue = 1.0
@@ -289,37 +299,39 @@ class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
                 val bucketSelectorIndices = f.buckets[0].aggregations.get<Aggregation>("test_bucket_selector_ext") as BucketSelectorIndices
                 assertThat(
                     bucketSelectorIndices.bucketIndices[0],
-                    CoreMatchers.equalTo(0)
+                    CoreMatchers.equalTo(0),
                 )
                 assertEquals(BucketSelectorExtAggregationBuilder.NAME.preferredName, bucketSelectorIndices.writeableName)
             },
             fieldType,
-            fieldType1
+            fieldType1,
         )
     }
 
+    @Test
     @Throws(Exception::class)
     fun `test bucket selector nested parent path`() {
         val fieldType: MappedFieldType = NumberFieldType("number_field", NumberFieldMapper.NumberType.INTEGER)
         val fieldType1: MappedFieldType = KeywordFieldType("the_field")
 
-        val selectorAgg1: FilterAggregationBuilder = FilterAggregationBuilder("placeholder", MatchAllQueryBuilder())
-            .subAggregation(
-                FilterAggregationBuilder("parent_agg", MatchAllQueryBuilder())
-                    .subAggregation(
-                        TermsAggregationBuilder("term_agg").field("the_field")
-                            .subAggregation(AvgAggregationBuilder("the_avg").field("number_field"))
-                    )
-            )
-            .subAggregation(
-                BucketSelectorExtAggregationBuilder(
-                    "test_bucket_selector_ext",
-                    Collections.singletonMap("the_avg", "the_avg.value"),
-                    Script(ScriptType.INLINE, MockScriptEngine.NAME, SCRIPTNAME, emptyMap()),
-                    "parent_agg>term_agg",
-                    null
+        val selectorAgg1: FilterAggregationBuilder =
+            FilterAggregationBuilder("placeholder", MatchAllQueryBuilder())
+                .subAggregation(
+                    FilterAggregationBuilder("parent_agg", MatchAllQueryBuilder())
+                        .subAggregation(
+                            TermsAggregationBuilder("term_agg")
+                                .field("the_field")
+                                .subAggregation(AvgAggregationBuilder("the_avg").field("number_field")),
+                        ),
+                ).subAggregation(
+                    BucketSelectorExtAggregationBuilder(
+                        "test_bucket_selector_ext",
+                        Collections.singletonMap("the_avg", "the_avg.value"),
+                        Script(ScriptType.INLINE, MockScriptEngine.NAME, scriptName, emptyMap()),
+                        "parent_agg>term_agg",
+                        null,
+                    ),
                 )
-            )
         paramName = "the_avg"
         paramValue = 19.0
         testCaseInternalFilter(
@@ -341,12 +353,12 @@ class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
                 val bucketSelectorIndices = f.aggregations.get<Aggregation>("test_bucket_selector_ext") as BucketSelectorIndices
                 assertThat(
                     bucketSelectorIndices.bucketIndices[0],
-                    CoreMatchers.equalTo(1)
+                    CoreMatchers.equalTo(1),
                 )
                 assertEquals(BucketSelectorExtAggregationBuilder.NAME.preferredName, bucketSelectorIndices.writeableName)
             },
             fieldType,
-            fieldType1
+            fieldType1,
         )
     }
 
@@ -356,7 +368,7 @@ class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
         query: Query,
         buildIndex: CheckedConsumer<RandomIndexWriter, IOException>,
         verify: Consumer<InternalFilters>,
-        vararg fieldType: MappedFieldType
+        vararg fieldType: MappedFieldType,
     ) {
         newDirectory().use { directory ->
             val indexWriter = RandomIndexWriter(random(), directory)
@@ -377,7 +389,7 @@ class BucketSelectorExtAggregatorTests : AggregatorTestCase() {
         query: Query,
         buildIndex: CheckedConsumer<RandomIndexWriter, IOException>,
         verify: Consumer<InternalFilter>,
-        vararg fieldType: MappedFieldType
+        vararg fieldType: MappedFieldType,
     ) {
         newDirectory().use { directory ->
             val indexWriter = RandomIndexWriter(random(), directory)

@@ -14,21 +14,23 @@ import java.util.Locale
 
 data class Throttle(
     val value: Int,
-    val unit: ChronoUnit
+    val unit: ChronoUnit,
 ) : BaseModel {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this (
         sin.readInt(), // value
-        sin.readEnum(ChronoUnit::class.java) // unit
+        sin.readEnum(ChronoUnit::class.java), // unit
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(VALUE_FIELD, value)
             .field(UNIT_FIELD, unit.name)
             .endObject()
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -56,6 +58,7 @@ data class Throttle(
                         require(StringUtils.equals(unitString, ChronoUnit.MINUTES.name), { "Only support MINUTES throttle unit currently" })
                         unit = ChronoUnit.valueOf(unitString)
                     }
+
                     VALUE_FIELD -> {
                         val currentToken = xcp.currentToken()
                         require(currentToken != XContentParser.Token.VALUE_NULL, { "Throttle value can't be null" })
@@ -64,6 +67,7 @@ data class Throttle(
                                 value = xcp.intValue()
                                 require(value > 0, { "Can only set positive throttle period" })
                             }
+
                             else -> {
                                 XContentParserUtils.throwUnknownToken(currentToken, xcp.tokenLocation)
                             }
@@ -80,8 +84,6 @@ data class Throttle(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Throttle {
-            return Throttle(sin)
-        }
+        fun readFrom(sin: StreamInput): Throttle = Throttle(sin)
     }
 }

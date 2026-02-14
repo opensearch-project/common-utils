@@ -10,7 +10,6 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 sealed class ActionExecutionScope : BaseModel {
-
     enum class Type { PER_ALERT, PER_EXECUTION }
 
     companion object {
@@ -46,7 +45,7 @@ sealed class ActionExecutionScope : BaseModel {
                                     XContentParserUtils.ensureExpectedToken(
                                         XContentParser.Token.START_ARRAY,
                                         xcp.currentToken(),
-                                        xcp
+                                        xcp,
                                     )
                                     val allowedCategories = AlertCategory.values().map { it.toString() }
                                     while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
@@ -57,19 +56,26 @@ sealed class ActionExecutionScope : BaseModel {
                                         alertFilter.add(AlertCategory.valueOf(alertCategory))
                                     }
                                 }
-                                else -> throw IllegalArgumentException(
-                                    "Invalid field [$perAlertFieldName] found in per alert action execution scope."
-                                )
+
+                                else -> {
+                                    throw IllegalArgumentException(
+                                        "Invalid field [$perAlertFieldName] found in per alert action execution scope.",
+                                    )
+                                }
                             }
                         }
                     }
+
                     PER_EXECUTION_FIELD -> {
                         type = Type.PER_EXECUTION
                         while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
                             // empty while block
                         }
                     }
-                    else -> throw IllegalArgumentException("Invalid field [$fieldName] found in action execution scope.")
+
+                    else -> {
+                        throw IllegalArgumentException("Invalid field [$fieldName] found in action execution scope.")
+                    }
                 }
             }
 
@@ -98,18 +104,21 @@ sealed class ActionExecutionScope : BaseModel {
 }
 
 data class PerAlertActionScope(
-    val actionableAlerts: Set<AlertCategory>
+    val actionableAlerts: Set<AlertCategory>,
 ) : ActionExecutionScope() {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        sin.readSet { si -> si.readEnum(AlertCategory::class.java) } // alertFilter
+        sin.readSet { si -> si.readEnum(AlertCategory::class.java) }, // alertFilter
     )
 
     override fun getExecutionScope(): Type = Type.PER_ALERT
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startObject(PER_ALERT_FIELD)
             .field(ACTIONABLE_ALERTS_FIELD, actionableAlerts.toTypedArray())
             .endObject()
@@ -124,20 +133,15 @@ data class PerAlertActionScope(
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): PerAlertActionScope {
-            return PerAlertActionScope(sin)
-        }
+        fun readFrom(sin: StreamInput): PerAlertActionScope = PerAlertActionScope(sin)
     }
 }
 
 class PerExecutionActionScope() : ActionExecutionScope() {
-
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this()
 
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
+    override fun hashCode(): Int = javaClass.hashCode()
 
     // Creating an equals method that just checks class type rather than reference since this is currently stateless.
     // Otherwise, it would have been a dataclass which would have handled this.
@@ -149,8 +153,12 @@ class PerExecutionActionScope() : ActionExecutionScope() {
 
     override fun getExecutionScope(): Type = Type.PER_EXECUTION
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .startObject(PER_EXECUTION_FIELD)
             .endObject()
         return builder.endObject()
@@ -164,9 +172,7 @@ class PerExecutionActionScope() : ActionExecutionScope() {
     companion object {
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): PerExecutionActionScope {
-            return PerExecutionActionScope(sin)
-        }
+        fun readFrom(sin: StreamInput): PerExecutionActionScope = PerExecutionActionScope(sin)
     }
 }
 

@@ -34,7 +34,9 @@ import java.io.IOException
 /**
  * Action Request for getting notification configuration.
  */
-class GetNotificationConfigRequest : ActionRequest, ToXContentObject {
+class GetNotificationConfigRequest :
+    ActionRequest,
+    ToXContentObject {
     val configIds: Set<String>
     val fromIndex: Int
     val maxItems: Int
@@ -67,18 +69,36 @@ class GetNotificationConfigRequest : ActionRequest, ToXContentObject {
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    CONFIG_ID_LIST_TAG -> configIdList = parser.stringList().toSet()
-                    FROM_INDEX_TAG -> fromIndex = parser.intValue()
-                    MAX_ITEMS_TAG -> maxItems = parser.intValue()
-                    SORT_FIELD_TAG -> sortField = parser.textOrNull()
-                    SORT_ORDER_TAG -> sortOrder = SortOrder.fromString(parser.text())
-                    FILTER_PARAM_LIST_TAG -> filterParams = parser.mapStrings()
+                    CONFIG_ID_LIST_TAG -> {
+                        configIdList = parser.stringList().toSet()
+                    }
+
+                    FROM_INDEX_TAG -> {
+                        fromIndex = parser.intValue()
+                    }
+
+                    MAX_ITEMS_TAG -> {
+                        maxItems = parser.intValue()
+                    }
+
+                    SORT_FIELD_TAG -> {
+                        sortField = parser.textOrNull()
+                    }
+
+                    SORT_ORDER_TAG -> {
+                        sortOrder = SortOrder.fromString(parser.text())
+                    }
+
+                    FILTER_PARAM_LIST_TAG -> {
+                        filterParams = parser.mapStrings()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing GetNotificationConfigRequest")
@@ -92,8 +112,12 @@ class GetNotificationConfigRequest : ActionRequest, ToXContentObject {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return builder!!.startObject()
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder =
+        builder!!
+            .startObject()
             .field(CONFIG_ID_LIST_TAG, configIds)
             .field(FROM_INDEX_TAG, fromIndex)
             .field(MAX_ITEMS_TAG, maxItems)
@@ -101,7 +125,6 @@ class GetNotificationConfigRequest : ActionRequest, ToXContentObject {
             .fieldIfNotNull(SORT_ORDER_TAG, sortOrder)
             .field(FILTER_PARAM_LIST_TAG, filterParams)
             .endObject()
-    }
 
     /**
      * constructor for creating the class
@@ -118,7 +141,7 @@ class GetNotificationConfigRequest : ActionRequest, ToXContentObject {
         maxItems: Int = DEFAULT_MAX_ITEMS,
         sortField: String? = null,
         sortOrder: SortOrder? = null,
-        filterParams: Map<String, String> = mapOf()
+        filterParams: Map<String, String> = mapOf(),
     ) {
         this.configIds = configIds
         this.fromIndex = fromIndex

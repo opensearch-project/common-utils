@@ -14,18 +14,18 @@ import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
 internal class SesAccountTests {
-
     @Test
     fun `SES should throw exception if empty region`() {
         assertThrows<IllegalArgumentException> {
             SesAccount("", null, "from@domain.com")
         }
-        val jsonString = """
-        {
-            "region":"",
-            "from_address":"from@domain.com"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "region":"",
+                "from_address":"from@domain.com"
+            }
+            """.trimIndent()
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
         }
@@ -36,13 +36,14 @@ internal class SesAccountTests {
         assertThrows<IllegalArgumentException> {
             SesAccount("us-east-1", "arn:aws:iam:us-east-1:0123456789:role-test", "from@domain.com")
         }
-        val jsonString = """
-        {
-            "region":"us-east-1",
-            "role_arn":"arn:aws:iam:us-east-1:0123456789:role-test",
-            "from_address":"from@domain.com"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "region":"us-east-1",
+                "role_arn":"arn:aws:iam:us-east-1:0123456789:role-test",
+                "from_address":"from@domain.com"
+            }
+            """.trimIndent()
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
         }
@@ -50,12 +51,13 @@ internal class SesAccountTests {
 
     @Test
     fun `SES should throw exception when email id is invalid`() {
-        val jsonString = """
-        {
-            "region":"us-east-1",
-            "from_address":".from@domain.com"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "region":"us-east-1",
+                "from_address":".from@domain.com"
+            }
+            """.trimIndent()
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
         }
@@ -87,13 +89,14 @@ internal class SesAccountTests {
     @Test
     fun `SES should deserialize json object using parser`() {
         val sesAccount = SesAccount("us-east-1", "arn:aws:iam::012345678912:role/iam-test", "from@domain.com")
-        val jsonString = """
-        {
-            "region":"${sesAccount.awsRegion}",
-            "role_arn":"${sesAccount.roleArn}",
-            "from_address":"${sesAccount.fromAddress}"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "region":"${sesAccount.awsRegion}",
+                "role_arn":"${sesAccount.roleArn}",
+                "from_address":"${sesAccount.fromAddress}"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
         assertEquals(sesAccount, recreatedObject)
     }
@@ -101,13 +104,14 @@ internal class SesAccountTests {
     @Test
     fun `SES should deserialize json object will null role_arn using parser`() {
         val sesAccount = SesAccount("us-east-1", null, "from@domain.com")
-        val jsonString = """
-        {
-            "region":"${sesAccount.awsRegion}",
-            "role_arn":null,
-            "from_address":"${sesAccount.fromAddress}"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "region":"${sesAccount.awsRegion}",
+                "role_arn":null,
+                "from_address":"${sesAccount.fromAddress}"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
         assertEquals(sesAccount, recreatedObject)
     }
@@ -115,12 +119,13 @@ internal class SesAccountTests {
     @Test
     fun `SES should deserialize json object will missing role_arn using parser`() {
         val sesAccount = SesAccount("us-east-1", null, "from@domain.com")
-        val jsonString = """
-        {
-            "region":"${sesAccount.awsRegion}",
-            "from_address":"${sesAccount.fromAddress}"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "region":"${sesAccount.awsRegion}",
+                "from_address":"${sesAccount.fromAddress}"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
         assertEquals(sesAccount, recreatedObject)
     }
@@ -135,13 +140,14 @@ internal class SesAccountTests {
 
     @Test
     fun `SES should throw exception when region is replace with region2 in json object`() {
-        val jsonString = """
-        {
-            "region2":"us-east-1",
-            "role_arn":"arn:aws:iam::012345678912:role/iam-test",
-            "from_address":"from@domain.com"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "region2":"us-east-1",
+                "role_arn":"arn:aws:iam::012345678912:role/iam-test",
+                "from_address":"from@domain.com"
+            }
+            """.trimIndent()
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
         }
@@ -149,13 +155,14 @@ internal class SesAccountTests {
 
     @Test
     fun `SES should throw exception when from_address is replace with from_address2 in json object`() {
-        val jsonString = """
-        {
-            "region":"us-east-1",
-            "role_arn":"arn:aws:iam::012345678912:role/iam-test",
-            "from_address2":"from@domain.com"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "region":"us-east-1",
+                "role_arn":"arn:aws:iam::012345678912:role/iam-test",
+                "from_address2":"from@domain.com"
+            }
+            """.trimIndent()
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
         }
@@ -164,16 +171,17 @@ internal class SesAccountTests {
     @Test
     fun `SES should safely ignore extra field in json object`() {
         val sesAccount = SesAccount("us-east-1", "arn:aws:iam::012345678912:role/iam-test", "from@domain.com")
-        val jsonString = """
-        {
-            "region":"${sesAccount.awsRegion}",
-            "role_arn":"${sesAccount.roleArn}",
-            "from_address":"${sesAccount.fromAddress}",
-            "extra_field_1":["extra", "value"],
-            "extra_field_2":{"extra":"value"},
-            "extra_field_3":"extra value 3"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "region":"${sesAccount.awsRegion}",
+                "role_arn":"${sesAccount.roleArn}",
+                "from_address":"${sesAccount.fromAddress}",
+                "extra_field_1":["extra", "value"],
+                "extra_field_2":{"extra":"value"},
+                "extra_field_3":"extra value 3"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { SesAccount.parse(it) }
         assertEquals(sesAccount, recreatedObject)
     }

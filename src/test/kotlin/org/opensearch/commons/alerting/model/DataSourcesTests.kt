@@ -8,16 +8,17 @@ import org.opensearch.core.common.io.stream.StreamInput
 class DataSourcesTests {
     @Test
     fun `Test DataSources construction with no comments indices`() {
-        val dataSources = DataSources(
-            ScheduledJob.DOC_LEVEL_QUERIES_INDEX,
-            ".opensearch-alerting-finding-history-write",
-            "<.opensearch-alerting-finding-history-{now/d}-1>",
-            ".opendistro-alerting-alerts",
-            ".opendistro-alerting-alert-history-write",
-            "<.opendistro-alerting-alert-history-{now/d}-1>",
-            mapOf(),
-            false
-        )
+        val dataSources =
+            DataSources(
+                ScheduledJob.DOC_LEVEL_QUERIES_INDEX,
+                ".opensearch-alerting-finding-history-write",
+                "<.opensearch-alerting-finding-history-{now/d}-1>",
+                ".opendistro-alerting-alerts",
+                ".opendistro-alerting-alert-history-write",
+                "<.opendistro-alerting-alert-history-{now/d}-1>",
+                mapOf(),
+                false,
+            )
         Assertions.assertNotNull(dataSources)
 
         val out = BytesStreamOutput()

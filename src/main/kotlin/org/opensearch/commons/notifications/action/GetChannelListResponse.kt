@@ -20,7 +20,6 @@ class GetChannelListResponse : BaseResponse {
     val searchResult: ChannelList
 
     companion object {
-
         /**
          * reader to create instance of class from writable.
          */
@@ -32,9 +31,7 @@ class GetChannelListResponse : BaseResponse {
          */
         @JvmStatic
         @Throws(IOException::class)
-        fun parse(parser: XContentParser): GetChannelListResponse {
-            return GetChannelListResponse(ChannelList(parser))
-        }
+        fun parse(parser: XContentParser): GetChannelListResponse = GetChannelListResponse(ChannelList(parser))
     }
 
     /**
@@ -64,7 +61,8 @@ class GetChannelListResponse : BaseResponse {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return searchResult.toXContent(builder, params)
-    }
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder = searchResult.toXContent(builder, params)
 }

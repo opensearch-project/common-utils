@@ -8,7 +8,6 @@ import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.core.common.io.stream.StreamInput
 
 class DeleteMonitorRequestTests {
-
     @Test
     fun `test delete monitor request`() {
         val req = DeleteMonitorRequest("1234", WriteRequest.RefreshPolicy.IMMEDIATE)

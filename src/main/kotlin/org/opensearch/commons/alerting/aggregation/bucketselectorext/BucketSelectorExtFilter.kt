@@ -61,7 +61,10 @@ class BucketSelectorExtFilter : BaseModel {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         if (isCompositeAggregation) {
             for ((key, filter) in filtersMap!!) {
                 builder.startObject(key)
@@ -75,21 +78,30 @@ class BucketSelectorExtFilter : BaseModel {
     }
 
     val isCompositeAggregation: Boolean
-        get() = if (filtersMap != null && filters == null) {
-            true
-        } else if (filtersMap == null && filters != null) {
-            false
-        } else {
-            throw IllegalStateException("Type of selector cannot be determined")
-        }
+        get() =
+            if (filtersMap != null && filters == null) {
+                true
+            } else if (filtersMap == null && filters != null) {
+                false
+            } else {
+                throw IllegalStateException("Type of selector cannot be determined")
+            }
 
     companion object {
         const val NAME = "filter"
+
+        @Suppress("ktlint:standard:property-naming")
         var BUCKET_SELECTOR_FILTER = ParseField("filter")
+
+        @Suppress("ktlint:standard:property-naming")
         var BUCKET_SELECTOR_COMPOSITE_AGG_FILTER = ParseField("composite_agg_filter")
 
         @Throws(IOException::class)
-        fun parse(reducerName: String, isCompositeAggregation: Boolean, parser: XContentParser): BucketSelectorExtFilter {
+        fun parse(
+            reducerName: String,
+            isCompositeAggregation: Boolean,
+            parser: XContentParser,
+        ): BucketSelectorExtFilter {
             var token: XContentParser.Token
             return if (isCompositeAggregation) {
                 val filtersMap = HashMap<String, IncludeExclude>()
@@ -101,7 +113,7 @@ class BucketSelectorExtFilter : BaseModel {
                     } else {
                         throw ParsingException(
                             parser.tokenLocation,
-                            "Unknown key for a " + token + " in [" + reducerName + "]: [" + parser.currentName() + "]."
+                            "Unknown key for a " + token + " in [" + reducerName + "]: [" + parser.currentName() + "].",
                         )
                     }
                 }
@@ -112,7 +124,10 @@ class BucketSelectorExtFilter : BaseModel {
         }
 
         @Throws(IOException::class)
-        private fun parseIncludeExclude(reducerName: String, parser: XContentParser): IncludeExclude {
+        private fun parseIncludeExclude(
+            reducerName: String,
+            parser: XContentParser,
+        ): IncludeExclude {
             var token: XContentParser.Token
             var include: IncludeExclude? = null
             var exclude: IncludeExclude? = null
@@ -123,14 +138,16 @@ class BucketSelectorExtFilter : BaseModel {
                         parser.nextToken()
                         include = IncludeExclude.parseInclude(parser)
                     }
+
                     IncludeExclude.EXCLUDE_FIELD.match(fieldName, parser.deprecationHandler) -> {
                         parser.nextToken()
                         exclude = IncludeExclude.parseExclude(parser)
                     }
+
                     else -> {
                         throw ParsingException(
                             parser.tokenLocation,
-                            "Unknown key for a $token in [$reducerName]: [$fieldName]."
+                            "Unknown key for a $token in [$reducerName]: [$fieldName].",
                         )
                     }
                 }

@@ -32,7 +32,7 @@ class GetWorkflowResponse : BaseResponse {
         seqNo: Long,
         primaryTerm: Long,
         status: RestStatus,
-        workflow: Workflow?
+        workflow: Workflow?,
     ) : super() {
         this.id = id
         this.version = version
@@ -53,7 +53,7 @@ class GetWorkflowResponse : BaseResponse {
             Workflow.readFrom(sin) // monitor
         } else {
             null
-        }
+        },
     )
 
     @Throws(IOException::class)
@@ -72,8 +72,12 @@ class GetWorkflowResponse : BaseResponse {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field(_ID, id)
             .field(_VERSION, version)
             .field(_SEQ_NO, seqNo)
@@ -85,7 +89,5 @@ class GetWorkflowResponse : BaseResponse {
         return builder.endObject()
     }
 
-    override fun getStatus(): RestStatus {
-        return this.status
-    }
+    override fun getStatus(): RestStatus = this.status
 }

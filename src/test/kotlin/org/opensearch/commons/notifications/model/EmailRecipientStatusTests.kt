@@ -16,20 +16,22 @@ import org.opensearch.commons.utils.recreateObject
 internal class EmailRecipientStatusTests {
     @Test
     fun `EmailRecipientStatus serialize and deserialize should be equal`() {
-        val sampleEmailRecipientStatus = EmailRecipientStatus(
-            "sample@email.com",
-            DeliveryStatus("404", "invalid recipient")
-        )
+        val sampleEmailRecipientStatus =
+            EmailRecipientStatus(
+                "sample@email.com",
+                DeliveryStatus("404", "invalid recipient"),
+            )
         val recreatedObject = recreateObject(sampleEmailRecipientStatus) { EmailRecipientStatus(it) }
         assertEquals(sampleEmailRecipientStatus, recreatedObject)
     }
 
     @Test
     fun `EmailRecipientStatus serialize and deserialize using json should be equal`() {
-        val sampleEmailRecipientStatus = EmailRecipientStatus(
-            "sample@email.com",
-            DeliveryStatus("404", "invalid recipient")
-        )
+        val sampleEmailRecipientStatus =
+            EmailRecipientStatus(
+                "sample@email.com",
+                DeliveryStatus("404", "invalid recipient"),
+            )
         val jsonString = getJsonString(sampleEmailRecipientStatus)
         val recreatedObject = createObjectFromJsonString(jsonString) { EmailRecipientStatus.parse(it) }
         assertEquals(sampleEmailRecipientStatus, recreatedObject)
@@ -52,20 +54,22 @@ internal class EmailRecipientStatusTests {
 
     @Test
     fun `EmailRecipientStatus should safely ignore extra field in json object`() {
-        val sampleEmailRecipientStatus = EmailRecipientStatus(
-            "sample@email.com",
-            DeliveryStatus("200", "Success")
-        )
-        val jsonString = """
-        {
-            "recipient": "sample@email.com",
-            "delivery_status": {
-                "status_code": "200",
-                "status_text": "Success"
-            },
-            "extra": "field"
-        }
-        """.trimIndent()
+        val sampleEmailRecipientStatus =
+            EmailRecipientStatus(
+                "sample@email.com",
+                DeliveryStatus("200", "Success"),
+            )
+        val jsonString =
+            """
+            {
+                "recipient": "sample@email.com",
+                "delivery_status": {
+                    "status_code": "200",
+                    "status_text": "Success"
+                },
+                "extra": "field"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { EmailRecipientStatus.parse(it) }
         assertEquals(sampleEmailRecipientStatus, recreatedObject)
     }

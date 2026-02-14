@@ -13,39 +13,29 @@ import java.io.IOException
 data class DataSources(
     /** Configures a custom query index name for the monitor. Creates a new index if index with given name not present.*/
     val queryIndex: String = ScheduledJob.DOC_LEVEL_QUERIES_INDEX,
-
     /** Configures a custom index to store findings for a monitor. Creates a new index if index with given name not present.
      *  If index is pre-existing, mapping is updated*/
-    val findingsIndex: String = ".opensearch-alerting-finding-history-write", // AlertIndices.FINDING_HISTORY_WRITE_INDEX
-
+    val findingsIndex: String = ".opensearch-alerting-finding-history-write",
     /** Configures a custom index pattern for  findingsIndex alias.*/
-    val findingsIndexPattern: String? = "<.opensearch-alerting-finding-history-{now/d}-1>", // AlertIndices.FINDING_HISTORY_INDEX_PATTERN
-
+    val findingsIndexPattern: String? = "<.opensearch-alerting-finding-history-{now/d}-1>",
     /** Configures a custom index to store alerts for a monitor. Creates a new index if index with given name not present.
      *  If index is pre-existing, mapping is updated. */
-    val alertsIndex: String = ".opendistro-alerting-alerts", // AlertIndices.ALERT_INDEX
-
+    val alertsIndex: String = ".opendistro-alerting-alerts",
     /** Configures a custom index alias to store historic alerts for a monitor.*/
-    val alertsHistoryIndex: String? = ".opendistro-alerting-alert-history-write", // AlertIndices.ALERT_HISTORY_WRITE_INDEX
-
+    val alertsHistoryIndex: String? = ".opendistro-alerting-alert-history-write",
     /** Configures a custom index pattern for alertHistoryIndex alias.*/
-    val alertsHistoryIndexPattern: String? = "<.opendistro-alerting-alert-history-{now/d}-1>", // AlertIndices.ALERT_HISTORY_INDEX_PATTERN
-
+    val alertsHistoryIndexPattern: String? = "<.opendistro-alerting-alert-history-{now/d}-1>",
     /** Configures a custom index alias to store comments associated with alerts.*/
-    val commentsIndex: String? = DEFAULT_COMMENTS_INDEX, // CommentsIndices.COMMENTS_HISTORY_WRITE_INDEX
-
+    val commentsIndex: String? = DEFAULT_COMMENTS_INDEX,
     /** Configures a custom index pattern for commentsIndex alias.*/
-    val commentsIndexPattern: String? = DEFAULT_COMMENTS_INDEX_PATTERN, // CommentsIndices.COMMENTS_HISTORY_INDEX_PATTERN
-
+    val commentsIndexPattern: String? = DEFAULT_COMMENTS_INDEX_PATTERN,
     /** Configures custom mappings by field type for query index.
      * Custom query index mappings are configurable, only if a custom query index is configured too. */
     val queryIndexMappingsByType: Map<String, Map<String, String>> = mapOf(),
-
     /** Configures flag to enable or disable creating and storing findings. */
-    val findingsEnabled: Boolean? = false
-
-) : Writeable, ToXContentObject {
-
+    val findingsEnabled: Boolean? = false,
+) : Writeable,
+    ToXContentObject {
     init {
         require(queryIndex.isNotEmpty()) {
             "Query index cannot be empty"
@@ -64,7 +54,7 @@ data class DataSources(
                 queryIndexMappingsByType.size == 1 &&
                     queryIndexMappingsByType.containsKey("text") &&
                     queryIndexMappingsByType.get("text")?.size == 1 &&
-                    queryIndexMappingsByType.get("text")!!.containsKey("analyzer")
+                    queryIndexMappingsByType.get("text")!!.containsKey("analyzer"),
             ) {
                 "Custom query index mappings are currently configurable only for 'text' fields and mapping parameter can only be 'analyzer'"
             }
@@ -83,7 +73,7 @@ data class DataSources(
         commentsIndex = sin.readOptionalString(),
         commentsIndexPattern = sin.readOptionalString(),
         queryIndexMappingsByType = sin.readMap() as Map<String, Map<String, String>>,
-        findingsEnabled = sin.readOptionalBoolean()
+        findingsEnabled = sin.readOptionalBoolean(),
     )
 
     constructor(
@@ -94,7 +84,7 @@ data class DataSources(
         alertsHistoryIndex: String?,
         alertsHistoryIndexPattern: String?,
         queryIndexMappingsByType: Map<String, Map<String, String>>,
-        findingsEnabled: Boolean?
+        findingsEnabled: Boolean?,
     ) : this(
         queryIndex = queryIndex,
         findingsIndex = findingsIndex,
@@ -105,12 +95,12 @@ data class DataSources(
         commentsIndex = DEFAULT_COMMENTS_INDEX,
         commentsIndexPattern = DEFAULT_COMMENTS_INDEX_PATTERN,
         queryIndexMappingsByType = queryIndexMappingsByType,
-        findingsEnabled = findingsEnabled
+        findingsEnabled = findingsEnabled,
     )
 
     @Suppress("UNCHECKED_CAST")
-    fun asTemplateArg(): Map<String, Any?> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any?> =
+        mapOf(
             QUERY_INDEX_FIELD to queryIndex,
             FINDINGS_INDEX_FIELD to findingsIndex,
             FINDINGS_INDEX_PATTERN_FIELD to findingsIndexPattern,
@@ -120,11 +110,13 @@ data class DataSources(
             COMMENTS_INDEX_FIELD to commentsIndex,
             COMMENTS_INDEX_PATTERN_FIELD to commentsIndexPattern,
             QUERY_INDEX_MAPPINGS_BY_TYPE to queryIndexMappingsByType,
-            FINDINGS_ENABLED_FIELD to findingsEnabled
+            FINDINGS_ENABLED_FIELD to findingsEnabled,
         )
-    }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         builder.startObject()
         builder.field(QUERY_INDEX_FIELD, queryIndex)
         builder.field(FINDINGS_INDEX_FIELD, findingsIndex)
@@ -198,7 +190,7 @@ data class DataSources(
                 commentsIndex = commentsIndex,
                 commentsIndexPattern = commentsIndexPattern,
                 queryIndexMappingsByType = queryIndexMappingsByType,
-                findingsEnabled = findingsEnabled
+                findingsEnabled = findingsEnabled,
             )
         }
     }

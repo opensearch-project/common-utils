@@ -11,15 +11,16 @@ import java.time.Instant
 class IndexCommentResponseTests {
     @Test
     fun `test index comment response with comment`() {
-        val comment = Comment(
-            "123",
-            "alert",
-            "456",
-            "comment",
-            Instant.now(),
-            Instant.now(),
-            randomUser()
-        )
+        val comment =
+            Comment(
+                "123",
+                "alert",
+                "456",
+                "comment",
+                Instant.now(),
+                Instant.now(),
+                randomUser(),
+            )
         val req = IndexCommentResponse("1234", 1L, 2L, comment)
         Assertions.assertNotNull(req)
 

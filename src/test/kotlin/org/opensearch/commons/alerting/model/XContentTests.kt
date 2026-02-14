@@ -44,7 +44,6 @@ import java.time.temporal.ChronoUnit
 import kotlin.test.assertFailsWith
 
 class XContentTests {
-
     @Test
     fun `test action parsing`() {
         val action = randomAction()
@@ -69,6 +68,7 @@ class XContentTests {
         Assertions.assertEquals(action, parsedAction, "Round tripping Action doesn't work")
     }
 
+    @Test
     fun `test action parsing with throttled enabled and null throttle`() {
         val action = randomAction().copy(throttle = null).copy(throttleEnabled = true)
         val actionString = action.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
@@ -83,7 +83,7 @@ class XContentTests {
             randomActionWithPolicy().copy(
                 throttleEnabled = true,
                 throttle = Throttle(value = 5, unit = ChronoUnit.MINUTES),
-                actionExecutionPolicy = ActionExecutionPolicy(PerExecutionActionScope())
+                actionExecutionPolicy = ActionExecutionPolicy(PerExecutionActionScope()),
             )
             Assertions.fail("Creating an action with per execution scope and throttle enabled did not fail.")
         } catch (ignored: IllegalArgumentException) {
@@ -107,8 +107,8 @@ class XContentTests {
         assertFailsWith<IllegalArgumentException>("Only support MINUTES throttle unit") {
             Throttle.parse(
                 parser(
-                    wrongThrottleString
-                )
+                    wrongThrottleString,
+                ),
             )
         }
     }
@@ -121,8 +121,8 @@ class XContentTests {
         assertFailsWith<IllegalArgumentException>("Can only set positive throttle period") {
             Throttle.parse(
                 parser(
-                    throttleString
-                )
+                    throttleString,
+                ),
             )
         }
     }
@@ -137,7 +137,8 @@ class XContentTests {
 
     @Test
     fun `test monitor parsing with no name`() {
-        val monitorStringWithoutName = """
+        val monitorStringWithoutName =
+            """
             {
               "type": "monitor",
               "enabled": false,
@@ -150,20 +151,21 @@ class XContentTests {
               "inputs": [],
               "triggers": []
             }
-        """.trimIndent()
+            """.trimIndent()
 
         assertFailsWith<IllegalArgumentException>("Monitor name is null") {
             Monitor.parse(
                 parser(
-                    monitorStringWithoutName
-                )
+                    monitorStringWithoutName,
+                ),
             )
         }
     }
 
     @Test
     fun `test monitor parsing with no schedule`() {
-        val monitorStringWithoutSchedule = """
+        val monitorStringWithoutSchedule =
+            """
             {
               "type": "monitor",
               "name": "asdf",
@@ -171,7 +173,7 @@ class XContentTests {
               "inputs": [],
               "triggers": []
             }
-        """.trimIndent()
+            """.trimIndent()
 
         assertFailsWith<IllegalArgumentException>("Monitor schedule is null") {
             Monitor.parse(parser(monitorStringWithoutSchedule))
@@ -287,20 +289,21 @@ class XContentTests {
         Assertions.assertEquals(
             ChainedMonitorFindings.parse(parser(cmf1String)),
             cmf1,
-            "Round tripping chained monitor findings failed"
+            "Round tripping chained monitor findings failed",
         )
         val cmf2 = ChainedMonitorFindings(monitorIds = listOf("m1", "m2"))
         val cmf2String = cmf2.toJsonString()
         Assertions.assertEquals(
             ChainedMonitorFindings.parse(parser(cmf2String)),
             cmf2,
-            "Round tripping chained monitor findings failed"
+            "Round tripping chained monitor findings failed",
         )
     }
 
     @Test
     fun `test old monitor format parsing`() {
-        val monitorString = """
+        val monitorString =
+            """
             {
               "type": "monitor",
               "schema_version": 3,
@@ -372,12 +375,12 @@ class XContentTests {
               ],
               "last_update_time": 1614121489719
             }
-        """.trimIndent()
+            """.trimIndent()
         val parsedMonitor = Monitor.parse(parser(monitorString))
         Assertions.assertEquals(
             Monitor.MonitorType.QUERY_LEVEL_MONITOR.value,
             parsedMonitor.monitorType,
-            "Incorrect monitor type"
+            "Incorrect monitor type",
         )
         Assertions.assertEquals(1, parsedMonitor.triggers.size, "Incorrect trigger count")
         val trigger = parsedMonitor.triggers.first()
@@ -423,7 +426,7 @@ class XContentTests {
         Assertions.assertEquals(
             actionExecutionPolicy,
             parsedActionExecutionPolicy,
-            "Round tripping ActionExecutionPolicy doesn't work"
+            "Round tripping ActionExecutionPolicy doesn't work",
         )
     }
 
@@ -435,7 +438,7 @@ class XContentTests {
         Assertions.assertEquals(
             dlq,
             parsedDlq,
-            "Round tripping Doc level query doesn't work"
+            "Round tripping Doc level query doesn't work",
         )
     }
 
@@ -447,7 +450,7 @@ class XContentTests {
         Assertions.assertEquals(
             dlq,
             parsedDlq,
-            "Round tripping Doc level query doesn't work"
+            "Round tripping Doc level query doesn't work",
         )
     }
 
@@ -464,29 +467,31 @@ class XContentTests {
     @Test
     fun `test alert parsing with noop trigger`() {
         val monitor = randomQueryLevelMonitor()
-        val alert = Alert(
-            id = "",
-            monitor = monitor,
-            trigger = NoOpTrigger(),
-            startTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
-            errorMessage = "some error",
-            lastNotificationTime = Instant.now(),
-            workflowId = "",
-            executionId = "",
-            clusters = listOf()
-        )
+        val alert =
+            Alert(
+                id = "",
+                monitor = monitor,
+                trigger = NoOpTrigger(),
+                startTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                errorMessage = "some error",
+                lastNotificationTime = Instant.now(),
+                workflowId = "",
+                executionId = "",
+                clusters = listOf(),
+            )
         assertEquals("Round tripping alert doesn't work", alert.triggerName, "NoOp trigger")
     }
 
     @Test
     fun `test alert parsing without user`() {
-        val alertStr = "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1," +
-            "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
-            "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
-            ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
-            "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
-            "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
-            "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
+        val alertStr =
+            "{\"id\":\"\",\"version\":-1,\"monitor_id\":\"\",\"schema_version\":0,\"monitor_version\":1," +
+                "\"monitor_name\":\"ARahqfRaJG\",\"trigger_id\":\"fhe1-XQBySl0wQKDBkOG\",\"trigger_name\":\"ffELMuhlro\"," +
+                "\"state\":\"ACTIVE\",\"error_message\":null,\"alert_history\":[],\"severity\":\"1\",\"action_execution_results\"" +
+                ":[{\"action_id\":\"ghe1-XQBySl0wQKDBkOG\",\"last_execution_time\":1601917224583,\"throttled_count\":-1478015168}," +
+                "{\"action_id\":\"gxe1-XQBySl0wQKDBkOH\",\"last_execution_time\":1601917224583,\"throttled_count\":-768533744}]," +
+                "\"start_time\":1601917224599,\"last_notification_time\":null,\"end_time\":null,\"acknowledged_time\":null," +
+                "\"clusters\":[\"cluster-1\",\"cluster-2\"]}"
         val parsedAlert = Alert.parse(parser(alertStr))
         OpenSearchTestCase.assertNull(parsedAlert.monitorUser)
     }
@@ -517,13 +522,14 @@ class XContentTests {
 
     @Test
     fun `test MonitorMetadata`() {
-        val monitorMetadata = MonitorMetadata(
-            id = "monitorId-metadata",
-            monitorId = "monitorId",
-            lastActionExecutionTimes = emptyList(),
-            lastRunContext = emptyMap(),
-            sourceToQueryIndexMapping = mutableMapOf()
-        )
+        val monitorMetadata =
+            MonitorMetadata(
+                id = "monitorId-metadata",
+                monitorId = "monitorId",
+                lastActionExecutionTimes = emptyList(),
+                lastRunContext = emptyMap(),
+                sourceToQueryIndexMapping = mutableMapOf(),
+            )
         val monitorMetadataString = monitorMetadata.toXContent(XContentFactory.jsonBuilder(), ToXContent.EMPTY_PARAMS).string()
         val parsedMonitorMetadata = MonitorMetadata.parse(parser(monitorMetadataString))
         assertEquals("Round tripping MonitorMetadata doesn't work", monitorMetadata, parsedMonitorMetadata)
@@ -560,11 +566,12 @@ class XContentTests {
         val myMonitorInput = MyMonitorInput(1, "hello", MyMonitorInput(2, "world", null))
         val myObjOut = BytesStreamOutput()
         myMonitorInput.writeTo(myObjOut)
-        val docLevelMonitorInput = DocLevelMonitorInput(
-            "test",
-            listOf("test"),
-            listOf(randomDocLevelQuery())
-        )
+        val docLevelMonitorInput =
+            DocLevelMonitorInput(
+                "test",
+                listOf("test"),
+                listOf(randomDocLevelQuery()),
+            )
         val remoteDocLevelMonitorInput = RemoteDocLevelMonitorInput(myObjOut.bytes(), docLevelMonitorInput)
 
         val xContent = remoteDocLevelMonitorInput.toXContent(JsonXContent.contentBuilder(), ToXContent.EMPTY_PARAMS).string()
@@ -577,16 +584,17 @@ class XContentTests {
 
     @Test
     fun `test DataSources parsing`() {
-        val dataSources = DataSources(
-            ScheduledJob.DOC_LEVEL_QUERIES_INDEX,
-            ".opensearch-alerting-finding-history-write",
-            "<.opensearch-alerting-finding-history-{now/d}-1>",
-            ".opendistro-alerting-alerts",
-            ".opendistro-alerting-alert-history-write",
-            "<.opendistro-alerting-alert-history-{now/d}-1>",
-            mapOf(),
-            false
-        )
+        val dataSources =
+            DataSources(
+                ScheduledJob.DOC_LEVEL_QUERIES_INDEX,
+                ".opensearch-alerting-finding-history-write",
+                "<.opensearch-alerting-finding-history-{now/d}-1>",
+                ".opendistro-alerting-alerts",
+                ".opendistro-alerting-alert-history-write",
+                "<.opendistro-alerting-alert-history-{now/d}-1>",
+                mapOf(),
+                false,
+            )
         Assertions.assertNotNull(dataSources)
 
         val dataSourcesString = dataSources.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
@@ -596,15 +604,16 @@ class XContentTests {
 
     @Test
     fun `test Comment parsing`() {
-        val comment = Comment(
-            "123",
-            "456",
-            "alert",
-            "content",
-            Instant.now().truncatedTo(ChronoUnit.MILLIS),
-            null,
-            randomUser()
-        )
+        val comment =
+            Comment(
+                "123",
+                "456",
+                "alert",
+                "content",
+                Instant.now().truncatedTo(ChronoUnit.MILLIS),
+                null,
+                randomUser(),
+            )
         Assertions.assertNotNull(comment)
 
         val commentString = comment.toXContentWithUser(builder()).string()

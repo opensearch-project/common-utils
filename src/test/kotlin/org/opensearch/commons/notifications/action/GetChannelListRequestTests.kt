@@ -13,10 +13,9 @@ import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
 internal class GetChannelListRequestTests {
-
     private fun assertGetRequestEquals(
         expected: GetChannelListRequest,
-        actual: GetChannelListRequest
+        actual: GetChannelListRequest,
     ) {
         assertEquals(expected.compact, actual.compact)
     }
@@ -47,13 +46,14 @@ internal class GetChannelListRequestTests {
     @Test
     fun `Get request should safely ignore extra field in json object`() {
         val configRequest = GetChannelListRequest()
-        val jsonString = """
-        {
-            "extra_field_1":["extra", "value"],
-            "extra_field_2":{"extra":"value"},
-            "extra_field_3":"extra value 3"
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+                "extra_field_1":["extra", "value"],
+                "extra_field_2":{"extra":"value"},
+                "extra_field_3":"extra value 3"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { GetChannelListRequest.parse(it) }
         assertGetRequestEquals(configRequest, recreatedObject)
     }

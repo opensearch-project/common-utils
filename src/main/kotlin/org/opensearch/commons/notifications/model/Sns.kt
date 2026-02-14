@@ -23,8 +23,10 @@ import java.util.regex.Pattern
 /**
  * SNS notification data model
  */
-data class Sns(val topicArn: String, val roleArn: String?) : BaseConfigData {
-
+data class Sns(
+    val topicArn: String,
+    val roleArn: String?,
+) : BaseConfigData {
     init {
         require(SNS_ARN_REGEX.matcher(topicArn).find()) { "Invalid AWS SNS topic ARN: $topicArn" }
         if (roleArn != null) {
@@ -32,12 +34,15 @@ data class Sns(val topicArn: String, val roleArn: String?) : BaseConfigData {
         }
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(TOPIC_ARN_TAG, topicArn)
             .fieldIfNotNull(ROLE_ARN_TAG, roleArn)
             .endObject()
-    }
 
     /**
      * Constructor used in transport action communication.
@@ -45,7 +50,7 @@ data class Sns(val topicArn: String, val roleArn: String?) : BaseConfigData {
      */
     constructor(input: StreamInput) : this(
         topicArn = input.readString(),
-        roleArn = input.readOptionalString()
+        roleArn = input.readOptionalString(),
     )
 
     @Throws(IOException::class)
@@ -81,8 +86,14 @@ data class Sns(val topicArn: String, val roleArn: String?) : BaseConfigData {
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
                 when (fieldName) {
-                    TOPIC_ARN_TAG -> topicArn = xcp.textOrNull()
-                    ROLE_ARN_TAG -> roleArn = xcp.textOrNull()
+                    TOPIC_ARN_TAG -> {
+                        topicArn = xcp.textOrNull()
+                    }
+
+                    ROLE_ARN_TAG -> {
+                        roleArn = xcp.textOrNull()
+                    }
+
                     else -> {
                         xcp.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing SNS destination")

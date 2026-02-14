@@ -28,9 +28,8 @@ import java.io.IOException
 data class SesAccount(
     val awsRegion: String,
     val roleArn: String?,
-    val fromAddress: String
+    val fromAddress: String,
 ) : BaseConfigData {
-
     init {
         require(!Strings.isNullOrEmpty(awsRegion)) { "awsRegion is null or empty" }
         validateEmail(fromAddress)
@@ -62,15 +61,24 @@ data class SesAccount(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    REGION_TAG -> awsRegion = parser.text()
-                    ROLE_ARN_TAG -> roleArn = parser.textOrNull()
-                    FROM_ADDRESS_TAG -> fromAddress = parser.text()
+                    REGION_TAG -> {
+                        awsRegion = parser.text()
+                    }
+
+                    ROLE_ARN_TAG -> {
+                        roleArn = parser.textOrNull()
+                    }
+
+                    FROM_ADDRESS_TAG -> {
+                        fromAddress = parser.text()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing SesAccount")
@@ -82,7 +90,7 @@ data class SesAccount(
             return SesAccount(
                 awsRegion,
                 roleArn,
-                fromAddress
+                fromAddress,
             )
         }
     }
@@ -90,13 +98,16 @@ data class SesAccount(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return builder!!.startObject()
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder =
+        builder!!
+            .startObject()
             .field(REGION_TAG, awsRegion)
             .fieldIfNotNull(ROLE_ARN_TAG, roleArn)
             .field(FROM_ADDRESS_TAG, fromAddress)
             .endObject()
-    }
 
     /**
      * Constructor used in transport action communication.
@@ -105,7 +116,7 @@ data class SesAccount(
     constructor(input: StreamInput) : this(
         awsRegion = input.readString(),
         roleArn = input.readOptionalString(),
-        fromAddress = input.readString()
+        fromAddress = input.readString(),
     )
 
     /**

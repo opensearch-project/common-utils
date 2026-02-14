@@ -15,7 +15,6 @@ import org.opensearch.core.xcontent.XContentParser
  * Channel search results
  */
 class ChannelList : SearchResults<Channel> {
-
     /**
      * single item result constructor
      */
@@ -28,7 +27,7 @@ class ChannelList : SearchResults<Channel> {
         0,
         objectList.size.toLong(),
         TotalHits.Relation.EQUAL_TO,
-        objectList
+        objectList,
     )
 
     /**
@@ -38,7 +37,7 @@ class ChannelList : SearchResults<Channel> {
         startIndex: Long,
         totalHits: Long,
         totalHitRelation: TotalHits.Relation,
-        objectList: List<Channel>
+        objectList: List<Channel>,
     ) : super(startIndex, totalHits, totalHitRelation, CHANNEL_LIST_TAG, objectList)
 
     /**
@@ -59,13 +58,11 @@ class ChannelList : SearchResults<Channel> {
         from,
         response,
         searchHitParser,
-        CHANNEL_LIST_TAG
+        CHANNEL_LIST_TAG,
     )
 
     /**
      * {@inheritDoc}
      */
-    override fun parseItem(parser: XContentParser): Channel {
-        return Channel.parse(parser)
-    }
+    override fun parseItem(parser: XContentParser): Channel = Channel.parse(parser)
 }

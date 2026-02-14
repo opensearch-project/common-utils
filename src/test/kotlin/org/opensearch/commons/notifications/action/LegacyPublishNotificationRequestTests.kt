@@ -12,10 +12,9 @@ import org.opensearch.commons.destination.message.LegacyChimeMessage
 import org.opensearch.commons.utils.recreateObject
 
 internal class LegacyPublishNotificationRequestTests {
-
     private fun assertRequestEquals(
         expected: LegacyPublishNotificationRequest,
-        actual: LegacyPublishNotificationRequest
+        actual: LegacyPublishNotificationRequest,
     ) {
         assertEquals(expected.baseMessage.channelName, actual.baseMessage.channelName)
         assertEquals(expected.baseMessage.channelType, actual.baseMessage.channelType)
@@ -26,7 +25,12 @@ internal class LegacyPublishNotificationRequestTests {
 
     @Test
     fun `publish request serialize and deserialize transport object should be equal`() {
-        val baseMessage = LegacyChimeMessage.Builder("chime_message").withMessage("Hello world").withUrl("https://amazon.com").build()
+        val baseMessage =
+            LegacyChimeMessage
+                .Builder("chime_message")
+                .withMessage("Hello world")
+                .withUrl("https://amazon.com")
+                .build()
         val request = LegacyPublishNotificationRequest(baseMessage)
         val recreatedObject = recreateObject(request) { LegacyPublishNotificationRequest(it) }
         assertRequestEquals(request, recreatedObject)

@@ -17,7 +17,6 @@ import java.time.Instant
 import java.util.Collections
 
 class GetWorkflowAlertsResponseTests {
-
     @Test
     fun `test get alerts response with no alerts`() {
         val req = GetWorkflowAlertsResponse(Collections.emptyList(), emptyList(), 0)
@@ -56,29 +55,30 @@ class GetWorkflowAlertsResponseTests {
 
     @Test
     fun `test toXContent for get alerts response`() {
-        val alert = Alert(
-            monitorId = "id",
-            monitorName = "name",
-            monitorVersion = Alert.NO_VERSION,
-            monitorUser = randomUser(),
-            triggerId = "triggerId",
-            triggerName = "triggerNamer",
-            state = Alert.State.ACKNOWLEDGED,
-            startTime = Instant.ofEpochMilli(1688591410974),
-            lastNotificationTime = null,
-            errorMessage = null,
-            errorHistory = emptyList(),
-            severity = "high",
-            actionExecutionResults = emptyList(),
-            schemaVersion = 0,
-            aggregationResultBucket = null,
-            findingIds = emptyList(),
-            relatedDocIds = emptyList(),
-            executionId = "executionId",
-            workflowId = "wid",
-            workflowName = "",
-            associatedAlertIds = emptyList()
-        )
+        val alert =
+            Alert(
+                monitorId = "id",
+                monitorName = "name",
+                monitorVersion = Alert.NO_VERSION,
+                monitorUser = randomUser(),
+                triggerId = "triggerId",
+                triggerName = "triggerNamer",
+                state = Alert.State.ACKNOWLEDGED,
+                startTime = Instant.ofEpochMilli(1688591410974),
+                lastNotificationTime = null,
+                errorMessage = null,
+                errorHistory = emptyList(),
+                severity = "high",
+                actionExecutionResults = emptyList(),
+                schemaVersion = 0,
+                aggregationResultBucket = null,
+                findingIds = emptyList(),
+                relatedDocIds = emptyList(),
+                executionId = "executionId",
+                workflowId = "wid",
+                workflowName = "",
+                associatedAlertIds = emptyList(),
+            )
 
         val req = GetWorkflowAlertsResponse(listOf(alert), emptyList(), 1)
         var actualXContentString = req.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()

@@ -20,7 +20,6 @@ import org.opensearch.transport.client.node.NodeClient
 
 @ExtendWith(MockitoExtension::class)
 internal class ReplicationPluginInterfaceTests {
-
     @Test
     fun `test stopReplication successful response`() {
         // Mock dependencies
