@@ -159,7 +159,7 @@ class ClusterMetricsInputTests {
         url = ""
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
+        assertFailsWith<IllegalArgumentException>("The uri.path field, or uri.url field must be defined.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
@@ -172,7 +172,7 @@ class ClusterMetricsInputTests {
         url = ""
 
         // WHEN + THEN
-        assertFailsWith<IllegalArgumentException>("The uri.api_type field, uri.path field, or uri.uri field must be defined.") {
+        assertFailsWith<IllegalArgumentException>("The uri.path field, or uri.url field must be defined.") {
             ClusterMetricsInput(path, pathParams, url)
         }
     }
