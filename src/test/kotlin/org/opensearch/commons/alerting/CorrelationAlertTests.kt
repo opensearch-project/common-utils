@@ -9,7 +9,6 @@ import org.opensearch.commons.utils.recreateObject
 import java.time.temporal.ChronoUnit
 
 class CorrelationAlertTests {
-
     @Test
     fun `test correlation alert as template args`() {
         // Create sample data for CorrelationAlert
@@ -21,17 +20,17 @@ class CorrelationAlertTests {
         assertEquals(
             templateArgs["correlated_finding_ids"],
             correlationAlert.correlatedFindingIds,
-            "Template args correlatedFindingIds does not match"
+            "Template args correlatedFindingIds does not match",
         )
         assertEquals(
             templateArgs["correlation_rule_id"],
             correlationAlert.correlationRuleId,
-            "Template args correlationRuleId does not match"
+            "Template args correlationRuleId does not match",
         )
         assertEquals(
             templateArgs["correlation_rule_name"],
             correlationAlert.correlationRuleName,
-            "Template args correlationRuleName does not match"
+            "Template args correlationRuleName does not match",
         )
 
         // Verify inherited properties from BaseAlert
@@ -41,7 +40,7 @@ class CorrelationAlertTests {
         assertEquals(
             templateArgs["trigger_name"],
             correlationAlert.triggerName,
-            "Template args triggerName does not match"
+            "Template args triggerName does not match",
         )
         assertEquals(templateArgs["state"], correlationAlert.state, "Template args state does not match")
         assertEquals(templateArgs["start_time"], correlationAlert.startTime, "Template args startTime does not match")
@@ -49,18 +48,18 @@ class CorrelationAlertTests {
         assertEquals(
             templateArgs["acknowledged_time"],
             correlationAlert.acknowledgedTime,
-            "Template args acknowledgedTime does not match"
+            "Template args acknowledgedTime does not match",
         )
         assertEquals(
             templateArgs["error_message"],
             correlationAlert.errorMessage,
-            "Template args errorMessage does not match"
+            "Template args errorMessage does not match",
         )
         assertEquals(templateArgs["severity"], correlationAlert.severity, "Template args severity does not match")
         assertEquals(
             templateArgs["action_execution_results"],
             correlationAlert.actionExecutionResults,
-            "Template args actionExecutionResults does not match"
+            "Template args actionExecutionResults does not match",
         )
     }
 

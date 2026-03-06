@@ -20,23 +20,26 @@ import java.time.Instant
 data class ActionExecutionResult(
     val actionId: String,
     val lastExecutionTime: Instant?,
-    val throttledCount: Int = 0
-) : Writeable, ToXContentObject {
-
+    val throttledCount: Int = 0,
+) : Writeable,
+    ToXContentObject {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readString(), // actionId
         sin.readOptionalInstant(), // lastExecutionTime
-        sin.readInt() // throttledCount
+        sin.readInt(), // throttledCount
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(ACTION_ID_FIELD, actionId)
             .optionalTimeField(LAST_EXECUTION_TIME_FIELD, lastExecutionTime)
             .field(THROTTLED_COUNT_FIELD, throttledCount)
             .endObject()
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -62,9 +65,17 @@ data class ActionExecutionResult(
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
                 when (fieldName) {
-                    ACTION_ID_FIELD -> actionId = xcp.text()
-                    THROTTLED_COUNT_FIELD -> throttledCount = xcp.intValue()
-                    LAST_EXECUTION_TIME_FIELD -> lastExecutionTime = xcp.instant()
+                    ACTION_ID_FIELD -> {
+                        actionId = xcp.text()
+                    }
+
+                    THROTTLED_COUNT_FIELD -> {
+                        throttledCount = xcp.intValue()
+                    }
+
+                    LAST_EXECUTION_TIME_FIELD -> {
+                        lastExecutionTime = xcp.instant()
+                    }
 
                     else -> {
                         throw IllegalStateException("Unexpected field: $fieldName, while parsing action")
@@ -78,8 +89,6 @@ data class ActionExecutionResult(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): ActionExecutionResult {
-            return ActionExecutionResult(sin)
-        }
+        fun readFrom(sin: StreamInput): ActionExecutionResult = ActionExecutionResult(sin)
     }
 }

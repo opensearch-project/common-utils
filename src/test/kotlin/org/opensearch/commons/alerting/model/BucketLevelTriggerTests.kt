@@ -15,7 +15,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class BucketLevelTriggerTests {
-
     @Test
     fun `test BucketLevelTrigger asTemplateArgs`() {
         val trigger = randomBucketLevelTrigger()
@@ -29,12 +28,12 @@ class BucketLevelTriggerTests {
         assertEquals(
             trigger.actions.size,
             actions.size,
-            "Template arg field 'actions' doesn't match"
+            "Template arg field 'actions' doesn't match",
         )
         assertEquals(
             trigger.getParentBucketPath(),
             templateArgs[PARENT_BUCKET_PATH],
-            "Template arg field 'parentBucketPath' doesn't match"
+            "Template arg field 'parentBucketPath' doesn't match",
         )
         val condition = templateArgs[CONDITION_FIELD] as? Map<*, *>
         assertNotNull(condition, "Template arg field 'condition' is empty")
@@ -43,12 +42,12 @@ class BucketLevelTriggerTests {
         assertEquals(
             trigger.bucketSelector.script.idOrCode,
             script[SOURCE_FIELD],
-            "Template arg field 'script.source' doesn't match"
+            "Template arg field 'script.source' doesn't match",
         )
         assertEquals(
             trigger.bucketSelector.script.lang,
             script[LANG_FIELD],
-            "Template arg field 'script.lang' doesn't match"
+            "Template arg field 'script.lang' doesn't match",
         )
     }
 }

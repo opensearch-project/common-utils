@@ -59,7 +59,7 @@ class ScheduleTest : XContentTestBase {
         assertEquals(
             testInstance.plusSeconds(2L),
             nextTimeToExecute,
-            "nextTimeToExecute should be 2 seconds after test instance"
+            "nextTimeToExecute should be 2 seconds after test instance",
         )
     }
 
@@ -79,7 +79,7 @@ class ScheduleTest : XContentTestBase {
         assertEquals(
             previousExecutionTimeInstance.plusSeconds(2L),
             nextTimeToExecute,
-            "nextTimeToExecute should be 2 seconds after test instance"
+            "nextTimeToExecute should be 2 seconds after test instance",
         )
     }
 
@@ -98,7 +98,7 @@ class ScheduleTest : XContentTestBase {
         assertEquals(
             enabledTimeInstance.plusSeconds(120L),
             nextTimeToExecute,
-            "nextTimeToExecute should be 120 seconds seconds after enabled time"
+            "nextTimeToExecute should be 120 seconds seconds after enabled time",
         )
     }
 
@@ -120,7 +120,7 @@ class ScheduleTest : XContentTestBase {
         assertEquals(
             previousExecutionTimeInstance.plusSeconds(60L),
             nextTimeToExecute,
-            "nextTimeToExecute should be 60 seconds after previous execution time"
+            "nextTimeToExecute should be 60 seconds after previous execution time",
         )
     }
 
@@ -176,8 +176,8 @@ class ScheduleTest : XContentTestBase {
         assertFailsWith(IllegalArgumentException::class, "Expected IllegalArgumentException") {
             Schedule.parse(
                 parser(
-                    scheduleString
-                )
+                    scheduleString,
+                ),
             )
         }
     }
@@ -362,12 +362,12 @@ class ScheduleTest : XContentTestBase {
         assertEquals(
             schedule.interval,
             period[INTERVAL_FIELD],
-            "Template arg field 'interval' doesn't match"
+            "Template arg field 'interval' doesn't match",
         )
         assertEquals(
             schedule.unit.toString(),
             period[UNIT_FIELD],
-            "Template arg field 'unit' doesn't match"
+            "Template arg field 'unit' doesn't match",
         )
     }
 
@@ -382,12 +382,12 @@ class ScheduleTest : XContentTestBase {
         assertEquals(
             schedule.expression,
             cron[EXPRESSION_FIELD],
-            "Template arg field 'expression' doesn't match"
+            "Template arg field 'expression' doesn't match",
         )
         assertEquals(
             schedule.timezone.toString(),
             cron[TIMEZONE_FIELD],
-            "Template arg field 'timezone' doesn't match"
+            "Template arg field 'timezone' doesn't match",
         )
     }
 }

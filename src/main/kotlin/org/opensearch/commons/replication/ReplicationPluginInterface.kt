@@ -18,7 +18,6 @@ import org.opensearch.transport.client.node.NodeClient
  * Transport action plugin interfaces for the cross-cluster-replication plugin.
  */
 object ReplicationPluginInterface {
-
     /**
      * Stop replication.
      * @param client Node client for making transport action
@@ -29,7 +28,7 @@ object ReplicationPluginInterface {
     fun stopReplication(
         client: Client,
         request: StopIndexReplicationRequest,
-        listener: ActionListener<AcknowledgedResponse>
+        listener: ActionListener<AcknowledgedResponse>,
     ) {
         val nodeClient = client as NodeClient
         return nodeClient.execute(
@@ -39,7 +38,7 @@ object ReplicationPluginInterface {
                 recreateObject(response) {
                     AcknowledgedResponse(it)
                 }
-            }
+            },
         )
     }
 
@@ -52,9 +51,9 @@ object ReplicationPluginInterface {
     @Suppress("UNCHECKED_CAST")
     private fun <Response : AcknowledgedResponse> wrapActionListener(
         listener: ActionListener<Response>,
-        recreate: (Writeable) -> Response
-    ): ActionListener<Response> {
-        return object : ActionListener<ActionResponse> {
+        recreate: (Writeable) -> Response,
+    ): ActionListener<Response> =
+        object : ActionListener<ActionResponse> {
             override fun onResponse(response: ActionResponse) {
                 val recreated = response as? Response ?: recreate(response)
                 listener.onResponse(recreated)
@@ -64,5 +63,4 @@ object ReplicationPluginInterface {
                 listener.onFailure(exception)
             }
         } as ActionListener<Response>
-    }
 }

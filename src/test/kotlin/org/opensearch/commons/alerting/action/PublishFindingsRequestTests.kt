@@ -8,7 +8,6 @@ import org.opensearch.commons.alerting.randomFinding
 import org.opensearch.core.common.io.stream.StreamInput
 
 class PublishFindingsRequestTests {
-
     @Test
     fun `test delete monitor request`() {
         val finding = randomFinding()

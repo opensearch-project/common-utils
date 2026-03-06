@@ -21,7 +21,7 @@ class IndexWorkflowResponse : BaseResponse {
         version: Long,
         seqNo: Long,
         primaryTerm: Long,
-        workflow: Workflow
+        workflow: Workflow,
     ) : super() {
         this.id = id
         this.version = version
@@ -36,7 +36,7 @@ class IndexWorkflowResponse : BaseResponse {
         sin.readLong(), // version
         sin.readLong(), // seqNo
         sin.readLong(), // primaryTerm
-        Workflow.readFrom(sin) as Workflow // workflow
+        Workflow.readFrom(sin) as Workflow, // workflow
     )
 
     @Throws(IOException::class)
@@ -49,13 +49,16 @@ class IndexWorkflowResponse : BaseResponse {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(IndexUtils._ID, id)
             .field(IndexUtils._VERSION, version)
             .field(IndexUtils._SEQ_NO, seqNo)
             .field(IndexUtils._PRIMARY_TERM, primaryTerm)
             .field("workflow", workflow)
             .endObject()
-    }
 }

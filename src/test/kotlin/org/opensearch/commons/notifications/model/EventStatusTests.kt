@@ -14,27 +14,28 @@ import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
 internal class EventStatusTests {
-
     @Test
     fun `Event Status serialize and deserialize should be equal`() {
-        val sampleStatus = EventStatus(
-            "config_id",
-            "name",
-            ConfigType.SLACK,
-            deliveryStatus = DeliveryStatus("404", "invalid recipient")
-        )
+        val sampleStatus =
+            EventStatus(
+                "config_id",
+                "name",
+                ConfigType.SLACK,
+                deliveryStatus = DeliveryStatus("404", "invalid recipient"),
+            )
         val recreatedObject = recreateObject(sampleStatus) { EventStatus(it) }
         assertEquals(sampleStatus, recreatedObject)
     }
 
     @Test
     fun `Event Status serialize and deserialize using json should be equal`() {
-        val sampleStatus = EventStatus(
-            "config_id",
-            "name",
-            ConfigType.SLACK,
-            deliveryStatus = DeliveryStatus("404", "invalid recipient")
-        )
+        val sampleStatus =
+            EventStatus(
+                "config_id",
+                "name",
+                ConfigType.SLACK,
+                deliveryStatus = DeliveryStatus("404", "invalid recipient"),
+            )
         val jsonString = getJsonString(sampleStatus)
         val recreatedObject = createObjectFromJsonString(jsonString) { EventStatus.parse(it) }
         assertEquals(sampleStatus, recreatedObject)
@@ -42,47 +43,50 @@ internal class EventStatusTests {
 
     @Test
     fun `Event Status should safely ignore extra field in json object`() {
-        val sampleStatus = EventStatus(
-            "config_id",
-            "name",
-            ConfigType.SLACK,
-            deliveryStatus = DeliveryStatus("404", "invalid recipient")
-        )
-        val jsonString = """
-        {
-           "config_id":"config_id",
-           "config_type":"slack",
-           "config_name":"name",
-           "email_recipient_status":[],
-           "delivery_status":
-           {
-                "status_code":"404",
-                "status_text":"invalid recipient"
-           },
-           "extra_field_1":["extra", "value"],
-           "extra_field_2":{"extra":"value"},
-           "extra_field_3":"extra value 3"
-        }
-        """.trimIndent()
+        val sampleStatus =
+            EventStatus(
+                "config_id",
+                "name",
+                ConfigType.SLACK,
+                deliveryStatus = DeliveryStatus("404", "invalid recipient"),
+            )
+        val jsonString =
+            """
+            {
+               "config_id":"config_id",
+               "config_type":"slack",
+               "config_name":"name",
+               "email_recipient_status":[],
+               "delivery_status":
+               {
+                    "status_code":"404",
+                    "status_text":"invalid recipient"
+               },
+               "extra_field_1":["extra", "value"],
+               "extra_field_2":{"extra":"value"},
+               "extra_field_3":"extra value 3"
+            }
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { EventStatus.parse(it) }
         assertEquals(sampleStatus, recreatedObject)
     }
 
     @Test
     fun `Event Status should throw exception when config type is email with empty emailRecipientList`() {
-        val jsonString = """
-        {
-           "config_id":"config_id",
-           "config_type":"email",
-           "config_name":"name",
-           "delivery_status":
-           {
-                "status_code":"404",
-                "status_text":"invalid recipient"
-           },
-           "email_recipient_status":[]
-        }
-        """.trimIndent()
+        val jsonString =
+            """
+            {
+               "config_id":"config_id",
+               "config_type":"email",
+               "config_name":"name",
+               "delivery_status":
+               {
+                    "status_code":"404",
+                    "status_text":"invalid recipient"
+               },
+               "email_recipient_status":[]
+            }
+            """.trimIndent()
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { EventStatus.parse(it) }
         }
@@ -102,7 +106,7 @@ internal class EventStatusTests {
             EventStatus(
                 "config_id",
                 "name",
-                ConfigType.SLACK
+                ConfigType.SLACK,
             )
         }
     }
@@ -113,7 +117,7 @@ internal class EventStatusTests {
             EventStatus(
                 "config_id",
                 "name",
-                ConfigType.CHIME
+                ConfigType.CHIME,
             )
         }
     }
@@ -124,7 +128,7 @@ internal class EventStatusTests {
             EventStatus(
                 "config_id",
                 "name",
-                ConfigType.MICROSOFT_TEAMS
+                ConfigType.MICROSOFT_TEAMS,
             )
         }
     }
@@ -135,7 +139,7 @@ internal class EventStatusTests {
             EventStatus(
                 "config_id",
                 "name",
-                ConfigType.WEBHOOK
+                ConfigType.WEBHOOK,
             )
         }
     }
@@ -146,7 +150,7 @@ internal class EventStatusTests {
             EventStatus(
                 "config_id",
                 "name",
-                ConfigType.EMAIL
+                ConfigType.EMAIL,
             )
         }
     }

@@ -15,7 +15,6 @@ import org.opensearch.core.xcontent.XContentParser
  * NotificationConfig search results
  */
 class NotificationConfigSearchResult : SearchResults<NotificationConfigInfo> {
-
     /**
      * single item result constructor
      */
@@ -28,7 +27,7 @@ class NotificationConfigSearchResult : SearchResults<NotificationConfigInfo> {
         0,
         objectList.size.toLong(),
         TotalHits.Relation.EQUAL_TO,
-        objectList
+        objectList,
     )
 
     /**
@@ -38,7 +37,7 @@ class NotificationConfigSearchResult : SearchResults<NotificationConfigInfo> {
         startIndex: Long,
         totalHits: Long,
         totalHitRelation: TotalHits.Relation,
-        objectList: List<NotificationConfigInfo>
+        objectList: List<NotificationConfigInfo>,
     ) : super(startIndex, totalHits, totalHitRelation, CONFIG_LIST_TAG, objectList)
 
     /**
@@ -59,13 +58,11 @@ class NotificationConfigSearchResult : SearchResults<NotificationConfigInfo> {
         from,
         response,
         searchHitParser,
-        CONFIG_LIST_TAG
+        CONFIG_LIST_TAG,
     )
 
     /**
      * {@inheritDoc}
      */
-    override fun parseItem(parser: XContentParser): NotificationConfigInfo {
-        return NotificationConfigInfo.parse(parser)
-    }
+    override fun parseItem(parser: XContentParser): NotificationConfigInfo = NotificationConfigInfo.parse(parser)
 }

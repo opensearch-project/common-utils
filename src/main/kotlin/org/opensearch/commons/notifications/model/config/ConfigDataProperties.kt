@@ -26,37 +26,40 @@ internal object ConfigDataProperties {
      */
     private data class ConfigProperty(
         val configDataReader: Reader<out BaseConfigData>,
-        val configDataParser: XParser<out BaseConfigData>
+        val configDataParser: XParser<out BaseConfigData>,
     )
 
-    private val CONFIG_PROPERTIES_MAP = mapOf(
-        Pair(ConfigType.SLACK, ConfigProperty(Slack.reader, Slack.xParser)),
-        Pair(ConfigType.CHIME, ConfigProperty(Chime.reader, Chime.xParser)),
-        Pair(ConfigType.WEBHOOK, ConfigProperty(Webhook.reader, Webhook.xParser)),
-        Pair(ConfigType.EMAIL, ConfigProperty(Email.reader, Email.xParser)),
-        Pair(ConfigType.SNS, ConfigProperty(Sns.reader, Sns.xParser)),
-        Pair(ConfigType.SES_ACCOUNT, ConfigProperty(SesAccount.reader, SesAccount.xParser)),
-        Pair(ConfigType.EMAIL_GROUP, ConfigProperty(EmailGroup.reader, EmailGroup.xParser)),
-        Pair(ConfigType.SMTP_ACCOUNT, ConfigProperty(SmtpAccount.reader, SmtpAccount.xParser)),
-        Pair(ConfigType.MICROSOFT_TEAMS, ConfigProperty(MicrosoftTeams.reader, MicrosoftTeams.xParser)),
-        Pair(ConfigType.MATTERMOST, ConfigProperty(Slack.reader, Slack.xParser))
-    )
+    private val CONFIG_PROPERTIES_MAP =
+        mapOf(
+            Pair(ConfigType.SLACK, ConfigProperty(Slack.reader, Slack.xParser)),
+            Pair(ConfigType.CHIME, ConfigProperty(Chime.reader, Chime.xParser)),
+            Pair(ConfigType.WEBHOOK, ConfigProperty(Webhook.reader, Webhook.xParser)),
+            Pair(ConfigType.EMAIL, ConfigProperty(Email.reader, Email.xParser)),
+            Pair(ConfigType.SNS, ConfigProperty(Sns.reader, Sns.xParser)),
+            Pair(ConfigType.SES_ACCOUNT, ConfigProperty(SesAccount.reader, SesAccount.xParser)),
+            Pair(ConfigType.EMAIL_GROUP, ConfigProperty(EmailGroup.reader, EmailGroup.xParser)),
+            Pair(ConfigType.SMTP_ACCOUNT, ConfigProperty(SmtpAccount.reader, SmtpAccount.xParser)),
+            Pair(ConfigType.MICROSOFT_TEAMS, ConfigProperty(MicrosoftTeams.reader, MicrosoftTeams.xParser)),
+            Pair(ConfigType.MATTERMOST, ConfigProperty(Slack.reader, Slack.xParser)),
+        )
 
     /**
      * Get Reader for provided config type
      * @param @ConfigType
      * @return Reader
      */
-    fun getReaderForConfigType(configType: ConfigType): Reader<out BaseConfigData> {
-        return CONFIG_PROPERTIES_MAP[configType]?.configDataReader
+    fun getReaderForConfigType(configType: ConfigType): Reader<out BaseConfigData> =
+        CONFIG_PROPERTIES_MAP[configType]?.configDataReader
             ?: throw IllegalArgumentException("Transport action used with unknown ConfigType:$configType")
-    }
 
     /**
      * Validate config data is of ConfigType
      */
-    fun validateConfigData(configType: ConfigType, configData: BaseConfigData?): Boolean {
-        return when (configType) {
+    fun validateConfigData(
+        configType: ConfigType,
+        configData: BaseConfigData?,
+    ): Boolean =
+        when (configType) {
             ConfigType.SLACK -> configData is Slack
             ConfigType.WEBHOOK -> configData is Webhook
             ConfigType.EMAIL -> configData is Email
@@ -69,7 +72,6 @@ internal object ConfigDataProperties {
             ConfigType.MATTERMOST -> configData is Slack
             ConfigType.NONE -> true
         }
-    }
 
     /**
      * Creates config data from parser for given configType
@@ -78,7 +80,8 @@ internal object ConfigDataProperties {
      * @return created BaseConfigData on success. null if configType is not recognized
      *
      */
-    fun createConfigData(configType: ConfigType, parser: XContentParser): BaseConfigData? {
-        return CONFIG_PROPERTIES_MAP[configType]?.configDataParser?.parse(parser)
-    }
+    fun createConfigData(
+        configType: ConfigType,
+        parser: XContentParser,
+    ): BaseConfigData? = CONFIG_PROPERTIES_MAP[configType]?.configDataParser?.parse(parser)
 }

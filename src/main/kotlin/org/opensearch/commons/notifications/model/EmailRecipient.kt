@@ -20,9 +20,8 @@ import java.io.IOException
  * Data class representing Email recipient.
  */
 data class EmailRecipient(
-    val recipient: String
+    val recipient: String,
 ) : BaseConfigData {
-
     init {
         validateEmail(recipient)
     }
@@ -52,13 +51,16 @@ data class EmailRecipient(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    RECIPIENT_TAG -> recipient = parser.text()
+                    RECIPIENT_TAG -> {
+                        recipient = parser.text()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing EmailRecipient")
@@ -75,7 +77,7 @@ data class EmailRecipient(
      * @param input StreamInput stream to deserialize data from.
      */
     constructor(input: StreamInput) : this(
-        recipient = input.readString()
+        recipient = input.readString(),
     )
 
     /**
@@ -88,9 +90,13 @@ data class EmailRecipient(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(RECIPIENT_TAG, recipient)
             .endObject()
     }

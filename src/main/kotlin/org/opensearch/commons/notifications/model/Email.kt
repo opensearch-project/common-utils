@@ -26,9 +26,8 @@ import java.io.IOException
 data class Email(
     val emailAccountID: String,
     val recipients: List<EmailRecipient>,
-    val emailGroupIds: List<String>
+    val emailGroupIds: List<String>,
 ) : BaseConfigData {
-
     init {
         require(!Strings.isNullOrEmpty(emailAccountID)) { "emailAccountID is null or empty" }
     }
@@ -60,15 +59,24 @@ data class Email(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    EMAIL_ACCOUNT_ID_TAG -> emailAccountID = parser.text()
-                    RECIPIENT_LIST_TAG -> recipients = parser.objectList { EmailRecipient.parse(it) }
-                    EMAIL_GROUP_ID_LIST_TAG -> emailGroupIds = parser.stringList()
+                    EMAIL_ACCOUNT_ID_TAG -> {
+                        emailAccountID = parser.text()
+                    }
+
+                    RECIPIENT_LIST_TAG -> {
+                        recipients = parser.objectList { EmailRecipient.parse(it) }
+                    }
+
+                    EMAIL_GROUP_ID_LIST_TAG -> {
+                        emailGroupIds = parser.stringList()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing Email")
@@ -87,7 +95,7 @@ data class Email(
     constructor(input: StreamInput) : this(
         emailAccountID = input.readString(),
         recipients = input.readList(EmailRecipient.reader),
-        emailGroupIds = input.readStringList()
+        emailGroupIds = input.readStringList(),
     )
 
     /**
@@ -102,9 +110,13 @@ data class Email(
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(EMAIL_ACCOUNT_ID_TAG, emailAccountID)
             .field(RECIPIENT_LIST_TAG, recipients)
             .field(EMAIL_GROUP_ID_LIST_TAG, emailGroupIds)

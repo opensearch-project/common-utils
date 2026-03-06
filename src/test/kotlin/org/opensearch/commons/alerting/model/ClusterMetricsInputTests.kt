@@ -9,25 +9,24 @@ class ClusterMetricsInputTests {
     private var pathParams = ""
     private var url = ""
 
-    private val validClusters = listOf(
-        "cluster-name",
-        "cluster:name"
-    )
+    private val validClusters =
+        listOf(
+            "cluster-name",
+            "cluster:name",
+        )
 
-    private val invalidClusters = listOf(
-        // Character length less than 1 should return FALSE
-        "",
-
-        // Character length greater than 255 should return FALSE
-        (0..255).joinToString(separator = "") { "a" },
-
-        // Invalid characters should return FALSE
-        "cluster-#name",
-        "cluster:#name",
-
-        // More than 1 `:` character should return FALSE
-        "bad:cluster:name"
-    )
+    private val invalidClusters =
+        listOf(
+            // Character length less than 1 should return FALSE
+            "",
+            // Character length greater than 255 should return FALSE
+            (0..255).joinToString(separator = "") { "a" },
+            // Invalid characters should return FALSE
+            "cluster-#name",
+            "cluster:#name",
+            // More than 1 `:` character should return FALSE
+            "bad:cluster:name",
+        )
 
     @Test
     fun `test valid ClusterMetricsInput creation using HTTP URI component fields`() {
@@ -296,7 +295,8 @@ class ClusterMetricsInputTests {
 
             // WHEN + THEN
             assertFailsWith<IllegalArgumentException>(
-                "The provided path parameters contain invalid characters or spaces. Please omit: " + ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")
+                "The provided path parameters contain invalid characters or spaces. Please omit: " +
+                    ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" "),
             ) {
                 clusterMetricsInput.parsePathParams()
             }
@@ -308,7 +308,8 @@ class ClusterMetricsInputTests {
     @Test
     fun `test ClusterMetricsInput correctly determines ApiType when path is provided as URI component`() {
         var testCount = 1 // Start off with count of 1 to account for ApiType.BLANK
-        ClusterMetricsInput.ClusterMetricType.values()
+        ClusterMetricsInput.ClusterMetricType
+            .values()
             .filter { enum -> enum != ClusterMetricsInput.ClusterMetricType.BLANK }
             .forEach { testApiType ->
                 // GIVEN
@@ -328,7 +329,8 @@ class ClusterMetricsInputTests {
     @Test
     fun `test ClusterMetricsInput correctly determines ApiType when path and path params are provided as URI components`() {
         var testCount = 1 // Start off with count of 1 to account for ApiType.BLANK
-        ClusterMetricsInput.ClusterMetricType.values()
+        ClusterMetricsInput.ClusterMetricType
+            .values()
             .filter { enum -> enum != ClusterMetricsInput.ClusterMetricType.BLANK }
             .forEach { testApiType ->
                 // GIVEN
@@ -348,7 +350,8 @@ class ClusterMetricsInputTests {
     @Test
     fun `test ClusterMetricsInput correctly determines ApiType when path is provided in URL field`() {
         var testCount = 1 // Start off with count of 1 to account for ApiType.BLANK
-        ClusterMetricsInput.ClusterMetricType.values()
+        ClusterMetricsInput.ClusterMetricType
+            .values()
             .filter { enum -> enum != ClusterMetricsInput.ClusterMetricType.BLANK }
             .forEach { testApiType ->
                 // GIVEN
@@ -369,7 +372,8 @@ class ClusterMetricsInputTests {
     @Test
     fun `test ClusterMetricsInput correctly determines ApiType when path and path params are provided in URL field`() {
         var testCount = 1 // Start off with count of 1 to account for ApiType.BLANK
-        ClusterMetricsInput.ClusterMetricType.values()
+        ClusterMetricsInput.ClusterMetricType
+            .values()
             .filter { enum -> enum != ClusterMetricsInput.ClusterMetricType.BLANK }
             .forEach { testApiType ->
                 // GIVEN
@@ -480,12 +484,13 @@ class ClusterMetricsInputTests {
             val clusters = listOf(it)
 
             // WHEN
-            val clusterMetricsInput = ClusterMetricsInput(
-                path = path,
-                pathParams = pathParams,
-                url = url,
-                clusters = clusters
-            )
+            val clusterMetricsInput =
+                ClusterMetricsInput(
+                    path = path,
+                    pathParams = pathParams,
+                    url = url,
+                    clusters = clusters,
+                )
 
             // THEN
             assertEquals(path, clusterMetricsInput.path)
@@ -503,12 +508,13 @@ class ClusterMetricsInputTests {
         val clusters = validClusters
 
         // WHEN
-        val clusterMetricsInput = ClusterMetricsInput(
-            path = path,
-            pathParams = pathParams,
-            url = url,
-            clusters = clusters
-        )
+        val clusterMetricsInput =
+            ClusterMetricsInput(
+                path = path,
+                pathParams = pathParams,
+                url = url,
+                clusters = clusters,
+            )
 
         // THEN
         assertEquals(path, clusterMetricsInput.path)
@@ -531,7 +537,7 @@ class ClusterMetricsInputTests {
                     path = path,
                     pathParams = pathParams,
                     url = url,
-                    clusters = clusters
+                    clusters = clusters,
                 )
             }
         }
@@ -551,7 +557,7 @@ class ClusterMetricsInputTests {
                 path = path,
                 pathParams = pathParams,
                 url = url,
-                clusters = clusters
+                clusters = clusters,
             )
         }
     }
@@ -569,7 +575,7 @@ class ClusterMetricsInputTests {
                 path = path,
                 pathParams = pathParams,
                 url = url,
-                clusters = listOf()
+                clusters = listOf(),
             )
         }
     }
@@ -587,7 +593,7 @@ class ClusterMetricsInputTests {
                 path = path,
                 pathParams = pathParams,
                 url = url,
-                clusters = listOf()
+                clusters = listOf(),
             )
         }
     }

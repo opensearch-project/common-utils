@@ -43,7 +43,6 @@ import org.opensearch.transport.client.node.NodeClient
  * All the transport action plugin interfaces for the Notification plugin
  */
 object NotificationsPluginInterface {
-
     /**
      * Create notification configuration.
      * @param client Node client for making transport action
@@ -53,12 +52,12 @@ object NotificationsPluginInterface {
     fun createNotificationConfig(
         client: NodeClient,
         request: CreateNotificationConfigRequest,
-        listener: ActionListener<CreateNotificationConfigResponse>
+        listener: ActionListener<CreateNotificationConfigResponse>,
     ) {
         client.execute(
             CREATE_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            wrapActionListener(listener) { response -> recreateObject(response) { CreateNotificationConfigResponse(it) } }
+            wrapActionListener(listener) { response -> recreateObject(response) { CreateNotificationConfigResponse(it) } },
         )
     }
 
@@ -71,12 +70,12 @@ object NotificationsPluginInterface {
     fun updateNotificationConfig(
         client: NodeClient,
         request: UpdateNotificationConfigRequest,
-        listener: ActionListener<UpdateNotificationConfigResponse>
+        listener: ActionListener<UpdateNotificationConfigResponse>,
     ) {
         client.execute(
             UPDATE_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            wrapActionListener(listener) { response -> recreateObject(response) { UpdateNotificationConfigResponse(it) } }
+            wrapActionListener(listener) { response -> recreateObject(response) { UpdateNotificationConfigResponse(it) } },
         )
     }
 
@@ -89,12 +88,12 @@ object NotificationsPluginInterface {
     fun deleteNotificationConfig(
         client: NodeClient,
         request: DeleteNotificationConfigRequest,
-        listener: ActionListener<DeleteNotificationConfigResponse>
+        listener: ActionListener<DeleteNotificationConfigResponse>,
     ) {
         client.execute(
             DELETE_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            wrapActionListener(listener) { response -> recreateObject(response) { DeleteNotificationConfigResponse(it) } }
+            wrapActionListener(listener) { response -> recreateObject(response) { DeleteNotificationConfigResponse(it) } },
         )
     }
 
@@ -107,12 +106,12 @@ object NotificationsPluginInterface {
     fun getNotificationConfig(
         client: NodeClient,
         request: GetNotificationConfigRequest,
-        listener: ActionListener<GetNotificationConfigResponse>
+        listener: ActionListener<GetNotificationConfigResponse>,
     ) {
         client.execute(
             GET_NOTIFICATION_CONFIG_ACTION_TYPE,
             request,
-            wrapActionListener(listener) { response -> recreateObject(response) { GetNotificationConfigResponse(it) } }
+            wrapActionListener(listener) { response -> recreateObject(response) { GetNotificationConfigResponse(it) } },
         )
     }
 
@@ -125,12 +124,12 @@ object NotificationsPluginInterface {
     fun getPluginFeatures(
         client: NodeClient,
         request: GetPluginFeaturesRequest,
-        listener: ActionListener<GetPluginFeaturesResponse>
+        listener: ActionListener<GetPluginFeaturesResponse>,
     ) {
         client.execute(
             GET_PLUGIN_FEATURES_ACTION_TYPE,
             request,
-            wrapActionListener(listener) { response -> recreateObject(response) { GetPluginFeaturesResponse(it) } }
+            wrapActionListener(listener) { response -> recreateObject(response) { GetPluginFeaturesResponse(it) } },
         )
     }
 
@@ -143,12 +142,12 @@ object NotificationsPluginInterface {
     fun getChannelList(
         client: NodeClient,
         request: GetChannelListRequest,
-        listener: ActionListener<GetChannelListResponse>
+        listener: ActionListener<GetChannelListResponse>,
     ) {
         client.execute(
             GET_CHANNEL_LIST_ACTION_TYPE,
             request,
-            wrapActionListener(listener) { response -> recreateObject(response) { GetChannelListResponse(it) } }
+            wrapActionListener(listener) { response -> recreateObject(response) { GetChannelListResponse(it) } },
         )
     }
 
@@ -165,7 +164,7 @@ object NotificationsPluginInterface {
         eventSource: EventSource,
         channelMessage: ChannelMessage,
         channelIds: List<String>,
-        listener: ActionListener<SendNotificationResponse>
+        listener: ActionListener<SendNotificationResponse>,
     ) {
         val threadContext: String? =
             client.threadPool().threadContext.getTransient<String>(OPENSEARCH_SECURITY_USER_INFO_THREAD_CONTEXT)
@@ -173,7 +172,7 @@ object NotificationsPluginInterface {
         wrapper.execute(
             SEND_NOTIFICATION_ACTION_TYPE,
             SendNotificationRequest(eventSource, channelMessage, channelIds, threadContext),
-            wrapActionListener(listener) { response -> recreateObject(response) { SendNotificationResponse(it) } }
+            wrapActionListener(listener) { response -> recreateObject(response) { SendNotificationResponse(it) } },
         )
     }
 
@@ -187,12 +186,12 @@ object NotificationsPluginInterface {
     fun publishLegacyNotification(
         client: NodeClient,
         request: LegacyPublishNotificationRequest,
-        listener: ActionListener<LegacyPublishNotificationResponse>
+        listener: ActionListener<LegacyPublishNotificationResponse>,
     ) {
         client.execute(
             LEGACY_PUBLISH_NOTIFICATION_ACTION_TYPE,
             request,
-            wrapActionListener(listener) { response -> recreateObject(response) { LegacyPublishNotificationResponse(it) } }
+            wrapActionListener(listener) { response -> recreateObject(response) { LegacyPublishNotificationResponse(it) } },
         )
     }
 
@@ -205,9 +204,9 @@ object NotificationsPluginInterface {
     @Suppress("UNCHECKED_CAST")
     private fun <Response : BaseResponse> wrapActionListener(
         listener: ActionListener<Response>,
-        recreate: (Writeable) -> Response
-    ): ActionListener<Response> {
-        return object : ActionListener<ActionResponse> {
+        recreate: (Writeable) -> Response,
+    ): ActionListener<Response> =
+        object : ActionListener<ActionResponse> {
             override fun onResponse(response: ActionResponse) {
                 val recreated = response as? Response ?: recreate(response)
                 listener.onResponse(recreated)
@@ -217,5 +216,4 @@ object NotificationsPluginInterface {
                 listener.onFailure(exception)
             }
         } as ActionListener<Response>
-    }
 }

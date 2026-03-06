@@ -46,13 +46,16 @@ class DeleteNotificationConfigResponse : BaseResponse {
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    DELETE_RESPONSE_LIST_TAG -> configIdToStatus = convertMapStrings(parser.mapStrings())
+                    DELETE_RESPONSE_LIST_TAG -> {
+                        configIdToStatus = convertMapStrings(parser.mapStrings())
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing DeleteNotificationConfigResponse")
@@ -63,9 +66,8 @@ class DeleteNotificationConfigResponse : BaseResponse {
             return DeleteNotificationConfigResponse(configIdToStatus)
         }
 
-        private fun convertMapStrings(inputMap: Map<String, String>): Map<String, RestStatus> {
-            return inputMap.mapValues { RestStatus.valueOf(it.value) }
-        }
+        private fun convertMapStrings(inputMap: Map<String, String>): Map<String, RestStatus> =
+            inputMap.mapValues { RestStatus.valueOf(it.value) }
     }
 
     /**
@@ -95,9 +97,13 @@ class DeleteNotificationConfigResponse : BaseResponse {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(DELETE_RESPONSE_LIST_TAG, configIdToStatus)
             .endObject()
     }

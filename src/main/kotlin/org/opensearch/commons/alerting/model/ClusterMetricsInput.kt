@@ -25,7 +25,7 @@ data class ClusterMetricsInput(
     var path: String,
     var pathParams: String = "",
     var url: String,
-    var clusters: List<String> = listOf()
+    var clusters: List<String> = listOf(),
 ) : Input {
     val clusterMetricType: ClusterMetricType
     val constructedUri: URI
@@ -73,11 +73,15 @@ data class ClusterMetricsInput(
     constructor(sin: StreamInput) : this(
         sin.readString(), // path
         sin.readString(), // path params
-        sin.readString() // url
+        sin.readString(), // url
     )
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .startObject(URI_FIELD)
             .field(API_TYPE_FIELD, clusterMetricType)
             .field(PATH_FIELD, path)
@@ -86,11 +90,8 @@ data class ClusterMetricsInput(
             .field(CLUSTERS_FIELD, clusters)
             .endObject()
             .endObject()
-    }
 
-    override fun name(): String {
-        return URI_FIELD
-    }
+    override fun name(): String = URI_FIELD
 
     override fun writeTo(out: StreamOutput) {
         out.writeString(clusterMetricType.toString())
@@ -131,14 +132,23 @@ data class ClusterMetricsInput(
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
                 when (fieldName) {
-                    PATH_FIELD -> path = xcp.text()
-                    PATH_PARAMS_FIELD -> pathParams = xcp.text()
-                    URL_FIELD -> url = xcp.text()
+                    PATH_FIELD -> {
+                        path = xcp.text()
+                    }
+
+                    PATH_PARAMS_FIELD -> {
+                        pathParams = xcp.text()
+                    }
+
+                    URL_FIELD -> {
+                        url = xcp.text()
+                    }
+
                     CLUSTERS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) clusters.add(xcp.text())
                     }
@@ -154,8 +164,8 @@ data class ClusterMetricsInput(
      * @return The [URI] constructed from [url] if it's defined;
      * otherwise a [URI] constructed from the provided [URI] fields.
      */
-    private fun toConstructedUri(): URI {
-        return if (url.isEmpty()) {
+    private fun toConstructedUri(): URI =
+        if (url.isEmpty()) {
             constructUrlFromInputs()
         } else {
             try {
@@ -164,7 +174,6 @@ data class ClusterMetricsInput(
                 throw IllegalArgumentException("Invalid URL syntax.")
             }
         }
-    }
 
     /**
      * Isolates just the path parameters from the [ClusterMetricsInput] URI.
@@ -190,7 +199,8 @@ data class ClusterMetricsInput(
             ILLEGAL_PATH_PARAMETER_CHARACTERS.forEach { character ->
                 if (pathParams.contains(character)) {
                     throw IllegalArgumentException(
-                        "The provided path parameters contain invalid characters or spaces. Please omit: " + ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" ")
+                        "The provided path parameters contain invalid characters or spaces. Please omit: " +
+                            ILLEGAL_PATH_PARAMETER_CHARACTERS.joinToString(" "),
                     )
                 }
             }
@@ -214,7 +224,8 @@ data class ClusterMetricsInput(
      */
     private fun findApiType(uriPath: String): ClusterMetricType {
         var apiType = ClusterMetricType.BLANK
-        ClusterMetricType.values()
+        ClusterMetricType
+            .values()
             .filter { option -> option != ClusterMetricType.BLANK }
             .forEach { option ->
                 if (uriPath.startsWith(option.prependPath) || uriPath.startsWith(option.defaultPath)) {
@@ -232,21 +243,20 @@ data class ClusterMetricsInput(
      * @return The constructed [URI].
      */
     private fun constructUrlFromInputs(): URI {
-        /**
-         * this try-catch block is required due to a httpcomponents 5.1.x library issue
-         * it auto encodes path params in the url.
-         */
+        // This try-catch block is required due to a httpcomponents 5.1.x library issue
+        // it auto encodes path params in the url.
         return try {
             val formattedPath = if (path.startsWith("/") || path.isBlank()) path else "/$path"
             val formattedPathParams = if (pathParams.startsWith("/") || pathParams.isBlank()) pathParams else "/$pathParams"
             val uriBuilder = URIBuilder("$SUPPORTED_SCHEME://$SUPPORTED_HOST:$SUPPORTED_PORT$formattedPath$formattedPathParams")
             uriBuilder.build()
         } catch (ex: URISyntaxException) {
-            val uriBuilder = URIBuilder()
-                .setScheme(SUPPORTED_SCHEME)
-                .setHost(SUPPORTED_HOST)
-                .setPort(SUPPORTED_PORT)
-                .setPath(path + pathParams)
+            val uriBuilder =
+                URIBuilder()
+                    .setScheme(SUPPORTED_SCHEME)
+                    .setHost(SUPPORTED_HOST)
+                    .setPort(SUPPORTED_PORT)
+                    .setPath(path + pathParams)
             try {
                 uriBuilder.build()
             } catch (e: URISyntaxException) {
@@ -275,18 +285,14 @@ data class ClusterMetricsInput(
      * Helper function to confirm at least [url], or required URI component fields are defined.
      * @return TRUE if at least either [url] or the other components are provided; otherwise FALSE.
      */
-    private fun validateFields(): Boolean {
-        return url.isNotEmpty() || validateFieldsNotEmpty()
-    }
+    private fun validateFields(): Boolean = url.isNotEmpty() || validateFieldsNotEmpty()
 
     /**
      * Confirms that required URI component fields are defined.
      * Only validating path for now, as that's the only required field.
      * @return TRUE if all those fields are defined; otherwise FALSE.
      */
-    private fun validateFieldsNotEmpty(): Boolean {
-        return path.isNotEmpty()
-    }
+    private fun validateFieldsNotEmpty(): Boolean = path.isNotEmpty()
 
     /**
      * An enum class to quickly reference various supported API.
@@ -296,7 +302,7 @@ data class ClusterMetricsInput(
         val prependPath: String,
         val appendPath: String,
         val supportsPathParams: Boolean,
-        val requiresPathParams: Boolean
+        val requiresPathParams: Boolean,
     ) {
         BLANK("", "", "", false, false),
         CAT_INDICES(
@@ -304,77 +310,76 @@ data class ClusterMetricsInput(
             "/_cat/indices",
             "",
             true,
-            false
+            false,
         ),
         CAT_PENDING_TASKS(
             "/_cat/pending_tasks",
             "/_cat/pending_tasks",
             "",
             false,
-            false
+            false,
         ),
         CAT_RECOVERY(
             "/_cat/recovery",
             "/_cat/recovery",
             "",
             true,
-            false
+            false,
         ),
         CAT_SHARDS(
             "/_cat/shards",
             "/_cat/shards",
             "",
             true,
-            false
+            false,
         ),
         CAT_SNAPSHOTS(
             "/_cat/snapshots",
             "/_cat/snapshots",
             "",
             true,
-            true
+            true,
         ),
         CAT_TASKS(
             "/_cat/tasks",
             "/_cat/tasks",
             "",
             false,
-            false
+            false,
         ),
         CLUSTER_HEALTH(
             "/_cluster/health",
             "/_cluster/health",
             "",
             true,
-            false
+            false,
         ),
         CLUSTER_SETTINGS(
             "/_cluster/settings",
             "/_cluster/settings",
             "",
             false,
-            false
+            false,
         ),
         CLUSTER_STATS(
             "/_cluster/stats",
             "/_cluster/stats",
             "",
             true,
-            false
+            false,
         ),
         NODES_STATS(
             "/_nodes/stats",
             "/_nodes",
             "",
             false,
-            false
-        );
+            false,
+        ),
+        ;
 
         /**
          * @return TRUE if the [ClusterMetricType] is [BLANK]; otherwise FALSE.
          */
-        fun isBlank(): Boolean {
-            return this === BLANK
-        }
+        fun isBlank(): Boolean = this === BLANK
     }
 }

@@ -14,7 +14,6 @@ import java.io.IOException
 import java.util.Collections
 
 class AcknowledgeAlertResponse : BaseResponse {
-
     val acknowledged: List<Alert>
     val failed: List<Alert>
     val missing: List<String>
@@ -22,7 +21,7 @@ class AcknowledgeAlertResponse : BaseResponse {
     constructor(
         acknowledged: List<Alert>,
         failed: List<Alert>,
-        missing: List<String>
+        missing: List<String>,
     ) : super() {
         this.acknowledged = acknowledged
         this.failed = failed
@@ -33,7 +32,7 @@ class AcknowledgeAlertResponse : BaseResponse {
     constructor(sin: StreamInput) : this(
         Collections.unmodifiableList(sin.readList(::Alert)), // acknowledged
         Collections.unmodifiableList(sin.readList(::Alert)), // failed
-        Collections.unmodifiableList(sin.readStringList()) // missing
+        Collections.unmodifiableList(sin.readStringList()), // missing
     )
 
     @Throws(IOException::class)
@@ -44,7 +43,10 @@ class AcknowledgeAlertResponse : BaseResponse {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         builder.startObject().startArray("success")
         acknowledged.forEach { builder.value(it.id) }
         builder.endArray().startArray("failed")
@@ -53,22 +55,32 @@ class AcknowledgeAlertResponse : BaseResponse {
         return builder.endArray().endObject()
     }
 
-    private fun buildFailedAlertAcknowledgeObject(builder: XContentBuilder, failedAlert: Alert) {
-        builder.startObject()
+    private fun buildFailedAlertAcknowledgeObject(
+        builder: XContentBuilder,
+        failedAlert: Alert,
+    ) {
+        builder
+            .startObject()
             .startObject(failedAlert.id)
-        val reason = when (failedAlert.state) {
-            Alert.State.ERROR -> "Alert is in an error state and can not be acknowledged."
-            Alert.State.COMPLETED -> "Alert has already completed and can not be acknowledged."
-            Alert.State.ACKNOWLEDGED -> "Alert has already been acknowledged."
-            else -> "Alert state unknown and can not be acknowledged"
-        }
-        builder.field("failed_reason", reason)
+        val reason =
+            when (failedAlert.state) {
+                Alert.State.ERROR -> "Alert is in an error state and can not be acknowledged."
+                Alert.State.COMPLETED -> "Alert has already completed and can not be acknowledged."
+                Alert.State.ACKNOWLEDGED -> "Alert has already been acknowledged."
+                else -> "Alert state unknown and can not be acknowledged"
+            }
+        builder
+            .field("failed_reason", reason)
             .endObject()
             .endObject()
     }
 
-    private fun buildMissingAlertAcknowledgeObject(builder: XContentBuilder, alertID: String) {
-        builder.startObject()
+    private fun buildMissingAlertAcknowledgeObject(
+        builder: XContentBuilder,
+        alertID: String,
+    ) {
+        builder
+            .startObject()
             .startObject(alertID)
             .field("failed_reason", "Alert: $alertID does not exist (it may have already completed).")
             .endObject()

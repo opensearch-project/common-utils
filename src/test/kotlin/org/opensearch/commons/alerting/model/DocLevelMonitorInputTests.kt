@@ -22,22 +22,22 @@ class DocLevelMonitorInputTests {
         Assertions.assertEquals(
             templateArgs[DocLevelQuery.QUERY_ID_FIELD],
             query.id,
-            "Template args 'id' field does not match:"
+            "Template args 'id' field does not match:",
         )
         Assertions.assertEquals(
             templateArgs[DocLevelQuery.QUERY_FIELD],
             query.query,
-            "Template args 'query' field does not match:"
+            "Template args 'query' field does not match:",
         )
         Assertions.assertEquals(
             templateArgs[DocLevelQuery.NAME_FIELD],
             query.name,
-            "Template args 'name' field does not match:"
+            "Template args 'name' field does not match:",
         )
         Assertions.assertEquals(
             templateArgs[DocLevelQuery.TAGS_FIELD],
             query.tags,
-            "Template args 'tags' field does not match:"
+            "Template args 'tags' field does not match:",
         )
     }
 
@@ -53,7 +53,7 @@ class DocLevelMonitorInputTests {
         } catch (e: IllegalArgumentException) {
             Assertions.assertEquals(
                 "The query name, $emptyString, should be between 1 - 256 characters.",
-                e.message
+                e.message,
             )
         }
 
@@ -69,7 +69,7 @@ class DocLevelMonitorInputTests {
         } catch (e: IllegalArgumentException) {
             Assertions.assertEquals(
                 "The query name, $badString, should be between 1 - 256 characters.",
-                e.message
+                e.message,
             )
         }
     }
@@ -84,7 +84,7 @@ class DocLevelMonitorInputTests {
         } catch (e: IllegalArgumentException) {
             Assertions.assertEquals(
                 "The query tag, $badString, contains an invalid character: [' ','[',']','{','}','(',')']",
-                e.message
+                e.message,
             )
         }
     }
@@ -105,22 +105,22 @@ class DocLevelMonitorInputTests {
         Assertions.assertEquals(
             templateArgs[DocLevelMonitorInput.DESCRIPTION_FIELD],
             input.description,
-            "Template args 'description' field does not match:"
+            "Template args 'description' field does not match:",
         )
         Assertions.assertEquals(
             templateArgs[DocLevelMonitorInput.INDICES_FIELD],
             input.indices,
-            "Template args 'indices' field does not match:"
+            "Template args 'indices' field does not match:",
         )
         Assertions.assertEquals(
             input.queries.size,
             (templateArgs[DocLevelMonitorInput.QUERIES_FIELD] as List<*>).size,
-            "Template args 'queries' field does not contain the expected number of queries:"
+            "Template args 'queries' field does not contain the expected number of queries:",
         )
         input.queries.forEach {
             Assertions.assertTrue(
                 (templateArgs[DocLevelMonitorInput.QUERIES_FIELD] as List<*>).contains(it.asTemplateArg()),
-                "Template args 'queries' field does not match:"
+                "Template args 'queries' field does not match:",
             )
         }
     }

@@ -2,22 +2,18 @@ package org.opensearch.commons.notifications.model
 
 import org.opensearch.commons.utils.EnumParser
 
-enum class HttpMethodType(val tag: String) {
+enum class HttpMethodType(
+    val tag: String,
+) {
     POST("POST") {
-        override fun toString(): String {
-            return tag
-        }
+        override fun toString(): String = tag
     },
     PUT("PUT") {
-        override fun toString(): String {
-            return tag
-        }
+        override fun toString(): String = tag
     },
     PATCH("PATCH") {
-        override fun toString(): String {
-            return tag
-        }
-    };
+        override fun toString(): String = tag
+    }, ;
 
     companion object {
         private val tagMap = values().associateBy { it.tag }
@@ -29,8 +25,6 @@ enum class HttpMethodType(val tag: String) {
          * @param tag the tag
          * @return MethodType corresponding to tag. POST if invalid tag.
          */
-        fun fromTagOrDefault(tag: String): HttpMethodType {
-            return tagMap[tag] ?: POST
-        }
+        fun fromTagOrDefault(tag: String): HttpMethodType = tagMap[tag] ?: POST
     }
 }

@@ -15,7 +15,7 @@ class DeleteWorkflowResponse : BaseResponse {
     constructor(
         id: String,
         version: Long,
-        nonDeletedMonitors: List<String>? = null
+        nonDeletedMonitors: List<String>? = null,
     ) : super() {
         this.id = id
         this.version = version
@@ -25,7 +25,7 @@ class DeleteWorkflowResponse : BaseResponse {
     constructor(sin: StreamInput) : this(
         sin.readString(), // id
         sin.readLong(), // version
-        sin.readOptionalStringList()
+        sin.readOptionalStringList(),
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -34,13 +34,16 @@ class DeleteWorkflowResponse : BaseResponse {
         out.writeOptionalStringCollection(nonDeletedMonitors)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
+        builder
+            .startObject()
             .field(IndexUtils._ID, id)
             .field(IndexUtils._VERSION, version)
             .field(NON_DELETED_MONITORS, nonDeletedMonitors)
             .endObject()
-    }
 
     companion object {
         const val NON_DELETED_MONITORS = "NON_DELETED_MONITORS"

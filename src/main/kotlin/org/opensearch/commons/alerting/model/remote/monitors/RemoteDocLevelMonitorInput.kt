@@ -13,12 +13,14 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.nio.ByteBuffer
 
-data class RemoteDocLevelMonitorInput(val input: BytesReference, val docLevelMonitorInput: DocLevelMonitorInput) : Input {
-
+data class RemoteDocLevelMonitorInput(
+    val input: BytesReference,
+    val docLevelMonitorInput: DocLevelMonitorInput,
+) : Input {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readBytesReference(),
-        DocLevelMonitorInput.readFrom(sin)
+        DocLevelMonitorInput.readFrom(sin),
     )
 
     override fun asTemplateArg(): Map<String, Any> {
@@ -26,22 +28,24 @@ data class RemoteDocLevelMonitorInput(val input: BytesReference, val docLevelMon
         return mapOf(
             RemoteDocLevelMonitorInput.INPUT_SIZE to bytes.size,
             RemoteDocLevelMonitorInput.INPUT_FIELD to bytes,
-            DOC_LEVEL_INPUT_FIELD to docLevelMonitorInput
+            DOC_LEVEL_INPUT_FIELD to docLevelMonitorInput,
         )
     }
 
-    override fun name(): String {
-        return REMOTE_DOC_LEVEL_MONITOR_INPUT_FIELD
-    }
+    override fun name(): String = REMOTE_DOC_LEVEL_MONITOR_INPUT_FIELD
 
     override fun writeTo(out: StreamOutput) {
         out.writeBytesReference(input)
         docLevelMonitorInput.writeTo(out)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         val bytes = input.toBytesRef().bytes
-        return builder.startObject()
+        return builder
+            .startObject()
             .startObject(REMOTE_DOC_LEVEL_MONITOR_INPUT_FIELD)
             .field(RemoteMonitorInput.INPUT_SIZE, bytes.size)
             .field(RemoteMonitorInput.INPUT_FIELD, bytes)
@@ -66,8 +70,14 @@ data class RemoteDocLevelMonitorInput(val input: BytesReference, val docLevelMon
                 xcp.nextToken()
 
                 when (fieldName) {
-                    RemoteMonitorInput.INPUT_FIELD -> bytes = xcp.binaryValue()
-                    RemoteMonitorInput.INPUT_SIZE -> size = xcp.intValue()
+                    RemoteMonitorInput.INPUT_FIELD -> {
+                        bytes = xcp.binaryValue()
+                    }
+
+                    RemoteMonitorInput.INPUT_SIZE -> {
+                        size = xcp.intValue()
+                    }
+
                     Input.Type.DOCUMENT_LEVEL_INPUT.value -> {
                         docLevelMonitorInput = DocLevelMonitorInput.parse(xcp)
                         XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp)

@@ -23,7 +23,9 @@ import java.io.IOException
 /**
  * Action Response for creating new configuration.
  */
-class DeleteNotificationConfigRequest : ActionRequest, ToXContentObject {
+class DeleteNotificationConfigRequest :
+    ActionRequest,
+    ToXContentObject {
     val configIds: Set<String>
 
     companion object {
@@ -46,13 +48,16 @@ class DeleteNotificationConfigRequest : ActionRequest, ToXContentObject {
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = parser.currentName()
                 parser.nextToken()
                 when (fieldName) {
-                    CONFIG_ID_LIST_TAG -> configIds = parser.stringList().toSet()
+                    CONFIG_ID_LIST_TAG -> {
+                        configIds = parser.stringList().toSet()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Unexpected field: $fieldName, while parsing DeleteNotificationConfigRequest")
@@ -92,9 +97,13 @@ class DeleteNotificationConfigRequest : ActionRequest, ToXContentObject {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder {
         builder!!
-        return builder.startObject()
+        return builder
+            .startObject()
             .field(CONFIG_ID_LIST_TAG, configIds)
             .endObject()
     }

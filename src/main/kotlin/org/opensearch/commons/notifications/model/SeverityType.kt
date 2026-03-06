@@ -10,27 +10,21 @@ import org.opensearch.commons.utils.EnumParser
 /**
  * Notification severity type
  */
-enum class SeverityType(val tag: String) {
+enum class SeverityType(
+    val tag: String,
+) {
     NONE("none") {
-        override fun toString(): String {
-            return tag
-        }
+        override fun toString(): String = tag
     },
     HIGH("high") {
-        override fun toString(): String {
-            return tag
-        }
+        override fun toString(): String = tag
     },
     INFO("info") {
-        override fun toString(): String {
-            return tag
-        }
+        override fun toString(): String = tag
     },
     CRITICAL("critical") {
-        override fun toString(): String {
-            return tag
-        }
-    };
+        override fun toString(): String = tag
+    }, ;
 
     companion object {
         private val tagMap = values().associateBy { it.tag }
@@ -42,8 +36,6 @@ enum class SeverityType(val tag: String) {
          * @param tag the tag
          * @return SeverityType corresponding to tag. NONE if invalid tag.
          */
-        fun fromTagOrDefault(tag: String): SeverityType {
-            return tagMap[tag] ?: NONE
-        }
+        fun fromTagOrDefault(tag: String): SeverityType = tagMap[tag] ?: NONE
     }
 }

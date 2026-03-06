@@ -10,22 +10,22 @@ import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
 
 internal class GetWorkflowAlertsRequestTests {
-
     @Test
     fun `test get alerts request`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetWorkflowAlertsRequest(
-            table = table,
-            severityLevel = "1",
-            alertState = "active",
-            getAssociatedAlerts = true,
-            workflowIds = listOf("w1", "w2"),
-            alertIds = emptyList(),
-            alertIndex = null,
-            associatedAlertsIndex = null,
-            monitorIds = emptyList()
-        )
+        val req =
+            GetWorkflowAlertsRequest(
+                table = table,
+                severityLevel = "1",
+                alertState = "active",
+                getAssociatedAlerts = true,
+                workflowIds = listOf("w1", "w2"),
+                alertIds = emptyList(),
+                alertIndex = null,
+                associatedAlertsIndex = null,
+                monitorIds = emptyList(),
+            )
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -49,17 +49,18 @@ internal class GetWorkflowAlertsRequestTests {
     fun `test get alerts request with custom alerts and associated alerts indices`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetWorkflowAlertsRequest(
-            table = table,
-            severityLevel = "1",
-            alertState = "active",
-            getAssociatedAlerts = true,
-            workflowIds = listOf("w1", "w2"),
-            alertIds = emptyList(),
-            alertIndex = "alertIndex",
-            associatedAlertsIndex = "associatedAlertsIndex",
-            monitorIds = emptyList()
-        )
+        val req =
+            GetWorkflowAlertsRequest(
+                table = table,
+                severityLevel = "1",
+                alertState = "active",
+                getAssociatedAlerts = true,
+                workflowIds = listOf("w1", "w2"),
+                alertIds = emptyList(),
+                alertIndex = "alertIndex",
+                associatedAlertsIndex = "associatedAlertsIndex",
+                monitorIds = emptyList(),
+            )
         assertNotNull(req)
 
         val out = BytesStreamOutput()
@@ -83,16 +84,17 @@ internal class GetWorkflowAlertsRequestTests {
     fun `test validate returns null`() {
         val table = Table("asc", "sortString", null, 1, 0, "")
 
-        val req = GetWorkflowAlertsRequest(
-            table = table,
-            severityLevel = "1",
-            alertState = "active",
-            getAssociatedAlerts = true,
-            workflowIds = listOf("w1, w2"),
-            alertIds = emptyList(),
-            alertIndex = null,
-            associatedAlertsIndex = null
-        )
+        val req =
+            GetWorkflowAlertsRequest(
+                table = table,
+                severityLevel = "1",
+                alertState = "active",
+                getAssociatedAlerts = true,
+                workflowIds = listOf("w1, w2"),
+                alertIds = emptyList(),
+                alertIndex = null,
+                associatedAlertsIndex = null,
+            )
         assertNotNull(req)
         assertNull(req.validate())
     }

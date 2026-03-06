@@ -51,7 +51,9 @@ class LegacyPublishNotificationResponse : BaseResponse {
     }
 
     // This class is only used across transport wire and does not need to implement toXContent
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder =
         throw IllegalStateException("Legacy notification response is not intended for REST or persistence and does not support XContent.")
-    }
 }

@@ -26,7 +26,7 @@ data class Attachment(
     val fileName: String,
     val fileEncoding: String,
     val fileData: String,
-    val fileContentType: String?
+    val fileContentType: String?,
 ) : BaseModel {
     companion object {
         private val log by logger(Attachment::class.java)
@@ -49,16 +49,28 @@ data class Attachment(
             XContentParserUtils.ensureExpectedToken(
                 XContentParser.Token.START_OBJECT,
                 parser.currentToken(),
-                parser
+                parser,
             )
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 val dataType = parser.currentName()
                 parser.nextToken()
                 when (dataType) {
-                    FILE_NAME_TAG -> fileName = parser.text()
-                    FILE_ENCODING_TAG -> fileEncoding = parser.text()
-                    FILE_DATA_TAG -> fileData = parser.text()
-                    FILE_CONTENT_TYPE_TAG -> fileContentType = parser.textOrNull()
+                    FILE_NAME_TAG -> {
+                        fileName = parser.text()
+                    }
+
+                    FILE_ENCODING_TAG -> {
+                        fileEncoding = parser.text()
+                    }
+
+                    FILE_DATA_TAG -> {
+                        fileData = parser.text()
+                    }
+
+                    FILE_CONTENT_TYPE_TAG -> {
+                        fileContentType = parser.textOrNull()
+                    }
+
                     else -> {
                         parser.skipChildren()
                         log.info("Skipping Unknown field $dataType")
@@ -72,14 +84,17 @@ data class Attachment(
         }
     }
 
-    override fun toXContent(builder: XContentBuilder?, params: ToXContent.Params?): XContentBuilder {
-        return builder!!.startObject()
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: ToXContent.Params?,
+    ): XContentBuilder =
+        builder!!
+            .startObject()
             .field(FILE_NAME_TAG, fileName)
             .field(FILE_ENCODING_TAG, fileEncoding)
             .field(FILE_DATA_TAG, fileData)
             .fieldIfNotNull(FILE_CONTENT_TYPE_TAG, fileContentType)
             .endObject()
-    }
 
     /**
      * Constructor used in transport action communication.
@@ -89,7 +104,7 @@ data class Attachment(
         fileName = input.readString(),
         fileEncoding = input.readString(),
         fileData = input.readString(),
-        fileContentType = input.readOptionalString()
+        fileContentType = input.readOptionalString(),
     )
 
     /**

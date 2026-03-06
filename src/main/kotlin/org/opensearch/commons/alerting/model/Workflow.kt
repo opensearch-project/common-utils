@@ -37,7 +37,7 @@ data class Workflow(
     val inputs: List<WorkflowInput>,
     val owner: String? = DEFAULT_OWNER,
     val triggers: List<Trigger>,
-    val auditDelegateMonitorAlerts: Boolean? = true
+    val auditDelegateMonitorAlerts: Boolean? = true,
 ) : ScheduledJob {
     override val type = WORKFLOW_TYPE
 
@@ -65,49 +65,52 @@ data class Workflow(
         lastUpdateTime = sin.readInstant(),
         enabledTime = sin.readOptionalInstant(),
         workflowType = sin.readEnum(WorkflowType::class.java),
-        user = if (sin.readBoolean()) {
-            User(sin)
-        } else {
-            null
-        },
+        user =
+            if (sin.readBoolean()) {
+                User(sin)
+            } else {
+                null
+            },
         schemaVersion = sin.readInt(),
         inputs = sin.readList((WorkflowInput)::readFrom),
         owner = sin.readOptionalString(),
         triggers = sin.readList((Trigger)::readFrom),
-        auditDelegateMonitorAlerts = sin.readOptionalBoolean()
+        auditDelegateMonitorAlerts = sin.readOptionalBoolean(),
     )
 
     // This enum classifies different workflows
     // This is different from 'type' which denotes the Scheduled Job type
-    enum class WorkflowType(val value: String) {
-        COMPOSITE("composite");
+    enum class WorkflowType(
+        val value: String,
+    ) {
+        COMPOSITE("composite"),
+        ;
 
-        override fun toString(): String {
-            return value
-        }
+        override fun toString(): String = value
     }
 
     /** Returns a representation of the workflow suitable for passing into painless and mustache scripts. */
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(_ID to id, _VERSION to version, NAME_FIELD to name, ENABLED_FIELD to enabled)
-    }
+    fun asTemplateArg(): Map<String, Any> = mapOf(_ID to id, _VERSION to version, NAME_FIELD to name, ENABLED_FIELD to enabled)
 
-    fun toXContentWithUser(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return createXContentBuilder(builder, params, false)
-    }
+    fun toXContentWithUser(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder = createXContentBuilder(builder, params, false)
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return createXContentBuilder(builder, params, true)
-    }
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder = createXContentBuilder(builder, params, true)
 
     private fun createXContentBuilder(
         builder: XContentBuilder,
         params: ToXContent.Params,
-        secure: Boolean
+        secure: Boolean,
     ): XContentBuilder {
         builder.startObject()
         if (params.paramAsBoolean("with_type", false)) builder.startObject(type)
-        builder.field(TYPE_FIELD, type)
+        builder
+            .field(TYPE_FIELD, type)
             .field(SCHEMA_VERSION_FIELD, schemaVersion)
             .field(NAME_FIELD, name)
             .field(WORKFLOW_TYPE_FIELD, workflowType)
@@ -116,7 +119,8 @@ data class Workflow(
             builder.optionalUserField(USER_FIELD, user)
         }
 
-        builder.field(ENABLED_FIELD, enabled)
+        builder
+            .field(ENABLED_FIELD, enabled)
             .optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
             .field(SCHEDULE_FIELD, schedule)
             .field(INPUTS_FIELD, inputs.toTypedArray())
@@ -130,7 +134,10 @@ data class Workflow(
         return builder.endObject()
     }
 
-    override fun fromDocument(id: String, version: Long): Workflow = copy(id = id, version = version)
+    override fun fromDocument(
+        id: String,
+        version: Long,
+    ): Workflow = copy(id = id, version = version)
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -189,16 +196,21 @@ data class Workflow(
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
         // the different subclasses and creating circular dependencies
-        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            ScheduledJob::class.java,
-            ParseField(WORKFLOW_TYPE),
-            CheckedFunction { parse(it) }
-        )
+        val XCONTENT_REGISTRY =
+            NamedXContentRegistry.Entry(
+                ScheduledJob::class.java,
+                ParseField(WORKFLOW_TYPE),
+                CheckedFunction { parse(it) },
+            )
 
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): Workflow {
+        fun parse(
+            xcp: XContentParser,
+            id: String = NO_ID,
+            version: Long = NO_VERSION,
+        ): Workflow {
             var name: String? = null
             var workflowType: String = WorkflowType.COMPOSITE.toString()
             var user: User? = null
@@ -218,8 +230,14 @@ data class Workflow(
                 xcp.nextToken()
 
                 when (fieldName) {
-                    SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
-                    NAME_FIELD -> name = xcp.text()
+                    SCHEMA_VERSION_FIELD -> {
+                        schemaVersion = xcp.intValue()
+                    }
+
+                    NAME_FIELD -> {
+                        name = xcp.text()
+                    }
+
                     WORKFLOW_TYPE_FIELD -> {
                         workflowType = xcp.text()
                         val allowedTypes = WorkflowType.values().map { it.value }
@@ -227,38 +245,58 @@ data class Workflow(
                             throw IllegalStateException("Workflow type should be one of $allowedTypes")
                         }
                     }
+
                     USER_FIELD -> {
                         user = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else User.parse(xcp)
                     }
-                    ENABLED_FIELD -> enabled = xcp.booleanValue()
-                    SCHEDULE_FIELD -> schedule = Schedule.parse(xcp)
+
+                    ENABLED_FIELD -> {
+                        enabled = xcp.booleanValue()
+                    }
+
+                    SCHEDULE_FIELD -> {
+                        schedule = Schedule.parse(xcp)
+                    }
+
                     Monitor.TRIGGERS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             triggers.add(Trigger.parse(xcp))
                         }
                     }
+
                     INPUTS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             val input = WorkflowInput.parse(xcp)
                             inputs.add(input)
                         }
                     }
-                    ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
-                    LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
-                    AUDIT_DELEGATE_MONITOR_ALERTS_FIELD -> auditDelegateMonitorAlerts = xcp.booleanValue()
+
+                    ENABLED_TIME_FIELD -> {
+                        enabledTime = xcp.instant()
+                    }
+
+                    LAST_UPDATE_TIME_FIELD -> {
+                        lastUpdateTime = xcp.instant()
+                    }
+
+                    AUDIT_DELEGATE_MONITOR_ALERTS_FIELD -> {
+                        auditDelegateMonitorAlerts = xcp.booleanValue()
+                    }
+
                     OWNER_FIELD -> {
                         owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
                     }
+
                     else -> {
                         xcp.skipChildren()
                     }
@@ -284,20 +322,16 @@ data class Workflow(
                 inputs.toList(),
                 owner,
                 triggers,
-                auditDelegateMonitorAlerts
+                auditDelegateMonitorAlerts,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Workflow? {
-            return Workflow(sin)
-        }
+        fun readFrom(sin: StreamInput): Workflow? = Workflow(sin)
 
         @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, Any> {
-            return map as MutableMap<String, Any>
-        }
+        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, Any> = map as MutableMap<String, Any>
 
         private const val DEFAULT_OWNER = "alerting"
     }

@@ -16,7 +16,9 @@ import org.opensearch.core.xcontent.ToXContentObject
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
 
-class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
+class DocLevelMonitorFanOutResponse :
+    ActionResponse,
+    ToXContentObject {
     val nodeId: String
     val executionId: String
     val monitorId: String
@@ -33,7 +35,7 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
         lastRunContexts = sin.readMap()!! as MutableMap<String, Any>,
         inputResults = InputRunResults.readFrom(sin),
         triggerResults = suppressWarning(sin.readMap(StreamInput::readString, DocumentLevelTriggerRunResult::readFrom)),
-        exception = sin.readException()
+        exception = sin.readException(),
     )
 
     constructor(
@@ -43,7 +45,7 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
         lastRunContexts: MutableMap<String, Any>,
         inputResults: InputRunResults = InputRunResults(), // partial,
         triggerResults: Map<String, DocumentLevelTriggerRunResult> = mapOf(),
-        exception: AlertingException? = null
+        exception: AlertingException? = null,
     ) : super() {
         this.nodeId = nodeId
         this.executionId = executionId
@@ -64,14 +66,18 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
         out.writeMap(
             triggerResults,
             StreamOutput::writeString,
-            { stream, stats -> stats.writeTo(stream) }
+            { stream, stats -> stats.writeTo(stream) },
         )
         out.writeException(exception)
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field("node_id", nodeId)
             .field("execution_id", executionId)
             .field("monitor_id", monitorId)
@@ -85,8 +91,7 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
 
     companion object {
         @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, DocumentLevelTriggerRunResult> {
-            return map as Map<String, DocumentLevelTriggerRunResult>
-        }
+        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, DocumentLevelTriggerRunResult> =
+            map as Map<String, DocumentLevelTriggerRunResult>
     }
 }

@@ -21,7 +21,7 @@ class AcknowledgeAlertRequest : ActionRequest {
     constructor(
         monitorId: String,
         alertIds: List<String>,
-        refreshPolicy: WriteRequest.RefreshPolicy
+        refreshPolicy: WriteRequest.RefreshPolicy,
     ) : super() {
         this.monitorId = monitorId
         this.alertIds = alertIds
@@ -32,12 +32,10 @@ class AcknowledgeAlertRequest : ActionRequest {
     constructor(sin: StreamInput) : this(
         sin.readString(), // monitorId
         Collections.unmodifiableList(sin.readStringList()), // alertIds
-        WriteRequest.RefreshPolicy.readFrom(sin) // refreshPolicy
+        WriteRequest.RefreshPolicy.readFrom(sin), // refreshPolicy
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

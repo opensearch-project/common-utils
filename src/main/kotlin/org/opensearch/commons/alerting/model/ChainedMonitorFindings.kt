@@ -11,15 +11,15 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.util.Collections
 
+// TODO - Remove the class and move the monitorId to Delegate (as a chainedMonitorId property) if this class won't be updated by adding new properties
+
 /**
  * Context passed in delegate monitor to filter data matched by a list of monitors based on the findings of the given monitor ids.
  */
-// TODO - Remove the class and move the monitorId to Delegate (as a chainedMonitorId property) if this class won't be updated by adding new properties
 data class ChainedMonitorFindings(
     val monitorId: String? = null,
-    val monitorIds: List<String> = emptyList() // if monitorId field is non-null it would be given precendence for BWC
+    val monitorIds: List<String> = emptyList(), // if monitorId field is non-null it would be given precendence for BWC
 ) : BaseModel {
-
     init {
         require(!(monitorId.isNullOrBlank() && monitorIds.isEmpty())) {
             "at least one of fields, 'monitorIds' and 'monitorId' should be provided"
@@ -34,16 +34,15 @@ data class ChainedMonitorFindings(
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         sin.readOptionalString(), // monitorId
-        Collections.unmodifiableList(sin.readStringList())
+        Collections.unmodifiableList(sin.readStringList()),
     )
 
     @Suppress("UNCHECKED_CAST")
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any> =
+        mapOf(
             MONITOR_ID_FIELD to monitorId,
-            MONITOR_IDS_FIELD to monitorIds
+            MONITOR_IDS_FIELD to monitorIds,
         ) as Map<String, Any>
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -51,8 +50,12 @@ data class ChainedMonitorFindings(
         out.writeStringCollection(monitorIds)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field(MONITOR_ID_FIELD, monitorId)
             .field(MONITOR_IDS_FIELD, monitorIds)
             .endObject()
@@ -84,7 +87,7 @@ data class ChainedMonitorFindings(
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             monitorIds.add(xcp.text())
@@ -97,8 +100,6 @@ data class ChainedMonitorFindings(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): ChainedMonitorFindings {
-            return ChainedMonitorFindings(sin)
-        }
+        fun readFrom(sin: StreamInput): ChainedMonitorFindings = ChainedMonitorFindings(sin)
     }
 }

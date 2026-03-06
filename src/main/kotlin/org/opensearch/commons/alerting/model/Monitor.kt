@@ -45,9 +45,8 @@ data class Monitor(
     val dataSources: DataSources = DataSources(),
     val deleteQueryIndexInEveryRun: Boolean? = false,
     val shouldCreateSingleAlertForFindings: Boolean? = false,
-    val owner: String? = "alerting"
+    val owner: String? = "alerting",
 ) : ScheduledJob {
-
     override val type = MONITOR_TYPE
 
     init {
@@ -60,14 +59,21 @@ data class Monitor(
             require(triggerIds.add(trigger.id)) { "Duplicate trigger id: ${trigger.id}. Trigger ids must be unique." }
             // Verify Trigger type based on Monitor type
             when (monitorType) {
-                MonitorType.QUERY_LEVEL_MONITOR.value ->
+                MonitorType.QUERY_LEVEL_MONITOR.value -> {
                     require(trigger is QueryLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
-                MonitorType.BUCKET_LEVEL_MONITOR.value ->
+                }
+
+                MonitorType.BUCKET_LEVEL_MONITOR.value -> {
                     require(trigger is BucketLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
-                MonitorType.CLUSTER_METRICS_MONITOR.value ->
+                }
+
+                MonitorType.CLUSTER_METRICS_MONITOR.value -> {
                     require(trigger is QueryLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
-                MonitorType.DOC_LEVEL_MONITOR.value ->
+                }
+
+                MonitorType.DOC_LEVEL_MONITOR.value -> {
                     require(trigger is DocumentLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
+                }
             }
         }
         if (enabled) {
@@ -82,7 +88,13 @@ data class Monitor(
                 require(input is SearchInput) { "Unsupported input [$input] for Monitor" }
                 // TODO: Keeping query validation simple for now, only term aggregations have full support for the "group by" on the
                 //  initial release. Should either add tests for other aggregation types or add validation to prevent using them.
-                require(input.query.aggregations() != null && !input.query.aggregations().aggregatorFactories.isEmpty()) {
+                require(
+                    input.query.aggregations() != null &&
+                        !input.query
+                            .aggregations()
+                            .aggregatorFactories
+                            .isEmpty(),
+                ) {
                     "At least one aggregation is required for the input [$input]"
                 }
             }
@@ -99,49 +111,54 @@ data class Monitor(
         lastUpdateTime = sin.readInstant(),
         enabledTime = sin.readOptionalInstant(),
         monitorType = sin.readString(),
-        user = if (sin.readBoolean()) {
-            User(sin)
-        } else {
-            null
-        },
+        user =
+            if (sin.readBoolean()) {
+                User(sin)
+            } else {
+                null
+            },
         schemaVersion = sin.readInt(),
         inputs = sin.readList((Input)::readFrom),
         triggers = sin.readList((Trigger)::readFrom),
         uiMetadata = suppressWarning(sin.readMap()),
-        dataSources = if (sin.readBoolean()) {
-            DataSources(sin)
-        } else {
-            DataSources()
-        },
-        deleteQueryIndexInEveryRun = if (sin.version.onOrAfter(Version.V_2_15_0)) {
-            sin.readOptionalBoolean()
-        } else {
-            false
-        },
-        shouldCreateSingleAlertForFindings = if (sin.version.onOrAfter(Version.V_2_15_0)) {
-            sin.readOptionalBoolean()
-        } else {
-            false
-        },
-        owner = sin.readOptionalString()
+        dataSources =
+            if (sin.readBoolean()) {
+                DataSources(sin)
+            } else {
+                DataSources()
+            },
+        deleteQueryIndexInEveryRun =
+            if (sin.version.onOrAfter(Version.V_2_15_0)) {
+                sin.readOptionalBoolean()
+            } else {
+                false
+            },
+        shouldCreateSingleAlertForFindings =
+            if (sin.version.onOrAfter(Version.V_2_15_0)) {
+                sin.readOptionalBoolean()
+            } else {
+                false
+            },
+        owner = sin.readOptionalString(),
     )
 
     // This enum classifies different Monitors
     // This is different from 'type' which denotes the Scheduled Job type
-    enum class MonitorType(val value: String) {
+    enum class MonitorType(
+        val value: String,
+    ) {
         QUERY_LEVEL_MONITOR("query_level_monitor"),
         BUCKET_LEVEL_MONITOR("bucket_level_monitor"),
         CLUSTER_METRICS_MONITOR("cluster_metrics_monitor"),
-        DOC_LEVEL_MONITOR("doc_level_monitor");
+        DOC_LEVEL_MONITOR("doc_level_monitor"),
+        ;
 
-        override fun toString(): String {
-            return value
-        }
+        override fun toString(): String = value
     }
 
     /** Returns a representation of the monitor suitable for passing into painless and mustache scripts. */
-    fun asTemplateArg(): Map<String, Any?> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any?> =
+        mapOf(
             _ID to id,
             _VERSION to version,
             NAME_FIELD to name,
@@ -150,22 +167,28 @@ data class Monitor(
             ENABLED_TIME_FIELD to enabledTime?.toEpochMilli(),
             LAST_UPDATE_TIME_FIELD to lastUpdateTime.toEpochMilli(),
             SCHEDULE_FIELD to schedule.asTemplateArg(),
-            INPUTS_FIELD to inputs.map { it.asTemplateArg() }
+            INPUTS_FIELD to inputs.map { it.asTemplateArg() },
         )
-    }
 
-    fun toXContentWithUser(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return createXContentBuilder(builder, params, false)
-    }
+    fun toXContentWithUser(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder = createXContentBuilder(builder, params, false)
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        return createXContentBuilder(builder, params, true)
-    }
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder = createXContentBuilder(builder, params, true)
 
-    private fun createXContentBuilder(builder: XContentBuilder, params: ToXContent.Params, secure: Boolean): XContentBuilder {
+    private fun createXContentBuilder(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+        secure: Boolean,
+    ): XContentBuilder {
         builder.startObject()
         if (params.paramAsBoolean("with_type", false)) builder.startObject(type)
-        builder.field(TYPE_FIELD, type)
+        builder
+            .field(TYPE_FIELD, type)
             .field(SCHEMA_VERSION_FIELD, schemaVersion)
             .field(NAME_FIELD, name)
             .field(MONITOR_TYPE_FIELD, monitorType)
@@ -174,7 +197,8 @@ data class Monitor(
             builder.optionalUserField(USER_FIELD, user)
         }
 
-        builder.field(ENABLED_FIELD, enabled)
+        builder
+            .field(ENABLED_FIELD, enabled)
             .optionalTimeField(ENABLED_TIME_FIELD, enabledTime)
             .field(SCHEDULE_FIELD, schedule)
             .field(INPUTS_FIELD, inputs.toTypedArray())
@@ -189,7 +213,10 @@ data class Monitor(
         return builder.endObject()
     }
 
-    override fun fromDocument(id: String, version: Long): Monitor = copy(id = id, version = version)
+    override fun fromDocument(
+        id: String,
+        version: Long,
+    ): Monitor = copy(id = id, version = version)
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -233,7 +260,7 @@ data class Monitor(
             it.writeTo(out)
         }
         out.writeMap(uiMetadata)
-        out.writeBoolean(dataSources != null) // for backward compatibility with pre-existing monitors which don't have datasources field
+        out.writeBoolean(true) // for backward compatibility with pre-existing monitors which don't have datasources field
         dataSources.writeTo(out)
         if (out.version.onOrAfter(Version.V_2_15_0)) {
             out.writeOptionalBoolean(deleteQueryIndexInEveryRun)
@@ -268,16 +295,21 @@ data class Monitor(
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
         // the different subclasses and creating circular dependencies
-        val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
-            ScheduledJob::class.java,
-            ParseField(MONITOR_TYPE),
-            CheckedFunction { parse(it) }
-        )
+        val XCONTENT_REGISTRY =
+            NamedXContentRegistry.Entry(
+                ScheduledJob::class.java,
+                ParseField(MONITOR_TYPE),
+                CheckedFunction { parse(it) },
+            )
 
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
-        fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): Monitor {
+        fun parse(
+            xcp: XContentParser,
+            id: String = NO_ID,
+            version: Long = NO_VERSION,
+        ): Monitor {
             var name: String? = null
             // Default to QUERY_LEVEL_MONITOR to cover Monitors that existed before the addition of MonitorType
             var monitorType: String = MonitorType.QUERY_LEVEL_MONITOR.toString()
@@ -301,8 +333,14 @@ data class Monitor(
                 xcp.nextToken()
 
                 when (fieldName) {
-                    SCHEMA_VERSION_FIELD -> schemaVersion = xcp.intValue()
-                    NAME_FIELD -> name = xcp.text()
+                    SCHEMA_VERSION_FIELD -> {
+                        schemaVersion = xcp.intValue()
+                    }
+
+                    NAME_FIELD -> {
+                        name = xcp.text()
+                    }
+
                     MONITOR_TYPE_FIELD -> {
                         monitorType = xcp.text()
                         val matcher = MONITOR_TYPE_PATTERN.matcher(monitorType)
@@ -311,14 +349,24 @@ data class Monitor(
                             throw IllegalStateException("Monitor type should follow pattern ${MONITOR_TYPE_PATTERN.pattern()}")
                         }
                     }
-                    USER_FIELD -> user = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else User.parse(xcp)
-                    ENABLED_FIELD -> enabled = xcp.booleanValue()
-                    SCHEDULE_FIELD -> schedule = Schedule.parse(xcp)
+
+                    USER_FIELD -> {
+                        user = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else User.parse(xcp)
+                    }
+
+                    ENABLED_FIELD -> {
+                        enabled = xcp.booleanValue()
+                    }
+
+                    SCHEDULE_FIELD -> {
+                        schedule = Schedule.parse(xcp)
+                    }
+
                     INPUTS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             val input = Input.parse(xcp)
@@ -328,35 +376,61 @@ data class Monitor(
                             inputs.add(input)
                         }
                     }
+
                     TRIGGERS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             triggers.add(Trigger.parse(xcp))
                         }
                     }
-                    ENABLED_TIME_FIELD -> enabledTime = xcp.instant()
-                    LAST_UPDATE_TIME_FIELD -> lastUpdateTime = xcp.instant()
-                    UI_METADATA_FIELD -> uiMetadata = xcp.map()
-                    DATA_SOURCES_FIELD -> dataSources = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                        DataSources()
-                    } else {
-                        DataSources.parse(xcp)
+
+                    ENABLED_TIME_FIELD -> {
+                        enabledTime = xcp.instant()
                     }
-                    DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD -> deleteQueryIndexInEveryRun = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                        deleteQueryIndexInEveryRun
-                    } else {
-                        xcp.booleanValue()
+
+                    LAST_UPDATE_TIME_FIELD -> {
+                        lastUpdateTime = xcp.instant()
                     }
-                    SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD -> delegateMonitor = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                        delegateMonitor
-                    } else {
-                        xcp.booleanValue()
+
+                    UI_METADATA_FIELD -> {
+                        uiMetadata = xcp.map()
                     }
-                    OWNER_FIELD -> owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
+
+                    DATA_SOURCES_FIELD -> {
+                        dataSources =
+                            if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                                DataSources()
+                            } else {
+                                DataSources.parse(xcp)
+                            }
+                    }
+
+                    DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD -> {
+                        deleteQueryIndexInEveryRun =
+                            if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                                deleteQueryIndexInEveryRun
+                            } else {
+                                xcp.booleanValue()
+                            }
+                    }
+
+                    SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD -> {
+                        delegateMonitor =
+                            if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                                delegateMonitor
+                            } else {
+                                xcp.booleanValue()
+                            }
+                    }
+
+                    OWNER_FIELD -> {
+                        owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
+                    }
+
                     else -> {
                         xcp.skipChildren()
                     }
@@ -385,19 +459,15 @@ data class Monitor(
                 dataSources,
                 deleteQueryIndexInEveryRun,
                 delegateMonitor,
-                owner
+                owner,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): Monitor? {
-            return Monitor(sin)
-        }
+        fun readFrom(sin: StreamInput): Monitor? = Monitor(sin)
 
         @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, Any> {
-            return map as MutableMap<String, Any>
-        }
+        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, Any> = map as MutableMap<String, Any>
     }
 }

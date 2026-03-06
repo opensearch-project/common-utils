@@ -15,7 +15,6 @@ import java.time.Instant
 import java.util.Collections
 
 class GetAlertsResponseTests {
-
     @Test
     fun `test get alerts response with no alerts`() {
         val req = GetAlertsResponse(Collections.emptyList(), 0)
@@ -31,29 +30,30 @@ class GetAlertsResponseTests {
 
     @Test
     fun `test get alerts response with alerts`() {
-        val alert = Alert(
-            monitorId = "id",
-            monitorName = "name",
-            monitorVersion = Alert.NO_VERSION,
-            monitorUser = randomUser(),
-            triggerId = "triggerId",
-            triggerName = "triggerNamer",
-            state = Alert.State.ACKNOWLEDGED,
-            startTime = Instant.now(),
-            lastNotificationTime = null,
-            errorMessage = null,
-            errorHistory = emptyList(),
-            severity = "high",
-            actionExecutionResults = emptyList(),
-            schemaVersion = 0,
-            aggregationResultBucket = null,
-            findingIds = emptyList(),
-            relatedDocIds = emptyList(),
-            executionId = "executionId",
-            workflowId = "workflowId",
-            workflowName = "",
-            associatedAlertIds = emptyList()
-        )
+        val alert =
+            Alert(
+                monitorId = "id",
+                monitorName = "name",
+                monitorVersion = Alert.NO_VERSION,
+                monitorUser = randomUser(),
+                triggerId = "triggerId",
+                triggerName = "triggerNamer",
+                state = Alert.State.ACKNOWLEDGED,
+                startTime = Instant.now(),
+                lastNotificationTime = null,
+                errorMessage = null,
+                errorHistory = emptyList(),
+                severity = "high",
+                actionExecutionResults = emptyList(),
+                schemaVersion = 0,
+                aggregationResultBucket = null,
+                findingIds = emptyList(),
+                relatedDocIds = emptyList(),
+                executionId = "executionId",
+                workflowId = "workflowId",
+                workflowName = "",
+                associatedAlertIds = emptyList(),
+            )
         val req = GetAlertsResponse(listOf(alert), 1)
         assertNotNull(req)
 
@@ -70,39 +70,41 @@ class GetAlertsResponseTests {
     @Test
     fun `test toXContent for get alerts response`() {
         val now = Instant.now()
-        val alert = Alert(
-            monitorId = "id",
-            monitorName = "name",
-            monitorVersion = Alert.NO_VERSION,
-            monitorUser = randomUser(),
-            triggerId = "triggerId",
-            triggerName = "triggerNamer",
-            state = Alert.State.ACKNOWLEDGED,
-            startTime = now,
-            lastNotificationTime = null,
-            errorMessage = null,
-            errorHistory = emptyList(),
-            severity = "high",
-            actionExecutionResults = emptyList(),
-            schemaVersion = 0,
-            aggregationResultBucket = null,
-            findingIds = emptyList(),
-            relatedDocIds = emptyList(),
-            executionId = "executionId",
-            workflowId = "wid",
-            workflowName = "",
-            associatedAlertIds = emptyList()
-        )
+        val alert =
+            Alert(
+                monitorId = "id",
+                monitorName = "name",
+                monitorVersion = Alert.NO_VERSION,
+                monitorUser = randomUser(),
+                triggerId = "triggerId",
+                triggerName = "triggerNamer",
+                state = Alert.State.ACKNOWLEDGED,
+                startTime = now,
+                lastNotificationTime = null,
+                errorMessage = null,
+                errorHistory = emptyList(),
+                severity = "high",
+                actionExecutionResults = emptyList(),
+                schemaVersion = 0,
+                aggregationResultBucket = null,
+                findingIds = emptyList(),
+                relatedDocIds = emptyList(),
+                executionId = "executionId",
+                workflowId = "wid",
+                workflowName = "",
+                associatedAlertIds = emptyList(),
+            )
 
         val req = GetAlertsResponse(listOf(alert), 1)
         var actualXContentString = req.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
-        val expectedXContentString = "{\"alerts\":[{\"id\":\"\",\"version\":-1,\"monitor_id\":\"id\",\"workflow_id\":\"wid\"," +
-            "\"workflow_name\":\"\",\"associated_alert_ids\":[],\"schema_version\":0,\"monitor_version\":-1," +
-            "\"monitor_name\":\"name\",\"execution_id\":\"executionId\",\"trigger_id\":\"triggerId\"," +
-            "\"trigger_name\":\"triggerNamer\",\"finding_ids\":[],\"related_doc_ids\":[],\"state\":\"ACKNOWLEDGED\"," +
-            "\"error_message\":null,\"alert_history\":[],\"severity\":\"high\",\"action_execution_results\":[]," +
-            "\"start_time\":${now.toEpochMilli()},\"last_notification_time\":null,\"end_time\":null," +
-            "\"acknowledged_time\":null}],\"totalAlerts\":1}"
+        val expectedXContentString =
+            "{\"alerts\":[{\"id\":\"\",\"version\":-1,\"monitor_id\":\"id\",\"workflow_id\":\"wid\"," +
+                "\"workflow_name\":\"\",\"associated_alert_ids\":[],\"schema_version\":0,\"monitor_version\":-1," +
+                "\"monitor_name\":\"name\",\"execution_id\":\"executionId\",\"trigger_id\":\"triggerId\"," +
+                "\"trigger_name\":\"triggerNamer\",\"finding_ids\":[],\"related_doc_ids\":[],\"state\":\"ACKNOWLEDGED\"," +
+                "\"error_message\":null,\"alert_history\":[],\"severity\":\"high\",\"action_execution_results\":[]," +
+                "\"start_time\":${now.toEpochMilli()},\"last_notification_time\":null,\"end_time\":null," +
+                "\"acknowledged_time\":null}],\"totalAlerts\":1}"
         assertEquals(expectedXContentString, actualXContentString)
     }
 }

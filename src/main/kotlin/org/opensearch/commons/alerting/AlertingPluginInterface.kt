@@ -42,7 +42,6 @@ import org.opensearch.transport.client.node.NodeClient
  * All the transport action plugin interfaces for the Alerting plugin
  */
 object AlertingPluginInterface {
-
     /**
      * Index monitor interface.
      * @param client Node client for making transport action
@@ -54,7 +53,7 @@ object AlertingPluginInterface {
         client: NodeClient,
         request: IndexMonitorRequest,
         namedWriteableRegistry: NamedWriteableRegistry,
-        listener: ActionListener<IndexMonitorResponse>
+        listener: ActionListener<IndexMonitorResponse>,
     ) {
         client.execute(
             AlertingActions.INDEX_MONITOR_ACTION_TYPE,
@@ -62,17 +61,17 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response, namedWriteableRegistry) {
                     IndexMonitorResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
     fun deleteMonitor(
         client: NodeClient,
         request: DeleteMonitorRequest,
-        listener: ActionListener<DeleteMonitorResponse>
+        listener: ActionListener<DeleteMonitorResponse>,
     ) {
         client.execute(
             AlertingActions.DELETE_MONITOR_ACTION_TYPE,
@@ -80,10 +79,10 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     DeleteMonitorResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -97,7 +96,7 @@ object AlertingPluginInterface {
     fun indexWorkflow(
         client: NodeClient,
         request: IndexWorkflowRequest,
-        listener: ActionListener<IndexWorkflowResponse>
+        listener: ActionListener<IndexWorkflowResponse>,
     ) {
         client.execute(
             AlertingActions.INDEX_WORKFLOW_ACTION_TYPE,
@@ -105,17 +104,17 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     IndexWorkflowResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
     fun deleteWorkflow(
         client: NodeClient,
         request: DeleteWorkflowRequest,
-        listener: ActionListener<DeleteWorkflowResponse>
+        listener: ActionListener<DeleteWorkflowResponse>,
     ) {
         client.execute(
             AlertingActions.DELETE_WORKFLOW_ACTION_TYPE,
@@ -123,10 +122,10 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     DeleteWorkflowResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -139,7 +138,7 @@ object AlertingPluginInterface {
     fun getAlerts(
         client: NodeClient,
         request: GetAlertsRequest,
-        listener: ActionListener<GetAlertsResponse>
+        listener: ActionListener<GetAlertsResponse>,
     ) {
         client.execute(
             AlertingActions.GET_ALERTS_ACTION_TYPE,
@@ -147,10 +146,10 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     GetAlertsResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -163,7 +162,7 @@ object AlertingPluginInterface {
     fun getWorkflowAlerts(
         client: NodeClient,
         request: GetWorkflowAlertsRequest,
-        listener: ActionListener<GetWorkflowAlertsResponse>
+        listener: ActionListener<GetWorkflowAlertsResponse>,
     ) {
         client.execute(
             AlertingActions.GET_WORKFLOW_ALERTS_ACTION_TYPE,
@@ -171,10 +170,10 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     GetWorkflowAlertsResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -187,7 +186,7 @@ object AlertingPluginInterface {
     fun getWorkflow(
         client: NodeClient,
         request: GetWorkflowRequest,
-        listener: ActionListener<GetWorkflowResponse>
+        listener: ActionListener<GetWorkflowResponse>,
     ) {
         client.execute(
             AlertingActions.GET_WORKFLOW_ACTION_TYPE,
@@ -195,10 +194,10 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     GetWorkflowResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -211,7 +210,7 @@ object AlertingPluginInterface {
     fun getFindings(
         client: NodeClient,
         request: GetFindingsRequest,
-        listener: ActionListener<GetFindingsResponse>
+        listener: ActionListener<GetFindingsResponse>,
     ) {
         client.execute(
             AlertingActions.GET_FINDINGS_ACTION_TYPE,
@@ -219,10 +218,10 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     GetFindingsResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -235,7 +234,7 @@ object AlertingPluginInterface {
     fun acknowledgeAlerts(
         client: NodeClient,
         request: AcknowledgeAlertRequest,
-        listener: ActionListener<AcknowledgeAlertResponse>
+        listener: ActionListener<AcknowledgeAlertResponse>,
     ) {
         client.execute(
             AlertingActions.ACKNOWLEDGE_ALERTS_ACTION_TYPE,
@@ -243,17 +242,17 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     AcknowledgeAlertResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
     fun publishFinding(
         client: NodeClient,
         request: PublishFindingsRequest,
-        listener: ActionListener<SubscribeFindingsResponse>
+        listener: ActionListener<SubscribeFindingsResponse>,
     ) {
         client.execute(
             AlertingActions.SUBSCRIBE_FINDINGS_ACTION_TYPE,
@@ -261,10 +260,10 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     SubscribeFindingsResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -277,7 +276,7 @@ object AlertingPluginInterface {
     fun acknowledgeChainedAlerts(
         client: NodeClient,
         request: AcknowledgeChainedAlertRequest,
-        listener: ActionListener<AcknowledgeAlertResponse>
+        listener: ActionListener<AcknowledgeAlertResponse>,
     ) {
         client.execute(
             AlertingActions.ACKNOWLEDGE_CHAINED_ALERTS_ACTION_TYPE,
@@ -285,10 +284,10 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     AcknowledgeAlertResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -301,7 +300,7 @@ object AlertingPluginInterface {
     fun getMonitor(
         client: NodeClient,
         request: GetMonitorRequest,
-        listener: ActionListener<GetMonitorResponse>
+        listener: ActionListener<GetMonitorResponse>,
     ) {
         client.execute(
             AlertingActions.GET_MONITOR_ACTION_TYPE,
@@ -309,10 +308,10 @@ object AlertingPluginInterface {
             wrapActionListener(listener) { response ->
                 recreateObject(response) {
                     GetMonitorResponse(
-                        it
+                        it,
                     )
                 }
-            }
+            },
         )
     }
 
@@ -325,7 +324,7 @@ object AlertingPluginInterface {
     fun searchMonitors(
         client: NodeClient,
         request: SearchMonitorRequest,
-        listener: ActionListener<SearchResponse>
+        listener: ActionListener<SearchResponse>,
     ) {
         client.execute(
             AlertingActions.SEARCH_MONITORS_ACTION_TYPE,
@@ -333,16 +332,16 @@ object AlertingPluginInterface {
             // we do not use the wrapActionListener in this case since there is no need
             // to recreate any object or specially handle onResponse / onFailure. It is
             // simply returning a SearchResponse.
-            listener
+            listener,
         )
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun <Response : BaseResponse> wrapActionListener(
         listener: ActionListener<Response>,
-        recreate: (Writeable) -> Response
-    ): ActionListener<Response> {
-        return object : ActionListener<ActionResponse> {
+        recreate: (Writeable) -> Response,
+    ): ActionListener<Response> =
+        object : ActionListener<ActionResponse> {
             override fun onResponse(response: ActionResponse) {
                 val recreated = response as? Response ?: recreate(response)
                 listener.onResponse(recreated)
@@ -352,5 +351,4 @@ object AlertingPluginInterface {
                 listener.onFailure(exception)
             }
         } as ActionListener<Response>
-    }
 }

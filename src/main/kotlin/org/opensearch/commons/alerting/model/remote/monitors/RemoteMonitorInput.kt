@@ -11,32 +11,35 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 import java.nio.ByteBuffer
 
-data class RemoteMonitorInput(val input: BytesReference) : Input {
-
+data class RemoteMonitorInput(
+    val input: BytesReference,
+) : Input {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        sin.readBytesReference()
+        sin.readBytesReference(),
     )
 
     override fun asTemplateArg(): Map<String, Any> {
         val bytes = input.toBytesRef().bytes
         return mapOf(
             INPUT_SIZE to bytes.size,
-            INPUT_FIELD to bytes
+            INPUT_FIELD to bytes,
         )
     }
 
-    override fun name(): String {
-        return REMOTE_MONITOR_INPUT_FIELD
-    }
+    override fun name(): String = REMOTE_MONITOR_INPUT_FIELD
 
     override fun writeTo(out: StreamOutput) {
         out.writeBytesReference(input)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
         val bytes = input.toBytesRef().bytes
-        return builder.startObject()
+        return builder
+            .startObject()
             .startObject(REMOTE_MONITOR_INPUT_FIELD)
             .field(INPUT_SIZE, bytes.size)
             .field(INPUT_FIELD, bytes)

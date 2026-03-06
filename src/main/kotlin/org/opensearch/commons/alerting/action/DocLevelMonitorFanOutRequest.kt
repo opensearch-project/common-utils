@@ -19,7 +19,9 @@ import org.opensearch.core.xcontent.ToXContentObject
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
 
-class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
+class DocLevelMonitorFanOutRequest :
+    ActionRequest,
+    ToXContentObject {
     val monitor: Monitor
     val dryRun: Boolean
     val monitorMetadata: MonitorMetadata
@@ -37,7 +39,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
         indexExecutionContext: IndexExecutionContext?,
         shardIds: List<ShardId>,
         concreteIndicesSeenSoFar: List<String>,
-        workflowRunContext: WorkflowRunContext?
+        workflowRunContext: WorkflowRunContext?,
     ) : super() {
         this.monitor = monitor
         this.dryRun = dryRun
@@ -58,10 +60,13 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
         executionId = sin.readString(),
         shardIds = sin.readList(::ShardId),
         concreteIndicesSeenSoFar = sin.readStringList(),
-        workflowRunContext = if (sin.readBoolean()) {
-            WorkflowRunContext(sin)
-        } else { null },
-        indexExecutionContext = IndexExecutionContext(sin)
+        workflowRunContext =
+            if (sin.readBoolean()) {
+                WorkflowRunContext(sin)
+            } else {
+                null
+            },
+        indexExecutionContext = IndexExecutionContext(sin),
     )
 
     @Throws(IOException::class)
@@ -87,8 +92,12 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field("monitor", monitor)
             .field("dry_run", dryRun)
             .field("execution_id", executionId)

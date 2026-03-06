@@ -8,23 +8,20 @@ import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 
 class SearchCommentRequest : ActionRequest {
-
     val searchRequest: SearchRequest
 
     constructor(
-        searchRequest: SearchRequest
+        searchRequest: SearchRequest,
     ) : super() {
         this.searchRequest = searchRequest
     }
 
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
-        searchRequest = SearchRequest(sin)
+        searchRequest = SearchRequest(sin),
     )
 
-    override fun validate(): ActionRequestValidationException? {
-        return null
-    }
+    override fun validate(): ActionRequestValidationException? = null
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {

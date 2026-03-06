@@ -13,31 +13,32 @@ import org.opensearch.commons.utils.getJsonString
 import org.opensearch.commons.utils.recreateObject
 
 internal class EmailTests {
-
     @Test
     fun `Email serialize and deserialize transport object should be equal`() {
-        val sampleEmail = Email(
-            "sampleAccountId",
-            listOf(
-                EmailRecipient("email1@email.com"),
-                EmailRecipient("email2@email.com")
-            ),
-            listOf("sample_group_id_1", "sample_group_id_2")
-        )
+        val sampleEmail =
+            Email(
+                "sampleAccountId",
+                listOf(
+                    EmailRecipient("email1@email.com"),
+                    EmailRecipient("email2@email.com"),
+                ),
+                listOf("sample_group_id_1", "sample_group_id_2"),
+            )
         val recreatedObject = recreateObject(sampleEmail) { Email(it) }
         assertEquals(sampleEmail, recreatedObject)
     }
 
     @Test
     fun `Email serialize and deserialize using json object should be equal`() {
-        val sampleEmail = Email(
-            "sampleAccountId",
-            listOf(
-                EmailRecipient("email1@email.com"),
-                EmailRecipient("email2@email.com")
-            ),
-            listOf("sample_group_id_1", "sample_group_id_2")
-        )
+        val sampleEmail =
+            Email(
+                "sampleAccountId",
+                listOf(
+                    EmailRecipient("email1@email.com"),
+                    EmailRecipient("email2@email.com"),
+                ),
+                listOf("sample_group_id_1", "sample_group_id_2"),
+            )
         val jsonString = getJsonString(sampleEmail)
         val recreatedObject = createObjectFromJsonString(jsonString) { Email.parse(it) }
         assertEquals(sampleEmail, recreatedObject)
@@ -45,15 +46,17 @@ internal class EmailTests {
 
     @Test
     fun `Email should deserialize json object using parser`() {
-        val sampleEmail = Email(
-            "sampleAccountId",
-            listOf(
-                EmailRecipient("email1@email.com"),
-                EmailRecipient("email2@email.com")
-            ),
-            listOf("sample_group_id_1", "sample_group_id_2")
-        )
-        val jsonString = """
+        val sampleEmail =
+            Email(
+                "sampleAccountId",
+                listOf(
+                    EmailRecipient("email1@email.com"),
+                    EmailRecipient("email2@email.com"),
+                ),
+                listOf("sample_group_id_1", "sample_group_id_2"),
+            )
+        val jsonString =
+            """
             {
                 "email_account_id":"${sampleEmail.emailAccountID}",
                 "recipient_list":[
@@ -65,7 +68,7 @@ internal class EmailTests {
                     "${sampleEmail.emailGroupIds[1]}"
                 ]
              }"
-        """.trimIndent()
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { Email.parse(it) }
         assertEquals(sampleEmail, recreatedObject)
     }
@@ -80,15 +83,17 @@ internal class EmailTests {
 
     @Test
     fun `Email should throw exception when emailAccountID is replaced with emailAccountID2 in json object`() {
-        val sampleEmail = Email(
-            "sampleAccountId",
-            listOf(
-                EmailRecipient("email1@email.com"),
-                EmailRecipient("email2@email.com")
-            ),
-            listOf("sample_group_id_1", "sample_group_id_2")
-        )
-        val jsonString = """
+        val sampleEmail =
+            Email(
+                "sampleAccountId",
+                listOf(
+                    EmailRecipient("email1@email.com"),
+                    EmailRecipient("email2@email.com"),
+                ),
+                listOf("sample_group_id_1", "sample_group_id_2"),
+            )
+        val jsonString =
+            """
             {
                 "email_account_id2":"${sampleEmail.emailAccountID}",
                 "recipient_list":[
@@ -100,7 +105,7 @@ internal class EmailTests {
                     "${sampleEmail.emailGroupIds[1]}"
                 ]
              }"
-        """.trimIndent()
+            """.trimIndent()
         assertThrows<IllegalArgumentException> {
             createObjectFromJsonString(jsonString) { Email.parse(it) }
         }
@@ -109,11 +114,12 @@ internal class EmailTests {
     @Test
     fun `Email should accept without defaultRecipients and defaultEmailGroupIds in json object`() {
         val sampleEmail = Email("sampleAccountId", listOf(), listOf())
-        val jsonString = """
+        val jsonString =
+            """
             {
                 "email_account_id":"${sampleEmail.emailAccountID}"
             }"
-        """.trimIndent()
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { Email.parse(it) }
         assertEquals(sampleEmail, recreatedObject)
     }
@@ -121,7 +127,8 @@ internal class EmailTests {
     @Test
     fun `Email should safely ignore extra field in json object`() {
         val sampleEmail = Email("sampleAccountId", listOf(), listOf())
-        val jsonString = """
+        val jsonString =
+            """
             {
                 "email_account_id":"${sampleEmail.emailAccountID}",
                 "recipient_list2":[
@@ -133,7 +140,7 @@ internal class EmailTests {
                 ],
                 "another":"field"
             }"
-        """.trimIndent()
+            """.trimIndent()
         val recreatedObject = createObjectFromJsonString(jsonString) { Email.parse(it) }
         assertEquals(sampleEmail, recreatedObject)
     }

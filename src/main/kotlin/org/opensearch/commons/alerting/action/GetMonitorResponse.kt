@@ -32,7 +32,7 @@ class GetMonitorResponse : BaseResponse {
         seqNo: Long,
         primaryTerm: Long,
         monitor: Monitor?,
-        associatedCompositeMonitors: List<AssociatedWorkflow>?
+        associatedCompositeMonitors: List<AssociatedWorkflow>?,
     ) : super() {
         this.id = id
         this.version = version
@@ -48,12 +48,13 @@ class GetMonitorResponse : BaseResponse {
         version = sin.readLong(), // version
         seqNo = sin.readLong(), // seqNo
         primaryTerm = sin.readLong(), // primaryTerm
-        monitor = if (sin.readBoolean()) {
-            Monitor.readFrom(sin) // monitor
-        } else {
-            null
-        },
-        associatedCompositeMonitors = sin.readList((AssociatedWorkflow)::readFrom)
+        monitor =
+            if (sin.readBoolean()) {
+                Monitor.readFrom(sin) // monitor
+            } else {
+                null
+            },
+        associatedCompositeMonitors = sin.readList((AssociatedWorkflow)::readFrom),
     )
 
     @Throws(IOException::class)
@@ -74,8 +75,12 @@ class GetMonitorResponse : BaseResponse {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field(_ID, id)
             .field(_VERSION, version)
             .field(_SEQ_NO, seqNo)
@@ -98,8 +103,12 @@ class GetMonitorResponse : BaseResponse {
             this.name = name
         }
 
-        override fun toXContent(builder: XContentBuilder, params: ToXContent.Params?): XContentBuilder {
-            builder.startObject()
+        override fun toXContent(
+            builder: XContentBuilder,
+            params: ToXContent.Params?,
+        ): XContentBuilder {
+            builder
+                .startObject()
                 .field("id", id)
                 .field("name", name)
                 .endObject()
@@ -114,15 +123,13 @@ class GetMonitorResponse : BaseResponse {
         @Throws(IOException::class)
         constructor(sin: StreamInput) : this(
             sin.readString(),
-            sin.readString()
+            sin.readString(),
         )
 
         companion object {
             @JvmStatic
             @Throws(IOException::class)
-            fun readFrom(sin: StreamInput): AssociatedWorkflow {
-                return AssociatedWorkflow(sin)
-            }
+            fun readFrom(sin: StreamInput): AssociatedWorkflow = AssociatedWorkflow(sin)
         }
     }
 }

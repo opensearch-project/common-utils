@@ -17,9 +17,8 @@ data class DocLevelQuery(
     val fields: List<String>,
     val query: String,
     val tags: List<String> = mutableListOf(),
-    val queryFieldNames: List<String> = mutableListOf()
+    val queryFieldNames: List<String> = mutableListOf(),
 ) : BaseModel {
-
     init {
         // Ensure the name and tags have valid characters
         validateQueryName(name)
@@ -35,19 +34,18 @@ data class DocLevelQuery(
         sin.readStringList(), // fields
         sin.readString(), // query
         sin.readStringList(), // tags,
-        sin.readStringList() // fieldsBeingQueried
+        sin.readStringList(), // fieldsBeingQueried
     )
 
-    fun asTemplateArg(): Map<String, Any> {
-        return mapOf(
+    fun asTemplateArg(): Map<String, Any> =
+        mapOf(
             QUERY_ID_FIELD to id,
             NAME_FIELD to name,
             FIELDS_FIELD to fields,
             QUERY_FIELD to query,
             TAGS_FIELD to tags,
-            QUERY_FIELD_NAMES_FIELD to queryFieldNames
+            QUERY_FIELD_NAMES_FIELD to queryFieldNames,
         )
-    }
 
     @Throws(IOException::class)
     override fun writeTo(out: StreamOutput) {
@@ -59,8 +57,12 @@ data class DocLevelQuery(
         out.writeStringCollection(queryFieldNames)
     }
 
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field(QUERY_ID_FIELD, id)
             .field(NAME_FIELD, name)
             .field(FIELDS_FIELD, fields.toTypedArray())
@@ -98,18 +100,24 @@ data class DocLevelQuery(
                 xcp.nextToken()
 
                 when (fieldName) {
-                    QUERY_ID_FIELD -> id = xcp.text()
+                    QUERY_ID_FIELD -> {
+                        id = xcp.text()
+                    }
+
                     NAME_FIELD -> {
                         name = xcp.text()
                         validateQueryName(name)
                     }
 
-                    QUERY_FIELD -> query = xcp.text()
+                    QUERY_FIELD -> {
+                        query = xcp.text()
+                    }
+
                     TAGS_FIELD -> {
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             val tag = xcp.text()
@@ -122,7 +130,7 @@ data class DocLevelQuery(
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             val field = xcp.text()
@@ -134,7 +142,7 @@ data class DocLevelQuery(
                         XContentParserUtils.ensureExpectedToken(
                             XContentParser.Token.START_ARRAY,
                             xcp.currentToken(),
-                            xcp
+                            xcp,
                         )
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             val field = xcp.text()
@@ -150,25 +158,24 @@ data class DocLevelQuery(
                 fields = fields,
                 query = query,
                 tags = tags,
-                queryFieldNames = queryFieldNames
+                queryFieldNames = queryFieldNames,
             )
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): DocLevelQuery {
-            return DocLevelQuery(sin)
-        }
+        fun readFrom(sin: StreamInput): DocLevelQuery = DocLevelQuery(sin)
 
         private fun validateQueryTag(stringVal: String) {
             for (inValidChar in INVALID_CHARACTERS) {
                 if (stringVal.contains(inValidChar)) {
                     throw IllegalArgumentException(
-                        "The query tag, $stringVal, contains an invalid character: [' ','[',']','{','}','(',')']"
+                        "The query tag, $stringVal, contains an invalid character: [' ','[',']','{','}','(',')']",
                     )
                 }
             }
         }
+
         private fun validateQueryName(stringVal: String) {
             if (!stringVal.matches(QUERY_NAME_REGEX)) {
                 throw IllegalArgumentException("The query name, $stringVal, should be between 1 - 256 characters.")
@@ -182,13 +189,13 @@ data class DocLevelQuery(
         name: String,
         fields: MutableList<String>,
         query: String,
-        tags: MutableList<String>
+        tags: MutableList<String>,
     ) : this(
         id = id,
         name = name,
         fields = fields,
         query = query,
         tags = tags,
-        queryFieldNames = emptyList()
+        queryFieldNames = emptyList(),
     )
 }

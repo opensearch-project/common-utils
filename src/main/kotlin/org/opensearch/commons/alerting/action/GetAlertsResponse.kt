@@ -18,7 +18,7 @@ class GetAlertsResponse : BaseResponse {
 
     constructor(
         alerts: List<Alert>,
-        totalAlerts: Int?
+        totalAlerts: Int?,
     ) : super() {
         this.alerts = alerts
         this.totalAlerts = totalAlerts
@@ -27,7 +27,7 @@ class GetAlertsResponse : BaseResponse {
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         alerts = Collections.unmodifiableList(sin.readList(::Alert)),
-        totalAlerts = sin.readOptionalInt()
+        totalAlerts = sin.readOptionalInt(),
     )
 
     @Throws(IOException::class)
@@ -37,8 +37,12 @@ class GetAlertsResponse : BaseResponse {
     }
 
     @Throws(IOException::class)
-    override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        builder.startObject()
+    override fun toXContent(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+    ): XContentBuilder {
+        builder
+            .startObject()
             .field("alerts", alerts)
             .field("totalAlerts", totalAlerts)
 

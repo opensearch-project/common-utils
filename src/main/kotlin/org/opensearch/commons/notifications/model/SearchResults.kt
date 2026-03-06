@@ -35,26 +35,25 @@ abstract class SearchResults<ItemClass : BaseModel> : BaseModel {
 
     companion object {
         private val log by logger(SearchResults::class.java)
-        private fun convertRelation(totalHitRelation: Relation): String {
-            return if (totalHitRelation == EQUAL_TO) {
+
+        private fun convertRelation(totalHitRelation: Relation): String =
+            if (totalHitRelation == EQUAL_TO) {
                 "eq"
             } else {
                 "gte"
             }
-        }
 
-        private fun convertRelation(totalHitRelation: String): Relation {
-            return if (totalHitRelation == "eq") {
+        private fun convertRelation(totalHitRelation: String): Relation =
+            if (totalHitRelation == "eq") {
                 EQUAL_TO
             } else {
                 GREATER_THAN_OR_EQUAL_TO
             }
-        }
     }
 
     constructor(
         objectListFieldName: String,
-        objectItem: ItemClass
+        objectItem: ItemClass,
     ) {
         this.startIndex = 0
         this.totalHits = 1
@@ -68,7 +67,7 @@ abstract class SearchResults<ItemClass : BaseModel> : BaseModel {
         totalHits: Long,
         totalHitRelation: Relation,
         objectListFieldName: String,
-        objectList: List<ItemClass>
+        objectList: List<ItemClass>,
     ) {
         this.startIndex = startIndex
         this.totalHits = totalHits
@@ -81,7 +80,7 @@ abstract class SearchResults<ItemClass : BaseModel> : BaseModel {
         from: Long,
         response: SearchResponse,
         searchHitParser: SearchHitParser<ItemClass>,
-        objectListFieldName: String
+        objectListFieldName: String,
     ) {
         val mutableList: MutableList<ItemClass> = mutableListOf()
         response.hits.forEach {
@@ -118,10 +117,22 @@ abstract class SearchResults<ItemClass : BaseModel> : BaseModel {
             val fieldName = parser.currentName()
             parser.nextToken()
             when (fieldName) {
-                START_INDEX_TAG -> startIndex = parser.longValue()
-                TOTAL_HITS_TAG -> totalHits = parser.longValue()
-                TOTAL_HIT_RELATION_TAG -> totalHitRelation = convertRelation(parser.text())
-                objectListFieldName -> objectList = parseItemList(parser)
+                START_INDEX_TAG -> {
+                    startIndex = parser.longValue()
+                }
+
+                TOTAL_HITS_TAG -> {
+                    totalHits = parser.longValue()
+                }
+
+                TOTAL_HIT_RELATION_TAG -> {
+                    totalHitRelation = convertRelation(parser.text())
+                }
+
+                objectListFieldName -> {
+                    objectList = parseItemList(parser)
+                }
+
                 else -> {
                     parser.skipChildren()
                     log.info("Skipping Unknown field $fieldName")
@@ -170,7 +181,7 @@ abstract class SearchResults<ItemClass : BaseModel> : BaseModel {
         totalHits = input.readLong(),
         totalHitRelation = input.readEnum(Relation::class.java),
         objectListFieldName = input.readString(),
-        objectList = input.readList(reader)
+        objectList = input.readList(reader),
     )
 
     /**
@@ -187,8 +198,12 @@ abstract class SearchResults<ItemClass : BaseModel> : BaseModel {
     /**
      * {@inheritDoc}
      */
-    override fun toXContent(builder: XContentBuilder?, params: Params?): XContentBuilder {
-        builder!!.startObject()
+    override fun toXContent(
+        builder: XContentBuilder?,
+        params: Params?,
+    ): XContentBuilder {
+        builder!!
+            .startObject()
             .field(START_INDEX_TAG, startIndex)
             .field(TOTAL_HITS_TAG, totalHits)
             .field(TOTAL_HIT_RELATION_TAG, convertRelation(totalHitRelation))

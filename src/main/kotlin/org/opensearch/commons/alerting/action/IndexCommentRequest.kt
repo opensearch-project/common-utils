@@ -32,7 +32,7 @@ class IndexCommentRequest : ActionRequest {
         seqNo: Long,
         primaryTerm: Long,
         method: RestRequest.Method,
-        content: String
+        content: String,
     ) : super() {
         this.entityId = entityId
         this.entityType = entityType
@@ -51,12 +51,12 @@ class IndexCommentRequest : ActionRequest {
         seqNo = sin.readLong(),
         primaryTerm = sin.readLong(),
         method = sin.readEnum(RestRequest.Method::class.java),
-        content = sin.readString()
+        content = sin.readString(),
     )
 
     override fun validate(): ActionRequestValidationException? {
-        if (method == RestRequest.Method.POST && entityId.isBlank() ||
-            method == RestRequest.Method.PUT && commentId.isBlank()
+        if ((method == RestRequest.Method.POST && entityId.isBlank()) ||
+            (method == RestRequest.Method.PUT && commentId.isBlank())
         ) {
             val exception = ActionRequestValidationException()
             exception.addValidationError("id must not be blank")
