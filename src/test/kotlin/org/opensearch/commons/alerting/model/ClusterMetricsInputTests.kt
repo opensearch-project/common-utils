@@ -591,4 +591,43 @@ class ClusterMetricsInputTests {
             )
         }
     }
+
+    @Test
+    fun `test parseInner rejects mismatched api_type and path`() {
+        val inputJson = """
+            {"uri":{"api_type":"CLUSTER_STATS","path":"/_cat/indices","path_params":"","url":"","clusters":[]}}
+        """.trimIndent()
+        val xcp = org.opensearch.common.xcontent.json.JsonXContent.jsonXContent
+            .createParser(
+                org.opensearch.core.xcontent.NamedXContentRegistry.EMPTY,
+                org.opensearch.core.xcontent.DeprecationHandler.THROW_UNSUPPORTED_OPERATION,
+                inputJson
+            )
+        xcp.nextToken() // START_OBJECT (root)
+        xcp.nextToken() // FIELD_NAME "uri"
+        xcp.nextToken() // START_OBJECT (uri)
+
+        assertFailsWith<IllegalArgumentException>("The provided api_type") {
+            ClusterMetricsInput.parseInner(xcp)
+        }
+    }
+
+    @Test
+    fun `test parseInner accepts matching api_type and path`() {
+        val inputJson = """
+            {"uri":{"api_type":"CAT_INDICES","path":"/_cat/indices","path_params":"","url":"","clusters":[]}}
+        """.trimIndent()
+        val xcp = org.opensearch.common.xcontent.json.JsonXContent.jsonXContent
+            .createParser(
+                org.opensearch.core.xcontent.NamedXContentRegistry.EMPTY,
+                org.opensearch.core.xcontent.DeprecationHandler.THROW_UNSUPPORTED_OPERATION,
+                inputJson
+            )
+        xcp.nextToken()
+        xcp.nextToken()
+        xcp.nextToken()
+
+        val input = ClusterMetricsInput.parseInner(xcp)
+        assertEquals(ClusterMetricsInput.ClusterMetricType.CAT_INDICES, input.clusterMetricType)
+    }
 }
