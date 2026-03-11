@@ -4,7 +4,6 @@ import org.opensearch.Version
 import org.opensearch.common.CheckedFunction
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.MONITOR_MAX_INPUTS
-import org.opensearch.commons.alerting.util.IndexUtils.Companion.MONITOR_MAX_TRIGGERS
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
@@ -76,7 +75,6 @@ data class Monitor(
             require(enabledTime == null)
         }
         require(inputs.size <= MONITOR_MAX_INPUTS) { "Monitors can only have $MONITOR_MAX_INPUTS search input." }
-        require(triggers.size <= MONITOR_MAX_TRIGGERS) { "Monitors can only support up to $MONITOR_MAX_TRIGGERS triggers." }
         if (this.isBucketLevelMonitor()) {
             inputs.forEach { input ->
                 require(input is SearchInput) { "Unsupported input [$input] for Monitor" }
