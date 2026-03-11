@@ -123,6 +123,7 @@ data class ClusterMetricsInput(
             var path = ""
             var pathParams = ""
             var url = ""
+            var apiType = ""
             val clusters = mutableListOf<String>()
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -131,6 +132,7 @@ data class ClusterMetricsInput(
                 val fieldName = xcp.currentName()
                 xcp.nextToken()
                 when (fieldName) {
+                    API_TYPE_FIELD -> apiType = xcp.text()
                     PATH_FIELD -> path = xcp.text()
                     PATH_PARAMS_FIELD -> pathParams = xcp.text()
                     URL_FIELD -> url = xcp.text()
@@ -144,6 +146,17 @@ data class ClusterMetricsInput(
                     }
                 }
             }
+
+            if (apiType.isNotEmpty() && path.isNotEmpty()) {
+                val derivedType = ClusterMetricType.values()
+                    .filter { it != ClusterMetricType.BLANK }
+                    .find { path.startsWith(it.prependPath) || path.startsWith(it.defaultPath) }
+
+                require(derivedType != null && derivedType.name == apiType) {
+                    "The provided api_type [$apiType] does not match the path [$path]."
+                }
+            }
+
             return ClusterMetricsInput(path, pathParams, url, clusters)
         }
     }
