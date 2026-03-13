@@ -3,8 +3,8 @@ package org.opensearch.commons.alerting
 import org.junit.jupiter.api.Test
 import org.opensearch.commons.alerting.model.Trigger
 import org.opensearch.test.OpenSearchTestCase
-import java.lang.IllegalArgumentException
 import java.time.Instant
+import kotlin.test.assertEquals
 
 internal class MonitorTests {
     @Test
@@ -27,20 +27,17 @@ internal class MonitorTests {
     }
 
     @Test
-    fun `test max triggers`() {
+    fun `test monitor allows more than 10 triggers`() {
         val monitor = randomQueryLevelMonitor()
 
-        val tooManyTriggers = mutableListOf<Trigger>()
+        val manyTriggers = mutableListOf<Trigger>()
         var i = 0
         while (i <= 10) {
-            tooManyTriggers.add(randomQueryLevelTrigger())
+            manyTriggers.add(randomQueryLevelTrigger())
             ++i
         }
 
-        try {
-            monitor.copy(triggers = tooManyTriggers)
-            OpenSearchTestCase.fail("Monitor with too many triggers should be rejected.")
-        } catch (e: IllegalArgumentException) {
-        }
+        val monitorWithManyTriggers = monitor.copy(triggers = manyTriggers)
+        assertEquals(11, monitorWithManyTriggers.triggers.size)
     }
 }
