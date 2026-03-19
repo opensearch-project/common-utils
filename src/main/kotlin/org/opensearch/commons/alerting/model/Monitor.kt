@@ -44,7 +44,10 @@ data class Monitor(
     val dataSources: DataSources = DataSources(),
     val deleteQueryIndexInEveryRun: Boolean? = false,
     val shouldCreateSingleAlertForFindings: Boolean? = false,
-    val owner: String? = "alerting"
+    val owner: String? = "alerting",
+    val workspaceId: String = "",
+    val targetType: String = TARGET_TYPE_LOCAL,
+    val targetArn: String = ""
 ) : ScheduledJob {
 
     override val type = MONITOR_TYPE
@@ -121,7 +124,22 @@ data class Monitor(
         } else {
             false
         },
-        owner = sin.readOptionalString()
+        owner = sin.readOptionalString(),
+        workspaceId = if (sin.version.onOrAfter(Version.V_3_5_0)) {
+            sin.readString()
+        } else {
+            ""
+        },
+        targetType = if (sin.version.onOrAfter(Version.V_3_5_0)) {
+            sin.readString()
+        } else {
+            TARGET_TYPE_LOCAL
+        },
+        targetArn = if (sin.version.onOrAfter(Version.V_3_5_0)) {
+            sin.readString()
+        } else {
+            ""
+        }
     )
 
     // This enum classifies different Monitors
@@ -183,6 +201,9 @@ data class Monitor(
         builder.field(DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD, deleteQueryIndexInEveryRun)
         builder.field(SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD, shouldCreateSingleAlertForFindings)
         builder.field(OWNER_FIELD, owner)
+        if (workspaceId.isNotEmpty()) builder.field(WORKSPACE_ID_FIELD, workspaceId)
+        if (targetType != TARGET_TYPE_LOCAL) builder.field(TARGET_TYPE_FIELD, targetType)
+        if (targetArn.isNotEmpty()) builder.field(TARGET_ARN_FIELD, targetArn)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
     }
@@ -240,6 +261,15 @@ data class Monitor(
             out.writeOptionalBoolean(shouldCreateSingleAlertForFindings)
         }
         out.writeOptionalString(owner)
+        if (out.version.onOrAfter(Version.V_3_5_0)) {
+            out.writeString(workspaceId)
+        }
+        if (out.version.onOrAfter(Version.V_3_5_0)) {
+            out.writeString(targetType)
+        }
+        if (out.version.onOrAfter(Version.V_3_5_0)) {
+            out.writeString(targetArn)
+        }
     }
 
     companion object {
@@ -262,6 +292,10 @@ data class Monitor(
         const val DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD = "delete_query_index_in_every_run"
         const val SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD = "should_create_single_alert_for_findings"
         const val OWNER_FIELD = "owner"
+        const val WORKSPACE_ID_FIELD = "workspace_id"
+        const val TARGET_TYPE_FIELD = "target_type"
+        const val TARGET_ARN_FIELD = "target_arn"
+        const val TARGET_TYPE_LOCAL = "local"
         val MONITOR_TYPE_PATTERN = Pattern.compile("[a-zA-Z0-9_]{5,25}")
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
@@ -292,6 +326,9 @@ data class Monitor(
             var deleteQueryIndexInEveryRun = false
             var delegateMonitor = false
             var owner = "alerting"
+            var workspaceId = ""
+            var targetType = TARGET_TYPE_LOCAL
+            var targetArn = ""
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -355,6 +392,9 @@ data class Monitor(
                         xcp.booleanValue()
                     }
                     OWNER_FIELD -> owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
+                    WORKSPACE_ID_FIELD -> workspaceId = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) workspaceId else xcp.text()
+                    TARGET_TYPE_FIELD -> targetType = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) targetType else xcp.text()
+                    TARGET_ARN_FIELD -> targetArn = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) targetArn else xcp.text()
                     else -> {
                         xcp.skipChildren()
                     }
@@ -383,7 +423,10 @@ data class Monitor(
                 dataSources,
                 deleteQueryIndexInEveryRun,
                 delegateMonitor,
-                owner
+                owner,
+                workspaceId,
+                targetType,
+                targetArn
             )
         }
 
