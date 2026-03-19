@@ -1,5 +1,6 @@
 package org.opensearch.commons.alerting.model
 
+import org.opensearch.Version
 import org.opensearch.common.lucene.uid.Versions
 import org.opensearch.commons.alerting.alerts.AlertError
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
@@ -43,7 +44,10 @@ data class Alert(
     val aggregationResultBucket: AggregationResultBucket? = null,
     val executionId: String? = null,
     val associatedAlertIds: List<String>,
-    val clusters: List<String>? = null
+    val clusters: List<String>? = null,
+    val workspaceId: String? = null,
+    val targetType: String? = null,
+    val targetArn: String? = null
 ) : Writeable, ToXContent {
 
     init {
@@ -125,7 +129,10 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        workspaceId = monitor.workspaceId.ifEmpty { null },
+        targetType = monitor.targetType.ifEmpty { null },
+        targetArn = monitor.targetArn.ifEmpty { null }
     )
 
     constructor(
@@ -164,7 +171,10 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        workspaceId = monitor.workspaceId.ifEmpty { null },
+        targetType = monitor.targetType.ifEmpty { null },
+        targetArn = monitor.targetArn.ifEmpty { null }
     )
 
     constructor(
@@ -204,7 +214,10 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        workspaceId = monitor.workspaceId.ifEmpty { null },
+        targetType = monitor.targetType.ifEmpty { null },
+        targetArn = monitor.targetArn.ifEmpty { null }
     )
 
     constructor(
@@ -246,7 +259,10 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        workspaceId = monitor.workspaceId.ifEmpty { null },
+        targetType = monitor.targetType.ifEmpty { null },
+        targetArn = monitor.targetArn.ifEmpty { null }
     )
 
     constructor(
@@ -285,7 +301,10 @@ data class Alert(
         workflowId = workflowId ?: "",
         executionId = executionId,
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        workspaceId = monitor.workspaceId.ifEmpty { null },
+        targetType = monitor.targetType.ifEmpty { null },
+        targetArn = monitor.targetArn.ifEmpty { null }
     )
 
     enum class State {
@@ -329,7 +348,22 @@ data class Alert(
         aggregationResultBucket = if (sin.readBoolean()) AggregationResultBucket(sin) else null,
         executionId = sin.readOptionalString(),
         associatedAlertIds = sin.readStringList(),
-        clusters = sin.readOptionalStringList()
+        clusters = sin.readOptionalStringList(),
+        workspaceId = if (sin.version.onOrAfter(Version.V_3_5_0)) {
+            sin.readOptionalString()
+        } else {
+            null
+        },
+        targetType = if (sin.version.onOrAfter(Version.V_3_5_0)) {
+            sin.readOptionalString()
+        } else {
+            null
+        },
+        targetArn = if (sin.version.onOrAfter(Version.V_3_5_0)) {
+            sin.readOptionalString()
+        } else {
+            null
+        }
     )
 
     fun isAcknowledged(): Boolean = (state == State.ACKNOWLEDGED)
@@ -368,6 +402,11 @@ data class Alert(
         out.writeOptionalString(executionId)
         out.writeStringCollection(associatedAlertIds)
         out.writeOptionalStringArray(clusters?.toTypedArray())
+        if (out.version.onOrAfter(Version.V_3_5_0)) {
+            out.writeOptionalString(workspaceId)
+            out.writeOptionalString(targetType)
+            out.writeOptionalString(targetArn)
+        }
     }
 
     companion object {
@@ -399,6 +438,9 @@ data class Alert(
         const val BUCKET_KEYS = AggregationResultBucket.BUCKET_KEYS
         const val PARENTS_BUCKET_PATH = AggregationResultBucket.PARENTS_BUCKET_PATH
         const val CLUSTERS_FIELD = "clusters"
+        const val WORKSPACE_ID_FIELD = "workspace_id"
+        const val TARGET_TYPE_FIELD = "target_type"
+        const val TARGET_ARN_FIELD = "target_arn"
         const val NO_ID = ""
         const val NO_VERSION = Versions.NOT_FOUND
 
@@ -430,6 +472,9 @@ data class Alert(
             var aggAlertBucket: AggregationResultBucket? = null
             val associatedAlertIds = mutableListOf<String>()
             val clusters = mutableListOf<String>()
+            var workspaceId: String? = null
+            var targetType: String? = null
+            var targetArn: String? = null
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = xcp.currentName()
@@ -505,6 +550,9 @@ data class Alert(
                             clusters.add(xcp.text())
                         }
                     }
+                    WORKSPACE_ID_FIELD -> workspaceId = xcp.textOrNull()
+                    TARGET_TYPE_FIELD -> targetType = xcp.textOrNull()
+                    TARGET_ARN_FIELD -> targetArn = xcp.textOrNull()
                 }
             }
 
@@ -534,7 +582,10 @@ data class Alert(
                 workflowId = workflowId,
                 workflowName = workflowName,
                 associatedAlertIds = associatedAlertIds,
-                clusters = if (clusters.size > 0) clusters else null
+                clusters = if (clusters.size > 0) clusters else null,
+                workspaceId = workspaceId,
+                targetType = targetType,
+                targetArn = targetArn
             )
         }
 
@@ -586,6 +637,9 @@ data class Alert(
         aggregationResultBucket?.innerXContent(builder)
 
         if (!clusters.isNullOrEmpty()) builder.field(CLUSTERS_FIELD, clusters.toTypedArray())
+        if (workspaceId != null) builder.field(WORKSPACE_ID_FIELD, workspaceId)
+        if (targetType != null) builder.field(TARGET_TYPE_FIELD, targetType)
+        if (targetArn != null) builder.field(TARGET_ARN_FIELD, targetArn)
 
         builder.endObject()
         return builder
