@@ -1,6 +1,5 @@
 package org.opensearch.commons.alerting.model
 
-import org.opensearch.Version
 import org.opensearch.common.lucene.uid.Versions
 import org.opensearch.commons.alerting.alerts.AlertError
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
@@ -44,8 +43,7 @@ data class Alert(
     val aggregationResultBucket: AggregationResultBucket? = null,
     val executionId: String? = null,
     val associatedAlertIds: List<String>,
-    val clusters: List<String>? = null,
-    val target: Target? = null
+    val clusters: List<String>? = null
 ) : Writeable, ToXContent {
 
     init {
@@ -127,8 +125,7 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters,
-        target = monitor.target
+        clusters = clusters
     )
 
     constructor(
@@ -167,8 +164,7 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters,
-        target = monitor.target
+        clusters = clusters
     )
 
     constructor(
@@ -208,8 +204,7 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters,
-        target = monitor.target
+        clusters = clusters
     )
 
     constructor(
@@ -251,8 +246,7 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters,
-        target = monitor.target
+        clusters = clusters
     )
 
     constructor(
@@ -291,8 +285,7 @@ data class Alert(
         workflowId = workflowId ?: "",
         executionId = executionId,
         associatedAlertIds = emptyList(),
-        clusters = clusters,
-        target = monitor.target
+        clusters = clusters
     )
 
     enum class State {
@@ -336,12 +329,7 @@ data class Alert(
         aggregationResultBucket = if (sin.readBoolean()) AggregationResultBucket(sin) else null,
         executionId = sin.readOptionalString(),
         associatedAlertIds = sin.readStringList(),
-        clusters = sin.readOptionalStringList(),
-        target = if (sin.version.onOrAfter(Version.V_3_6_0)) {
-            if (sin.readBoolean()) Target(sin) else null
-        } else {
-            null
-        }
+        clusters = sin.readOptionalStringList()
     )
 
     fun isAcknowledged(): Boolean = (state == State.ACKNOWLEDGED)
@@ -380,10 +368,6 @@ data class Alert(
         out.writeOptionalString(executionId)
         out.writeStringCollection(associatedAlertIds)
         out.writeOptionalStringArray(clusters?.toTypedArray())
-        if (out.version.onOrAfter(Version.V_3_6_0)) {
-            out.writeBoolean(target != null)
-            target?.writeTo(out)
-        }
     }
 
     companion object {
@@ -415,7 +399,6 @@ data class Alert(
         const val BUCKET_KEYS = AggregationResultBucket.BUCKET_KEYS
         const val PARENTS_BUCKET_PATH = AggregationResultBucket.PARENTS_BUCKET_PATH
         const val CLUSTERS_FIELD = "clusters"
-        const val TARGET_FIELD = "target"
         const val NO_ID = ""
         const val NO_VERSION = Versions.NOT_FOUND
 
@@ -447,7 +430,6 @@ data class Alert(
             var aggAlertBucket: AggregationResultBucket? = null
             val associatedAlertIds = mutableListOf<String>()
             val clusters = mutableListOf<String>()
-            var target: Target? = null
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = xcp.currentName()
@@ -523,11 +505,6 @@ data class Alert(
                             clusters.add(xcp.text())
                         }
                     }
-                    TARGET_FIELD -> target = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                        null
-                    } else {
-                        Target.parse(xcp)
-                    }
                 }
             }
 
@@ -557,8 +534,7 @@ data class Alert(
                 workflowId = workflowId,
                 workflowName = workflowName,
                 associatedAlertIds = associatedAlertIds,
-                clusters = if (clusters.size > 0) clusters else null,
-                target = target
+                clusters = if (clusters.size > 0) clusters else null
             )
         }
 
@@ -610,7 +586,6 @@ data class Alert(
         aggregationResultBucket?.innerXContent(builder)
 
         if (!clusters.isNullOrEmpty()) builder.field(CLUSTERS_FIELD, clusters.toTypedArray())
-        if (target != null) builder.field(TARGET_FIELD, target)
 
         builder.endObject()
         return builder

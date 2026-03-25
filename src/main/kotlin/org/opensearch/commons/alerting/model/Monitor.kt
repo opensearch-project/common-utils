@@ -44,8 +44,7 @@ data class Monitor(
     val dataSources: DataSources = DataSources(),
     val deleteQueryIndexInEveryRun: Boolean? = false,
     val shouldCreateSingleAlertForFindings: Boolean? = false,
-    val owner: String? = "alerting",
-    val target: Target? = null
+    val owner: String? = "alerting"
 ) : ScheduledJob {
 
     override val type = MONITOR_TYPE
@@ -122,12 +121,7 @@ data class Monitor(
         } else {
             false
         },
-        owner = sin.readOptionalString(),
-        target = if (sin.version.onOrAfter(Version.V_3_6_0)) {
-            if (sin.readBoolean()) Target(sin) else null
-        } else {
-            null
-        }
+        owner = sin.readOptionalString()
     )
 
     // This enum classifies different Monitors
@@ -189,7 +183,6 @@ data class Monitor(
         builder.field(DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD, deleteQueryIndexInEveryRun)
         builder.field(SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD, shouldCreateSingleAlertForFindings)
         builder.field(OWNER_FIELD, owner)
-        if (target != null) builder.field(TARGET_FIELD, target)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
     }
@@ -247,10 +240,6 @@ data class Monitor(
             out.writeOptionalBoolean(shouldCreateSingleAlertForFindings)
         }
         out.writeOptionalString(owner)
-        if (out.version.onOrAfter(Version.V_3_6_0)) {
-            out.writeBoolean(target != null)
-            target?.writeTo(out)
-        }
     }
 
     companion object {
@@ -273,7 +262,6 @@ data class Monitor(
         const val DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD = "delete_query_index_in_every_run"
         const val SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD = "should_create_single_alert_for_findings"
         const val OWNER_FIELD = "owner"
-        const val TARGET_FIELD = "target"
         val MONITOR_TYPE_PATTERN = Pattern.compile("[a-zA-Z0-9_]{5,25}")
 
         // This is defined here instead of in ScheduledJob to avoid having the ScheduledJob class know about all
@@ -304,7 +292,6 @@ data class Monitor(
             var deleteQueryIndexInEveryRun = false
             var delegateMonitor = false
             var owner = "alerting"
-            var target: Target? = null
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -368,11 +355,6 @@ data class Monitor(
                         xcp.booleanValue()
                     }
                     OWNER_FIELD -> owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
-                    TARGET_FIELD -> target = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
-                        target
-                    } else {
-                        Target.parse(xcp)
-                    }
                     else -> {
                         xcp.skipChildren()
                     }
@@ -401,8 +383,7 @@ data class Monitor(
                 dataSources,
                 deleteQueryIndexInEveryRun,
                 delegateMonitor,
-                owner,
-                target
+                owner
             )
         }
 
