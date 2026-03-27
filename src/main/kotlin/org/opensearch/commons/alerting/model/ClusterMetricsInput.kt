@@ -147,8 +147,8 @@ data class ClusterMetricsInput(
                 }
             }
 
-            val formattedPath = path.trim('/')
-            if (apiType.isNotEmpty() && formattedPath.isNotEmpty()) {
+            if (apiType.isNotEmpty() && path.isNotEmpty()) {
+                val formattedPath = path.trim('/')
                 val derivedType = ClusterMetricType.values()
                     .filter { it != ClusterMetricType.BLANK }
                     .find { formattedPath.startsWith(it.prependPath.trim('/')) || formattedPath.startsWith(it.defaultPath.trim('/')) }
