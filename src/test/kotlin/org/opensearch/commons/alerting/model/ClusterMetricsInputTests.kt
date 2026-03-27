@@ -630,4 +630,85 @@ class ClusterMetricsInputTests {
         val input = ClusterMetricsInput.parseInner(xcp)
         assertEquals(ClusterMetricsInput.ClusterMetricType.CAT_INDICES, input.clusterMetricType)
     }
+
+    @Test
+    fun `test parseInner accepts matching api_type and path without leading slash`() {
+        val inputJson = """
+            {"uri":{"api_type":"CAT_INDICES","path":"_cat/indices","path_params":"","url":"","clusters":[]}}
+        """.trimIndent()
+        val xcp = org.opensearch.common.xcontent.json.JsonXContent.jsonXContent
+            .createParser(
+                org.opensearch.core.xcontent.NamedXContentRegistry.EMPTY,
+                org.opensearch.core.xcontent.DeprecationHandler.THROW_UNSUPPORTED_OPERATION,
+                inputJson
+            )
+        xcp.nextToken()
+        xcp.nextToken()
+        xcp.nextToken()
+
+        val input = ClusterMetricsInput.parseInner(xcp)
+        assertEquals(ClusterMetricsInput.ClusterMetricType.CAT_INDICES, input.clusterMetricType)
+    }
+
+    @Test
+    fun `test parseInner rejects mismatched api_type and path without leading slash`() {
+        val inputJson = """
+            {"uri":{"api_type":"CLUSTER_STATS","path":"_cat/indices","path_params":"","url":"","clusters":[]}}
+        """.trimIndent()
+        val xcp = org.opensearch.common.xcontent.json.JsonXContent.jsonXContent
+            .createParser(
+                org.opensearch.core.xcontent.NamedXContentRegistry.EMPTY,
+                org.opensearch.core.xcontent.DeprecationHandler.THROW_UNSUPPORTED_OPERATION,
+                inputJson
+            )
+        xcp.nextToken()
+        xcp.nextToken()
+        xcp.nextToken()
+
+        assertFailsWith<IllegalArgumentException>("The provided api_type") {
+            ClusterMetricsInput.parseInner(xcp)
+        }
+    }
+
+    @Test
+    fun `test parseInner accepts matching api_type with path containing trailing slash`() {
+        val inputJson = """
+            {"uri":{"api_type":"CLUSTER_HEALTH","path":"/_cluster/health/","path_params":"","url":"","clusters":[]}}
+        """.trimIndent()
+        val xcp = org.opensearch.common.xcontent.json.JsonXContent.jsonXContent
+            .createParser(
+                org.opensearch.core.xcontent.NamedXContentRegistry.EMPTY,
+                org.opensearch.core.xcontent.DeprecationHandler.THROW_UNSUPPORTED_OPERATION,
+                inputJson
+            )
+        xcp.nextToken()
+        xcp.nextToken()
+        xcp.nextToken()
+
+        val input = ClusterMetricsInput.parseInner(xcp)
+        assertEquals(ClusterMetricsInput.ClusterMetricType.CLUSTER_HEALTH, input.clusterMetricType)
+    }
+
+    @Test
+    fun `test parseInner skips api_type validation when path is only slashes`() {
+        // path "/" trims to "" so api_type validation is skipped;
+        // the url field drives construction instead
+        val inputJson = """
+            {"uri":{"api_type":"CAT_INDICES","path":"/","path_params":"","url":"http://localhost:9200/_cluster/health","clusters":[]}}
+        """.trimIndent()
+        val xcp = org.opensearch.common.xcontent.json.JsonXContent.jsonXContent
+            .createParser(
+                org.opensearch.core.xcontent.NamedXContentRegistry.EMPTY,
+                org.opensearch.core.xcontent.DeprecationHandler.THROW_UNSUPPORTED_OPERATION,
+                inputJson
+            )
+        xcp.nextToken()
+        xcp.nextToken()
+        xcp.nextToken()
+
+        // api_type says CAT_INDICES but url points to _cluster/health;
+        // since path trims to empty, the mismatch check is skipped and url is used
+        val input = ClusterMetricsInput.parseInner(xcp)
+        assertEquals(ClusterMetricsInput.ClusterMetricType.CLUSTER_HEALTH, input.clusterMetricType)
+    }
 }

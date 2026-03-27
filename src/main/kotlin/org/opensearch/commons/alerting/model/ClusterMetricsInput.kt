@@ -147,10 +147,11 @@ data class ClusterMetricsInput(
                 }
             }
 
-            if (apiType.isNotEmpty() && path.isNotEmpty()) {
+            val formattedPath = path.trim('/')
+            if (apiType.isNotEmpty() && formattedPath.isNotEmpty()) {
                 val derivedType = ClusterMetricType.values()
                     .filter { it != ClusterMetricType.BLANK }
-                    .find { path.startsWith(it.prependPath) || path.startsWith(it.defaultPath) }
+                    .find { formattedPath.startsWith(it.prependPath.trim('/')) || formattedPath.startsWith(it.defaultPath.trim('/')) }
 
                 require(derivedType != null && derivedType.name == apiType) {
                     "The provided api_type [$apiType] does not match the path [$path]."
