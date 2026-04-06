@@ -70,6 +70,24 @@ class AlertingException(message: String, val status: RestStatus, val ex: Excepti
             return AlertingException(friendlyMsg, status, Exception("${ex.javaClass.name}: ${ex.message}"))
         }
 
+        /**
+         * Checks whether the given throwable (or any of its causes) is an IndexNotFoundException.
+         * The remote metadata SDK wraps IndexNotFoundException inside OpenSearchStatusException,
+         * so the original "no such index" message may be buried in the cause chain.
+         */
+        @JvmStatic
+        fun isIndexNotFoundException(e: Throwable): Boolean {
+            var cause: Throwable? = e
+            while (cause != null) {
+                if (cause is IndexNotFoundException || cause.message?.contains("no such index") == true) {
+                    log.debug("IndexNotFoundException found in cause chain: ${cause.message}")
+                    return true
+                }
+                cause = cause.cause
+            }
+            return false
+        }
+
         @JvmStatic
         fun merge(vararg ex: AlertingException): AlertingException {
             var friendlyMsg = ""
