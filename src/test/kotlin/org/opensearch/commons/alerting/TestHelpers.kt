@@ -688,7 +688,7 @@ fun createCorrelationAlertTemplateArgs(correlationAlert: CorrelationAlert): Map<
 }
 
 fun randomInputRunResults(): InputRunResults {
-    return InputRunResults(listOf(), null)
+    return InputRunResults(listOf(), null, null, listOf(), 5L)
 }
 
 fun randomActionRunResult(): ActionRunResult {
@@ -781,7 +781,28 @@ fun randomQueryLevelTriggerRunResult(): QueryLevelTriggerRunResult {
     val map = mutableMapOf<String, ActionRunResult>()
     map.plus(Pair("key1", randomActionRunResult()))
     map.plus(Pair("key2", randomActionRunResult()))
-    return QueryLevelTriggerRunResult("trigger-name", true, null, map)
+
+    val queryResultsList = mutableListOf<Map<String, Any?>>()
+    queryResultsList.add(
+        mapOf(
+            "key1" to "val1",
+            "key2" to 4
+        )
+    )
+    queryResultsList.add(
+        mapOf(
+            "key3" to listOf(1, 2, 3),
+            "key4" to mapOf("nested-key" to "nested-val")
+        )
+    )
+
+    return QueryLevelTriggerRunResult(
+        "trigger-name",
+        true,
+        null,
+        map,
+        queryResultsList
+    )
 }
 
 fun randomQueryLevelMonitorRunResult(): MonitorRunResult<QueryLevelTriggerRunResult> {

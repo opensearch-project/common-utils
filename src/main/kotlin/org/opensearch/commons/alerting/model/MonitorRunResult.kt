@@ -92,12 +92,16 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
 data class InputRunResults(
     val results: List<Map<String, Any>> = listOf(),
     val error: Exception? = null,
-    val aggTriggersAfterKey: MutableMap<String, TriggerAfterKey>? = null
+    val aggTriggersAfterKey: MutableMap<String, TriggerAfterKey>? = null,
+    val pplBaseQueryResults: List<Map<String, Any?>> = listOf(),
+    val pplBaseQueryNumResults: Long? = null
 ) : Writeable, ToXContent {
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         return builder.startObject()
             .field("results", results)
+            .field("ppl_query_results", pplBaseQueryResults)
+            .field("ppl_num_results", pplBaseQueryNumResults)
             .field("error", error?.message)
             .endObject()
     }
@@ -108,6 +112,11 @@ data class InputRunResults(
         for (map in results) {
             out.writeMap(map)
         }
+        out.writeVInt(pplBaseQueryResults.size)
+        for (datarow in pplBaseQueryResults) {
+            out.writeMap(datarow)
+        }
+        out.writeOptionalLong(pplBaseQueryNumResults)
         out.writeException(error)
     }
 
@@ -120,8 +129,14 @@ data class InputRunResults(
             for (i in 0 until count) {
                 list.add(suppressWarning(sin.readMap())) // result(map)
             }
+            val pplSqlCount = sin.readVInt() // count
+            val pplSqlList = mutableListOf<Map<String, Any?>>()
+            for (i in 0 until pplSqlCount) {
+                pplSqlList.add(suppressWarning(sin.readMap())) // result(map)
+            }
+            val pplNumResults = sin.readOptionalLong()
             val error = sin.readException<Exception>() // error
-            return InputRunResults(list, error)
+            return InputRunResults(list, error, null, pplSqlList, pplNumResults)
         }
 
         @Suppress("UNCHECKED_CAST")
