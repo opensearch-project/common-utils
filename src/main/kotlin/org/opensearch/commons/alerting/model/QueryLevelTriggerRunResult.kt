@@ -18,7 +18,8 @@ open class QueryLevelTriggerRunResult(
     override var triggerName: String,
     open var triggered: Boolean,
     override var error: Exception?,
-    open var actionResults: MutableMap<String, ActionRunResult> = mutableMapOf()
+    open var actionResults: MutableMap<String, ActionRunResult> = mutableMapOf(),
+    open var pplCustomQueryResults: List<Map<String, Any?>> = listOf()
 ) : TriggerRunResult(triggerName, error) {
 
     @Throws(IOException::class)
@@ -27,7 +28,8 @@ open class QueryLevelTriggerRunResult(
         triggerName = sin.readString(),
         error = sin.readException(),
         triggered = sin.readBoolean(),
-        actionResults = sin.readMap() as MutableMap<String, ActionRunResult>
+        actionResults = sin.readMap() as MutableMap<String, ActionRunResult>,
+        pplCustomQueryResults = sin.readList { it.readMap() }
     )
 
     override fun alertError(): AlertError? {
@@ -47,6 +49,7 @@ open class QueryLevelTriggerRunResult(
         return builder
             .field("triggered", triggered)
             .field("action_results", actionResults as Map<String, ActionRunResult>)
+            .field("ppl_query_results", pplCustomQueryResults)
     }
 
     @Throws(IOException::class)
@@ -54,6 +57,7 @@ open class QueryLevelTriggerRunResult(
         super.writeTo(out)
         out.writeBoolean(triggered)
         out.writeMap(actionResults as Map<String, ActionRunResult>)
+        out.writeCollection(pplCustomQueryResults) { stream, map -> stream.writeMap(map) }
     }
 
     companion object {
