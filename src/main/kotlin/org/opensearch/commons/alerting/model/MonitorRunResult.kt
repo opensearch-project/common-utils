@@ -97,6 +97,18 @@ data class InputRunResults(
     val pplBaseQueryNumResults: Long? = null
 ) : Writeable, ToXContent {
 
+    constructor(
+        results: List<Map<String, Any>> = listOf(),
+        error: Exception? = null,
+        aggTriggersAfterKey: MutableMap<String, TriggerAfterKey>? = null
+    ) : this(
+        results = results,
+        error = error,
+        aggTriggersAfterKey = aggTriggersAfterKey,
+        pplBaseQueryResults = listOf(),
+        pplBaseQueryNumResults = null
+    )
+
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         return builder.startObject()
             .field("results", results)
