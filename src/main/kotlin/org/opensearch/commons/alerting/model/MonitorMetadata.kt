@@ -26,7 +26,11 @@ data class MonitorMetadata(
     val lastActionExecutionTimes: List<ActionExecutionTime>,
     val lastRunContext: Map<String, Any>,
     // Maps (sourceIndex + monitorId) --> concreteQueryIndex
-    val sourceToQueryIndexMapping: MutableMap<String, String> = mutableMapOf()
+    val sourceToQueryIndexMapping: MutableMap<String, String> = mutableMapOf(),
+    /** Account ID where this monitor's external schedule was created. Null when external scheduling is not used. */
+    val schedulerAccountId: String? = null,
+    /** Region where this monitor's external schedule was created. Null when external scheduling is not used. */
+    val schedulerRegion: String? = null
 ) : Writeable, ToXContent {
 
     @Throws(IOException::class)
@@ -37,7 +41,10 @@ data class MonitorMetadata(
         monitorId = sin.readString(),
         lastActionExecutionTimes = sin.readList(ActionExecutionTime.Companion::readFrom),
         lastRunContext = Monitor.suppressWarning(sin.readMap()),
-        sourceToQueryIndexMapping = sin.readMap() as MutableMap<String, String>
+        sourceToQueryIndexMapping = sin.readMap() as MutableMap<String, String>,
+        // TODO: Add version guard once target release version is finalized
+        schedulerAccountId = sin.readOptionalString(),
+        schedulerRegion = sin.readOptionalString()
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -48,6 +55,9 @@ data class MonitorMetadata(
         out.writeCollection(lastActionExecutionTimes)
         out.writeMap(lastRunContext)
         out.writeMap(sourceToQueryIndexMapping as MutableMap<String, Any>)
+        // TODO: Add version guard once target release version is finalized
+        out.writeOptionalString(schedulerAccountId)
+        out.writeOptionalString(schedulerRegion)
     }
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
@@ -59,6 +69,8 @@ data class MonitorMetadata(
         if (sourceToQueryIndexMapping.isNotEmpty()) {
             builder.field(SOURCE_TO_QUERY_INDEX_MAP_FIELD, sourceToQueryIndexMapping as MutableMap<String, Any>)
         }
+        if (schedulerAccountId != null) builder.field(SCHEDULER_ACCOUNT_ID_FIELD, schedulerAccountId)
+        if (schedulerRegion != null) builder.field(SCHEDULER_REGION_FIELD, schedulerRegion)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
     }
@@ -69,6 +81,8 @@ data class MonitorMetadata(
         const val LAST_ACTION_EXECUTION_FIELD = "last_action_execution_times"
         const val LAST_RUN_CONTEXT_FIELD = "last_run_context"
         const val SOURCE_TO_QUERY_INDEX_MAP_FIELD = "source_to_query_index_mapping"
+        const val SCHEDULER_ACCOUNT_ID_FIELD = "scheduler_account_id"
+        const val SCHEDULER_REGION_FIELD = "scheduler_region"
 
         @JvmStatic
         @JvmOverloads
@@ -83,6 +97,8 @@ data class MonitorMetadata(
             val lastActionExecutionTimes = mutableListOf<ActionExecutionTime>()
             var lastRunContext: Map<String, Any> = mapOf()
             var sourceToQueryIndexMapping: MutableMap<String, String> = mutableMapOf()
+            var schedulerAccountId: String? = null
+            var schedulerRegion: String? = null
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -99,6 +115,8 @@ data class MonitorMetadata(
                     }
                     LAST_RUN_CONTEXT_FIELD -> lastRunContext = xcp.map()
                     SOURCE_TO_QUERY_INDEX_MAP_FIELD -> sourceToQueryIndexMapping = xcp.map() as MutableMap<String, String>
+                    SCHEDULER_ACCOUNT_ID_FIELD -> schedulerAccountId = xcp.text()
+                    SCHEDULER_REGION_FIELD -> schedulerRegion = xcp.text()
                 }
             }
 
@@ -109,7 +127,9 @@ data class MonitorMetadata(
                 monitorId = monitorId,
                 lastActionExecutionTimes = lastActionExecutionTimes,
                 lastRunContext = lastRunContext,
-                sourceToQueryIndexMapping = sourceToQueryIndexMapping
+                sourceToQueryIndexMapping = sourceToQueryIndexMapping,
+                schedulerAccountId = schedulerAccountId,
+                schedulerRegion = schedulerRegion
             )
         }
 

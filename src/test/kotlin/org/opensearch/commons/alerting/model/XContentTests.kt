@@ -1,6 +1,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
@@ -527,6 +528,40 @@ class XContentTests {
         val monitorMetadataString = monitorMetadata.toXContent(XContentFactory.jsonBuilder(), ToXContent.EMPTY_PARAMS).string()
         val parsedMonitorMetadata = MonitorMetadata.parse(parser(monitorMetadataString))
         assertEquals("Round tripping MonitorMetadata doesn't work", monitorMetadata, parsedMonitorMetadata)
+    }
+
+    @Test
+    fun `test MonitorMetadata with scheduler fields`() {
+        val monitorMetadata = MonitorMetadata(
+            id = "monitorId-metadata",
+            monitorId = "monitorId",
+            lastActionExecutionTimes = emptyList(),
+            lastRunContext = emptyMap(),
+            sourceToQueryIndexMapping = mutableMapOf(),
+            schedulerAccountId = "123456789012",
+            schedulerRegion = "us-west-2"
+        )
+        val monitorMetadataString = monitorMetadata.toXContent(XContentFactory.jsonBuilder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedMonitorMetadata = MonitorMetadata.parse(parser(monitorMetadataString))
+        assertEquals("Round tripping MonitorMetadata with scheduler fields doesn't work", monitorMetadata, parsedMonitorMetadata)
+        assertEquals("123456789012", parsedMonitorMetadata.schedulerAccountId)
+        assertEquals("us-west-2", parsedMonitorMetadata.schedulerRegion)
+    }
+
+    @Test
+    fun `test MonitorMetadata without scheduler fields is backward compatible`() {
+        val monitorMetadata = MonitorMetadata(
+            id = "monitorId-metadata",
+            monitorId = "monitorId",
+            lastActionExecutionTimes = emptyList(),
+            lastRunContext = emptyMap(),
+            sourceToQueryIndexMapping = mutableMapOf()
+        )
+        val monitorMetadataString = monitorMetadata.toXContent(XContentFactory.jsonBuilder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedMonitorMetadata = MonitorMetadata.parse(parser(monitorMetadataString))
+        assertEquals("Round tripping MonitorMetadata without scheduler fields doesn't work", monitorMetadata, parsedMonitorMetadata)
+        assertNull(parsedMonitorMetadata.schedulerAccountId)
+        assertNull(parsedMonitorMetadata.schedulerRegion)
     }
 
     @Test
