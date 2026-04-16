@@ -59,6 +59,7 @@ interface Trigger : BaseModel {
                 Type.DOCUMENT_LEVEL_TRIGGER -> DocumentLevelTrigger(sin)
                 Type.CHAINED_ALERT_TRIGGER -> ChainedAlertTrigger(sin)
                 Type.REMOTE_MONITOR_TRIGGER -> RemoteMonitorTrigger(sin)
+                Type.PPL_SQL_TRIGGER -> PPLSQLTrigger(sin)
                 // This shouldn't be reachable but ensuring exhaustiveness as Kotlin warns
                 // enum can be null in Java
                 else -> throw IllegalStateException("Unexpected input [$type] when reading Trigger")

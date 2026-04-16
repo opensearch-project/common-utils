@@ -76,10 +76,6 @@ fun XContentBuilder.optionalTimeField(name: String, instant: Instant?): XContent
     return this.timeField(name, "${name}_in_millis", instant.toEpochMilli())
 }
 
-fun XContentBuilder.nonOptionalTimeField(name: String, instant: Instant): XContentBuilder {
-    return this.timeField(name, "${name}_in_millis", instant.toEpochMilli())
-}
-
 fun XContentParser.instant(): Instant? {
     return when {
         currentToken() == XContentParser.Token.VALUE_NULL -> null

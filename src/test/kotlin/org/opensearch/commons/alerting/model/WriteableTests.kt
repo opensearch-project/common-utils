@@ -22,6 +22,8 @@ import org.opensearch.commons.alerting.randomDocLevelQuery
 import org.opensearch.commons.alerting.randomDocumentLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomDocumentLevelTrigger
 import org.opensearch.commons.alerting.randomInputRunResults
+import org.opensearch.commons.alerting.randomPPLSQLMonitor
+import org.opensearch.commons.alerting.randomPPLSQLTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
@@ -115,6 +117,16 @@ class WriteableTests {
     }
 
     @Test
+    fun `test ppl sql monitor as stream`() {
+        val monitor = randomPPLSQLMonitor()
+        val out = BytesStreamOutput()
+        monitor.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newMonitor = Monitor(sin)
+        Assertions.assertEquals(monitor, newMonitor, "Round tripping PPLSQLMonitor doesn't work")
+    }
+
+    @Test
     fun `test workflow as stream`() {
         val workflow = randomWorkflow(monitorIds = listOf("1", "2", "3", "4"))
         val out = BytesStreamOutput()
@@ -152,6 +164,16 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newTrigger = DocumentLevelTrigger.readFrom(sin)
         Assertions.assertEquals(trigger, newTrigger, "Round tripping DocumentLevelTrigger doesn't work")
+    }
+
+    @Test
+    fun `test ppl sql trigger as stream`() {
+        val trigger = randomPPLSQLTrigger()
+        val out = BytesStreamOutput()
+        trigger.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newTrigger = PPLSQLTrigger.readFrom(sin)
+        Assertions.assertEquals(trigger, newTrigger, "Round tripping PPLSQLTrigger doesn't work")
     }
 
     @Test
@@ -195,6 +217,16 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newInput = SearchInput(sin)
         Assertions.assertEquals(input, newInput, "Round tripping MonitorRunResult doesn't work")
+    }
+
+    @Test
+    fun `test ppl sql input as stream`() {
+        val input = PPLSQLInput("source=some-index")
+        val out = BytesStreamOutput()
+        input.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newInput = PPLSQLInput(sin)
+        Assertions.assertEquals(input, newInput, "Round tripping PPLSQLInput doesn't work")
     }
 
     @Test

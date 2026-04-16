@@ -50,6 +50,7 @@ data class Alert(
     val pplQueryResults: List<Map<String, Any?>> = listOf(),
     val target: Target? = null
 ) : Writeable, ToXContent {
+
     init {
         if (errorMessage != null) {
             require(state == State.DELETED || state == State.ERROR || state == State.AUDIT) {
