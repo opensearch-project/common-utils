@@ -12,20 +12,19 @@ import org.opensearch.core.xcontent.ToXContent
 /**
  * Builds the message payload for external schedule targets (e.g. SQS).
  *
- * Top-level fields for routing, nested monitorConfig with full monitor JSON.
+ * The payload contains the monitor ID and full monitor configuration.
+ * Routing information (appId, tenantId, etc.) is part of the monitor
+ * definition and extracted during execution.
  */
-object MonitorPayloadBuilder {
+object SchedulePayloadBuilder {
 
     /**
+     * @param monitor the monitor to serialize into the payload
      * @param jobStartTimePlaceholder scheduler-specific placeholder for execution time
      *        (e.g. a context variable that the scheduler replaces at invocation time)
      */
     fun buildTargetInput(
         monitor: Monitor,
-        appId: String,
-        tenantId: String,
-        workspaceId: String,
-        collectionEndpoint: String,
         jobStartTimePlaceholder: String = ""
     ): String {
         val monitorConfigJson = serializeMonitorConfig(monitor)
@@ -35,11 +34,7 @@ object MonitorPayloadBuilder {
         if (jobStartTimePlaceholder.isNotEmpty()) {
             builder.field("job_start_time", jobStartTimePlaceholder)
         }
-        builder.field("appId", appId)
-        builder.field("tenantId", tenantId)
         builder.field("monitorId", monitor.id)
-        builder.field("workspaceId", workspaceId)
-        builder.field("collectionEndpoint", collectionEndpoint)
         builder.field("monitorConfig", monitorConfigJson)
         builder.endObject()
         return builder.toString()

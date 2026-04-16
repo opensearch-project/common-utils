@@ -44,24 +44,16 @@ class ScheduleTranslatorTests {
         assertEquals("rate(1 day)", expr)
     }
 
-    @Test
-    fun `translate seconds interval converts to minutes`() {
+    @Test(expected = IllegalArgumentException::class)
+    fun `translate seconds interval throws`() {
         val schedule = IntervalSchedule(120, ChronoUnit.SECONDS)
-        val (expr, _) = ScheduleTranslator.toEventBridgeExpression(schedule)
-        assertEquals("rate(2 minutes)", expr)
+        ScheduleTranslator.toEventBridgeExpression(schedule)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun `translate sub-minute seconds interval throws`() {
         val schedule = IntervalSchedule(30, ChronoUnit.SECONDS)
         ScheduleTranslator.toEventBridgeExpression(schedule)
-    }
-
-    @Test
-    fun `translate non-divisible seconds uses ceiling division`() {
-        val schedule = IntervalSchedule(90, ChronoUnit.SECONDS)
-        val (expr, _) = ScheduleTranslator.toEventBridgeExpression(schedule)
-        assertEquals("rate(2 minutes)", expr)
     }
 
     @Test

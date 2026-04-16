@@ -37,16 +37,10 @@ object ScheduleTranslator {
 
     private fun translateInterval(schedule: IntervalSchedule): String {
         val unit = when (schedule.unit) {
-            ChronoUnit.SECONDS -> {
-                if (schedule.interval < 60) {
-                    throw IllegalArgumentException(
-                        "EventBridge Scheduler does not support intervals less than 1 minute. " +
-                            "Got ${schedule.interval} seconds."
-                    )
-                }
-                val minutes = (schedule.interval + 59) / 60
-                return "rate($minutes ${if (minutes == 1) "minute" else "minutes"})"
-            }
+            ChronoUnit.SECONDS -> throw IllegalArgumentException(
+                "Seconds-based intervals are not supported with external scheduling. " +
+                    "Please use minutes, hours, or days."
+            )
             ChronoUnit.MINUTES -> if (schedule.interval == 1) "minute" else "minutes"
             ChronoUnit.HOURS -> if (schedule.interval == 1) "hour" else "hours"
             ChronoUnit.DAYS -> if (schedule.interval == 1) "day" else "days"
