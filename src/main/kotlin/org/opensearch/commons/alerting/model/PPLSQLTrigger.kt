@@ -7,7 +7,7 @@ package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.CheckedFunction
 import org.opensearch.common.UUIDs
-import org.opensearch.commons.alerting.model.Monitor.Companion.ALERTING_V2_MAX_NAME_LENGTH
+import org.opensearch.commons.alerting.model.Monitor.Companion.ALERTING_MAX_NAME_LENGTH
 import org.opensearch.commons.alerting.model.Monitor.Companion.UUID_LENGTH
 import org.opensearch.commons.alerting.model.Trigger.Companion.ACTIONS_FIELD
 import org.opensearch.commons.alerting.model.Trigger.Companion.ID_FIELD
@@ -67,13 +67,13 @@ data class PPLSQLTrigger(
             "Trigger ID too long, length must be less than $UUID_LENGTH."
         }
 
-        require(this.name.length <= ALERTING_V2_MAX_NAME_LENGTH) {
-            "Trigger name too long, length must be less than $ALERTING_V2_MAX_NAME_LENGTH."
+        require(this.name.length <= ALERTING_MAX_NAME_LENGTH) {
+            "Trigger name too long, length must be less than $ALERTING_MAX_NAME_LENGTH."
         }
 
         this.actions.forEach {
-            require(it.name.length <= ALERTING_V2_MAX_NAME_LENGTH) {
-                "Name of action with ID ${it.id} too long, length must be less than $ALERTING_V2_MAX_NAME_LENGTH."
+            require(it.name.length <= ALERTING_MAX_NAME_LENGTH) {
+                "Name of action with ID ${it.id} too long, length must be less than $ALERTING_MAX_NAME_LENGTH."
             }
             require(it.destinationId.length <= NOTIFICATIONS_ID_MAX_LENGTH) {
                 "Channel ID of action with ID ${it.id} too long, length must be less than $NOTIFICATIONS_ID_MAX_LENGTH."

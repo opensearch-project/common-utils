@@ -41,6 +41,8 @@ import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.MonitorRunResult
 import org.opensearch.commons.alerting.model.NoOpTrigger
+import org.opensearch.commons.alerting.model.PPLSQLInput
+import org.opensearch.commons.alerting.model.PPLSQLTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.Schedule
@@ -170,6 +172,36 @@ fun randomDocumentLevelMonitor(
     return Monitor(
         name = name, monitorType = Monitor.MonitorType.DOC_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
         schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
+    )
+}
+
+fun randomPPLSQLMonitor(
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    user: User = randomUser(),
+    inputs: List<Input> = listOf(
+        PPLSQLInput(
+            query = "source=logs | where status > 400",
+            queryLanguage = PPLSQLInput.QueryLanguage.PPL
+        )
+    ),
+    schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
+    enabled: Boolean = Random().nextBoolean(),
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomPPLSQLTrigger() },
+    enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
+    lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    withMetadata: Boolean = false
+): Monitor {
+    return Monitor(
+        name = name,
+        monitorType = Monitor.MonitorType.PPL_MONITOR.value,
+        enabled = enabled,
+        inputs = inputs,
+        schedule = schedule,
+        triggers = triggers,
+        enabledTime = enabledTime,
+        lastUpdateTime = lastUpdateTime,
+        user = user,
         uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
 }
@@ -322,6 +354,30 @@ fun randomChainedAlertTrigger(
         } else {
             actions
         }
+    )
+}
+
+fun randomPPLSQLTrigger(
+    id: String = UUIDs.base64UUID(),
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    severity: String = "1",
+    actions: List<Action> = mutableListOf(),
+    conditionType: PPLSQLTrigger.ConditionType = PPLSQLTrigger.ConditionType.NUMBER_OF_RESULTS,
+    numResultsCondition: PPLSQLTrigger.NumResultsCondition? = PPLSQLTrigger.NumResultsCondition.GREATER_THAN,
+    numResultsValue: Long = 0,
+    customCondition: String? = null
+): PPLSQLTrigger {
+    return PPLSQLTrigger(
+        id = id,
+        name = name,
+        severity = severity,
+        actions = actions.ifEmpty {
+            (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = "fake-channel-id") }
+        },
+        conditionType = conditionType,
+        numResultsCondition = numResultsCondition,
+        numResultsValue = numResultsValue,
+        customCondition = customCondition
     )
 }
 
@@ -533,12 +589,14 @@ fun xContentRegistry(): NamedXContentRegistry {
         listOf(
             SearchInput.XCONTENT_REGISTRY,
             DocLevelMonitorInput.XCONTENT_REGISTRY,
+            PPLSQLInput.XCONTENT_REGISTRY,
             QueryLevelTrigger.XCONTENT_REGISTRY,
             BucketLevelTrigger.XCONTENT_REGISTRY,
             DocumentLevelTrigger.XCONTENT_REGISTRY,
             ChainedAlertTrigger.XCONTENT_REGISTRY,
             NoOpTrigger.XCONTENT_REGISTRY,
-            RemoteMonitorTrigger.XCONTENT_REGISTRY
+            RemoteMonitorTrigger.XCONTENT_REGISTRY,
+            PPLSQLTrigger.XCONTENT_REGISTRY
         ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
     )
 }
