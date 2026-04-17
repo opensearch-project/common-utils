@@ -2,6 +2,7 @@ package org.opensearch.commons.alerting.model
 
 import org.opensearch.commons.alerting.model.ClusterMetricsInput.Companion.URI_FIELD
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput.Companion.DOC_LEVEL_INPUT_FIELD
+import org.opensearch.commons.alerting.model.PPLSQLInput.Companion.PPL_SQL_INPUT_FIELD
 import org.opensearch.commons.alerting.model.SearchInput.Companion.SEARCH_FIELD
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteDocLevelMonitorInput
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteDocLevelMonitorInput.Companion.REMOTE_DOC_LEVEL_MONITOR_INPUT_FIELD
@@ -20,7 +21,8 @@ interface Input : BaseModel {
         CLUSTER_METRICS_INPUT(URI_FIELD),
         SEARCH_INPUT(SEARCH_FIELD),
         REMOTE_MONITOR_INPUT(REMOTE_MONITOR_INPUT_FIELD),
-        REMOTE_DOC_LEVEL_MONITOR_INPUT(REMOTE_DOC_LEVEL_MONITOR_INPUT_FIELD);
+        REMOTE_DOC_LEVEL_MONITOR_INPUT(REMOTE_DOC_LEVEL_MONITOR_INPUT_FIELD),
+        PPL_SQL_INPUT(PPL_SQL_INPUT_FIELD);
 
         override fun toString(): String {
             return value
@@ -42,8 +44,10 @@ interface Input : BaseModel {
                 DocLevelMonitorInput.parse(xcp)
             } else if (xcp.currentName() == Type.REMOTE_MONITOR_INPUT.value) {
                 RemoteMonitorInput.parse(xcp)
-            } else {
+            } else if (xcp.currentName() == Type.REMOTE_DOC_LEVEL_MONITOR_INPUT.value) {
                 RemoteDocLevelMonitorInput.parse(xcp)
+            } else {
+                PPLSQLInput.parseInner(xcp)
             }
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp)
             return input
@@ -58,6 +62,7 @@ interface Input : BaseModel {
                 Type.SEARCH_INPUT -> SearchInput(sin)
                 Type.REMOTE_MONITOR_INPUT -> RemoteMonitorInput(sin)
                 Type.REMOTE_DOC_LEVEL_MONITOR_INPUT -> RemoteDocLevelMonitorInput(sin)
+                Type.PPL_SQL_INPUT -> PPLSQLInput(sin)
                 // This shouldn't be reachable but ensuring exhaustiveness as Kotlin warns
                 // enum can be null in Java
                 else -> throw IllegalStateException("Unexpected input [$type] when reading Trigger")

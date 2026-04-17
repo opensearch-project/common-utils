@@ -41,6 +41,8 @@ import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.MonitorRunResult
 import org.opensearch.commons.alerting.model.NoOpTrigger
+import org.opensearch.commons.alerting.model.PPLSQLInput
+import org.opensearch.commons.alerting.model.PPLSQLTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.Schedule
@@ -170,6 +172,36 @@ fun randomDocumentLevelMonitor(
     return Monitor(
         name = name, monitorType = Monitor.MonitorType.DOC_LEVEL_MONITOR.value, enabled = enabled, inputs = inputs,
         schedule = schedule, triggers = triggers, enabledTime = enabledTime, lastUpdateTime = lastUpdateTime, user = user,
+        uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
+    )
+}
+
+fun randomPPLSQLMonitor(
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    user: User = randomUser(),
+    inputs: List<Input> = listOf(
+        PPLSQLInput(
+            query = "source=logs | where status > 400",
+            queryLanguage = PPLSQLInput.QueryLanguage.PPL
+        )
+    ),
+    schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
+    enabled: Boolean = Random().nextBoolean(),
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomPPLSQLTrigger() },
+    enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
+    lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+    withMetadata: Boolean = false
+): Monitor {
+    return Monitor(
+        name = name,
+        monitorType = Monitor.MonitorType.PPL_MONITOR.value,
+        enabled = enabled,
+        inputs = inputs,
+        schedule = schedule,
+        triggers = triggers,
+        enabledTime = enabledTime,
+        lastUpdateTime = lastUpdateTime,
+        user = user,
         uiMetadata = if (withMetadata) mapOf("foo" to "bar") else mapOf()
     )
 }
@@ -322,6 +354,30 @@ fun randomChainedAlertTrigger(
         } else {
             actions
         }
+    )
+}
+
+fun randomPPLSQLTrigger(
+    id: String = UUIDs.base64UUID(),
+    name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
+    severity: String = "1",
+    actions: List<Action> = mutableListOf(),
+    conditionType: PPLSQLTrigger.ConditionType = PPLSQLTrigger.ConditionType.NUMBER_OF_RESULTS,
+    numResultsCondition: PPLSQLTrigger.NumResultsCondition? = PPLSQLTrigger.NumResultsCondition.GREATER_THAN,
+    numResultsValue: Long = 0,
+    customCondition: String? = null
+): PPLSQLTrigger {
+    return PPLSQLTrigger(
+        id = id,
+        name = name,
+        severity = severity,
+        actions = actions.ifEmpty {
+            (0..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomAction(destinationId = "fake-channel-id") }
+        },
+        conditionType = conditionType,
+        numResultsCondition = numResultsCondition,
+        numResultsValue = numResultsValue,
+        customCondition = customCondition
     )
 }
 
@@ -533,12 +589,14 @@ fun xContentRegistry(): NamedXContentRegistry {
         listOf(
             SearchInput.XCONTENT_REGISTRY,
             DocLevelMonitorInput.XCONTENT_REGISTRY,
+            PPLSQLInput.XCONTENT_REGISTRY,
             QueryLevelTrigger.XCONTENT_REGISTRY,
             BucketLevelTrigger.XCONTENT_REGISTRY,
             DocumentLevelTrigger.XCONTENT_REGISTRY,
             ChainedAlertTrigger.XCONTENT_REGISTRY,
             NoOpTrigger.XCONTENT_REGISTRY,
-            RemoteMonitorTrigger.XCONTENT_REGISTRY
+            RemoteMonitorTrigger.XCONTENT_REGISTRY,
+            PPLSQLTrigger.XCONTENT_REGISTRY
         ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
     )
 }
@@ -557,13 +615,20 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
     val clusterCount = (-1..5).random()
     val clusters = if (clusterCount == -1) null else (0..clusterCount).map { "index-$it" }
+    val pplQuery = "source=logs | where status=200"
+    val pplQueryResults = listOf(
+        mapOf("k1" to "v1", "num" to 42, "user" to mapOf("name" to "bob", "age" to 32), "vals" to listOf(1, 2, 3)),
+        mapOf("k1" to "v2", "num" to 17, "user" to mapOf("name" to "ana", "age" to 45), "vals" to listOf("a", "b", "c"))
+    )
     return Alert(
         monitor,
         trigger,
         Instant.now().truncatedTo(ChronoUnit.MILLIS),
         null,
         actionExecutionResults = actionExecutionResults,
-        clusters = clusters
+        clusters = clusters,
+        pplQuery = pplQuery,
+        pplQueryResults = pplQueryResults
     )
 }
 
@@ -681,7 +746,7 @@ fun createCorrelationAlertTemplateArgs(correlationAlert: CorrelationAlert): Map<
 }
 
 fun randomInputRunResults(): InputRunResults {
-    return InputRunResults(listOf(), null)
+    return InputRunResults(listOf(), null, null, listOf(), 5L)
 }
 
 fun randomActionRunResult(): ActionRunResult {
@@ -774,7 +839,28 @@ fun randomQueryLevelTriggerRunResult(): QueryLevelTriggerRunResult {
     val map = mutableMapOf<String, ActionRunResult>()
     map.plus(Pair("key1", randomActionRunResult()))
     map.plus(Pair("key2", randomActionRunResult()))
-    return QueryLevelTriggerRunResult("trigger-name", true, null, map)
+
+    val queryResultsList = mutableListOf<Map<String, Any?>>()
+    queryResultsList.add(
+        mapOf(
+            "key1" to "val1",
+            "key2" to 4
+        )
+    )
+    queryResultsList.add(
+        mapOf(
+            "key3" to listOf(1, 2, 3),
+            "key4" to mapOf("nested-key" to "nested-val")
+        )
+    )
+
+    return QueryLevelTriggerRunResult(
+        "trigger-name",
+        true,
+        null,
+        map,
+        queryResultsList
+    )
 }
 
 fun randomQueryLevelMonitorRunResult(): MonitorRunResult<QueryLevelTriggerRunResult> {

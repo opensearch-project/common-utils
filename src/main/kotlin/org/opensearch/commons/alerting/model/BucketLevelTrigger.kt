@@ -63,7 +63,7 @@ data class BucketLevelTrigger(
         out.writeCollection(actions)
     }
 
-    fun asTemplateArg(): Map<String, Any> {
+    override fun asTemplateArg(): Map<String, Any> {
         return mapOf(
             ID_FIELD to id,
             NAME_FIELD to name,

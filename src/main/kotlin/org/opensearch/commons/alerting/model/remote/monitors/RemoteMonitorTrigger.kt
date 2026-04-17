@@ -32,7 +32,7 @@ data class RemoteMonitorTrigger(
         sin.readBytesReference()
     )
 
-    fun asTemplateArg(): Map<String, Any?> {
+    override fun asTemplateArg(): Map<String, Any> {
         val bytes = trigger.toBytesRef().bytes
         return mapOf(
             Trigger.ID_FIELD to id,

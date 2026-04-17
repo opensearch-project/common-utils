@@ -2,6 +2,7 @@ package org.opensearch.commons.alerting.model
 
 import org.opensearch.common.lucene.uid.Versions
 import org.opensearch.commons.alerting.alerts.AlertError
+import org.opensearch.commons.alerting.model.Monitor.Companion.suppressWarning
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 import org.opensearch.commons.alerting.util.instant
 import org.opensearch.commons.alerting.util.optionalTimeField
@@ -43,7 +44,9 @@ data class Alert(
     val aggregationResultBucket: AggregationResultBucket? = null,
     val executionId: String? = null,
     val associatedAlertIds: List<String>,
-    val clusters: List<String>? = null
+    val clusters: List<String>? = null,
+    val pplQuery: String? = null,
+    val pplQueryResults: List<Map<String, Any?>> = listOf()
 ) : Writeable, ToXContent {
 
     init {
@@ -53,6 +56,64 @@ data class Alert(
             }
         }
     }
+
+    constructor(
+        id: String = NO_ID,
+        version: Long = NO_VERSION,
+        schemaVersion: Int = NO_SCHEMA_VERSION,
+        monitorId: String,
+        workflowId: String,
+        workflowName: String,
+        monitorName: String,
+        monitorVersion: Long,
+        monitorUser: User?,
+        triggerId: String,
+        triggerName: String,
+        findingIds: List<String>,
+        relatedDocIds: List<String>,
+        state: State,
+        startTime: Instant,
+        endTime: Instant? = null,
+        lastNotificationTime: Instant? = null,
+        acknowledgedTime: Instant? = null,
+        errorMessage: String? = null,
+        errorHistory: List<AlertError>,
+        severity: String,
+        actionExecutionResults: List<ActionExecutionResult>,
+        aggregationResultBucket: AggregationResultBucket? = null,
+        executionId: String? = null,
+        associatedAlertIds: List<String>,
+        clusters: List<String>? = null
+    ) : this (
+        id = id,
+        version = version,
+        schemaVersion = schemaVersion,
+        monitorId = monitorId,
+        workflowId = workflowId,
+        workflowName = workflowName,
+        monitorName = monitorName,
+        monitorVersion = monitorVersion,
+        monitorUser = monitorUser,
+        triggerId = triggerId,
+        triggerName = triggerName,
+        findingIds = findingIds,
+        relatedDocIds = relatedDocIds,
+        state = state,
+        startTime = startTime,
+        endTime = endTime,
+        lastNotificationTime = lastNotificationTime,
+        acknowledgedTime = acknowledgedTime,
+        errorMessage = errorMessage,
+        errorHistory = errorHistory,
+        severity = severity,
+        actionExecutionResults = actionExecutionResults,
+        aggregationResultBucket = aggregationResultBucket,
+        executionId = executionId,
+        associatedAlertIds = associatedAlertIds,
+        clusters = clusters,
+        pplQuery = null,
+        pplQueryResults = listOf()
+    )
 
     constructor(
         startTime: Instant,
@@ -87,12 +148,16 @@ data class Alert(
         workflowId = workflow.id,
         workflowName = workflow.name,
         associatedAlertIds = associatedAlertIds,
-        clusters = clusters
+        clusters = clusters,
+        pplQuery = null,
+        pplQueryResults = listOf()
     )
 
+    // constructor for Alerts from QueryLevelMonitorRunner
+    // this monitor runner runs Query-level, Cluster Metrics, and PPL Monitors
     constructor(
         monitor: Monitor,
-        trigger: QueryLevelTrigger,
+        trigger: Trigger,
         startTime: Instant,
         lastNotificationTime: Instant?,
         state: State = State.ACTIVE,
@@ -102,7 +167,9 @@ data class Alert(
         schemaVersion: Int = NO_SCHEMA_VERSION,
         executionId: String? = null,
         workflowId: String? = null,
-        clusters: List<String>? = null
+        clusters: List<String>? = null,
+        pplQuery: String? = null,
+        pplQueryResults: List<Map<String, Any?>> = listOf()
     ) : this(
         monitorId = monitor.id,
         monitorName = monitor.name,
@@ -125,7 +192,9 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        pplQuery = pplQuery,
+        pplQueryResults = pplQueryResults
     )
 
     constructor(
@@ -164,7 +233,9 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        pplQuery = null,
+        pplQueryResults = listOf()
     )
 
     constructor(
@@ -204,7 +275,9 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        pplQuery = null,
+        pplQueryResults = listOf()
     )
 
     constructor(
@@ -246,7 +319,9 @@ data class Alert(
         workflowId = workflowId ?: "",
         workflowName = "",
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        pplQuery = null,
+        pplQueryResults = listOf()
     )
 
     constructor(
@@ -285,7 +360,9 @@ data class Alert(
         workflowId = workflowId ?: "",
         executionId = executionId,
         associatedAlertIds = emptyList(),
-        clusters = clusters
+        clusters = clusters,
+        pplQuery = null,
+        pplQueryResults = listOf()
     )
 
     enum class State {
@@ -329,7 +406,9 @@ data class Alert(
         aggregationResultBucket = if (sin.readBoolean()) AggregationResultBucket(sin) else null,
         executionId = sin.readOptionalString(),
         associatedAlertIds = sin.readStringList(),
-        clusters = sin.readOptionalStringList()
+        clusters = sin.readOptionalStringList(),
+        pplQuery = sin.readOptionalString(),
+        pplQueryResults = sin.readList { input -> suppressWarning(input.readMap()) }
     )
 
     fun isAcknowledged(): Boolean = (state == State.ACKNOWLEDGED)
@@ -368,6 +447,10 @@ data class Alert(
         out.writeOptionalString(executionId)
         out.writeStringCollection(associatedAlertIds)
         out.writeOptionalStringArray(clusters?.toTypedArray())
+        out.writeOptionalString(pplQuery)
+        out.writeCollection(pplQueryResults) { output, map ->
+            output.writeMap(map)
+        }
     }
 
     companion object {
@@ -399,6 +482,8 @@ data class Alert(
         const val BUCKET_KEYS = AggregationResultBucket.BUCKET_KEYS
         const val PARENTS_BUCKET_PATH = AggregationResultBucket.PARENTS_BUCKET_PATH
         const val CLUSTERS_FIELD = "clusters"
+        const val PPL_SQL_QUERY_FIELD = "ppl_query"
+        const val PPL_SQL_QUERY_RESULTS_FIELD = "ppl_query_results"
         const val NO_ID = ""
         const val NO_VERSION = Versions.NOT_FOUND
 
@@ -430,6 +515,8 @@ data class Alert(
             var aggAlertBucket: AggregationResultBucket? = null
             val associatedAlertIds = mutableListOf<String>()
             val clusters = mutableListOf<String>()
+            var pplQuery: String? = null
+            var pplQueryResults: List<Map<String, Any?>> = listOf()
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
                 val fieldName = xcp.currentName()
@@ -505,6 +592,19 @@ data class Alert(
                             clusters.add(xcp.text())
                         }
                     }
+                    PPL_SQL_QUERY_FIELD -> {
+                        if (xcp.currentToken() != XContentParser.Token.VALUE_NULL) {
+                            pplQuery = xcp.text()
+                        }
+                    }
+                    PPL_SQL_QUERY_RESULTS_FIELD -> {
+                        ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
+                        val resultsList = mutableListOf<Map<String, Any?>>()
+                        while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
+                            resultsList.add(xcp.map())
+                        }
+                        pplQueryResults = resultsList
+                    }
                 }
             }
 
@@ -534,7 +634,9 @@ data class Alert(
                 workflowId = workflowId,
                 workflowName = workflowName,
                 associatedAlertIds = associatedAlertIds,
-                clusters = if (clusters.size > 0) clusters else null
+                clusters = if (clusters.size > 0) clusters else null,
+                pplQuery = pplQuery,
+                pplQueryResults = pplQueryResults
             )
         }
 
@@ -587,6 +689,11 @@ data class Alert(
 
         if (!clusters.isNullOrEmpty()) builder.field(CLUSTERS_FIELD, clusters.toTypedArray())
 
+        if (!pplQuery.isNullOrEmpty()) builder.field(PPL_SQL_QUERY_FIELD, pplQuery)
+        if (pplQueryResults.isNotEmpty()) {
+            builder.field(PPL_SQL_QUERY_RESULTS_FIELD, pplQueryResults.toTypedArray())
+        }
+
         builder.endObject()
         return builder
     }
@@ -611,7 +718,9 @@ data class Alert(
             PARENTS_BUCKET_PATH to aggregationResultBucket?.parentBucketPath,
             FINDING_IDS to findingIds.joinToString(","),
             RELATED_DOC_IDS to relatedDocIds.joinToString(","),
-            CLUSTERS_FIELD to clusters?.joinToString(",")
+            CLUSTERS_FIELD to clusters?.joinToString(","),
+            PPL_SQL_QUERY_FIELD to pplQuery,
+            PPL_SQL_QUERY_RESULTS_FIELD to pplQueryResults
         )
     }
 }
