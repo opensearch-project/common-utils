@@ -36,6 +36,9 @@ object SchedulePayloadBuilder {
         }
         builder.field("monitorId", monitor.id)
         builder.field("monitorConfig", monitorConfigJson)
+        monitor.additionalFields?.forEach { (key, value) ->
+            builder.field(key, value)
+        }
         builder.endObject()
         return builder.toString()
     }
