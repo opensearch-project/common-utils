@@ -45,6 +45,7 @@ data class Monitor(
     val deleteQueryIndexInEveryRun: Boolean? = false,
     val shouldCreateSingleAlertForFindings: Boolean? = false,
     val owner: String? = "alerting",
+    val additionalFields: Map<String, String>? = null,
     val target: Target? = null
 ) : ScheduledJob {
 
@@ -123,6 +124,18 @@ data class Monitor(
             false
         },
         owner = sin.readOptionalString(),
+        additionalFields = if (sin.version.onOrAfter(Version.V_3_6_0)) {
+            if (sin.readBoolean()) {
+                val size = sin.readVInt()
+                val map = mutableMapOf<String, String>()
+                repeat(size) { map[sin.readString()] = sin.readString() }
+                map
+            } else {
+                null
+            }
+        } else {
+            null
+        },
         target = if (sin.version.onOrAfter(Version.V_3_6_0)) {
             if (sin.readBoolean()) Target(sin) else null
         } else {
@@ -189,6 +202,7 @@ data class Monitor(
         builder.field(DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD, deleteQueryIndexInEveryRun)
         builder.field(SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD, shouldCreateSingleAlertForFindings)
         builder.field(OWNER_FIELD, owner)
+        if (!additionalFields.isNullOrEmpty()) builder.field(ADDITIONAL_FIELDS_FIELD, additionalFields)
         if (target != null) builder.field(TARGET_FIELD, target)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
@@ -248,6 +262,14 @@ data class Monitor(
         }
         out.writeOptionalString(owner)
         if (out.version.onOrAfter(Version.V_3_6_0)) {
+            out.writeBoolean(additionalFields != null)
+            if (additionalFields != null) {
+                out.writeVInt(additionalFields.size)
+                additionalFields.forEach { (k, v) ->
+                    out.writeString(k)
+                    out.writeString(v)
+                }
+            }
             out.writeBoolean(target != null)
             target?.writeTo(out)
         }
@@ -273,6 +295,7 @@ data class Monitor(
         const val DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD = "delete_query_index_in_every_run"
         const val SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD = "should_create_single_alert_for_findings"
         const val OWNER_FIELD = "owner"
+        const val ADDITIONAL_FIELDS_FIELD = "additional_fields"
         const val TARGET_FIELD = "target"
         val MONITOR_TYPE_PATTERN = Pattern.compile("[a-zA-Z0-9_]{5,25}")
 
@@ -304,6 +327,7 @@ data class Monitor(
             var deleteQueryIndexInEveryRun = false
             var delegateMonitor = false
             var owner = "alerting"
+            var additionalFields: Map<String, String>? = null
             var target: Target? = null
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -368,6 +392,18 @@ data class Monitor(
                         xcp.booleanValue()
                     }
                     OWNER_FIELD -> owner = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) owner else xcp.text()
+                    ADDITIONAL_FIELDS_FIELD -> additionalFields = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
+                        null
+                    } else {
+                        val map = mutableMapOf<String, String>()
+                        XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
+                        while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
+                            val key = xcp.currentName()
+                            xcp.nextToken()
+                            map[key] = xcp.text()
+                        }
+                        map
+                    }
                     TARGET_FIELD -> target = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
                         target
                     } else {
@@ -402,6 +438,7 @@ data class Monitor(
                 deleteQueryIndexInEveryRun,
                 delegateMonitor,
                 owner,
+                additionalFields,
                 target
             )
         }
