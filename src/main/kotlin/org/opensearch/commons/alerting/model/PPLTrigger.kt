@@ -44,8 +44,6 @@ import java.io.IOException
  *                           required to be null otherwise.
  * @property customCondition A custom condition expression. Required if using CUSTOM conditions,
  *                           required to be null otherwise.
- *
- * @opensearch.experimental
  */
 data class PPLTrigger(
     override val id: String = UUIDs.base64UUID(),
