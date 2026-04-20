@@ -136,6 +136,25 @@ class XContentTests {
     }
 
     @Test
+    fun `test query-level monitor with metadata round-trip`() {
+        val monitor = randomQueryLevelMonitor().copy(
+            metadata = mapOf("appId" to "test-app", "workspaceId" to "ws-123", "ebCellAccountId" to "111222333444")
+        )
+        val monitorString = monitor.toJsonStringWithUser()
+        val parsedMonitor = Monitor.parse(parser(monitorString))
+        assertEquals("Round tripping Monitor with metadata doesn't work", monitor, parsedMonitor)
+        assertEquals(mapOf("appId" to "test-app", "workspaceId" to "ws-123", "ebCellAccountId" to "111222333444"), parsedMonitor.metadata)
+    }
+
+    @Test
+    fun `test query-level monitor with null metadata round-trip`() {
+        val monitor = randomQueryLevelMonitor().copy(metadata = null)
+        val monitorString = monitor.toJsonStringWithUser()
+        val parsedMonitor = Monitor.parse(parser(monitorString))
+        assertEquals("Round tripping Monitor with null metadata doesn't work", monitor, parsedMonitor)
+    }
+
+    @Test
     fun `test monitor parsing with no name`() {
         val monitorStringWithoutName = """
             {
