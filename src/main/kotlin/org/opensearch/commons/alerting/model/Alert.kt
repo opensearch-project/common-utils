@@ -46,8 +46,11 @@ data class Alert(
     val executionId: String? = null,
     val associatedAlertIds: List<String>,
     val clusters: List<String>? = null,
-    val pplQuery: String? = null,
-    val pplQueryResults: List<Map<String, Any?>> = listOf(),
+    // these fields are specifically used for PPL Monitors
+    // for now, Query-Level Monitors can support including
+    // query results in Alerts by using these fields
+    val query: String? = null,
+    val queryResults: List<Map<String, Any?>> = listOf(),
     val target: Target? = null
 ) : Writeable, ToXContent {
 
@@ -113,8 +116,8 @@ data class Alert(
         executionId = executionId,
         associatedAlertIds = associatedAlertIds,
         clusters = clusters,
-        pplQuery = null,
-        pplQueryResults = listOf()
+        query = null,
+        queryResults = listOf()
     )
 
     constructor(
@@ -151,8 +154,8 @@ data class Alert(
         workflowName = workflow.name,
         associatedAlertIds = associatedAlertIds,
         clusters = clusters,
-        pplQuery = null,
-        pplQueryResults = listOf()
+        query = null,
+        queryResults = listOf()
     )
 
     // constructor for Alerts from QueryLevelMonitorRunner
@@ -170,8 +173,8 @@ data class Alert(
         executionId: String? = null,
         workflowId: String? = null,
         clusters: List<String>? = null,
-        pplQuery: String? = null,
-        pplQueryResults: List<Map<String, Any?>> = listOf()
+        query: String? = null,
+        queryResults: List<Map<String, Any?>> = listOf()
     ) : this(
         monitorId = monitor.id,
         monitorName = monitor.name,
@@ -195,8 +198,8 @@ data class Alert(
         workflowName = "",
         associatedAlertIds = emptyList(),
         clusters = clusters,
-        pplQuery = pplQuery,
-        pplQueryResults = pplQueryResults,
+        query = query,
+        queryResults = queryResults,
         target = monitor.target
     )
 
@@ -237,8 +240,8 @@ data class Alert(
         workflowName = "",
         associatedAlertIds = emptyList(),
         clusters = clusters,
-        pplQuery = null,
-        pplQueryResults = listOf(),
+        query = null,
+        queryResults = listOf(),
         target = monitor.target
     )
 
@@ -280,8 +283,8 @@ data class Alert(
         workflowName = "",
         associatedAlertIds = emptyList(),
         clusters = clusters,
-        pplQuery = null,
-        pplQueryResults = listOf(),
+        query = null,
+        queryResults = listOf(),
         target = monitor.target
     )
 
@@ -325,8 +328,8 @@ data class Alert(
         workflowName = "",
         associatedAlertIds = emptyList(),
         clusters = clusters,
-        pplQuery = null,
-        pplQueryResults = listOf(),
+        query = null,
+        queryResults = listOf(),
         target = monitor.target
     )
 
@@ -367,8 +370,8 @@ data class Alert(
         executionId = executionId,
         associatedAlertIds = emptyList(),
         clusters = clusters,
-        pplQuery = null,
-        pplQueryResults = listOf(),
+        query = null,
+        queryResults = listOf(),
         target = monitor.target
     )
 
@@ -414,8 +417,16 @@ data class Alert(
         executionId = sin.readOptionalString(),
         associatedAlertIds = sin.readStringList(),
         clusters = sin.readOptionalStringList(),
-        pplQuery = sin.readOptionalString(),
-        pplQueryResults = sin.readList { input -> suppressWarning(input.readMap()) },
+        query = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+            sin.readOptionalString()
+        } else {
+            null
+        },
+        queryResults = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+            sin.readList { input -> suppressWarning(input.readMap()) }
+        } else {
+            listOf()
+        },
         target = if (sin.version.onOrAfter(Version.V_3_6_0)) {
             if (sin.readBoolean()) Target(sin) else null
         } else {
@@ -459,9 +470,11 @@ data class Alert(
         out.writeOptionalString(executionId)
         out.writeStringCollection(associatedAlertIds)
         out.writeOptionalStringArray(clusters?.toTypedArray())
-        out.writeOptionalString(pplQuery)
-        out.writeCollection(pplQueryResults) { output, map ->
-            output.writeMap(map)
+        if (out.version.onOrAfter(Version.V_3_7_0)) {
+            out.writeOptionalString(query)
+            out.writeCollection(queryResults) { output, map ->
+                output.writeMap(map)
+            }
         }
         if (out.version.onOrAfter(Version.V_3_6_0)) {
             out.writeBoolean(target != null)
@@ -498,8 +511,8 @@ data class Alert(
         const val BUCKET_KEYS = AggregationResultBucket.BUCKET_KEYS
         const val PARENTS_BUCKET_PATH = AggregationResultBucket.PARENTS_BUCKET_PATH
         const val CLUSTERS_FIELD = "clusters"
-        const val PPL_SQL_QUERY_FIELD = "ppl_query"
-        const val PPL_SQL_QUERY_RESULTS_FIELD = "ppl_query_results"
+        const val QUERY_FIELD = "query"
+        const val QUERY_RESULTS_FIELD = "query_results"
         const val TARGET_FIELD = "target"
         const val NO_ID = ""
         const val NO_VERSION = Versions.NOT_FOUND
@@ -532,8 +545,8 @@ data class Alert(
             var aggAlertBucket: AggregationResultBucket? = null
             val associatedAlertIds = mutableListOf<String>()
             val clusters = mutableListOf<String>()
-            var pplQuery: String? = null
-            var pplQueryResults: List<Map<String, Any?>> = listOf()
+            var query: String? = null
+            var queryResults: List<Map<String, Any?>> = listOf()
             var target: Target? = null
             ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -610,18 +623,18 @@ data class Alert(
                             clusters.add(xcp.text())
                         }
                     }
-                    PPL_SQL_QUERY_FIELD -> {
+                    QUERY_FIELD -> {
                         if (xcp.currentToken() != XContentParser.Token.VALUE_NULL) {
-                            pplQuery = xcp.text()
+                            query = xcp.text()
                         }
                     }
-                    PPL_SQL_QUERY_RESULTS_FIELD -> {
+                    QUERY_RESULTS_FIELD -> {
                         ensureExpectedToken(XContentParser.Token.START_ARRAY, xcp.currentToken(), xcp)
                         val resultsList = mutableListOf<Map<String, Any?>>()
                         while (xcp.nextToken() != XContentParser.Token.END_ARRAY) {
                             resultsList.add(xcp.map())
                         }
-                        pplQueryResults = resultsList
+                        queryResults = resultsList
                     }
                     TARGET_FIELD -> target = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) {
                         null
@@ -658,8 +671,8 @@ data class Alert(
                 workflowName = workflowName,
                 associatedAlertIds = associatedAlertIds,
                 clusters = if (clusters.size > 0) clusters else null,
-                pplQuery = pplQuery,
-                pplQueryResults = pplQueryResults,
+                query = query,
+                queryResults = queryResults,
                 target = target
             )
         }
@@ -714,9 +727,9 @@ data class Alert(
         if (!clusters.isNullOrEmpty()) builder.field(CLUSTERS_FIELD, clusters.toTypedArray())
         if (target != null) builder.field(TARGET_FIELD, target)
 
-        if (!pplQuery.isNullOrEmpty()) builder.field(PPL_SQL_QUERY_FIELD, pplQuery)
-        if (pplQueryResults.isNotEmpty()) {
-            builder.field(PPL_SQL_QUERY_RESULTS_FIELD, pplQueryResults.toTypedArray())
+        if (!query.isNullOrEmpty()) builder.field(QUERY_FIELD, query)
+        if (queryResults.isNotEmpty()) {
+            builder.field(QUERY_RESULTS_FIELD, queryResults.toTypedArray())
         }
 
         builder.endObject()
@@ -744,8 +757,8 @@ data class Alert(
             FINDING_IDS to findingIds.joinToString(","),
             RELATED_DOC_IDS to relatedDocIds.joinToString(","),
             CLUSTERS_FIELD to clusters?.joinToString(","),
-            PPL_SQL_QUERY_FIELD to pplQuery,
-            PPL_SQL_QUERY_RESULTS_FIELD to pplQueryResults
+            QUERY_FIELD to query,
+            QUERY_RESULTS_FIELD to queryResults
         )
     }
 }

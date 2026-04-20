@@ -25,10 +25,10 @@ import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
 /**
- * The PPL/SQL Trigger for PPL/SQL Monitors
+ * The PPL Trigger for PPL Monitors
  *
  * There are two types of PPLTrigger conditions: NUMBER_OF_RESULTS and CUSTOM
- * NUMBER_OF_RESULTS: triggers based on whether the number of query results returned by the PPLSQLMonitor
+ * NUMBER_OF_RESULTS: triggers based on whether the number of query results returned by the PPLMonitor
  *                    query meets some threshold
  * CUSTOM: triggers based on a custom condition that user specifies (a single ppl eval statement)
  *
@@ -47,7 +47,7 @@ import java.io.IOException
  *
  * @opensearch.experimental
  */
-data class PPLSQLTrigger(
+data class PPLTrigger(
     override val id: String = UUIDs.base64UUID(),
     override val name: String,
     override val severity: String,
@@ -151,7 +151,7 @@ data class PPLSQLTrigger(
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params?): XContentBuilder {
         builder.startObject()
-        builder.startObject(PPL_SQL_TRIGGER_FIELD)
+        builder.startObject(PPL_TRIGGER_FIELD)
         builder.field(ID_FIELD, id)
         builder.field(NAME_FIELD, name)
         builder.field(SEVERITY_FIELD, severity)
@@ -185,7 +185,7 @@ data class PPLSQLTrigger(
     }
 
     override fun name(): String {
-        return PPL_SQL_TRIGGER_FIELD
+        return PPL_TRIGGER_FIELD
     }
 
     enum class ConditionType(val value: String) {
@@ -212,7 +212,7 @@ data class PPLSQLTrigger(
 
     companion object {
         // trigger wrapper object field name
-        const val PPL_SQL_TRIGGER_FIELD = "ppl_trigger"
+        const val PPL_TRIGGER_FIELD = "ppl_trigger"
 
         // field names
         const val CONDITION_TYPE_FIELD = "type"
@@ -229,13 +229,13 @@ data class PPLSQLTrigger(
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             Trigger::class.java,
-            ParseField(PPL_SQL_TRIGGER_FIELD),
+            ParseField(PPL_TRIGGER_FIELD),
             CheckedFunction { parseInner(it) }
         )
 
         @JvmStatic
         @Throws(IOException::class)
-        fun parseInner(xcp: XContentParser): PPLSQLTrigger {
+        fun parseInner(xcp: XContentParser): PPLTrigger {
             var id = UUIDs.base64UUID() // assign a default triggerId if one is not specified
             var name: String? = null
             var severity: String? = null
@@ -314,7 +314,7 @@ data class PPLSQLTrigger(
             requireNotNull(conditionType) { "Trigger condition type must be included" }
 
             // 3. prepare and return PPLTrigger object
-            return PPLSQLTrigger(
+            return PPLTrigger(
                 id,
                 name,
                 severity,
@@ -328,8 +328,8 @@ data class PPLSQLTrigger(
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): PPLSQLTrigger {
-            return PPLSQLTrigger(sin)
+        fun readFrom(sin: StreamInput): PPLTrigger {
+            return PPLTrigger(sin)
         }
     }
 }

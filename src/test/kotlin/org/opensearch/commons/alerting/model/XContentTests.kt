@@ -23,8 +23,8 @@ import org.opensearch.commons.alerting.randomAlert
 import org.opensearch.commons.alerting.randomBucketLevelMonitor
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
 import org.opensearch.commons.alerting.randomDocLevelQuery
-import org.opensearch.commons.alerting.randomPPLSQLMonitor
-import org.opensearch.commons.alerting.randomPPLSQLTrigger
+import org.opensearch.commons.alerting.randomPPLMonitor
+import org.opensearch.commons.alerting.randomPPLTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitorWithoutUser
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
@@ -228,12 +228,12 @@ class XContentTests {
     }
 
     @Test
-    fun `test ppl sql monitor parsing`() {
-        val monitor = randomPPLSQLMonitor()
+    fun `test ppl monitor parsing`() {
+        val monitor = randomPPLMonitor()
 
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
-        Assertions.assertEquals(monitor, parsedMonitor, "Round tripping PPLSQLMonitor doesn't work")
+        Assertions.assertEquals(monitor, parsedMonitor, "Round tripping PPLMonitor doesn't work")
     }
 
     @Test
@@ -267,13 +267,13 @@ class XContentTests {
     }
 
     @Test
-    fun `test ppl sql trigger parsing`() {
-        val trigger = randomPPLSQLTrigger()
+    fun `test ppl trigger parsing`() {
+        val trigger = randomPPLTrigger()
 
         val triggerString = trigger.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
         val parsedTrigger = Trigger.parse(parser(triggerString))
 
-        Assertions.assertEquals(trigger, parsedTrigger, "Round tripping PPLSQLTrigger doesn't work")
+        Assertions.assertEquals(trigger, parsedTrigger, "Round tripping PPLTrigger doesn't work")
     }
 
     @Test
@@ -449,11 +449,11 @@ class XContentTests {
     }
 
     @Test
-    fun `test creating a ppl sql monitor with invalid trigger type fails`() {
+    fun `test creating a ppl monitor with invalid trigger type fails`() {
         try {
             val queryLevelTrigger = randomQueryLevelTrigger()
-            randomPPLSQLMonitor().copy(triggers = listOf(queryLevelTrigger))
-            Assertions.fail("Creating a PPL SQL monitor with query-level triggers did not fail.")
+            randomPPLMonitor().copy(triggers = listOf(queryLevelTrigger))
+            Assertions.fail("Creating a PPL monitor with query-level triggers did not fail.")
         } catch (ignored: IllegalArgumentException) {
         }
     }
@@ -469,11 +469,11 @@ class XContentTests {
     }
 
     @Test
-    fun `test creating a ppl sql monitor with invalid input type fails`() {
+    fun `test creating a ppl monitor with invalid input type fails`() {
         try {
             val searchInput = randomSearchInput()
-            randomPPLSQLMonitor().copy(inputs = listOf(searchInput))
-            Assertions.fail("Creating a PPL SQL monitor with search input did not fail.")
+            randomPPLMonitor().copy(inputs = listOf(searchInput))
+            Assertions.fail("Creating a PPL monitor with search input did not fail.")
         } catch (ignored: IllegalArgumentException) {
         }
     }

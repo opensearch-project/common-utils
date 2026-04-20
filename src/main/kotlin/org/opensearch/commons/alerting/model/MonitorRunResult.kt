@@ -7,6 +7,7 @@ package org.opensearch.commons.alerting.model
 
 import org.apache.logging.log4j.LogManager
 import org.opensearch.OpenSearchException
+import org.opensearch.Version
 import org.opensearch.commons.alerting.alerts.AlertError
 import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.core.common.io.stream.StreamInput
@@ -124,11 +125,14 @@ data class InputRunResults(
         for (map in results) {
             out.writeMap(map)
         }
-        out.writeVInt(pplBaseQueryResults.size)
-        for (datarow in pplBaseQueryResults) {
-            out.writeMap(datarow)
+
+        if (out.version.onOrAfter(Version.V_3_7_0)) {
+            out.writeVInt(pplBaseQueryResults.size)
+            for (datarow in pplBaseQueryResults) {
+                out.writeMap(datarow)
+            }
+            out.writeOptionalLong(pplBaseQueryNumResults)
         }
-        out.writeOptionalLong(pplBaseQueryNumResults)
         out.writeException(error)
     }
 
@@ -141,14 +145,24 @@ data class InputRunResults(
             for (i in 0 until count) {
                 list.add(suppressWarning(sin.readMap())) // result(map)
             }
-            val pplSqlCount = sin.readVInt() // count
-            val pplSqlList = mutableListOf<Map<String, Any?>>()
-            for (i in 0 until pplSqlCount) {
-                pplSqlList.add(suppressWarning(sin.readMap())) // result(map)
+            val pplCount = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+                sin.readVInt()
+            } else {
+                0
             }
-            val pplNumResults = sin.readOptionalLong()
+            val pplList = mutableListOf<Map<String, Any?>>()
+            if (sin.version.onOrAfter(Version.V_3_7_0)) {
+                for (i in 0 until pplCount) {
+                    pplList.add(suppressWarning(sin.readMap())) // pplResults
+                }
+            }
+            val pplNumResults = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+                sin.readOptionalLong()
+            } else {
+                null
+            }
             val error = sin.readException<Exception>() // error
-            return InputRunResults(list, error, null, pplSqlList, pplNumResults)
+            return InputRunResults(list, error, null, pplList, pplNumResults)
         }
 
         @Suppress("UNCHECKED_CAST")

@@ -41,8 +41,8 @@ import org.opensearch.commons.alerting.model.IntervalSchedule
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.MonitorRunResult
 import org.opensearch.commons.alerting.model.NoOpTrigger
-import org.opensearch.commons.alerting.model.PPLSQLInput
-import org.opensearch.commons.alerting.model.PPLSQLTrigger
+import org.opensearch.commons.alerting.model.PPLInput
+import org.opensearch.commons.alerting.model.PPLTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTrigger
 import org.opensearch.commons.alerting.model.QueryLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.Schedule
@@ -176,18 +176,18 @@ fun randomDocumentLevelMonitor(
     )
 }
 
-fun randomPPLSQLMonitor(
+fun randomPPLMonitor(
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
     user: User = randomUser(),
     inputs: List<Input> = listOf(
-        PPLSQLInput(
+        PPLInput(
             query = "source=logs | where status > 400",
-            queryLanguage = PPLSQLInput.QueryLanguage.PPL
+            queryLanguage = PPLInput.QueryLanguage.PPL
         )
     ),
     schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
     enabled: Boolean = Random().nextBoolean(),
-    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomPPLSQLTrigger() },
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomPPLTrigger() },
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
     withMetadata: Boolean = false
@@ -357,17 +357,17 @@ fun randomChainedAlertTrigger(
     )
 }
 
-fun randomPPLSQLTrigger(
+fun randomPPLTrigger(
     id: String = UUIDs.base64UUID(),
     name: String = RandomStrings.randomAsciiLettersOfLength(Random(), 10),
     severity: String = "1",
     actions: List<Action> = mutableListOf(),
-    conditionType: PPLSQLTrigger.ConditionType = PPLSQLTrigger.ConditionType.NUMBER_OF_RESULTS,
-    numResultsCondition: PPLSQLTrigger.NumResultsCondition? = PPLSQLTrigger.NumResultsCondition.GREATER_THAN,
+    conditionType: PPLTrigger.ConditionType = PPLTrigger.ConditionType.NUMBER_OF_RESULTS,
+    numResultsCondition: PPLTrigger.NumResultsCondition? = PPLTrigger.NumResultsCondition.GREATER_THAN,
     numResultsValue: Long = 0,
     customCondition: String? = null
-): PPLSQLTrigger {
-    return PPLSQLTrigger(
+): PPLTrigger {
+    return PPLTrigger(
         id = id,
         name = name,
         severity = severity,
@@ -589,14 +589,14 @@ fun xContentRegistry(): NamedXContentRegistry {
         listOf(
             SearchInput.XCONTENT_REGISTRY,
             DocLevelMonitorInput.XCONTENT_REGISTRY,
-            PPLSQLInput.XCONTENT_REGISTRY,
+            PPLInput.XCONTENT_REGISTRY,
             QueryLevelTrigger.XCONTENT_REGISTRY,
             BucketLevelTrigger.XCONTENT_REGISTRY,
             DocumentLevelTrigger.XCONTENT_REGISTRY,
             ChainedAlertTrigger.XCONTENT_REGISTRY,
             NoOpTrigger.XCONTENT_REGISTRY,
             RemoteMonitorTrigger.XCONTENT_REGISTRY,
-            PPLSQLTrigger.XCONTENT_REGISTRY
+            PPLTrigger.XCONTENT_REGISTRY
         ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
     )
 }
@@ -615,6 +615,21 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
     val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
     val clusterCount = (-1..5).random()
     val clusters = if (clusterCount == -1) null else (0..clusterCount).map { "index-$it" }
+    return Alert(
+        monitor,
+        trigger,
+        Instant.now().truncatedTo(ChronoUnit.MILLIS),
+        null,
+        actionExecutionResults = actionExecutionResults,
+        clusters = clusters
+    )
+}
+
+fun randomAlertWithPPLFields(monitor: Monitor = randomQueryLevelMonitor()): Alert {
+    val trigger = randomQueryLevelTrigger()
+    val actionExecutionResults = mutableListOf(randomActionExecutionResult(), randomActionExecutionResult())
+    val clusterCount = (-1..5).random()
+    val clusters = if (clusterCount == -1) null else (0..clusterCount).map { "index-$it" }
     val pplQuery = "source=logs | where status=200"
     val pplQueryResults = listOf(
         mapOf("k1" to "v1", "num" to 42, "user" to mapOf("name" to "bob", "age" to 32), "vals" to listOf(1, 2, 3)),
@@ -627,8 +642,8 @@ fun randomAlert(monitor: Monitor = randomQueryLevelMonitor()): Alert {
         null,
         actionExecutionResults = actionExecutionResults,
         clusters = clusters,
-        pplQuery = pplQuery,
-        pplQueryResults = pplQueryResults
+        query = pplQuery,
+        queryResults = pplQueryResults
     )
 }
 
@@ -746,7 +761,26 @@ fun createCorrelationAlertTemplateArgs(correlationAlert: CorrelationAlert): Map<
 }
 
 fun randomInputRunResults(): InputRunResults {
-    return InputRunResults(listOf(), null, null, listOf(), 5L)
+    return InputRunResults(listOf(), null, null)
+}
+
+fun randomInputRunResultsWithPPLFields(): InputRunResults {
+    return InputRunResults(
+        listOf(),
+        null,
+        null,
+        listOf<Map<String, Any?>>(
+            mapOf(
+                "key1" to "val1",
+                "key2" to 4
+            ),
+            mapOf(
+                "key3" to listOf(1, 2, 3),
+                "key4" to mapOf("nested-key" to "nested-val")
+            )
+        ),
+        5L
+    )
 }
 
 fun randomActionRunResult(): ActionRunResult {
@@ -836,6 +870,19 @@ fun randomBucketLevelMonitorRunResult(): MonitorRunResult<BucketLevelTriggerRunR
 }
 
 fun randomQueryLevelTriggerRunResult(): QueryLevelTriggerRunResult {
+    val map = mutableMapOf<String, ActionRunResult>()
+    map.plus(Pair("key1", randomActionRunResult()))
+    map.plus(Pair("key2", randomActionRunResult()))
+
+    return QueryLevelTriggerRunResult(
+        "trigger-name",
+        true,
+        null,
+        map
+    )
+}
+
+fun randomQueryLevelTriggerRunResultWithPPLFields(): QueryLevelTriggerRunResult {
     val map = mutableMapOf<String, ActionRunResult>()
     map.plus(Pair("key1", randomActionRunResult()))
     map.plus(Pair("key2", randomActionRunResult()))

@@ -12,7 +12,7 @@ import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
 import java.io.IOException
 
-data class PPLSQLInput(
+data class PPLInput(
     val query: String,
     val queryLanguage: QueryLanguage = QueryLanguage.PPL
 ) : Input {
@@ -31,7 +31,7 @@ data class PPLSQLInput(
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         return builder.startObject()
-            .startObject(PPL_SQL_INPUT_FIELD)
+            .startObject(PPL_INPUT_FIELD)
             .field(QUERY_FIELD, query)
             .field(QUERY_LANGUAGE_FIELD, queryLanguage.value)
             .endObject()
@@ -40,13 +40,13 @@ data class PPLSQLInput(
 
     override fun asTemplateArg(): Map<String, Any> =
         mapOf(
-            PPL_SQL_INPUT_FIELD to mapOf(
+            PPL_INPUT_FIELD to mapOf(
                 QUERY_FIELD to query,
                 QUERY_LANGUAGE_FIELD to queryLanguage.value
             )
         )
 
-    override fun name(): String = PPL_SQL_INPUT_FIELD
+    override fun name(): String = PPL_INPUT_FIELD
 
     enum class QueryLanguage(val value: String) {
         PPL(PPL_QUERY_LANGUAGE),
@@ -58,8 +58,8 @@ data class PPLSQLInput(
     }
 
     companion object {
-        // PPL/SQL Input field names
-        const val PPL_SQL_INPUT_FIELD = "ppl_input"
+        // PPL Input field names
+        const val PPL_INPUT_FIELD = "ppl_input"
         const val QUERY_FIELD = "query"
         const val QUERY_LANGUAGE_FIELD = "query_language"
 
@@ -69,13 +69,13 @@ data class PPLSQLInput(
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             Input::class.java,
-            ParseField(PPL_SQL_INPUT_FIELD),
+            ParseField(PPL_INPUT_FIELD),
             CheckedFunction { parseInner(it) }
         )
 
         @JvmStatic
         @Throws(IOException::class)
-        fun parseInner(xcp: XContentParser): PPLSQLInput {
+        fun parseInner(xcp: XContentParser): PPLInput {
             lateinit var query: String
             var queryLanguage: QueryLanguage = QueryLanguage.PPL // default to PPL
 
@@ -98,13 +98,13 @@ data class PPLSQLInput(
                     }
                 }
             }
-            return PPLSQLInput(query, queryLanguage)
+            return PPLInput(query, queryLanguage)
         }
 
         @JvmStatic
         @Throws(IOException::class)
-        fun readFrom(sin: StreamInput): PPLSQLInput {
-            return PPLSQLInput(sin)
+        fun readFrom(sin: StreamInput): PPLInput {
+            return PPLInput(sin)
         }
     }
 }

@@ -50,7 +50,7 @@ fun Monitor.isBucketLevelMonitor(): Boolean =
     isMonitorOfStandardType() &&
         Monitor.MonitorType.valueOf(this.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.BUCKET_LEVEL_MONITOR
 
-fun Monitor.isPplSqlMonitor(): Boolean =
+fun Monitor.isPPLMonitor(): Boolean =
     isMonitorOfStandardType() &&
         Monitor.MonitorType.valueOf(this.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.PPL_MONITOR
 

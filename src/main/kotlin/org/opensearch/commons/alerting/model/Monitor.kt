@@ -10,7 +10,7 @@ import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.supportedClusterMetricsSettings
 import org.opensearch.commons.alerting.util.instant
 import org.opensearch.commons.alerting.util.isBucketLevelMonitor
-import org.opensearch.commons.alerting.util.isPplSqlMonitor
+import org.opensearch.commons.alerting.util.isPPLMonitor
 import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.commons.alerting.util.optionalUserField
 import org.opensearch.commons.authuser.User
@@ -71,7 +71,7 @@ data class Monitor(
                 MonitorType.DOC_LEVEL_MONITOR.value ->
                     require(trigger is DocumentLevelTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
                 MonitorType.PPL_MONITOR.value ->
-                    require(trigger is PPLSQLTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
+                    require(trigger is PPLTrigger) { "Incompatible trigger [${trigger.id}] for monitor type [$monitorType]" }
             }
         }
         if (enabled) {
@@ -91,14 +91,14 @@ data class Monitor(
             }
         }
 
-        if (this.isPplSqlMonitor()) {
+        if (this.isPPLMonitor()) {
             require(inputs.size == 1) { "Exactly 1 PPL query must be specified for PPL Monitor" }
 
-            val pplSqlInput = inputs[0]
+            val pplInput = inputs[0]
 
-            require(pplSqlInput is PPLSQLInput) { "Unsupported input [${pplSqlInput.name()}] for PPL Monitor" }
+            require(pplInput is PPLInput) { "Unsupported input [${pplInput.name()}] for PPL Monitor" }
 
-            require(pplSqlInput.queryLanguage == PPLSQLInput.QueryLanguage.PPL) { "SQL queries are not supported. Please use a PPL query." }
+            require(pplInput.queryLanguage == PPLInput.QueryLanguage.PPL) { "SQL queries are not supported. Please use a PPL query." }
 
             // this is a new check for PPL Alerting specifically, PPL Monitors will enforce
             // a max name length, but it won't be enforced on other Monitor types to avoid
@@ -260,8 +260,8 @@ data class Monitor(
                 out.writeEnum(Input.Type.SEARCH_INPUT)
             } else if (it is DocLevelMonitorInput) {
                 out.writeEnum(Input.Type.DOCUMENT_LEVEL_INPUT)
-            } else if (it is PPLSQLInput) {
-                out.writeEnum(Input.Type.PPL_SQL_INPUT)
+            } else if (it is PPLInput) {
+                out.writeEnum(Input.Type.PPL_INPUT)
             } else {
                 out.writeEnum(Input.Type.REMOTE_DOC_LEVEL_MONITOR_INPUT)
             }
@@ -274,7 +274,7 @@ data class Monitor(
                 is BucketLevelTrigger -> out.writeEnum(Trigger.Type.BUCKET_LEVEL_TRIGGER)
                 is DocumentLevelTrigger -> out.writeEnum(Trigger.Type.DOCUMENT_LEVEL_TRIGGER)
                 is RemoteMonitorTrigger -> out.writeEnum(Trigger.Type.REMOTE_MONITOR_TRIGGER)
-                is PPLSQLTrigger -> out.writeEnum(Trigger.Type.PPL_SQL_TRIGGER)
+                is PPLTrigger -> out.writeEnum(Trigger.Type.PPL_TRIGGER)
                 else -> out.writeEnum(Trigger.Type.QUERY_LEVEL_TRIGGER)
             }
             it.writeTo(out)
