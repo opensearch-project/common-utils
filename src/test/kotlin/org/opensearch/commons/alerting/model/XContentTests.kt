@@ -136,22 +136,22 @@ class XContentTests {
     }
 
     @Test
-    fun `test query-level monitor with additionalFields round-trip`() {
+    fun `test query-level monitor with metadata round-trip`() {
         val monitor = randomQueryLevelMonitor().copy(
-            additionalFields = mapOf("appId" to "test-app", "workspaceId" to "ws-123", "ebCellAccountId" to "111222333444")
+            metadata = mapOf("appId" to "test-app", "workspaceId" to "ws-123", "ebCellAccountId" to "111222333444")
         )
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
-        assertEquals("Round tripping Monitor with additionalFields doesn't work", monitor, parsedMonitor)
-        assertEquals(mapOf("appId" to "test-app", "workspaceId" to "ws-123", "ebCellAccountId" to "111222333444"), parsedMonitor.additionalFields)
+        assertEquals("Round tripping Monitor with metadata doesn't work", monitor, parsedMonitor)
+        assertEquals(mapOf("appId" to "test-app", "workspaceId" to "ws-123", "ebCellAccountId" to "111222333444"), parsedMonitor.metadata)
     }
 
     @Test
-    fun `test query-level monitor with null additionalFields round-trip`() {
-        val monitor = randomQueryLevelMonitor().copy(additionalFields = null)
+    fun `test query-level monitor with null metadata round-trip`() {
+        val monitor = randomQueryLevelMonitor().copy(metadata = null)
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
-        assertEquals("Round tripping Monitor with null additionalFields doesn't work", monitor, parsedMonitor)
+        assertEquals("Round tripping Monitor with null metadata doesn't work", monitor, parsedMonitor)
     }
 
     @Test

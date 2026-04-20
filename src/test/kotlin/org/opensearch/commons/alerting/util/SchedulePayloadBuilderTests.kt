@@ -37,19 +37,26 @@ class SchedulePayloadBuilderTests {
     }
 
     @Test
-    fun `buildTargetInput includes additionalFields as top-level fields`() {
+    fun `buildTargetInput includes metadata inside monitorConfig`() {
         val monitor = randomQueryLevelMonitor().copy(
-            additionalFields = mapOf("appId" to "test-app", "workspaceId" to "ws-123", "ebCellAccountId" to "111222333444")
+            metadata = mapOf("appId" to "test-app", "workspaceId" to "ws-123", "ebCellAccountId" to "111222333444")
         )
         val result = SchedulePayloadBuilder.buildTargetInput(monitor = monitor)
         val parsed = parser(result).map()
-        assertEquals("test-app", parsed["appId"])
-        assertEquals("ws-123", parsed["workspaceId"])
-        assertEquals("111222333444", parsed["ebCellAccountId"])
+        // metadata should NOT be flattened at top level
+        assertFalse(parsed.containsKey("appId"))
+        assertFalse(parsed.containsKey("workspaceId"))
+        assertFalse(parsed.containsKey("ebCellAccountId"))
+        // They should be inside the serialized monitorConfig under metadata
+        val monitorConfigJson = parsed["monitorConfig"] as String
+        assertTrue(monitorConfigJson.contains("\"metadata\""))
+        assertTrue(monitorConfigJson.contains("\"appId\":\"test-app\""))
+        assertTrue(monitorConfigJson.contains("\"workspaceId\":\"ws-123\""))
+        assertTrue(monitorConfigJson.contains("\"ebCellAccountId\":\"111222333444\""))
     }
 
     @Test
-    fun `buildTargetInput without additionalFields has no extra fields`() {
+    fun `buildTargetInput without metadata has no extra fields`() {
         val monitor = randomQueryLevelMonitor()
         val result = SchedulePayloadBuilder.buildTargetInput(monitor = monitor)
         val parsed = parser(result).map()
