@@ -12,9 +12,9 @@ import org.opensearch.core.xcontent.ToXContent
 /**
  * Builds the message payload for external schedule targets (e.g. SQS).
  *
- * The payload contains the monitor ID and full monitor configuration.
- * Routing information (appId, tenantId, etc.) is part of the monitor
- * definition and extracted during execution.
+ * The payload contains only scheduler-owned fields (job_start_time) and the
+ * full monitor configuration blob. The consumer deserializes monitorConfig
+ * directly to run the monitor — no separate routing or lookup step exists.
  */
 object SchedulePayloadBuilder {
 
@@ -34,7 +34,6 @@ object SchedulePayloadBuilder {
         if (jobStartTimePlaceholder.isNotEmpty()) {
             builder.field("job_start_time", jobStartTimePlaceholder)
         }
-        builder.field("monitorId", monitor.id)
         builder.field("monitorConfig", monitorConfigJson)
         builder.endObject()
         return builder.toString()
