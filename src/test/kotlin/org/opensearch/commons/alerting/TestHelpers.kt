@@ -187,7 +187,7 @@ fun randomPPLMonitor(
     ),
     schedule: Schedule = IntervalSchedule(interval = 5, unit = ChronoUnit.MINUTES),
     enabled: Boolean = Random().nextBoolean(),
-    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 0, 10)).map { randomPPLTrigger() },
+    triggers: List<Trigger> = (1..RandomNumbers.randomIntBetween(Random(), 1, 10)).map { randomPPLTrigger() },
     enabledTime: Instant? = if (enabled) Instant.now().truncatedTo(ChronoUnit.MILLIS) else null,
     lastUpdateTime: Instant = Instant.now().truncatedTo(ChronoUnit.MILLIS),
     withMetadata: Boolean = false
