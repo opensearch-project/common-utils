@@ -10,12 +10,12 @@ import java.util.ServiceLoader
  * Implementations are discovered via [ServiceLoader]. Each implementation must:
  * - Have a public no-arg constructor
  * - Declare itself in META-INF/services/org.opensearch.commons.utils.scheduler.SqsAccountIdProvider
- * - Return a unique [type] string
+ * - Return a unique [getType] string
  * - Accept configuration via [initialize] before [getAccountIds] is called
  */
 interface SqsAccountIdProvider {
     /** Identifier used to select this provider via configuration. */
-    val type: String
+    fun getType(): String
 
     /**
      * Initialize this provider with node settings. Called once after discovery
@@ -37,8 +37,8 @@ interface SqsAccountIdProvider {
             val loader = ServiceLoader.load(SqsAccountIdProvider::class.java, SqsAccountIdProvider::class.java.classLoader)
 
             for (provider in loader) {
-                log.info("Discovered SqsAccountIdProvider: [{}]", provider.type)
-                if (provider.type == providerType) {
+                log.info("Discovered SqsAccountIdProvider: [{}]", provider.getType())
+                if (provider.getType() == providerType) {
                     log.info("Found SqsAccountIdProvider for type [{}]", providerType)
                     provider.initialize(settings)
                     return provider
