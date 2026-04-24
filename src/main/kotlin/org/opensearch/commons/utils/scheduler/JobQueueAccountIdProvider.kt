@@ -5,15 +5,15 @@ import org.opensearch.common.settings.Settings
 import java.util.ServiceLoader
 
 /**
- * Provides AWS account IDs hosting SQS queues for polling.
+ * Provides AWS account IDs hosting job queues for polling.
  *
  * Implementations are discovered via [ServiceLoader]. Each implementation must:
  * - Have a public no-arg constructor
- * - Declare itself in META-INF/services/org.opensearch.commons.utils.scheduler.SqsAccountIdProvider
+ * - Declare itself in META-INF/services/org.opensearch.commons.utils.scheduler.JobQueueAccountIdProvider
  * - Return a unique [getType] string
  * - Accept configuration via [initialize] before [getAccountIds] is called
  */
-interface SqsAccountIdProvider {
+interface JobQueueAccountIdProvider {
     /** Identifier used to select this provider via configuration. */
     fun getType(): String
 
@@ -26,25 +26,25 @@ interface SqsAccountIdProvider {
     fun getAccountIds(): List<String>
 
     companion object {
-        private val log = LogManager.getLogger(SqsAccountIdProvider::class.java)
+        private val log = LogManager.getLogger(JobQueueAccountIdProvider::class.java)
 
         /**
          * Find a provider matching [providerType], initialize it with [settings],
          * and return it ready to use.
          */
         @JvmStatic
-        fun find(providerType: String, settings: Settings): SqsAccountIdProvider {
-            val loader = ServiceLoader.load(SqsAccountIdProvider::class.java, SqsAccountIdProvider::class.java.classLoader)
+        fun find(providerType: String, settings: Settings): JobQueueAccountIdProvider {
+            val loader = ServiceLoader.load(JobQueueAccountIdProvider::class.java, JobQueueAccountIdProvider::class.java.classLoader)
 
             for (provider in loader) {
-                log.info("Discovered SqsAccountIdProvider: [{}]", provider.getType())
+                log.info("Discovered JobQueueAccountIdProvider: [{}]", provider.getType())
                 if (provider.getType() == providerType) {
-                    log.info("Found SqsAccountIdProvider for type [{}]", providerType)
+                    log.info("Found JobQueueAccountIdProvider for type [{}]", providerType)
                     provider.initialize(settings)
                     return provider
                 }
             }
-            throw IllegalArgumentException("No SqsAccountIdProvider found for type [$providerType]")
+            throw IllegalArgumentException("No JobQueueAccountIdProvider found for type [$providerType]")
         }
     }
 }
