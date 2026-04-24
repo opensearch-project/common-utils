@@ -7,6 +7,7 @@ package org.opensearch.commons.alerting.model
 
 import org.apache.logging.log4j.LogManager
 import org.opensearch.OpenSearchException
+import org.opensearch.Version
 import org.opensearch.commons.alerting.alerts.AlertError
 import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.core.common.io.stream.StreamInput
@@ -92,12 +93,28 @@ data class MonitorRunResult<TriggerResult : TriggerRunResult>(
 data class InputRunResults(
     val results: List<Map<String, Any>> = listOf(),
     val error: Exception? = null,
-    val aggTriggersAfterKey: MutableMap<String, TriggerAfterKey>? = null
+    val aggTriggersAfterKey: MutableMap<String, TriggerAfterKey>? = null,
+    val pplBaseQueryResults: List<Map<String, Any?>> = listOf(),
+    val pplBaseQueryNumResults: Long? = null
 ) : Writeable, ToXContent {
+
+    constructor(
+        results: List<Map<String, Any>> = listOf(),
+        error: Exception? = null,
+        aggTriggersAfterKey: MutableMap<String, TriggerAfterKey>? = null
+    ) : this(
+        results = results,
+        error = error,
+        aggTriggersAfterKey = aggTriggersAfterKey,
+        pplBaseQueryResults = listOf(),
+        pplBaseQueryNumResults = null
+    )
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         return builder.startObject()
             .field("results", results)
+            .field("ppl_query_results", pplBaseQueryResults)
+            .field("ppl_num_results", pplBaseQueryNumResults)
             .field("error", error?.message)
             .endObject()
     }
@@ -107,6 +124,14 @@ data class InputRunResults(
         out.writeVInt(results.size)
         for (map in results) {
             out.writeMap(map)
+        }
+
+        if (out.version.onOrAfter(Version.V_3_7_0)) {
+            out.writeVInt(pplBaseQueryResults.size)
+            for (datarow in pplBaseQueryResults) {
+                out.writeMap(datarow)
+            }
+            out.writeOptionalLong(pplBaseQueryNumResults)
         }
         out.writeException(error)
     }
@@ -120,8 +145,24 @@ data class InputRunResults(
             for (i in 0 until count) {
                 list.add(suppressWarning(sin.readMap())) // result(map)
             }
+            val pplCount = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+                sin.readVInt()
+            } else {
+                0
+            }
+            val pplList = mutableListOf<Map<String, Any?>>()
+            if (sin.version.onOrAfter(Version.V_3_7_0)) {
+                for (i in 0 until pplCount) {
+                    pplList.add(suppressWarning(sin.readMap())) // pplResults
+                }
+            }
+            val pplNumResults = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+                sin.readOptionalLong()
+            } else {
+                null
+            }
             val error = sin.readException<Exception>() // error
-            return InputRunResults(list, error)
+            return InputRunResults(list, error, null, pplList, pplNumResults)
         }
 
         @Suppress("UNCHECKED_CAST")

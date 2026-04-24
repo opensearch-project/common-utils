@@ -36,7 +36,7 @@ data class NoOpTrigger(
         return NOOP_TRIGGER_FIELD
     }
 
-    fun asTemplateArg(): Map<String, Any> {
+    override fun asTemplateArg(): Map<String, Any> {
         return mapOf()
     }
 

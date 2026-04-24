@@ -16,7 +16,8 @@ interface Trigger : BaseModel {
         BUCKET_LEVEL_TRIGGER(BucketLevelTrigger.BUCKET_LEVEL_TRIGGER_FIELD),
         NOOP_TRIGGER(NoOpTrigger.NOOP_TRIGGER_FIELD),
         CHAINED_ALERT_TRIGGER(ChainedAlertTrigger.CHAINED_ALERT_TRIGGER_FIELD),
-        REMOTE_MONITOR_TRIGGER(RemoteMonitorTrigger.REMOTE_MONITOR_TRIGGER_FIELD);
+        REMOTE_MONITOR_TRIGGER(RemoteMonitorTrigger.REMOTE_MONITOR_TRIGGER_FIELD),
+        PPL_TRIGGER(PPLTrigger.PPL_TRIGGER_FIELD);
 
         override fun toString(): String {
             return value
@@ -58,6 +59,7 @@ interface Trigger : BaseModel {
                 Type.DOCUMENT_LEVEL_TRIGGER -> DocumentLevelTrigger(sin)
                 Type.CHAINED_ALERT_TRIGGER -> ChainedAlertTrigger(sin)
                 Type.REMOTE_MONITOR_TRIGGER -> RemoteMonitorTrigger(sin)
+                Type.PPL_TRIGGER -> PPLTrigger(sin)
                 // This shouldn't be reachable but ensuring exhaustiveness as Kotlin warns
                 // enum can be null in Java
                 else -> throw IllegalStateException("Unexpected input [$type] when reading Trigger")
@@ -78,4 +80,6 @@ interface Trigger : BaseModel {
     val actions: List<Action>
 
     fun name(): String
+
+    fun asTemplateArg(): Map<String, Any>
 }
