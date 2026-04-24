@@ -13,24 +13,27 @@ import org.opensearch.core.xcontent.ToXContentObject
 import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.core.xcontent.XContentParser
 import org.opensearch.core.xcontent.XContentParserUtils
-import java.time.Instant
 
 /**
  * Represents the payload for an externally scheduled monitor job.
  *
  * Written to the schedule target (e.g. SQS) by the monitor CRUD path,
  * and parsed back by the job poller at execution time.
+ *
+ * [jobStartTime] is a String to support both scheduler placeholders
+ * (e.g. "<aws.scheduler.scheduled-time>") on the producer side and
+ * actual ISO-8601 timestamps on the consumer side.
  */
 data class ScheduleJobPayload(
     val monitorId: String,
-    val jobStartTime: Instant,
+    val jobStartTime: String,
     val monitorConfig: String
 ) : ToXContentObject {
 
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
         builder.startObject()
         builder.field(MONITOR_ID_FIELD, monitorId)
-        builder.field(JOB_START_TIME_FIELD, jobStartTime.toString())
+        builder.field(JOB_START_TIME_FIELD, jobStartTime)
         builder.field(MONITOR_CONFIG_FIELD, monitorConfig)
         builder.endObject()
         return builder
@@ -56,7 +59,7 @@ data class ScheduleJobPayload(
 
         fun parse(xcp: XContentParser): ScheduleJobPayload {
             var monitorId: String? = null
-            var jobStartTime: Instant? = null
+            var jobStartTime: String? = null
             var monitorConfig: String? = null
 
             XContentParserUtils.ensureExpectedToken(
@@ -69,7 +72,7 @@ data class ScheduleJobPayload(
                 xcp.nextToken()
                 when (fieldName) {
                     MONITOR_ID_FIELD -> monitorId = xcp.text()
-                    JOB_START_TIME_FIELD -> jobStartTime = Instant.parse(xcp.text())
+                    JOB_START_TIME_FIELD -> jobStartTime = xcp.text()
                     MONITOR_CONFIG_FIELD -> monitorConfig = xcp.text()
                     else -> xcp.skipChildren()
                 }

@@ -11,7 +11,6 @@ import org.opensearch.commons.alerting.parser
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.xContentRegistry
 import org.opensearch.core.xcontent.ToXContent
-import java.time.Instant
 
 class ScheduleJobPayloadTests {
 
@@ -26,7 +25,7 @@ class ScheduleJobPayloadTests {
         val monitor = randomQueryLevelMonitor().copy(id = "mon-123")
         val payload = ScheduleJobPayload(
             monitorId = monitor.id,
-            jobStartTime = Instant.parse("2026-04-23T10:00:00Z"),
+            jobStartTime = "2026-04-23T10:00:00Z",
             monitorConfig = serializeMonitor(monitor)
         )
 
@@ -36,8 +35,25 @@ class ScheduleJobPayloadTests {
 
         val parsed = ScheduleJobPayload.parse(parser(json))
         assertEquals("mon-123", parsed.monitorId)
-        assertEquals(Instant.parse("2026-04-23T10:00:00Z"), parsed.jobStartTime)
+        assertEquals("2026-04-23T10:00:00Z", parsed.jobStartTime)
         assertEquals(payload.monitorConfig, parsed.monitorConfig)
+    }
+
+    @Test
+    fun `round-trip with EB placeholder as jobStartTime`() {
+        val monitor = randomQueryLevelMonitor().copy(id = "mon-eb")
+        val payload = ScheduleJobPayload(
+            monitorId = monitor.id,
+            jobStartTime = "<aws.scheduler.scheduled-time>",
+            monitorConfig = serializeMonitor(monitor)
+        )
+
+        val builder = org.opensearch.common.xcontent.XContentFactory.jsonBuilder()
+        payload.toXContent(builder, ToXContent.EMPTY_PARAMS)
+        val json = builder.toString()
+
+        val parsed = ScheduleJobPayload.parse(parser(json))
+        assertEquals("<aws.scheduler.scheduled-time>", parsed.jobStartTime)
     }
 
     @Test
@@ -45,7 +61,7 @@ class ScheduleJobPayloadTests {
         val monitor = randomQueryLevelMonitor().copy(id = "mon-456")
         val payload = ScheduleJobPayload(
             monitorId = monitor.id,
-            jobStartTime = Instant.now(),
+            jobStartTime = "2026-04-23T10:00:00Z",
             monitorConfig = serializeMonitor(monitor)
         )
 
@@ -63,7 +79,7 @@ class ScheduleJobPayloadTests {
         )
         val payload = ScheduleJobPayload(
             monitorId = monitor.id,
-            jobStartTime = Instant.now(),
+            jobStartTime = "2026-04-23T10:00:00Z",
             monitorConfig = serializeMonitor(monitor)
         )
 
@@ -78,6 +94,17 @@ class ScheduleJobPayloadTests {
     fun `parse throws on missing monitorId`() {
         val monitor = randomQueryLevelMonitor()
         val json = "{\"job_start_time\":\"2026-04-23T10:00:00Z\"," +
+            "\"monitorConfig\":\"${serializeMonitor(monitor).replace("\"", "\\\"")}\"}"
+
+        org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+            ScheduleJobPayload.parse(parser(json))
+        }
+    }
+
+    @Test
+    fun `parse throws on missing jobStartTime`() {
+        val monitor = randomQueryLevelMonitor()
+        val json = "{\"monitorId\":\"mon-123\"," +
             "\"monitorConfig\":\"${serializeMonitor(monitor).replace("\"", "\\\"")}\"}"
 
         org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
