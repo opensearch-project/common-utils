@@ -189,6 +189,7 @@ data class Monitor(
 
         if (!secure) {
             builder.optionalUserField(USER_FIELD, user)
+            if (!metadata.isNullOrEmpty()) builder.field(METADATA_FIELD, metadata)
         }
 
         builder.field(ENABLED_FIELD, enabled)
@@ -202,7 +203,6 @@ data class Monitor(
         builder.field(DELETE_QUERY_INDEX_IN_EVERY_RUN_FIELD, deleteQueryIndexInEveryRun)
         builder.field(SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD, shouldCreateSingleAlertForFindings)
         builder.field(OWNER_FIELD, owner)
-        if (!metadata.isNullOrEmpty()) builder.field(METADATA_FIELD, metadata)
         if (target != null) builder.field(TARGET_FIELD, target)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()

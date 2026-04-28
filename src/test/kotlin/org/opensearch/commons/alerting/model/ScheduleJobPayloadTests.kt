@@ -16,7 +16,7 @@ class ScheduleJobPayloadTests {
 
     private fun serializeMonitor(monitor: Monitor): String {
         val builder = org.opensearch.common.xcontent.XContentFactory.jsonBuilder()
-        monitor.toXContent(builder, ToXContent.EMPTY_PARAMS)
+        monitor.toXContentWithUser(builder, ToXContent.EMPTY_PARAMS)
         return builder.toString()
     }
 
