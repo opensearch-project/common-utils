@@ -77,6 +77,28 @@ internal class SlackTests {
     }
 
     @Test
+    fun `Slack should skip url validation when url starts with enc prefix`() {
+        val encryptedUrl = "enc:this-is-not-a-real-url"
+        val slack = Slack(encryptedUrl)
+        assertEquals(encryptedUrl, slack.url)
+    }
+
+    @Test
+    fun `Slack with enc prefix should serialize and deserialize transport object`() {
+        val sampleSlack = Slack("enc:some-encrypted-value")
+        val recreatedObject = recreateObject(sampleSlack) { Slack(it) }
+        assertEquals(sampleSlack, recreatedObject)
+    }
+
+    @Test
+    fun `Slack with enc prefix should serialize and deserialize using json object`() {
+        val sampleSlack = Slack("enc:some-encrypted-value")
+        val jsonString = getJsonString(sampleSlack)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Slack.parse(it) }
+        assertEquals(sampleSlack, recreatedObject)
+    }
+
+    @Test
     fun `Slack should safely ignore extra field in json object`() {
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
         val jsonString = "{\"url\":\"${sampleSlack.url}\", \"another\":\"field\"}"

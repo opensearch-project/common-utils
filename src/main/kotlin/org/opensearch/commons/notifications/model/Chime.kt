@@ -21,13 +21,12 @@ import java.io.IOException
  * Data class representing Chime channel.
  */
 data class Chime(
-    val url: String,
-    val isEncrypted: Boolean = false
+    val url: String
 ) : BaseConfigData {
 
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
-        if (!isEncrypted) {
+        if (!url.startsWith("enc:")) {
             validateUrl(url)
         }
     }

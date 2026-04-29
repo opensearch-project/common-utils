@@ -27,13 +27,12 @@ import java.io.IOException
 data class Webhook(
     val url: String,
     val headerParams: Map<String, String> = mapOf(),
-    val method: HttpMethodType = HttpMethodType.POST,
-    val isEncrypted: Boolean = false
+    val method: HttpMethodType = HttpMethodType.POST
 ) : BaseConfigData {
 
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
-        if (!isEncrypted) {
+        if (!url.startsWith("enc:")) {
             validateUrl(url)
         }
     }
