@@ -4,6 +4,7 @@
  */
 package org.opensearch.commons.notifications.model
 
+import org.opensearch.commons.notifications.NotificationConstants.ENCRYPTION_PREFIX
 import org.opensearch.commons.notifications.NotificationConstants.HEADER_PARAMS_TAG
 import org.opensearch.commons.notifications.NotificationConstants.METHOD_TAG
 import org.opensearch.commons.notifications.NotificationConstants.URL_TAG
@@ -32,7 +33,7 @@ data class Webhook(
 
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
-        if (!url.startsWith("enc:")) {
+        if (!url.startsWith(ENCRYPTION_PREFIX)) {
             validateUrl(url)
         }
     }
