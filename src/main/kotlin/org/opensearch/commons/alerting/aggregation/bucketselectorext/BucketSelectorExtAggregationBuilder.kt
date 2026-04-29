@@ -20,7 +20,7 @@ import kotlin.collections.HashMap
 
 class BucketSelectorExtAggregationBuilder :
     AbstractPipelineAggregationBuilder<BucketSelectorExtAggregationBuilder> {
-    private val bucketsPathsMap: Map<String, String>
+    val bucketsPathsMap: Map<String, String>
     val parentBucketPath: String
     val script: Script
     val filter: BucketSelectorExtFilter?
