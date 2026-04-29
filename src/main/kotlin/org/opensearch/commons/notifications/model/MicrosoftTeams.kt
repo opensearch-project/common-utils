@@ -21,12 +21,15 @@ import java.io.IOException
  * Data class representing MicrosoftTeams channel.
  */
 data class MicrosoftTeams(
-    val url: String
+    val url: String,
+    val isEncrypted: Boolean = false
 ) : BaseConfigData {
 
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
-        validateUrl(url)
+        if (!isEncrypted) {
+            validateUrl(url)
+        }
     }
 
     companion object {
