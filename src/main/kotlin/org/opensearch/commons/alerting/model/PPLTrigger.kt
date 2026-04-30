@@ -30,7 +30,7 @@ import java.io.IOException
  * There are two types of PPLTrigger conditions: NUMBER_OF_RESULTS and CUSTOM
  * NUMBER_OF_RESULTS: triggers based on whether the number of query results returned by the PPLMonitor
  *                    query meets some threshold
- * CUSTOM: triggers based on a custom condition that user specifies (a single ppl eval statement)
+ * CUSTOM: triggers based on a custom condition that user specifies (a single ppl where statement)
  *
  * @property id Trigger ID, defaults to a base64 UUID.
  * @property name Display name of the Trigger.
