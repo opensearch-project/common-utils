@@ -79,9 +79,6 @@ data class PPLTrigger(
             require(it.destinationId.isNotEmpty()) {
                 "Channel ID should not be empty."
             }
-            require(it.destinationId.matches(validCharsRegex)) {
-                "Channel ID should only have alphanumeric characters, dashes, and underscores."
-            }
         }
 
         when (this.conditionType) {
@@ -220,10 +217,6 @@ data class PPLTrigger(
 
         // hard, nonadjustable limits
         const val NOTIFICATIONS_ID_MAX_LENGTH = 512 // length limit for notifications channel custom ID at channel creation time
-
-        // regular expression for validating that a string contains
-        // only valid chars (letters, numbers, -, _)
-        private val validCharsRegex = """^[a-zA-Z0-9_-]+$""".toRegex()
 
         val XCONTENT_REGISTRY = NamedXContentRegistry.Entry(
             Trigger::class.java,
