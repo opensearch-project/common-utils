@@ -768,7 +768,6 @@ fun randomInputRunResults(): InputRunResults {
                 "bucket_key" to mapOf("nested-key" to "nested-val")
             )
         ),
-        null,
         null
     )
 }
