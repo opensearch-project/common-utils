@@ -94,6 +94,9 @@ data class InputRunResults(
     val results: List<Map<String, Any>> = listOf(),
     val error: Exception? = null,
     val aggTriggersAfterKey: MutableMap<String, TriggerAfterKey>? = null,
+    // a PPL Monitor's base query is the query set in the Monitor itself.
+    // Custom trigger conditions append to the base query to run
+    // their own queries/evaluations
     val pplBaseQueryResults: List<Map<String, Any?>> = listOf(),
     val pplBaseQueryNumResults: Long? = null
 ) : Writeable, ToXContent {
@@ -133,6 +136,7 @@ data class InputRunResults(
             }
             out.writeOptionalLong(pplBaseQueryNumResults)
         }
+
         out.writeException(error)
     }
 

@@ -76,7 +76,7 @@ data class PPLInput(
         @JvmStatic
         @Throws(IOException::class)
         fun parseInner(xcp: XContentParser): PPLInput {
-            lateinit var query: String
+            var query: String? = null
             var queryLanguage: QueryLanguage = QueryLanguage.PPL // default to PPL
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
@@ -98,6 +98,9 @@ data class PPLInput(
                     }
                 }
             }
+
+            requireNotNull(query)
+
             return PPLInput(query, queryLanguage)
         }
 

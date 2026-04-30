@@ -761,12 +761,26 @@ fun createCorrelationAlertTemplateArgs(correlationAlert: CorrelationAlert): Map<
 }
 
 fun randomInputRunResults(): InputRunResults {
-    return InputRunResults(listOf(), null, null)
+    return InputRunResults(
+        listOf(
+            mapOf(
+                "aggregation_result" to 42,
+                "bucket_key" to mapOf("nested-key" to "nested-val")
+            )
+        ),
+        null,
+        null
+    )
 }
 
 fun randomInputRunResultsWithPPLFields(): InputRunResults {
     return InputRunResults(
-        listOf(),
+        listOf(
+            mapOf(
+                "aggregation_result" to 42,
+                "bucket_key" to mapOf("nested-key" to "nested-val")
+            )
+        ),
         null,
         null,
         listOf<Map<String, Any?>>(
