@@ -50,6 +50,10 @@ fun Monitor.isBucketLevelMonitor(): Boolean =
     isMonitorOfStandardType() &&
         Monitor.MonitorType.valueOf(this.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.BUCKET_LEVEL_MONITOR
 
+fun Monitor.isPPLMonitor(): Boolean =
+    isMonitorOfStandardType() &&
+        Monitor.MonitorType.valueOf(this.monitorType.uppercase(Locale.ROOT)) == Monitor.MonitorType.PPL_MONITOR
+
 fun XContentBuilder.optionalUserField(name: String, user: User?): XContentBuilder {
     if (user == null) {
         return nullField(name)

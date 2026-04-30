@@ -23,9 +23,12 @@ import org.opensearch.commons.alerting.randomAlert
 import org.opensearch.commons.alerting.randomBucketLevelMonitor
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
 import org.opensearch.commons.alerting.randomDocLevelQuery
+import org.opensearch.commons.alerting.randomPPLMonitor
+import org.opensearch.commons.alerting.randomPPLTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitorWithoutUser
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
+import org.opensearch.commons.alerting.randomSearchInput
 import org.opensearch.commons.alerting.randomThrottle
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
@@ -69,6 +72,7 @@ class XContentTests {
         Assertions.assertEquals(action, parsedAction, "Round tripping Action doesn't work")
     }
 
+    @Test
     fun `test action parsing with throttled enabled and null throttle`() {
         val action = randomAction().copy(throttle = null).copy(throttleEnabled = true)
         val actionString = action.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
@@ -127,6 +131,7 @@ class XContentTests {
         }
     }
 
+    @Test
     fun `test query-level monitor parsing`() {
         val monitor = randomQueryLevelMonitor()
 
@@ -223,6 +228,15 @@ class XContentTests {
     }
 
     @Test
+    fun `test ppl monitor parsing`() {
+        val monitor = randomPPLMonitor()
+
+        val monitorString = monitor.toJsonStringWithUser()
+        val parsedMonitor = Monitor.parse(parser(monitorString))
+        Assertions.assertEquals(monitor, parsedMonitor, "Round tripping PPLMonitor doesn't work")
+    }
+
+    @Test
     fun `test query-level trigger parsing`() {
         val trigger = randomQueryLevelTrigger()
 
@@ -250,6 +264,16 @@ class XContentTests {
         val parsedTrigger = Trigger.parse(parser(triggerString))
 
         Assertions.assertEquals(trigger, parsedTrigger, "Round tripping NoOpTrigger doesn't work")
+    }
+
+    @Test
+    fun `test ppl trigger parsing`() {
+        val trigger = randomPPLTrigger()
+
+        val triggerString = trigger.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
+        val parsedTrigger = Trigger.parse(parser(triggerString))
+
+        Assertions.assertEquals(trigger, parsedTrigger, "Round tripping PPLTrigger doesn't work")
     }
 
     @Test
@@ -425,11 +449,31 @@ class XContentTests {
     }
 
     @Test
+    fun `test creating a ppl monitor with invalid trigger type fails`() {
+        try {
+            val queryLevelTrigger = randomQueryLevelTrigger()
+            randomPPLMonitor().copy(triggers = listOf(queryLevelTrigger))
+            Assertions.fail("Creating a PPL monitor with query-level triggers did not fail.")
+        } catch (ignored: IllegalArgumentException) {
+        }
+    }
+
+    @Test
     fun `test creating an bucket-level monitor with invalid input fails`() {
         try {
             val invalidInput = SearchInput(emptyList(), SearchSourceBuilder().query(QueryBuilders.matchAllQuery()))
             randomBucketLevelMonitor().copy(inputs = listOf(invalidInput))
             Assertions.fail("Creating an bucket-level monitor with an invalid input did not fail.")
+        } catch (ignored: IllegalArgumentException) {
+        }
+    }
+
+    @Test
+    fun `test creating a ppl monitor with invalid input type fails`() {
+        try {
+            val searchInput = randomSearchInput()
+            randomPPLMonitor().copy(inputs = listOf(searchInput))
+            Assertions.fail("Creating a PPL monitor with search input did not fail.")
         } catch (ignored: IllegalArgumentException) {
         }
     }
