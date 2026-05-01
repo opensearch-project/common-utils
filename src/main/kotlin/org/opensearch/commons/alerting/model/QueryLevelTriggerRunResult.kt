@@ -30,7 +30,8 @@ open class QueryLevelTriggerRunResult(
         error = sin.readException(),
         triggered = sin.readBoolean(),
         actionResults = sin.readMap() as MutableMap<String, ActionRunResult>,
-        pplCustomQueryResults = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+        // TODO: change to 3.7 when alerting version bump happens
+        pplCustomQueryResults = if (sin.version.onOrAfter(Version.V_3_6_0)) {
             sin.readList { it.readMap() }
         } else {
             listOf()
@@ -62,7 +63,8 @@ open class QueryLevelTriggerRunResult(
         super.writeTo(out)
         out.writeBoolean(triggered)
         out.writeMap(actionResults as Map<String, ActionRunResult>)
-        if (out.version.onOrAfter(Version.V_3_7_0)) {
+        // TODO: change to 3.7 when alerting version bump happens
+        if (out.version.onOrAfter(Version.V_3_6_0)) {
             out.writeCollection(pplCustomQueryResults) { stream, map -> stream.writeMap(map) }
         }
     }

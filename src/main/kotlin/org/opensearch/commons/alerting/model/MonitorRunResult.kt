@@ -129,7 +129,8 @@ data class InputRunResults(
             out.writeMap(map)
         }
 
-        if (out.version.onOrAfter(Version.V_3_7_0)) {
+        // TODO: change to 3.7 when alerting version bump happens
+        if (out.version.onOrAfter(Version.V_3_6_0)) {
             out.writeVInt(pplBaseQueryResults.size)
             for (datarow in pplBaseQueryResults) {
                 out.writeMap(datarow)
@@ -149,18 +150,21 @@ data class InputRunResults(
             for (i in 0 until count) {
                 list.add(suppressWarning(sin.readMap())) // result(map)
             }
-            val pplCount = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+            // TODO: change to 3.7 when alerting version bump happens
+            val pplCount = if (sin.version.onOrAfter(Version.V_3_6_0)) {
                 sin.readVInt()
             } else {
                 0
             }
             val pplList = mutableListOf<Map<String, Any?>>()
-            if (sin.version.onOrAfter(Version.V_3_7_0)) {
+            // TODO: change to 3.7 when alerting version bump happens
+            if (sin.version.onOrAfter(Version.V_3_6_0)) {
                 for (i in 0 until pplCount) {
                     pplList.add(suppressWarning(sin.readMap())) // pplResults
                 }
             }
-            val pplNumResults = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+            // TODO: change to 3.7 when alerting version bump happens
+            val pplNumResults = if (sin.version.onOrAfter(Version.V_3_6_0)) {
                 sin.readOptionalLong()
             } else {
                 null

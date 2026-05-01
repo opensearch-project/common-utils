@@ -417,12 +417,14 @@ data class Alert(
         executionId = sin.readOptionalString(),
         associatedAlertIds = sin.readStringList(),
         clusters = sin.readOptionalStringList(),
-        query = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+        // TODO: change to 3.7 when alerting version bump happens
+        query = if (sin.version.onOrAfter(Version.V_3_6_0)) {
             sin.readOptionalString()
         } else {
             null
         },
-        queryResults = if (sin.version.onOrAfter(Version.V_3_7_0)) {
+        // TODO: change to 3.7 when alerting version bump happens
+        queryResults = if (sin.version.onOrAfter(Version.V_3_6_0)) {
             sin.readList { input -> suppressWarning(input.readMap()) }
         } else {
             listOf()
@@ -470,7 +472,8 @@ data class Alert(
         out.writeOptionalString(executionId)
         out.writeStringCollection(associatedAlertIds)
         out.writeOptionalStringArray(clusters?.toTypedArray())
-        if (out.version.onOrAfter(Version.V_3_7_0)) {
+        // TODO: change to 3.7 when alerting version bump happens
+        if (out.version.onOrAfter(Version.V_3_6_0)) {
             out.writeOptionalString(query)
             out.writeCollection(queryResults) { output, map ->
                 output.writeMap(map)
