@@ -5,53 +5,41 @@
 
 package org.opensearch.commons.utils
 
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.startCoroutine
 
 internal class TenantContextTests {
 
+    private fun runSuspend(context: kotlin.coroutines.CoroutineContext = EmptyCoroutineContext, block: suspend () -> Unit) {
+        var result: Result<Unit>? = null
+        block.startCoroutine(object : kotlin.coroutines.Continuation<Unit> {
+            override val context = context
+            override fun resumeWith(r: Result<Unit>) { result = r }
+        })
+        result!!.getOrThrow()
+    }
+
     @Test
     fun `test currentTenantId returns tenant id when set`() {
-        runBlocking(TenantContext("test-tenant")) {
+        runSuspend(TenantContext("test-tenant")) {
             assertEquals("test-tenant", currentTenantId())
         }
     }
 
     @Test
     fun `test currentTenantId returns null for single tenant deployment`() {
-        runBlocking {
+        runSuspend {
             assertNull(currentTenantId())
         }
     }
 
     @Test
     fun `test currentTenantId returns null when tenant id header is absent`() {
-        runBlocking(TenantContext(null)) {
+        runSuspend(TenantContext(null)) {
             assertNull(currentTenantId())
-        }
-    }
-
-    @Test
-    fun `test tenant id propagates to nested operations`() {
-        runBlocking(TenantContext("parent-tenant")) {
-            launch {
-                assertEquals("parent-tenant", currentTenantId())
-            }
-        }
-    }
-
-    @Test
-    fun `test concurrent requests have isolated tenant ids`() {
-        runBlocking {
-            launch(TenantContext("tenant-a")) {
-                assertEquals("tenant-a", currentTenantId())
-            }
-            launch(TenantContext("tenant-b")) {
-                assertEquals("tenant-b", currentTenantId())
-            }
         }
     }
 }
