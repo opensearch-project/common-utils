@@ -11,8 +11,7 @@ import kotlin.coroutines.coroutineContext
 
 /**
  * Coroutine context element that carries the tenant ID for the current request.
- * Set in [org.opensearch.notifications.action.PluginBaseAction] when launching the coroutine,
- * and read in [org.opensearch.notifications.index.NotificationConfigIndex] when building SDK requests.
+ * Set when launching a coroutine and read when building SDK requests.
  */
 data class TenantContext(val tenantId: String?) : AbstractCoroutineContextElement(TenantContext) {
     companion object Key : CoroutineContext.Key<TenantContext>
