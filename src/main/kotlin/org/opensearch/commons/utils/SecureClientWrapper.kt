@@ -41,10 +41,27 @@ import org.opensearch.core.action.ActionResponse
 import org.opensearch.transport.client.Client
 
 /**
- * Wrapper class on [Client] with security context removed.
+ * Wrapper class on [Client] with security context removed but tenant context preserved for notifications.
  */
 @Suppress("TooManyFunctions")
 class SecureClientWrapper(private val client: Client) : Client by client {
+
+    companion object {
+        const val TENANT_ID_HEADER = "x-tenant-id"
+    }
+
+    /**
+     * Stashes the current thread context but preserves the tenant ID header.
+     * Used only for execute() which is the path for notification transport actions.
+     */
+    private inline fun <R> stashAndPreserveTenant(block: () -> R): R {
+        val tenantId = client.threadPool().threadContext.getHeader(TENANT_ID_HEADER)
+        client.threadPool().threadContext.stashContext().use {
+            tenantId?.let { client.threadPool().threadContext.putHeader(TENANT_ID_HEADER, it) }
+            return block()
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -52,7 +69,7 @@ class SecureClientWrapper(private val client: Client) : Client by client {
         action: ActionType<Response>,
         request: Request
     ): ActionFuture<Response> {
-        client.threadPool().threadContext.stashContext().use { return client.execute(action, request) }
+        return stashAndPreserveTenant { client.execute(action, request) }
     }
 
     /**
@@ -63,7 +80,7 @@ class SecureClientWrapper(private val client: Client) : Client by client {
         request: Request,
         listener: ActionListener<Response>
     ) {
-        client.threadPool().threadContext.stashContext().use { return client.execute(action, request, listener) }
+        stashAndPreserveTenant { client.execute(action, request, listener) }
     }
 
     /**
