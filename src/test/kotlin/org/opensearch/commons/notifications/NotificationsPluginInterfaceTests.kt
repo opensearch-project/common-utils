@@ -227,6 +227,82 @@ internal class NotificationsPluginInterfaceTests {
         verify(l, times(1)).onResponse(eq(res))
     }
 
+    @Test
+    fun `sendNotification preserves tenant id header through SecureClientWrapper`() {
+        val threadContext = org.opensearch.common.util.concurrent.ThreadContext(
+            org.opensearch.common.settings.Settings.EMPTY
+        )
+        val realClient = mock(NodeClient::class.java)
+        val threadPool = mock(org.opensearch.threadpool.ThreadPool::class.java)
+        whenever(realClient.threadPool()).thenReturn(threadPool)
+        whenever(threadPool.threadContext).thenReturn(threadContext)
+
+        // Set tenant ID header before calling sendNotification
+        threadContext.putHeader("x-tenant-id", "tenant-notify-test")
+
+        val notificationInfo = EventSource("title", "ref_id", SeverityType.HIGH, listOf("tag"))
+        val channelMessage = ChannelMessage("message", null, null)
+        val listener: ActionListener<SendNotificationResponse> =
+            mock(ActionListener::class.java) as ActionListener<SendNotificationResponse>
+
+        var capturedTenantId: String? = null
+        doAnswer {
+            // Capture the tenant ID header at the point of the actual transport execute call
+            capturedTenantId = threadContext.getHeader("x-tenant-id")
+            null
+        }.whenever(realClient).execute(any(ActionType::class.java), any(), any())
+
+        NotificationsPluginInterface.sendNotification(
+            realClient,
+            notificationInfo,
+            channelMessage,
+            listOf("channel-1"),
+            listener
+        )
+
+        org.junit.jupiter.api.Assertions.assertEquals("tenant-notify-test", capturedTenantId)
+    }
+
+    @Test
+    fun `sendNotification stashes security context but keeps tenant id`() {
+        val threadContext = org.opensearch.common.util.concurrent.ThreadContext(
+            org.opensearch.common.settings.Settings.EMPTY
+        )
+        val realClient = mock(NodeClient::class.java)
+        val threadPool = mock(org.opensearch.threadpool.ThreadPool::class.java)
+        whenever(realClient.threadPool()).thenReturn(threadPool)
+        whenever(threadPool.threadContext).thenReturn(threadContext)
+
+        threadContext.putHeader("x-tenant-id", "tenant-secure")
+        threadContext.putHeader("_opendistro_security_user", "admin|role1")
+
+        val notificationInfo = EventSource("title", "ref_id", SeverityType.INFO, listOf())
+        val channelMessage = ChannelMessage("msg", null, null)
+        val listener: ActionListener<SendNotificationResponse> =
+            mock(ActionListener::class.java) as ActionListener<SendNotificationResponse>
+
+        var capturedTenantId: String? = null
+        var capturedSecurityHeader: String? = "not-null"
+        doAnswer {
+            capturedTenantId = threadContext.getHeader("x-tenant-id")
+            capturedSecurityHeader = threadContext.getHeader("_opendistro_security_user")
+            null
+        }.whenever(realClient).execute(any(ActionType::class.java), any(), any())
+
+        NotificationsPluginInterface.sendNotification(
+            realClient,
+            notificationInfo,
+            channelMessage,
+            listOf("channel-1"),
+            listener
+        )
+
+        // Tenant ID preserved
+        org.junit.jupiter.api.Assertions.assertEquals("tenant-secure", capturedTenantId)
+        // Security header stashed
+        org.junit.jupiter.api.Assertions.assertNull(capturedSecurityHeader)
+    }
+
     private fun mockGetNotificationConfigResponse(): GetNotificationConfigResponse {
         val sampleSlack = Slack("https://domain.com/sample_url#1234567890")
         val sampleConfig = NotificationConfig(
