@@ -37,6 +37,8 @@ import org.opensearch.commons.alerting.randomUserEmpty
 import org.opensearch.commons.alerting.randomWorkflow
 import org.opensearch.commons.alerting.util.IndexUtils
 import org.opensearch.commons.authuser.User
+import org.opensearch.commons.ppl.TransportPPLQueryRequest
+import org.opensearch.commons.ppl.TransportPPLQueryResponse
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.common.io.stream.Writeable
@@ -517,6 +519,58 @@ class WriteableTests {
         Assertions.assertEquals("content", newComment.content)
         Assertions.assertEquals(createdTime, newComment.createdTime)
         Assertions.assertEquals(user, newComment.user)
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `test TransportPPLQueryRequest as stream`() {
+        val request = TransportPPLQueryRequest(
+            "source=my_index | where status='error'",
+            "{\"query\":\"source=my_index | where status='error'\"}",
+            "/_plugins/_ppl"
+        )
+
+        val out = BytesStreamOutput()
+        request.writeTo(out)
+
+        val streamIn = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRequest = TransportPPLQueryRequest(streamIn)
+
+        Assertions.assertEquals(request.pplQuery, newRequest.pplQuery, "round-tripped PPL queries didn't match")
+        Assertions.assertEquals(request.jsonContentString, newRequest.jsonContentString, "round-tripped JSON content strings didn't match")
+        Assertions.assertEquals(request.path, newRequest.path, "round-tripped paths didn't match")
+
+        // dummy fields that are checked for completeness
+        Assertions.assertEquals(request.format, newRequest.format, "round-tripped formats didn't match")
+        Assertions.assertEquals(request.explainMode, newRequest.explainMode, "round-tripped explain modes didn't match")
+        Assertions.assertEquals(request.style, newRequest.style, "round-tripped styles didn't match")
+        Assertions.assertEquals(request.profile, newRequest.profile, "round-tripped profiles didn't match")
+        Assertions.assertEquals(request.queryId, newRequest.queryId, "round-tripped query IDs didn't match")
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `test TransportPPLQueryResponse as stream`() {
+        val response = TransportPPLQueryResponse(
+            "{\"schema\":[],\"datarows\":[],\"total\":0,\"size\":0}"
+        )
+
+        val out = BytesStreamOutput()
+        response.writeTo(out)
+
+        val streamIn = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newResponse = TransportPPLQueryResponse(streamIn)
+
+        Assertions.assertEquals(
+            response.result,
+            newResponse.result,
+            "Round tripped results didn't match"
+        )
+        Assertions.assertEquals(
+            response.contentType,
+            newResponse.contentType,
+            "Round tripped content types didn't match"
+        )
     }
 
     fun randomDocumentLevelTriggerRunResult(): DocumentLevelTriggerRunResult {
