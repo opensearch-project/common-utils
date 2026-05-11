@@ -13,6 +13,8 @@ import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorInput
 import org.opensearch.commons.alerting.model.remote.monitors.RemoteMonitorTrigger
 import org.opensearch.commons.alerting.randomAction
 import org.opensearch.commons.alerting.randomActionExecutionPolicy
+import org.opensearch.commons.alerting.randomAlert
+import org.opensearch.commons.alerting.randomAlertWithPPLFields
 import org.opensearch.commons.alerting.randomBucketLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomBucketLevelTrigger
 import org.opensearch.commons.alerting.randomBucketLevelTriggerRunResult
@@ -21,10 +23,14 @@ import org.opensearch.commons.alerting.randomDocLevelQuery
 import org.opensearch.commons.alerting.randomDocumentLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomDocumentLevelTrigger
 import org.opensearch.commons.alerting.randomInputRunResults
+import org.opensearch.commons.alerting.randomInputRunResultsWithPPLFields
+import org.opensearch.commons.alerting.randomPPLMonitor
+import org.opensearch.commons.alerting.randomPPLTrigger
 import org.opensearch.commons.alerting.randomQueryLevelMonitor
 import org.opensearch.commons.alerting.randomQueryLevelMonitorRunResult
 import org.opensearch.commons.alerting.randomQueryLevelTrigger
 import org.opensearch.commons.alerting.randomQueryLevelTriggerRunResult
+import org.opensearch.commons.alerting.randomQueryLevelTriggerRunResultWithPPLFields
 import org.opensearch.commons.alerting.randomThrottle
 import org.opensearch.commons.alerting.randomUser
 import org.opensearch.commons.alerting.randomUserEmpty
@@ -42,6 +48,26 @@ import java.time.temporal.ChronoUnit
 import kotlin.test.assertTrue
 
 class WriteableTests {
+
+    @Test
+    fun `test alert as stream`() {
+        val alert = randomAlert()
+        val out = BytesStreamOutput()
+        alert.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newAlert = Alert(sin)
+        Assertions.assertEquals(alert, newAlert, "Round tripping Alert doesn't work")
+    }
+
+    @Test
+    fun `test alert with PPL fields as stream`() {
+        val alert = randomAlertWithPPLFields()
+        val out = BytesStreamOutput()
+        alert.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newAlert = Alert(sin)
+        Assertions.assertEquals(alert, newAlert, "Round tripping Alert with PPL fields doesn't work")
+    }
 
     @Test
     fun `test throttle as stream`() {
@@ -104,6 +130,16 @@ class WriteableTests {
     }
 
     @Test
+    fun `test ppl monitor as stream`() {
+        val monitor = randomPPLMonitor()
+        val out = BytesStreamOutput()
+        monitor.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newMonitor = Monitor(sin)
+        Assertions.assertEquals(monitor, newMonitor, "Round tripping PPLMonitor doesn't work")
+    }
+
+    @Test
     fun `test workflow as stream`() {
         val workflow = randomWorkflow(monitorIds = listOf("1", "2", "3", "4"))
         val out = BytesStreamOutput()
@@ -141,6 +177,16 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newTrigger = DocumentLevelTrigger.readFrom(sin)
         Assertions.assertEquals(trigger, newTrigger, "Round tripping DocumentLevelTrigger doesn't work")
+    }
+
+    @Test
+    fun `test ppl trigger as stream`() {
+        val trigger = randomPPLTrigger()
+        val out = BytesStreamOutput()
+        trigger.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newTrigger = PPLTrigger.readFrom(sin)
+        Assertions.assertEquals(trigger, newTrigger, "Round tripping PPLTrigger doesn't work")
     }
 
     @Test
@@ -184,6 +230,16 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newInput = SearchInput(sin)
         Assertions.assertEquals(input, newInput, "Round tripping MonitorRunResult doesn't work")
+    }
+
+    @Test
+    fun `test ppl input as stream`() {
+        val input = PPLInput("source=some-index")
+        val out = BytesStreamOutput()
+        input.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newInput = PPLInput(sin)
+        Assertions.assertEquals(input, newInput, "Round tripping PPLInput doesn't work")
     }
 
     @Test
@@ -248,6 +304,20 @@ class WriteableTests {
     }
 
     @Test
+    fun `test query-level triggerrunresult with PPL fields as stream`() {
+        val runResult = randomQueryLevelTriggerRunResultWithPPLFields()
+        val out = BytesStreamOutput()
+        runResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRunResult = QueryLevelTriggerRunResult(sin)
+        OpenSearchTestCase.assertEquals(runResult.triggerName, newRunResult.triggerName)
+        OpenSearchTestCase.assertEquals(runResult.triggered, newRunResult.triggered)
+        OpenSearchTestCase.assertEquals(runResult.error, newRunResult.error)
+        OpenSearchTestCase.assertEquals(runResult.actionResults, newRunResult.actionResults)
+        OpenSearchTestCase.assertEquals(runResult.pplCustomQueryResults, newRunResult.pplCustomQueryResults)
+    }
+
+    @Test
     fun `test bucket-level triggerrunresult as stream`() {
         val runResult = randomBucketLevelTriggerRunResult()
         val out = BytesStreamOutput()
@@ -275,6 +345,16 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newRunResult = InputRunResults.readFrom(sin)
         OpenSearchTestCase.assertEquals("Round tripping InputRunResults doesn't work", runResult, newRunResult)
+    }
+
+    @Test
+    fun `test inputrunresult with PPL fields as stream`() {
+        val runResult = randomInputRunResultsWithPPLFields()
+        val out = BytesStreamOutput()
+        runResult.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newRunResult = InputRunResults.readFrom(sin)
+        OpenSearchTestCase.assertEquals("Round tripping InputRunResults with PPL fields doesn't work", runResult, newRunResult)
     }
 
     @Test
