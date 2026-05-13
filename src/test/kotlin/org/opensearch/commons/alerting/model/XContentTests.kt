@@ -678,7 +678,7 @@ class XContentTests {
     @Test
     fun `test monitor with target parsing roundtrip`() {
         val monitor = randomQueryLevelMonitor().copy(
-            target = Target("custom_type", "https://example.com")
+            target = Target("custom_type", "https://example.com", "arn:aws:es:us-west-2:123456789012:domain/example")
         )
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
@@ -697,7 +697,7 @@ class XContentTests {
     @Test
     fun `test alert with target from monitor`() {
         val monitor = randomQueryLevelMonitor().copy(
-            target = Target("custom_type", "https://example.com")
+            target = Target("custom_type", "https://example.com", "arn:aws:es:us-west-2:123456789012:domain/example")
         )
         val alert = randomAlert(monitor)
         assertEquals("Alert should copy target from monitor", monitor.target, alert.target)
@@ -706,7 +706,7 @@ class XContentTests {
     @Test
     fun `test alert with target XContent roundtrip`() {
         val monitor = randomQueryLevelMonitor().copy(
-            target = Target("custom_type", "https://example.com")
+            target = Target("custom_type", "https://example.com", "arn:aws:es:us-west-2:123456789012:domain/example")
         )
         val alert = randomAlert(monitor)
         val alertString = alert.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
@@ -724,7 +724,7 @@ class XContentTests {
     @Test
     fun `test bucket-level monitor with target parsing roundtrip`() {
         val monitor = randomBucketLevelMonitor().copy(
-            target = Target("custom_type", "https://example.com")
+            target = Target("custom_type", "https://example.com", "arn:aws:es:us-west-2:123456789012:domain/example")
         )
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
