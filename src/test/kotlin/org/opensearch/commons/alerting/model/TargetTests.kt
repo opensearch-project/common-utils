@@ -16,13 +16,15 @@ class TargetTests {
         val target = Target()
         assertEquals(Target.LOCAL, target.type)
         assertEquals("", target.endpoint)
+        assertEquals("", target.arn)
     }
 
     @Test
-    fun `test Target with custom type and endpoint`() {
-        val target = Target("custom_type", "https://example.com")
-        assertEquals("custom_type", target.type)
-        assertEquals("https://example.com", target.endpoint)
+    fun `test Target with custom type endpoint and arn`() {
+        val target = Target("AOS_DOMAIN", "https://my-domain.us-west-2.es.amazonaws.com", "arn:aws:es:us-west-2:123456789012:domain/my-domain")
+        assertEquals("AOS_DOMAIN", target.type)
+        assertEquals("https://my-domain.us-west-2.es.amazonaws.com", target.endpoint)
+        assertEquals("arn:aws:es:us-west-2:123456789012:domain/my-domain", target.arn)
     }
 
     @Test
@@ -35,13 +37,38 @@ class TargetTests {
     @Test
     fun `test Target requires endpoint for non-LOCAL type`() {
         assertThrows(IllegalArgumentException::class.java) {
-            Target("custom_type", "")
+            Target("AOS_DOMAIN", "", "arn:aws:es:us-west-2:123456789012:domain/my-domain")
         }
     }
 
     @Test
+    fun `test Target requires arn for non-LOCAL type`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            Target("AOS_DOMAIN", "https://my-domain.us-west-2.es.amazonaws.com", "")
+        }
+    }
+
+    @Test
+    fun `test Target LOCAL type does not require arn`() {
+        val target = Target(Target.LOCAL, "", "")
+        assertEquals(Target.LOCAL, target.type)
+        assertEquals("", target.endpoint)
+        assertEquals("", target.arn)
+    }
+
+    @Test
     fun `test Target stream serialization roundtrip`() {
-        val target = Target("custom_type", "https://example.com")
+        val target = Target("AOS_DOMAIN", "https://my-domain.us-west-2.es.amazonaws.com", "arn:aws:es:us-west-2:123456789012:domain/my-domain")
+        val out = BytesStreamOutput()
+        target.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = Target(sin)
+        assertEquals(target, deserialized)
+    }
+
+    @Test
+    fun `test Target stream serialization roundtrip LOCAL`() {
+        val target = Target()
         val out = BytesStreamOutput()
         target.writeTo(out)
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
@@ -51,7 +78,7 @@ class TargetTests {
 
     @Test
     fun `test Target XContent roundtrip`() {
-        val target = Target("custom_type", "https://example.com")
+        val target = Target("AOS_DOMAIN", "https://my-domain.us-west-2.es.amazonaws.com", "arn:aws:es:us-west-2:123456789012:domain/my-domain")
         val builder = XContentFactory.jsonBuilder()
         target.toXContent(builder, ToXContent.EMPTY_PARAMS)
         val json = builder.toString()
@@ -60,5 +87,25 @@ class TargetTests {
         parser.nextToken()
         val parsed = Target.parse(parser)
         assertEquals(target, parsed)
+    }
+
+    @Test
+    fun `test Target XContent parse without arn field defaults to empty`() {
+        val json = """{"type":"local","endpoint":""}"""
+        val parser = XContentType.JSON.xContent().createParser(null, null, json)
+        parser.nextToken()
+        val parsed = Target.parse(parser)
+        assertEquals("local", parsed.type)
+        assertEquals("", parsed.endpoint)
+        assertEquals("", parsed.arn)
+    }
+
+    @Test
+    fun `test Target XContent includes arn field`() {
+        val target = Target("AOS_DOMAIN", "https://my-domain.us-east-1.es.amazonaws.com", "arn:aws:es:us-east-1:123456789012:domain/my-domain")
+        val builder = XContentFactory.jsonBuilder()
+        target.toXContent(builder, ToXContent.EMPTY_PARAMS)
+        val json = builder.toString()
+        assert(json.contains("\"arn\":\"arn:aws:es:us-east-1:123456789012:domain/my-domain\""))
     }
 }
