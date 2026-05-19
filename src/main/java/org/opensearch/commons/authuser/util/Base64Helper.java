@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidClassException;
+import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
@@ -79,6 +80,7 @@ public class Base64Helper {
     private final static class SafeObjectInputStream extends ObjectInputStream {
         public SafeObjectInputStream(InputStream in) throws IOException {
             super(in);
+            setObjectInputFilter(ObjectInputFilter.Config.createFilter("maxdepth=10"));
         }
 
         @Override
