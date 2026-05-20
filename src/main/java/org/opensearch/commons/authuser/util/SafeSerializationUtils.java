@@ -28,12 +28,7 @@ public final class SafeSerializationUtils {
     private static final Set<Class<?>> SAFE_ASSIGNABLE_FROM_CLASSES = Set
         .of(InetAddress.class, Number.class, Collection.class, Map.class, Enum.class);
 
-    private static final Set<String> SAFE_CLASS_NAMES = Set
-        .of(
-            "org.ldaptive.LdapAttribute$LdapAttributeValues",
-            "com.google.common.collect.ImmutableMap$SerializedForm",
-            "com.google.common.collect.ImmutableBiMap$SerializedForm"
-        );
+    private static final Set<String> SAFE_CLASS_NAMES = Set.of("org.ldaptive.LdapAttribute$LdapAttributeValues");
     static final Map<Class<?>, Boolean> safeClassCache = new ConcurrentHashMap<>();
 
     static boolean isSafeClass(Class<?> cls) {
