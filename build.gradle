@@ -74,6 +74,10 @@ configurations {
     all {
         resolutionStrategy {
             force "commons-beanutils:commons-beanutils:1.11.0"
+            force "org.bouncycastle:bcpkix-jdk18on:1.84"
+            force "org.bouncycastle:bcpg-jdk18on:1.84"
+            force "org.bouncycastle:bcprov-jdk18on:1.84"
+            force "org.bouncycastle:bcutil-jdk18on:1.84"
         }
     }
     ktlint {
