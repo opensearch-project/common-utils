@@ -25,6 +25,7 @@ data class WorkflowRunResult(
     val triggerResults: Map<String, ChainedAlertTriggerRunResult> = mapOf()
 ) : Writeable, ToXContent {
 
+    @Suppress("UNCHECKED_CAST")
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         workflowId = sin.readString(),
