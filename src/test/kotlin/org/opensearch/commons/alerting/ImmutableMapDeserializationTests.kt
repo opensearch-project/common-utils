@@ -18,6 +18,8 @@ import org.opensearch.commons.alerting.model.IndexExecutionContext
 import org.opensearch.commons.alerting.model.InputRunResults
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.MonitorMetadata
+import org.opensearch.commons.alerting.model.MonitorRunResult
+import org.opensearch.commons.alerting.model.TriggerRunResult
 import org.opensearch.commons.alerting.model.WorkflowRunResult
 import org.opensearch.core.common.io.stream.NamedWriteableAwareStreamInput
 import org.opensearch.core.common.io.stream.NamedWriteableRegistry
@@ -281,6 +283,85 @@ class ImmutableMapDeserializationTests {
 
         assertEquals(1, result.triggerResults.size)
         assertEquals(triggerRunResult, result.triggerResults[trigger.id])
+    }
+
+    // -------------------------------------------------------------------------
+    // MonitorRunResult.triggerResults
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `MonitorRunResult with empty triggerResults survives serialization round-trip`() {
+        val result = MonitorRunResult<TriggerRunResult>(
+            monitorName = "test-monitor",
+            periodStart = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            periodEnd = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            triggerResults = mapOf()
+        )
+
+        val out = BytesStreamOutput()
+        result.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = MonitorRunResult<TriggerRunResult>(sin)
+
+        assertEquals(result.monitorName, deserialized.monitorName)
+        assertTrue(deserialized.triggerResults.isEmpty())
+        // Verify mutability — must not throw UnsupportedOperationException
+        assertMutableMap(deserialized.triggerResults)
+    }
+
+    @Test
+    fun `MonitorRunResult with non-empty triggerResults survives serialization round-trip`() {
+        val result = MonitorRunResult<TriggerRunResult>(
+            monitorName = "test-monitor",
+            periodStart = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            periodEnd = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            triggerResults = mapOf()
+        )
+
+        val out = BytesStreamOutput()
+        result.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = MonitorRunResult<TriggerRunResult>(sin)
+
+        assertEquals(result.monitorName, deserialized.monitorName)
+        assertEquals(result.triggerResults, deserialized.triggerResults)
+    }
+
+    // -------------------------------------------------------------------------
+    // InputRunResults.results
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `InputRunResults with empty results list survives serialization round-trip`() {
+        val inputRunResults = InputRunResults(
+            results = listOf(),
+            error = null
+        )
+
+        val out = BytesStreamOutput()
+        inputRunResults.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = InputRunResults.readFrom(sin)
+
+        assertTrue(deserialized.results.isEmpty())
+    }
+
+    @Test
+    fun `InputRunResults with results containing empty maps survives serialization round-trip`() {
+        val inputRunResults = InputRunResults(
+            results = listOf(emptyMap()),
+            error = null
+        )
+
+        val out = BytesStreamOutput()
+        inputRunResults.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = InputRunResults.readFrom(sin)
+
+        assertEquals(1, deserialized.results.size)
+        assertTrue(deserialized.results[0].isEmpty())
+        // Verify mutability — must not throw UnsupportedOperationException
+        assertMutableMap(deserialized.results[0])
     }
 
     // -------------------------------------------------------------------------
