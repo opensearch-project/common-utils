@@ -13,15 +13,21 @@ import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.action.DocLevelMonitorFanOutResponse
 import org.opensearch.commons.alerting.model.ActionExecutionTime
 import org.opensearch.commons.alerting.model.Alert
+import org.opensearch.commons.alerting.model.ActionRunResult
+import org.opensearch.commons.alerting.model.AggregationResultBucket
+import org.opensearch.commons.alerting.model.BucketLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.ChainedAlertTriggerRunResult
+import org.opensearch.commons.alerting.model.ClusterMetricsTriggerRunResult
 import org.opensearch.commons.alerting.model.DocumentLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.IndexExecutionContext
 import org.opensearch.commons.alerting.model.InputRunResults
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.MonitorMetadata
 import org.opensearch.commons.alerting.model.MonitorRunResult
+import org.opensearch.commons.alerting.model.QueryLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.TriggerRunResult
 import org.opensearch.commons.alerting.model.WorkflowRunResult
+import org.opensearch.commons.alerting.util.getBucketKeysHash
 import org.opensearch.core.common.io.stream.NamedWriteableAwareStreamInput
 import org.opensearch.core.common.io.stream.NamedWriteableRegistry
 import org.opensearch.core.common.io.stream.StreamInput
@@ -437,6 +443,155 @@ class ImmutableMapDeserializationTests {
         val deserialized = Alert(sin)
 
         assertEquals(alert.queryResults, deserialized.queryResults)
+    }
+
+    // -------------------------------------------------------------------------
+    // QueryLevelTriggerRunResult.actionResults
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `QueryLevelTriggerRunResult with empty actionResults survives serialization round-trip`() {
+        val result = QueryLevelTriggerRunResult(
+            triggerName = "query-trigger",
+            triggered = false,
+            error = null,
+            actionResults = mutableMapOf()
+        )
+
+        val out = BytesStreamOutput()
+        result.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = QueryLevelTriggerRunResult(sin)
+
+        assertEquals(result.triggerName, deserialized.triggerName)
+        assertTrue(deserialized.actionResults.isEmpty())
+        // Verify mutability — must not throw UnsupportedOperationException or ClassCastException
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.actionResults as MutableMap<String, ActionRunResult>)
+            .put("__mutable_check__", randomActionRunResult())
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.actionResults as MutableMap<String, ActionRunResult>)
+            .remove("__mutable_check__")
+    }
+
+    // -------------------------------------------------------------------------
+    // ClusterMetricsTriggerRunResult.actionResults
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `ClusterMetricsTriggerRunResult with empty actionResults survives serialization round-trip`() {
+        val result = ClusterMetricsTriggerRunResult(
+            triggerName = "cluster-trigger",
+            triggered = false,
+            error = null,
+            actionResults = mutableMapOf(),
+            clusterTriggerResults = emptyList()
+        )
+
+        val out = BytesStreamOutput()
+        result.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = ClusterMetricsTriggerRunResult(sin)
+
+        assertEquals(result.triggerName, deserialized.triggerName)
+        assertTrue(deserialized.actionResults.isEmpty())
+        // Verify mutability — must not throw UnsupportedOperationException or ClassCastException
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.actionResults as MutableMap<String, ActionRunResult>)
+            .put("__mutable_check__", randomActionRunResult())
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.actionResults as MutableMap<String, ActionRunResult>)
+            .remove("__mutable_check__")
+    }
+
+    // -------------------------------------------------------------------------
+    // ChainedAlertTriggerRunResult.actionResults
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `ChainedAlertTriggerRunResult with empty actionResults survives serialization round-trip`() {
+        val result = ChainedAlertTriggerRunResult(
+            triggerName = "chained-trigger",
+            triggered = false,
+            error = null,
+            actionResults = mutableMapOf(),
+            associatedAlertIds = emptySet()
+        )
+
+        val out = BytesStreamOutput()
+        result.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = ChainedAlertTriggerRunResult(sin)
+
+        assertEquals(result.triggerName, deserialized.triggerName)
+        assertTrue(deserialized.actionResults.isEmpty())
+        // Verify mutability — must not throw UnsupportedOperationException or ClassCastException
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.actionResults as MutableMap<String, ActionRunResult>)
+            .put("__mutable_check__", randomActionRunResult())
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.actionResults as MutableMap<String, ActionRunResult>)
+            .remove("__mutable_check__")
+    }
+
+    // -------------------------------------------------------------------------
+    // BucketLevelTriggerRunResult.actionResultsMap
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `BucketLevelTriggerRunResult with empty actionResultsMap survives serialization round-trip`() {
+        val aggBucket = AggregationResultBucket(
+            parentBucketPath = "parent_path",
+            bucketKeys = listOf("key1"),
+            bucket = mapOf("k" to "v")
+        )
+        val result = BucketLevelTriggerRunResult(
+            triggerName = "bucket-trigger",
+            error = null,
+            aggregationResultBuckets = mapOf(aggBucket.getBucketKeysHash() to aggBucket),
+            actionResultsMap = mutableMapOf()
+        )
+
+        val out = BytesStreamOutput()
+        result.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = BucketLevelTriggerRunResult(sin)
+
+        assertEquals(result.triggerName, deserialized.triggerName)
+        assertTrue(deserialized.actionResultsMap.isEmpty())
+        // Verify mutability — must not throw UnsupportedOperationException or ClassCastException
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.actionResultsMap as MutableMap<String, MutableMap<String, ActionRunResult>>)
+            .put("__mutable_check__", mutableMapOf())
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.actionResultsMap as MutableMap<String, MutableMap<String, ActionRunResult>>)
+            .remove("__mutable_check__")
+    }
+
+    // -------------------------------------------------------------------------
+    // ActionRunResult.output
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `ActionRunResult with empty output survives serialization round-trip`() {
+        val result = ActionRunResult(
+            actionId = "action-1",
+            actionName = "test-action",
+            output = emptyMap(),
+            throttled = false,
+            executionTime = Instant.now().truncatedTo(ChronoUnit.MILLIS),
+            error = null
+        )
+
+        val out = BytesStreamOutput()
+        result.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = ActionRunResult(sin)
+
+        assertEquals(result.actionId, deserialized.actionId)
+        assertEquals(result.actionName, deserialized.actionName)
+        assertTrue(deserialized.output.isEmpty())
+        // Verify no ClassCastException — output field is Map<String, String>, backed by mutable map
     }
 
     // -------------------------------------------------------------------------

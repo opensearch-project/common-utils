@@ -188,10 +188,11 @@ data class ActionRunResult(
 ) : Writeable, ToXContent {
 
     @Throws(IOException::class)
+    @Suppress("UNCHECKED_CAST")
     constructor(sin: StreamInput) : this(
         sin.readString(), // actionId
         sin.readString(), // actionName
-        suppressWarning(sin.readMap()), // output
+        sin.readMapAsMutableMap() as Map<String, String>, // output
         sin.readBoolean(), // throttled
         sin.readOptionalInstant(), // executionTime
         sin.readException() // error
@@ -223,11 +224,6 @@ data class ActionRunResult(
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): ActionRunResult {
             return ActionRunResult(sin)
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, String> {
-            return map as MutableMap<String, String>
         }
     }
 }
