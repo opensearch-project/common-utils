@@ -29,8 +29,8 @@ data class IndexExecutionContext(
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         queries = sin.readList { DocLevelQuery(sin) },
-        lastRunContext = sin.readMap() as MutableMap<String, Any>,
-        updatedLastRunContext = sin.readMap() as MutableMap<String, Any>,
+        lastRunContext = sin.readMap()?.toMutableMap() ?: mutableMapOf(),
+        updatedLastRunContext = sin.readMap()?.toMutableMap() ?: mutableMapOf(),
         indexName = sin.readString(),
         concreteIndexName = sin.readString(),
         updatedIndexNames = sin.readStringList(),
