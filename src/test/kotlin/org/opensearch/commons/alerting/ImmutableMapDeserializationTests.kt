@@ -14,6 +14,7 @@ import org.opensearch.commons.alerting.action.DocLevelMonitorFanOutResponse
 import org.opensearch.commons.alerting.model.ActionExecutionTime
 import org.opensearch.commons.alerting.model.Alert
 import org.opensearch.commons.alerting.model.ChainedAlertTriggerRunResult
+import org.opensearch.commons.alerting.model.DocumentLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.IndexExecutionContext
 import org.opensearch.commons.alerting.model.InputRunResults
 import org.opensearch.commons.alerting.model.Monitor
@@ -206,6 +207,33 @@ class ImmutableMapDeserializationTests {
         assertTrue(deserialized.lastRunContexts.isEmpty())
         // Verify mutability
         deserialized.lastRunContexts["index"] = mutableMapOf<String, Any>()
+    }
+
+    @Test
+    fun `DocLevelMonitorFanOutResponse with empty triggerResults survives serialization round-trip`() {
+        val response = DocLevelMonitorFanOutResponse(
+            nodeId = "node-1",
+            executionId = "exec-1",
+            monitorId = "monitor-1",
+            lastRunContexts = mutableMapOf("index" to mutableMapOf<String, Any>() as Any),
+            inputResults = InputRunResults(),
+            triggerResults = mapOf() // empty — triggers the bug
+        )
+
+        val out = BytesStreamOutput()
+        response.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = DocLevelMonitorFanOutResponse(sin)
+
+        assertEquals(response.nodeId, deserialized.nodeId)
+        assertTrue(deserialized.triggerResults.isEmpty())
+        // Verify mutability — must not throw UnsupportedOperationException or ClassCastException
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.triggerResults as MutableMap<String, DocumentLevelTriggerRunResult>)
+            .put("__mutable_check__", randomDocumentLevelTriggerRunResult())
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.triggerResults as MutableMap<String, DocumentLevelTriggerRunResult>)
+            .remove("__mutable_check__")
     }
 
     @Test

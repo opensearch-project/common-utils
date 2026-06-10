@@ -55,10 +55,13 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
     }
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
-        private fun readTriggerResults(sin: StreamInput): Map<String, DocumentLevelTriggerRunResult> =
-            (sin.readMap(StreamInput::readString, DocumentLevelTriggerRunResult::readFrom) ?: mapOf())
-                as Map<String, DocumentLevelTriggerRunResult>
+        private fun readTriggerResults(sin: StreamInput): Map<String, DocumentLevelTriggerRunResult> {
+            val raw = sin.readMap(StreamInput::readString, DocumentLevelTriggerRunResult::readFrom)
+            if (raw.isEmpty()) return mutableMapOf()
+            // readFrom returns TriggerRunResult (base type) but always constructs DocumentLevelTriggerRunResult
+            @Suppress("UNCHECKED_CAST")
+            return HashMap(raw as Map<String, DocumentLevelTriggerRunResult>)
+        }
     }
 
     @Throws(IOException::class)
