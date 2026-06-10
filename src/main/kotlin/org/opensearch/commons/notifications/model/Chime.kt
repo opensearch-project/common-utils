@@ -4,6 +4,7 @@
  */
 package org.opensearch.commons.notifications.model
 
+import org.opensearch.commons.notifications.NotificationConstants.ENCRYPTION_PREFIX
 import org.opensearch.commons.notifications.NotificationConstants.URL_TAG
 import org.opensearch.commons.utils.logger
 import org.opensearch.commons.utils.validateUrl
@@ -26,7 +27,9 @@ data class Chime(
 
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
-        validateUrl(url)
+        if (!url.startsWith(ENCRYPTION_PREFIX)) {
+            validateUrl(url)
+        }
     }
 
     companion object {

@@ -93,6 +93,28 @@ internal class WebhookTests {
     }
 
     @Test
+    fun `Webhook should skip url validation when url starts with enc prefix`() {
+        val encryptedUrl = "enc:this-is-not-a-real-url"
+        val webhook = Webhook(encryptedUrl)
+        assertEquals(encryptedUrl, webhook.url)
+    }
+
+    @Test
+    fun `Webhook with enc prefix should serialize and deserialize transport object`() {
+        val sampleWebhook = Webhook("enc:some-encrypted-value")
+        val recreatedObject = recreateObject(sampleWebhook) { Webhook(it) }
+        assertEquals(sampleWebhook, recreatedObject)
+    }
+
+    @Test
+    fun `Webhook with enc prefix should serialize and deserialize using json object`() {
+        val sampleWebhook = Webhook("enc:some-encrypted-value")
+        val jsonString = getJsonString(sampleWebhook)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Webhook.parse(it) }
+        assertEquals(sampleWebhook, recreatedObject)
+    }
+
+    @Test
     fun `Webhook should safely ignore extra field in json object`() {
         val sampleWebhook = Webhook("https://domain.com/sample_url#1234567890")
         val jsonString = "{\"url\":\"${sampleWebhook.url}\", \"another\":\"field\"}"
