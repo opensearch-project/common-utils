@@ -36,8 +36,8 @@ data class MonitorMetadata(
         primaryTerm = sin.readLong(),
         monitorId = sin.readString(),
         lastActionExecutionTimes = sin.readList(ActionExecutionTime.Companion::readFrom),
-        lastRunContext = Monitor.suppressWarning(sin.readMap()),
-        sourceToQueryIndexMapping = sin.readMap() as MutableMap<String, String>
+        lastRunContext = sin.readMap()?.toMutableMap() ?: mutableMapOf(),
+        sourceToQueryIndexMapping = (sin.readMap()?.toMutableMap() ?: mutableMapOf()) as MutableMap<String, String>
     )
 
     override fun writeTo(out: StreamOutput) {
