@@ -77,6 +77,28 @@ internal class MicrosoftTeamsTests {
     }
 
     @Test
+    fun `Microsoft Teams should skip url validation when url starts with enc prefix`() {
+        val encryptedUrl = "enc:this-is-not-a-real-url"
+        val microsoftTeams = MicrosoftTeams(encryptedUrl)
+        assertEquals(encryptedUrl, microsoftTeams.url)
+    }
+
+    @Test
+    fun `Microsoft Teams with enc prefix should serialize and deserialize transport object`() {
+        val sampleMicrosoftTeams = MicrosoftTeams("enc:some-encrypted-value")
+        val recreatedObject = recreateObject(sampleMicrosoftTeams) { MicrosoftTeams(it) }
+        assertEquals(sampleMicrosoftTeams, recreatedObject)
+    }
+
+    @Test
+    fun `Microsoft Teams with enc prefix should serialize and deserialize using json object`() {
+        val sampleMicrosoftTeams = MicrosoftTeams("enc:some-encrypted-value")
+        val jsonString = getJsonString(sampleMicrosoftTeams)
+        val recreatedObject = createObjectFromJsonString(jsonString) { MicrosoftTeams.parse(it) }
+        assertEquals(sampleMicrosoftTeams, recreatedObject)
+    }
+
+    @Test
     fun `Microsoft Teams should safely ignore extra field in json object`() {
         val sampleMicrosoftTeams = MicrosoftTeams("https://domain.com/sample_url#1234567890")
         val jsonString = "{\"url\":\"${sampleMicrosoftTeams.url}\", \"another\":\"field\"}"

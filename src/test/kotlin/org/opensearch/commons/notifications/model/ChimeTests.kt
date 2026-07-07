@@ -77,6 +77,28 @@ internal class ChimeTests {
     }
 
     @Test
+    fun `Chime should skip url validation when url starts with enc prefix`() {
+        val encryptedUrl = "enc:this-is-not-a-real-url"
+        val chime = Chime(encryptedUrl)
+        assertEquals(encryptedUrl, chime.url)
+    }
+
+    @Test
+    fun `Chime with enc prefix should serialize and deserialize transport object`() {
+        val sampleChime = Chime("enc:some-encrypted-value")
+        val recreatedObject = recreateObject(sampleChime) { Chime(it) }
+        assertEquals(sampleChime, recreatedObject)
+    }
+
+    @Test
+    fun `Chime with enc prefix should serialize and deserialize using json object`() {
+        val sampleChime = Chime("enc:some-encrypted-value")
+        val jsonString = getJsonString(sampleChime)
+        val recreatedObject = createObjectFromJsonString(jsonString) { Chime.parse(it) }
+        assertEquals(sampleChime, recreatedObject)
+    }
+
+    @Test
     fun `Chime should safely ignore extra field in json object`() {
         val sampleChime = Chime("https://domain.com/sample_url#1234567890")
         val jsonString = "{\"url\":\"${sampleChime.url}\", \"another\":\"field\"}"
