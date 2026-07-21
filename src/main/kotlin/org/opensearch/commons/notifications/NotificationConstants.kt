@@ -69,4 +69,6 @@ object NotificationConstants {
     const val PLUGIN_FEATURES_TAG = "plugin_features"
 
     const val DEFAULT_MAX_ITEMS = 1000
+
+    const val CONFIG_INDEX_NAME = ".opensearch-notifications-config"
 }
