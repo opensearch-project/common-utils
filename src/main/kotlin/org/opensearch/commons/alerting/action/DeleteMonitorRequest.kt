@@ -4,7 +4,7 @@ import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.DocRequest
 import org.opensearch.action.support.WriteRequest
-import org.opensearch.commons.alerting.util.AlertingConstants.Companion.ALL_ALERT_INDEX_PATTERN
+import org.opensearch.commons.alerting.model.ScheduledJob
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
@@ -36,7 +36,7 @@ class DeleteMonitorRequest : DocRequest, ActionRequest {
     }
 
     override fun index(): String? {
-        return ALL_ALERT_INDEX_PATTERN
+        return ScheduledJob.SCHEDULED_JOBS_INDEX
     }
 
     override fun id(): String? {

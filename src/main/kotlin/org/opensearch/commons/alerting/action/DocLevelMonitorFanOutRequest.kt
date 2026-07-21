@@ -11,8 +11,8 @@ import org.opensearch.action.DocRequest
 import org.opensearch.commons.alerting.model.IndexExecutionContext
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.MonitorMetadata
+import org.opensearch.commons.alerting.model.ScheduledJob
 import org.opensearch.commons.alerting.model.WorkflowRunContext
-import org.opensearch.commons.alerting.util.AlertingConstants.Companion.ALL_ALERT_INDEX_PATTERN
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.index.shard.ShardId
@@ -102,7 +102,7 @@ class DocLevelMonitorFanOutRequest : ActionRequest, DocRequest, ToXContentObject
     }
 
     override fun index(): String? {
-        return ALL_ALERT_INDEX_PATTERN
+        return ScheduledJob.SCHEDULED_JOBS_INDEX
     }
 
     override fun id(): String? {

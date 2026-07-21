@@ -3,6 +3,7 @@ package org.opensearch.commons.alerting.action
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.DocRequest
+import org.opensearch.commons.alerting.util.AlertingConstants.Companion.ALL_COMMENTS_INDEX_PATTERN
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
@@ -77,12 +78,12 @@ class IndexCommentRequest : ActionRequest, DocRequest {
         out.writeString(content)
     }
 
-    // TODO maybe this is not needed
     override fun index(): String? {
-        TODO("Not yet implemented")
+        return ALL_COMMENTS_INDEX_PATTERN
     }
 
     override fun id(): String? {
-        TODO("Not yet implemented")
+        // For updates, the target is the existing comment; for creates, no comment id exists yet.
+        return commentId.ifBlank { null }
     }
 }
