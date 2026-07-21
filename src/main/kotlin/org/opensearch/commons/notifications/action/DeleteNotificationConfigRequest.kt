@@ -10,6 +10,7 @@ import org.opensearch.action.DocRequest
 import org.opensearch.action.ValidateActions
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_ID_LIST_TAG
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_INDEX_NAME
+import org.opensearch.commons.notifications.NotificationConstants.CONFIG_RESOURCE_TYPE
 import org.opensearch.commons.utils.logger
 import org.opensearch.commons.utils.stringList
 import org.opensearch.core.common.io.stream.StreamInput
@@ -118,5 +119,9 @@ class DeleteNotificationConfigRequest : ActionRequest, DocRequest, ToXContentObj
 
     override fun id(): String? {
         return if (configIds.size == 1) configIds.first() else null
+    }
+
+    override fun type(): String {
+        return CONFIG_RESOURCE_TYPE
     }
 }

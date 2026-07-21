@@ -10,6 +10,7 @@ import org.opensearch.action.DocRequest
 import org.opensearch.action.ValidateActions
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_ID_LIST_TAG
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_INDEX_NAME
+import org.opensearch.commons.notifications.NotificationConstants.CONFIG_RESOURCE_TYPE
 import org.opensearch.commons.notifications.NotificationConstants.DEFAULT_MAX_ITEMS
 import org.opensearch.commons.notifications.NotificationConstants.FILTER_PARAM_LIST_TAG
 import org.opensearch.commons.notifications.NotificationConstants.FROM_INDEX_TAG
@@ -177,5 +178,9 @@ class GetNotificationConfigRequest : ActionRequest, DocRequest, ToXContentObject
 
     override fun id(): String? {
         return if (configIds.size == 1) configIds.first() else null
+    }
+
+    override fun type(): String {
+        return CONFIG_RESOURCE_TYPE
     }
 }

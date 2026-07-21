@@ -71,4 +71,5 @@ object NotificationConstants {
     const val DEFAULT_MAX_ITEMS = 1000
 
     const val CONFIG_INDEX_NAME = ".opensearch-notifications-config"
+    const val CONFIG_RESOURCE_TYPE = "notification_config"
 }

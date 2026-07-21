@@ -2,12 +2,14 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
+import org.opensearch.commons.alerting.model.ScheduledJob
 import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 
-class GetWorkflowAlertsRequest : ActionRequest {
+class GetWorkflowAlertsRequest : ActionRequest, DocRequest {
     val table: Table
     val severityLevel: String
     val alertState: String
@@ -68,5 +70,14 @@ class GetWorkflowAlertsRequest : ActionRequest {
         out.writeOptionalStringCollection(workflowIds)
         out.writeOptionalStringCollection(alertIds)
         out.writeBoolean(getAssociatedAlerts)
+    }
+
+    override fun index(): String? {
+        return ScheduledJob.SCHEDULED_JOBS_INDEX
+    }
+
+    override fun id(): String? {
+        // Access is gated on the workflow when a single workflowId is provided; otherwise fall back to search-level DLS.
+        return workflowIds?.singleOrNull()
     }
 }

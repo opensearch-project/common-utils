@@ -7,10 +7,12 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
 import org.opensearch.commons.alerting.model.IndexExecutionContext
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.MonitorMetadata
 import org.opensearch.commons.alerting.model.WorkflowRunContext
+import org.opensearch.commons.alerting.util.AlertingConstants.Companion.ALL_ALERT_INDEX_PATTERN
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.index.shard.ShardId
@@ -19,7 +21,7 @@ import org.opensearch.core.xcontent.ToXContentObject
 import org.opensearch.core.xcontent.XContentBuilder
 import java.io.IOException
 
-class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
+class DocLevelMonitorFanOutRequest : ActionRequest, DocRequest, ToXContentObject {
     val monitor: Monitor
     val dryRun: Boolean
     val monitorMetadata: MonitorMetadata
@@ -97,5 +99,13 @@ class DocLevelMonitorFanOutRequest : ActionRequest, ToXContentObject {
             .field("concrete_indices", concreteIndicesSeenSoFar)
             .field("workflow_run_context", workflowRunContext)
         return builder.endObject()
+    }
+
+    override fun index(): String? {
+        return ALL_ALERT_INDEX_PATTERN
+    }
+
+    override fun id(): String? {
+        return monitor.id
     }
 }

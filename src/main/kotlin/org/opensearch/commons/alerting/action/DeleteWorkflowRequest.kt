@@ -2,11 +2,13 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
+import org.opensearch.commons.alerting.util.AlertingConstants.Companion.ALL_ALERT_INDEX_PATTERN
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 
-class DeleteWorkflowRequest : ActionRequest {
+class DeleteWorkflowRequest : ActionRequest, DocRequest {
 
     val workflowId: String
 
@@ -35,5 +37,13 @@ class DeleteWorkflowRequest : ActionRequest {
     override fun writeTo(out: StreamOutput) {
         out.writeString(workflowId)
         out.writeOptionalBoolean(deleteDelegateMonitors)
+    }
+
+    override fun index(): String? {
+        return ALL_ALERT_INDEX_PATTERN
+    }
+
+    override fun id(): String? {
+        return workflowId
     }
 }
