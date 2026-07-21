@@ -7,13 +7,15 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
 import org.opensearch.action.support.WriteRequest
+import org.opensearch.commons.alerting.model.ScheduledJob
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
 import java.util.Collections
 
-class AcknowledgeAlertRequest : ActionRequest {
+class AcknowledgeAlertRequest : ActionRequest, DocRequest {
     val monitorId: String
     val alertIds: List<String>
     val refreshPolicy: WriteRequest.RefreshPolicy
@@ -44,5 +46,13 @@ class AcknowledgeAlertRequest : ActionRequest {
         out.writeString(monitorId)
         out.writeStringCollection(alertIds)
         refreshPolicy.writeTo(out)
+    }
+
+    override fun index(): String? {
+        return ScheduledJob.SCHEDULED_JOBS_INDEX
+    }
+
+    override fun id(): String? {
+        return monitorId
     }
 }

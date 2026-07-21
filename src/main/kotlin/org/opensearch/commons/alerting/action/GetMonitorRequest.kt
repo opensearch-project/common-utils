@@ -7,13 +7,15 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
+import org.opensearch.commons.alerting.model.ScheduledJob
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
 import org.opensearch.search.fetch.subphase.FetchSourceContext
 import java.io.IOException
 
-class GetMonitorRequest : ActionRequest {
+class GetMonitorRequest : ActionRequest, DocRequest {
     val monitorId: String
     val version: Long
     val method: RestRequest.Method
@@ -54,5 +56,13 @@ class GetMonitorRequest : ActionRequest {
         out.writeEnum(method)
         out.writeBoolean(srcContext != null)
         srcContext?.writeTo(out)
+    }
+
+    override fun index(): String? {
+        return ScheduledJob.SCHEDULED_JOBS_INDEX
+    }
+
+    override fun id(): String? {
+        return monitorId
     }
 }

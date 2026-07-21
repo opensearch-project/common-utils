@@ -6,8 +6,11 @@ package org.opensearch.commons.notifications.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
 import org.opensearch.action.ValidateActions
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_ID_LIST_TAG
+import org.opensearch.commons.notifications.NotificationConstants.CONFIG_INDEX_NAME
+import org.opensearch.commons.notifications.NotificationConstants.CONFIG_RESOURCE_TYPE
 import org.opensearch.commons.utils.logger
 import org.opensearch.commons.utils.stringList
 import org.opensearch.core.common.io.stream.StreamInput
@@ -23,7 +26,7 @@ import java.io.IOException
 /**
  * Action Response for creating new configuration.
  */
-class DeleteNotificationConfigRequest : ActionRequest, ToXContentObject {
+class DeleteNotificationConfigRequest : ActionRequest, DocRequest, ToXContentObject {
     val configIds: Set<String>
 
     companion object {
@@ -108,5 +111,17 @@ class DeleteNotificationConfigRequest : ActionRequest, ToXContentObject {
             validationException = ValidateActions.addValidationError("configIds is null or empty", validationException)
         }
         return validationException
+    }
+
+    override fun index(): String {
+        return CONFIG_INDEX_NAME
+    }
+
+    override fun id(): String? {
+        return if (configIds.size == 1) configIds.first() else null
+    }
+
+    override fun type(): String {
+        return CONFIG_RESOURCE_TYPE
     }
 }

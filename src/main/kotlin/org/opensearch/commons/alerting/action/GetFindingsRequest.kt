@@ -2,13 +2,15 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
+import org.opensearch.commons.alerting.model.ScheduledJob
 import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.index.query.BoolQueryBuilder
 import java.io.IOException
 
-class GetFindingsRequest : ActionRequest {
+class GetFindingsRequest : ActionRequest, DocRequest {
     val findingId: String?
     val table: Table
     val monitorId: String?
@@ -53,5 +55,15 @@ class GetFindingsRequest : ActionRequest {
         out.writeOptionalString(findingIndex)
         out.writeOptionalStringCollection(monitorIds)
         boolQueryBuilder?.writeTo(out)
+    }
+
+    override fun index(): String? {
+        return ScheduledJob.SCHEDULED_JOBS_INDEX
+    }
+
+    override fun id(): String? {
+        // Access is gated on the underlying monitor when a single monitorId is provided; otherwise fall back to
+        // search-level DLS filtering.
+        return monitorId ?: monitorIds?.singleOrNull()
     }
 }

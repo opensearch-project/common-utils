@@ -2,6 +2,8 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
+import org.opensearch.commons.alerting.util.AlertingConstants.Companion.ALL_COMMENTS_INDEX_PATTERN
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
@@ -16,7 +18,7 @@ import java.io.IOException
  * commentId: the ID of an existing Comment. This field is expected to be non-blank if the request is to
  * update an existing Comment.
  */
-class IndexCommentRequest : ActionRequest {
+class IndexCommentRequest : ActionRequest, DocRequest {
     val entityId: String
     val entityType: String
     val commentId: String
@@ -74,5 +76,14 @@ class IndexCommentRequest : ActionRequest {
         out.writeLong(primaryTerm)
         out.writeEnum(method)
         out.writeString(content)
+    }
+
+    override fun index(): String? {
+        return ALL_COMMENTS_INDEX_PATTERN
+    }
+
+    override fun id(): String? {
+        // For updates, the target is the existing comment; for creates, no comment id exists yet.
+        return commentId.ifBlank { null }
     }
 }

@@ -7,12 +7,14 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
+import org.opensearch.commons.alerting.model.ScheduledJob
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
 import java.io.IOException
 
-class GetWorkflowRequest : ActionRequest {
+class GetWorkflowRequest : ActionRequest, DocRequest {
     val workflowId: String
     val method: RestRequest.Method
 
@@ -38,5 +40,13 @@ class GetWorkflowRequest : ActionRequest {
     override fun writeTo(out: StreamOutput) {
         out.writeString(workflowId)
         out.writeEnum(method)
+    }
+
+    override fun index(): String? {
+        return ScheduledJob.SCHEDULED_JOBS_INDEX
+    }
+
+    override fun id(): String? {
+        return workflowId
     }
 }

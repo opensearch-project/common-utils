@@ -2,9 +2,11 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
 import org.opensearch.action.ValidateActions
 import org.opensearch.action.support.WriteRequest
 import org.opensearch.commons.alerting.model.CompositeInput
+import org.opensearch.commons.alerting.model.ScheduledJob
 import org.opensearch.commons.alerting.model.Workflow
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -12,7 +14,7 @@ import org.opensearch.rest.RestRequest
 import java.io.IOException
 import java.util.stream.Collectors
 
-class IndexWorkflowRequest : ActionRequest {
+class IndexWorkflowRequest : ActionRequest, DocRequest {
     val workflowId: String
     val seqNo: Long
     val primaryTerm: Long
@@ -161,5 +163,13 @@ class IndexWorkflowRequest : ActionRequest {
         out.writeEnum(method)
         workflow.writeTo(out)
         out.writeOptionalStringCollection(rbacRoles)
+    }
+
+    override fun index(): String? {
+        return ScheduledJob.SCHEDULED_JOBS_INDEX
+    }
+
+    override fun id(): String? {
+        return workflow.id
     }
 }

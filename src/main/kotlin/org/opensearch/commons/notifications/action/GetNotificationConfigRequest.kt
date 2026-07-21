@@ -6,8 +6,11 @@ package org.opensearch.commons.notifications.action
 
 import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
+import org.opensearch.action.DocRequest
 import org.opensearch.action.ValidateActions
 import org.opensearch.commons.notifications.NotificationConstants.CONFIG_ID_LIST_TAG
+import org.opensearch.commons.notifications.NotificationConstants.CONFIG_INDEX_NAME
+import org.opensearch.commons.notifications.NotificationConstants.CONFIG_RESOURCE_TYPE
 import org.opensearch.commons.notifications.NotificationConstants.DEFAULT_MAX_ITEMS
 import org.opensearch.commons.notifications.NotificationConstants.FILTER_PARAM_LIST_TAG
 import org.opensearch.commons.notifications.NotificationConstants.FROM_INDEX_TAG
@@ -34,7 +37,7 @@ import java.io.IOException
 /**
  * Action Request for getting notification configuration.
  */
-class GetNotificationConfigRequest : ActionRequest, ToXContentObject {
+class GetNotificationConfigRequest : ActionRequest, DocRequest, ToXContentObject {
     val configIds: Set<String>
     val fromIndex: Int
     val maxItems: Int
@@ -167,5 +170,17 @@ class GetNotificationConfigRequest : ActionRequest, ToXContentObject {
             validationException = ValidateActions.addValidationError("maxItems is not +ve", validationException)
         }
         return validationException
+    }
+
+    override fun index(): String {
+        return CONFIG_INDEX_NAME
+    }
+
+    override fun id(): String? {
+        return if (configIds.size == 1) configIds.first() else null
+    }
+
+    override fun type(): String {
+        return CONFIG_RESOURCE_TYPE
     }
 }
