@@ -78,7 +78,18 @@ interface ScheduledJob : BaseModel {
         fun parse(xcp: XContentParser, type: String, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
             val job = xcp.namedObject(ScheduledJob::class.java, type, null)
-            XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp)
+            // Skip any trailing top-level fields that live after the wrapper — see the no-arg
+            // overload above for the same rationale (RSC discriminator, DLS injection, migration
+            // scratch fields).
+            var next = xcp.nextToken()
+            while (next != null && next != XContentParser.Token.END_OBJECT) {
+                if (next == XContentParser.Token.FIELD_NAME) {
+                    xcp.nextToken()
+                    xcp.skipChildren()
+                }
+                next = xcp.nextToken()
+            }
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, next, xcp)
             return job.fromDocument(id, version)
         }
     }
