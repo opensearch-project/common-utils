@@ -24,10 +24,19 @@ interface ScheduledJob : BaseModel {
         private val XCONTENT_WITH_TYPE = ToXContent.MapParams(mapOf("with_type" to "true"))
 
         /**
+         * Top-level indexed field that discriminates monitor vs workflow documents in
+         * [SCHEDULED_JOBS_INDEX]. Written alongside the type-wrapper by [toXContentWithType] so the
+         * security plugin's resource-sharing framework can identify the resource type via a single
+         * indexed field (its [ResourceProvider.typeField] contract).
+         */
+        const val RESOURCE_TYPE_FIELD = "resource_type"
+
+        /**
          * This function parses the job, delegating to the specific subtype parser registered in the [XContentParser.getXContentRegistry]
          * at runtime.  Each concrete job subclass is expected to register a parser in this registry.
          * The Job's json representation is expected to be of the form:
-         *     { "<job_type>" : { <job fields> } }
+         *     { "resource_type": "<job_type>", "<job_type>" : { <job fields> } }
+         * The leading `resource_type` field is optional for backward compatibility with older docs.
          *
          * If the job comes from an OpenSearch index it's [id] and [version] can also be supplied.
          */
@@ -35,6 +44,12 @@ interface ScheduledJob : BaseModel {
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp)
+            // Skip the optional resource_type discriminator that older docs did not emit.
+            if (xcp.currentName() == RESOURCE_TYPE_FIELD) {
+                xcp.nextToken()
+                xcp.text()
+                XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp)
+            }
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
             val job = xcp.namedObject(ScheduledJob::class.java, xcp.currentName(), null)
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp)

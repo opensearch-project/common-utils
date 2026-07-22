@@ -83,6 +83,6 @@ class GetWorkflowAlertsRequest : ActionRequest, DocRequest {
     }
 
     override fun type(): String {
-        return AlertingConstants.MONITOR_RESOURCE_TYPE
+        return AlertingConstants.WORKFLOW_RESOURCE_TYPE
     }
 }

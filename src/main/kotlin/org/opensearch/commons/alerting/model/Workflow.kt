@@ -106,7 +106,10 @@ data class Workflow(
         secure: Boolean
     ): XContentBuilder {
         builder.startObject()
-        if (params.paramAsBoolean("with_type", false)) builder.startObject(type)
+        if (params.paramAsBoolean("with_type", false)) {
+            builder.field(ScheduledJob.RESOURCE_TYPE_FIELD, type)
+            builder.startObject(type)
+        }
         builder.field(TYPE_FIELD, type)
             .field(SCHEMA_VERSION_FIELD, schemaVersion)
             .field(NAME_FIELD, name)

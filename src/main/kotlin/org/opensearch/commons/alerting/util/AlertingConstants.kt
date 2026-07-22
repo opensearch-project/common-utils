@@ -6,7 +6,10 @@ class AlertingConstants {
 
         const val ALL_COMMENTS_INDEX_PATTERN = ".opensearch-alerting-comments*"
 
-        /** Resource type registered with the security plugin's resource-sharing framework. */
+        /** Resource type registered with the security plugin's resource-sharing framework for monitors. */
         const val MONITOR_RESOURCE_TYPE = "monitor"
+
+        /** Resource type registered with the security plugin's resource-sharing framework for workflows. */
+        const val WORKFLOW_RESOURCE_TYPE = "workflow"
     }
 }
