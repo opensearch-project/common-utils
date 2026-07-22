@@ -40,28 +40,31 @@ interface ScheduledJob : BaseModel {
          *
          * If the job comes from an OpenSearch index it's [id] and [version] can also be supplied.
          */
+        // Field names that are registered ScheduledJob subtypes and therefore dispatch to the
+        // corresponding parser via [XContentParser.namedObject]. Anything else at the top level
+        // of a stored doc is treated as ancillary data (RSC discriminator, security-injected
+        // fields, migration scratch fields) and skipped.
+        private val SCHEDULED_JOB_WRAPPER_FIELDS = setOf("monitor", "workflow")
+
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
-            XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp)
-            // Skip the optional resource_type discriminator field that lives at the top level alongside
-            // the type wrapper. Older docs (pre resource-sharing) did not emit it; newer docs do.
-            if (xcp.currentName() == RESOURCE_TYPE_FIELD) {
-                xcp.nextToken() // -> VALUE_STRING
-                xcp.text() // consume value
-                XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp)
+            var job: ScheduledJob? = null
+            var token = xcp.nextToken()
+            while (token != null && token != XContentParser.Token.END_OBJECT) {
+                XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, token, xcp)
+                val fieldName = xcp.currentName()
+                xcp.nextToken() // advance to value
+                if (fieldName in SCHEDULED_JOB_WRAPPER_FIELDS && job == null) {
+                    XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
+                    job = xcp.namedObject(ScheduledJob::class.java, fieldName, null)
+                } else {
+                    xcp.skipChildren()
+                }
+                token = xcp.nextToken()
             }
-            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
-            val job = xcp.namedObject(ScheduledJob::class.java, xcp.currentName(), null)
-            // The security plugin may inject additional top-level fields (e.g. `all_shared_principals`
-            // for DLS on resource-sharing indices) that live alongside the type wrapper. Skip through
-            // any trailing fields until we hit the outer END_OBJECT.
-            var next = xcp.nextToken()
-            while (next != null && next != XContentParser.Token.END_OBJECT) {
-                xcp.skipChildren()
-                next = xcp.nextToken()
-            }
-            XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, next, xcp)
+            requireNotNull(job) { "No recognized ScheduledJob subtype wrapper found in document" }
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, token, xcp)
             return job.fromDocument(id, version)
         }
 
