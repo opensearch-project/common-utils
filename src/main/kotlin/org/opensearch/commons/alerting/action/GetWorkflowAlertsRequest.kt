@@ -4,8 +4,8 @@ import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.DocRequest
 import org.opensearch.commons.alerting.model.ScheduledJob
-import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.commons.alerting.model.Table
+import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException

@@ -7,8 +7,8 @@ import org.opensearch.action.ValidateActions
 import org.opensearch.action.support.WriteRequest
 import org.opensearch.commons.alerting.model.CompositeInput
 import org.opensearch.commons.alerting.model.ScheduledJob
-import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.commons.alerting.model.Workflow
+import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.rest.RestRequest
