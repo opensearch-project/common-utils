@@ -44,15 +44,24 @@ interface ScheduledJob : BaseModel {
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp)
-            // Skip the optional resource_type discriminator that older docs did not emit.
+            // Skip the optional resource_type discriminator field that lives at the top level alongside
+            // the type wrapper. Older docs (pre resource-sharing) did not emit it; newer docs do.
             if (xcp.currentName() == RESOURCE_TYPE_FIELD) {
-                xcp.nextToken()
-                xcp.text()
+                xcp.nextToken() // -> VALUE_STRING
+                xcp.text() // consume value
                 XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.nextToken(), xcp)
             }
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
             val job = xcp.namedObject(ScheduledJob::class.java, xcp.currentName(), null)
-            XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, xcp.nextToken(), xcp)
+            // The security plugin may inject additional top-level fields (e.g. `all_shared_principals`
+            // for DLS on resource-sharing indices) that live alongside the type wrapper. Skip through
+            // any trailing fields until we hit the outer END_OBJECT.
+            var next = xcp.nextToken()
+            while (next != null && next != XContentParser.Token.END_OBJECT) {
+                xcp.skipChildren()
+                next = xcp.nextToken()
+            }
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, next, xcp)
             return job.fromDocument(id, version)
         }
 
