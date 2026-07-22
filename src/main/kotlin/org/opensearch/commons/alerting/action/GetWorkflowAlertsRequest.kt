@@ -4,6 +4,7 @@ import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.DocRequest
 import org.opensearch.commons.alerting.model.ScheduledJob
+import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -79,5 +80,9 @@ class GetWorkflowAlertsRequest : ActionRequest, DocRequest {
     override fun id(): String? {
         // Access is gated on the workflow when a single workflowId is provided; otherwise fall back to search-level DLS.
         return workflowIds?.singleOrNull()
+    }
+
+    override fun type(): String {
+        return AlertingConstants.MONITOR_RESOURCE_TYPE
     }
 }

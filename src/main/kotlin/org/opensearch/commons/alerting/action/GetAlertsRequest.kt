@@ -4,6 +4,7 @@ import org.opensearch.action.ActionRequest
 import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.DocRequest
 import org.opensearch.commons.alerting.model.ScheduledJob
+import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.commons.alerting.model.Table
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -86,5 +87,9 @@ class GetAlertsRequest : ActionRequest, DocRequest {
         // Access is gated on the underlying monitor when a single monitorId is provided; otherwise let the security
         // plugin fall back to search-level DLS filtering.
         return monitorId ?: monitorIds?.singleOrNull()
+    }
+
+    override fun type(): String {
+        return AlertingConstants.MONITOR_RESOURCE_TYPE
     }
 }

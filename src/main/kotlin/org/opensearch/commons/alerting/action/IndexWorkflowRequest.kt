@@ -7,6 +7,7 @@ import org.opensearch.action.ValidateActions
 import org.opensearch.action.support.WriteRequest
 import org.opensearch.commons.alerting.model.CompositeInput
 import org.opensearch.commons.alerting.model.ScheduledJob
+import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.commons.alerting.model.Workflow
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -171,5 +172,9 @@ class IndexWorkflowRequest : ActionRequest, DocRequest {
 
     override fun id(): String? {
         return workflow.id
+    }
+
+    override fun type(): String {
+        return AlertingConstants.MONITOR_RESOURCE_TYPE
     }
 }

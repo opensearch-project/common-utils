@@ -5,6 +5,7 @@ import org.opensearch.action.ActionRequestValidationException
 import org.opensearch.action.DocRequest
 import org.opensearch.action.support.WriteRequest
 import org.opensearch.commons.alerting.model.ScheduledJob
+import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import java.io.IOException
@@ -41,5 +42,9 @@ class DeleteMonitorRequest : DocRequest, ActionRequest {
 
     override fun id(): String? {
         return monitorId
+    }
+
+    override fun type(): String {
+        return AlertingConstants.MONITOR_RESOURCE_TYPE
     }
 }
