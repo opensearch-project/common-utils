@@ -25,9 +25,8 @@ interface ScheduledJob : BaseModel {
 
         // Field names that are registered ScheduledJob subtypes and therefore dispatch to the
         // corresponding parser via [XContentParser.namedObject]. Anything else at the top level
-        // of a stored doc is treated as ancillary data (security-injected DLS fields like
-        // `all_shared_principals`, migration scratch fields prefixed with `_migration_`, etc.)
-        // and skipped.
+        // of a stored doc is treated as ancillary data (for example `all_shared_principals`
+        // injected by the security plugin's resource-sharing framework for DLS) and skipped.
         private val SCHEDULED_JOB_WRAPPER_FIELDS = setOf("monitor", "workflow")
 
         /**
@@ -36,9 +35,8 @@ interface ScheduledJob : BaseModel {
          * expected to register a parser in this registry. The Job's JSON representation is
          * expected to be of the form:
          *     { "<job_type>" : { <job fields> } }
-         * Any additional top-level fields (e.g. `all_shared_principals` injected by the security
-         * plugin's resource-sharing framework, or migration scratch fields) are tolerated and
-         * skipped.
+         * Any additional top-level fields (for example `all_shared_principals` injected by the
+         * security plugin's resource-sharing framework) are tolerated and skipped.
          *
          * If the job comes from an OpenSearch index its [id] and [version] can also be supplied.
          */
@@ -75,9 +73,8 @@ interface ScheduledJob : BaseModel {
         fun parse(xcp: XContentParser, type: String, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
             val job = xcp.namedObject(ScheduledJob::class.java, type, null)
-            // Skip any trailing top-level fields that live after the wrapper — see the no-arg
-            // overload above for the same rationale (RSC discriminator, DLS injection, migration
-            // scratch fields).
+            // Skip any trailing top-level fields that live after the wrapper (for example the
+            // security plugin's `all_shared_principals` DLS field) — see the no-arg overload above.
             var next = xcp.nextToken()
             while (next != null && next != XContentParser.Token.END_OBJECT) {
                 if (next == XContentParser.Token.FIELD_NAME) {
