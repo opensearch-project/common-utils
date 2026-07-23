@@ -23,28 +23,25 @@ interface ScheduledJob : BaseModel {
 
         private val XCONTENT_WITH_TYPE = ToXContent.MapParams(mapOf("with_type" to "true"))
 
-        /**
-         * Top-level indexed field that discriminates monitor vs workflow documents in
-         * [SCHEDULED_JOBS_INDEX]. Written alongside the type-wrapper by [toXContentWithType] so the
-         * security plugin's resource-sharing framework can identify the resource type via a single
-         * indexed field (its [ResourceProvider.typeField] contract).
-         */
-        const val RESOURCE_TYPE_FIELD = "resource_type"
-
-        /**
-         * This function parses the job, delegating to the specific subtype parser registered in the [XContentParser.getXContentRegistry]
-         * at runtime.  Each concrete job subclass is expected to register a parser in this registry.
-         * The Job's json representation is expected to be of the form:
-         *     { "resource_type": "<job_type>", "<job_type>" : { <job fields> } }
-         * The leading `resource_type` field is optional for backward compatibility with older docs.
-         *
-         * If the job comes from an OpenSearch index it's [id] and [version] can also be supplied.
-         */
         // Field names that are registered ScheduledJob subtypes and therefore dispatch to the
         // corresponding parser via [XContentParser.namedObject]. Anything else at the top level
-        // of a stored doc is treated as ancillary data (RSC discriminator, security-injected
-        // fields, migration scratch fields) and skipped.
+        // of a stored doc is treated as ancillary data (security-injected DLS fields like
+        // `all_shared_principals`, migration scratch fields prefixed with `_migration_`, etc.)
+        // and skipped.
         private val SCHEDULED_JOB_WRAPPER_FIELDS = setOf("monitor", "workflow")
+
+        /**
+         * This function parses the job, delegating to the specific subtype parser registered in
+         * the [XContentParser.getXContentRegistry] at runtime. Each concrete job subclass is
+         * expected to register a parser in this registry. The Job's JSON representation is
+         * expected to be of the form:
+         *     { "<job_type>" : { <job fields> } }
+         * Any additional top-level fields (e.g. `all_shared_principals` injected by the security
+         * plugin's resource-sharing framework, or migration scratch fields) are tolerated and
+         * skipped.
+         *
+         * If the job comes from an OpenSearch index its [id] and [version] can also be supplied.
+         */
 
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {

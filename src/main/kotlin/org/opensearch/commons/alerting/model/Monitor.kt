@@ -206,13 +206,6 @@ data class Monitor(
 
     private fun createXContentBuilder(builder: XContentBuilder, params: ToXContent.Params, secure: Boolean): XContentBuilder {
         builder.startObject()
-        // `with_resource_type` is orthogonal to `with_type` and is meant for the on-disk representation
-        // in `SCHEDULED_JOBS_INDEX` so the security plugin's resource-sharing framework can discriminate
-        // monitor vs workflow docs via a single indexed field. Storage writes opt in explicitly; IPC /
-        // REST payloads keep the historical shape to preserve cross-version compatibility.
-        if (params.paramAsBoolean("with_resource_type", false)) {
-            builder.field(ScheduledJob.RESOURCE_TYPE_FIELD, type)
-        }
         if (params.paramAsBoolean("with_type", false)) builder.startObject(type)
         builder.field(TYPE_FIELD, type)
             .field(SCHEMA_VERSION_FIELD, schemaVersion)
