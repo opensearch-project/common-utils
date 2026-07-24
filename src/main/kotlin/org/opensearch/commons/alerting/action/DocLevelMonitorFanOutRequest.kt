@@ -13,6 +13,7 @@ import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.MonitorMetadata
 import org.opensearch.commons.alerting.model.ScheduledJob
 import org.opensearch.commons.alerting.model.WorkflowRunContext
+import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.index.shard.ShardId
@@ -107,5 +108,9 @@ class DocLevelMonitorFanOutRequest : ActionRequest, DocRequest, ToXContentObject
 
     override fun id(): String? {
         return monitor.id
+    }
+
+    override fun type(): String {
+        return AlertingConstants.MONITOR_RESOURCE_TYPE
     }
 }

@@ -7,6 +7,7 @@ import org.opensearch.action.support.WriteRequest
 import org.opensearch.commons.alerting.model.DocLevelMonitorInput
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.model.ScheduledJob
+import org.opensearch.commons.alerting.util.AlertingConstants
 import org.opensearch.commons.alerting.util.IndexPatternUtils
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -91,5 +92,9 @@ class IndexMonitorRequest : ActionRequest, DocRequest {
 
     override fun id(): String? {
         return monitor.id
+    }
+
+    override fun type(): String {
+        return AlertingConstants.MONITOR_RESOURCE_TYPE
     }
 }
