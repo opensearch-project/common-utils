@@ -78,6 +78,8 @@ configurations {
             force "org.bouncycastle:bcpg-jdk18on:1.84"
             force "org.bouncycastle:bcprov-jdk18on:1.84"
             force "org.bouncycastle:bcutil-jdk18on:1.84"
+            force "io.opentelemetry:opentelemetry-api:1.62.0"
+            force "io.opentelemetry:opentelemetry-context:1.62.0"
         }
     }
     ktlint {
