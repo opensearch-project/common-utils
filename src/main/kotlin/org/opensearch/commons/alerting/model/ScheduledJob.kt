@@ -43,32 +43,6 @@ interface ScheduledJob : BaseModel {
          */
         @Throws(IOException::class)
         fun parse(xcp: XContentParser, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
-            return parseWrapper(xcp, expectedType = null, id = id, version = version)
-        }
-
-        /**
-         * This function parses the job, but expects the type to be passed in. This is for the specific
-         * use case in sweeper where we first want to check if the job is allowed to be swept before
-         * trying to fully parse it. If you need to parse a job, you most likely want to use
-         * the above parse function.
-         */
-        @Throws(IOException::class)
-        fun parse(xcp: XContentParser, type: String, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
-            return parseWrapper(xcp, expectedType = type, id = id, version = version)
-        }
-
-        /**
-         * Shared implementation. Walks every top-level field of the outer object, dispatching
-         * to [XContentParser.namedObject] the first time we hit a known wrapper key
-         * ([SCHEDULED_JOB_WRAPPER_FIELDS]) and skipping everything else via [XContentParser.skipChildren].
-         * This is order-independent — security-injected fields like `all_shared_principals` may
-         * appear before or after the wrapper.
-         *
-         * When [expectedType] is non-null (the 2-arg overload's contract), a wrapper key must match
-         * it exactly; other wrapper keys are treated as ancillary data and skipped.
-         */
-        @Throws(IOException::class)
-        private fun parseWrapper(xcp: XContentParser, expectedType: String?, id: String, version: Long): ScheduledJob {
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
             var job: ScheduledJob? = null
             var token = xcp.nextToken()
@@ -76,9 +50,7 @@ interface ScheduledJob : BaseModel {
                 XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, token, xcp)
                 val fieldName = xcp.currentName()
                 xcp.nextToken() // advance to value
-                val isWrapper = fieldName in SCHEDULED_JOB_WRAPPER_FIELDS &&
-                    (expectedType == null || fieldName == expectedType)
-                if (isWrapper && job == null) {
+                if (fieldName in SCHEDULED_JOB_WRAPPER_FIELDS && job == null) {
                     XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
                     job = xcp.namedObject(ScheduledJob::class.java, fieldName, null)
                 } else {
@@ -88,6 +60,26 @@ interface ScheduledJob : BaseModel {
             }
             requireNotNull(job) { "No recognized ScheduledJob subtype wrapper found in document" }
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.END_OBJECT, token, xcp)
+            return job.fromDocument(id, version)
+        }
+
+        /**
+         * This function parses the job, but expects the type to be passed in. This is for the specific
+         * use case in sweeper where we first want to check if the job is allowed to be swept before
+         * trying to fully parse it. If you need to parse a job, you most likely want to use
+         * the above parse function.
+         *
+         * The sweeper detects the type by scanning the outer object first, so by the time it calls
+         * this overload the parser is already positioned ON the wrapper's [XContentParser.Token.FIELD_NAME]
+         * (having consumed the outer START_OBJECT and any leading ancillary fields). We therefore parse
+         * the already-located wrapper directly rather than re-walking the outer object.
+         */
+        @Throws(IOException::class)
+        fun parse(xcp: XContentParser, type: String, id: String = NO_ID, version: Long = NO_VERSION): ScheduledJob {
+            // Parser is on the wrapper field name (e.g. "monitor"); advance to its value object.
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.FIELD_NAME, xcp.currentToken(), xcp)
+            XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
+            val job = xcp.namedObject(ScheduledJob::class.java, type, null)
             return job.fromDocument(id, version)
         }
     }
