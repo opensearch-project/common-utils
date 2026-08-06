@@ -30,9 +30,9 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
         nodeId = sin.readString(),
         executionId = sin.readString(),
         monitorId = sin.readString(),
-        lastRunContexts = sin.readMap()!! as MutableMap<String, Any>,
+        lastRunContexts = sin.readMap()?.toMutableMap() ?: mutableMapOf(),
         inputResults = InputRunResults.readFrom(sin),
-        triggerResults = suppressWarning(sin.readMap(StreamInput::readString, DocumentLevelTriggerRunResult::readFrom)),
+        triggerResults = readTriggerResults(sin),
         exception = sin.readException()
     )
 
@@ -52,6 +52,16 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
         this.inputResults = inputResults
         this.triggerResults = triggerResults
         this.exception = exception
+    }
+
+    companion object {
+        private fun readTriggerResults(sin: StreamInput): Map<String, DocumentLevelTriggerRunResult> {
+            val raw = sin.readMap(StreamInput::readString, DocumentLevelTriggerRunResult::readFrom)
+            if (raw.isEmpty()) return mutableMapOf()
+            // readFrom returns TriggerRunResult (base type) but always constructs DocumentLevelTriggerRunResult
+            @Suppress("UNCHECKED_CAST")
+            return HashMap(raw as Map<String, DocumentLevelTriggerRunResult>)
+        }
     }
 
     @Throws(IOException::class)
@@ -81,12 +91,5 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
             .field("exception", exception)
             .endObject()
         return builder
-    }
-
-    companion object {
-        @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, DocumentLevelTriggerRunResult> {
-            return map as Map<String, DocumentLevelTriggerRunResult>
-        }
     }
 }

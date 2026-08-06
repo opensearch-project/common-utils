@@ -3,7 +3,6 @@ package org.opensearch.commons.alerting.model
 import org.opensearch.Version
 import org.opensearch.common.lucene.uid.Versions
 import org.opensearch.commons.alerting.alerts.AlertError
-import org.opensearch.commons.alerting.model.Monitor.Companion.suppressWarning
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
 import org.opensearch.commons.alerting.util.instant
 import org.opensearch.commons.alerting.util.optionalTimeField
@@ -423,7 +422,7 @@ data class Alert(
             null
         },
         queryResults = if (sin.version.onOrAfter(Version.V_3_7_0)) {
-            sin.readList { input -> suppressWarning(input.readMap()) }
+            sin.readList { input -> input.readMap()?.toMutableMap() ?: mutableMapOf() }
         } else {
             listOf()
         },

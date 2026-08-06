@@ -25,8 +25,8 @@ data class WorkflowRunResult(
     val triggerResults: Map<String, ChainedAlertTriggerRunResult> = mapOf()
 ) : Writeable, ToXContent {
 
-    @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
+    @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         workflowId = sin.readString(),
         workflowName = sin.readString(),
@@ -35,7 +35,7 @@ data class WorkflowRunResult(
         executionEndTime = sin.readOptionalInstant(),
         executionId = sin.readString(),
         error = sin.readException(),
-        triggerResults = suppressWarning(sin.readMap()) as Map<String, ChainedAlertTriggerRunResult>
+        triggerResults = (sin.readMap()?.toMutableMap() ?: mutableMapOf()) as Map<String, ChainedAlertTriggerRunResult>
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -72,11 +72,6 @@ data class WorkflowRunResult(
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): WorkflowRunResult {
             return WorkflowRunResult(sin)
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, TriggerRunResult> {
-            return map as Map<String, TriggerRunResult>
         }
     }
 }

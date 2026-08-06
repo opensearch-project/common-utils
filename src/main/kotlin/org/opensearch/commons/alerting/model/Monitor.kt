@@ -131,7 +131,7 @@ data class Monitor(
         schemaVersion = sin.readInt(),
         inputs = sin.readList((Input)::readFrom),
         triggers = sin.readList((Trigger)::readFrom),
-        uiMetadata = suppressWarning(sin.readMap()),
+        uiMetadata = sin.readMap()?.toMutableMap() ?: mutableMapOf(),
         dataSources = if (sin.readBoolean()) {
             DataSources(sin)
         } else {
@@ -479,11 +479,6 @@ data class Monitor(
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): Monitor? {
             return Monitor(sin)
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, Any> {
-            return map as MutableMap<String, Any>
         }
     }
 }
