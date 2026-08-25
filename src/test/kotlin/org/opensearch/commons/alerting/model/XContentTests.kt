@@ -4,7 +4,10 @@ import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
+import org.opensearch.common.settings.Settings
+import org.opensearch.common.xcontent.LoggingDeprecationHandler
 import org.opensearch.common.xcontent.XContentFactory
+import org.opensearch.common.xcontent.XContentType
 import org.opensearch.common.xcontent.json.JsonXContent
 import org.opensearch.commons.alerting.builder
 import org.opensearch.commons.alerting.model.action.Action
@@ -38,8 +41,12 @@ import org.opensearch.commons.alerting.toJsonStringWithUser
 import org.opensearch.commons.alerting.util.string
 import org.opensearch.commons.authuser.User
 import org.opensearch.core.common.io.stream.StreamInput
+import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.core.xcontent.ToXContent
+import org.opensearch.core.xcontent.XContentParser
+import org.opensearch.core.xcontent.XContentParserUtils
 import org.opensearch.index.query.QueryBuilders
+import org.opensearch.search.SearchModule
 import org.opensearch.search.builder.SearchSourceBuilder
 import org.opensearch.test.OpenSearchTestCase
 import java.time.Instant
@@ -737,5 +744,107 @@ class XContentTests {
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
         assertEquals("Default target should be null", null, parsedMonitor.target)
+    }
+
+    @Test
+    fun `test ScheduledJob parse round-trips a type-wrapped monitor`() {
+        val monitor = randomQueryLevelMonitor()
+        val parsed = ScheduledJob.parse(scheduledJobParser(monitor.toWrappedJsonString()))
+        assertEquals("Round tripping monitor through ScheduledJob.parse doesn't work", monitor, parsed)
+    }
+
+    @Test
+    fun `test ScheduledJob parse round-trips a type-wrapped workflow`() {
+        val workflow = randomWorkflow()
+        val parsed = ScheduledJob.parse(scheduledJobParser(workflow.toWrappedJsonString()))
+        assertEquals("Round tripping workflow through ScheduledJob.parse doesn't work", workflow, parsed)
+    }
+
+    @Test
+    fun `test ScheduledJob parse tolerates ancillary field before the wrapper`() {
+        val monitor = randomQueryLevelMonitor()
+        // Simulate a security-injected DLS field (e.g. all_shared_principals) preceding the wrapper.
+        val jobString = """{"all_shared_principals":["u1","u2"],""" +
+            monitor.toWrappedJsonString().removePrefix("{")
+        val parsed = ScheduledJob.parse(scheduledJobParser(jobString))
+        assertEquals("Leading ancillary field should be skipped", monitor, parsed)
+    }
+
+    @Test
+    fun `test ScheduledJob parse tolerates ancillary field after the wrapper`() {
+        val monitor = randomQueryLevelMonitor()
+        // Injected field trailing the wrapper.
+        val jobString = monitor.toWrappedJsonString().removeSuffix("}") +
+            ""","all_shared_principals":["u1","u2"]}"""
+        val parsed = ScheduledJob.parse(scheduledJobParser(jobString))
+        assertEquals("Trailing ancillary field should be skipped", monitor, parsed)
+    }
+
+    @Test
+    fun `test ScheduledJob type overload parses when positioned at the wrapper field name`() {
+        // Mirrors JobSweeper: detect the type by scanning the outer object (which leaves the parser
+        // positioned ON the wrapper's FIELD_NAME), then parse with the type overload.
+        val monitor = randomQueryLevelMonitor()
+        val jobString = """{"all_shared_principals":["u1"],""" +
+            monitor.toWrappedJsonString().removePrefix("{")
+        val xcp = scheduledJobParser(jobString)
+        val type = advanceToWrapperFieldName(xcp)
+        assertEquals("monitor", type)
+        // Pass id/version explicitly (as JobSweeper does) to bind the type overload — the 2-arg form
+        // is ambiguous with parse(xcp, id) and would resolve to the no-type overload.
+        val parsed = ScheduledJob.parse(xcp, type, monitor.id, monitor.version)
+        assertEquals("Sweeper-style parse (detect type, then parse) doesn't work", monitor, parsed)
+    }
+
+    /**
+     * Serializes as a stored scheduled-job doc would be: user preserved and wrapped in the type
+     * object (`{"monitor":{...}}`), matching what the transport layer writes to the config index.
+     */
+    private fun Monitor.toWrappedJsonString(): String =
+        toXContentWithUser(builder(), ToXContent.MapParams(mapOf("with_type" to "true"))).string()
+
+    private fun Workflow.toWrappedJsonString(): String =
+        toXContentWithUser(builder(), ToXContent.MapParams(mapOf("with_type" to "true"))).string()
+
+    /**
+     * Builds a parser whose registry knows the [ScheduledJob] subtypes (monitor, workflow) so
+     * [ScheduledJob.parse]'s `namedObject` dispatch resolves. Positioned before the outer START_OBJECT,
+     * matching how [org.opensearch.commons.alerting.model.ScheduledJob.parse] expects to be called.
+     */
+    private fun scheduledJobParser(xc: String): XContentParser {
+        val entries = listOf(
+            Monitor.XCONTENT_REGISTRY,
+            Workflow.XCONTENT_REGISTRY,
+            SearchInput.XCONTENT_REGISTRY,
+            DocLevelMonitorInput.XCONTENT_REGISTRY,
+            QueryLevelTrigger.XCONTENT_REGISTRY,
+            BucketLevelTrigger.XCONTENT_REGISTRY,
+            DocumentLevelTrigger.XCONTENT_REGISTRY,
+            ChainedAlertTrigger.XCONTENT_REGISTRY
+        ) + SearchModule(Settings.EMPTY, emptyList()).namedXContents
+        val registry = NamedXContentRegistry(entries)
+        return XContentType.JSON.xContent().createParser(registry, LoggingDeprecationHandler.INSTANCE, xc)
+    }
+
+    /**
+     * Mirrors JobSweeper.isSweepableJobType: consumes the outer START_OBJECT and advances past any
+     * leading non-wrapper fields, leaving the parser positioned ON the wrapper's FIELD_NAME. Returns
+     * the detected wrapper type.
+     */
+    private fun advanceToWrapperFieldName(xcp: XContentParser): String {
+        val wrappers = setOf("monitor", "workflow")
+        XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.nextToken(), xcp)
+        var token = xcp.nextToken()
+        while (token != null && token != XContentParser.Token.END_OBJECT) {
+            if (token == XContentParser.Token.FIELD_NAME && xcp.currentName() in wrappers) {
+                return xcp.currentName()
+            }
+            if (token == XContentParser.Token.FIELD_NAME) {
+                xcp.nextToken()
+                xcp.skipChildren()
+            }
+            token = xcp.nextToken()
+        }
+        throw AssertionError("No wrapper field found")
     }
 }
