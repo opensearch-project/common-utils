@@ -9,7 +9,13 @@ class AlertingConstants {
         /** Resource type registered with the security plugin's resource-sharing framework for monitors. */
         const val MONITOR_RESOURCE_TYPE = "monitor"
 
-        /** Resource type registered with the security plugin's resource-sharing framework for workflows. */
-        const val WORKFLOW_RESOURCE_TYPE = "workflow"
+        /**
+         * Resource type registered with the security plugin's resource-sharing framework for workflows.
+         * The value is "alerting-workflow" (not "workflow") to avoid colliding with the "workflow"
+         * resource type registered by flow-framework. Alerting registers the same value on its
+         * ResourceProvider, so this constant must match or the ResourceAccessEvaluator will not gate
+         * workflow requests (their DocRequest.type() would report a type no provider owns).
+         */
+        const val WORKFLOW_RESOURCE_TYPE = "alerting-workflow"
     }
 }
