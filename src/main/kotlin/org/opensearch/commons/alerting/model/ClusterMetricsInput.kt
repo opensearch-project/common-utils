@@ -33,7 +33,7 @@ data class ClusterMetricsInput(
     // Verify parameters are valid during creation
     init {
         require(validateFields()) {
-            "The uri.api_type field, uri.path field, or uri.uri field must be defined."
+            "The uri.path field, or uri.url field must be defined."
         }
 
         // Create an UrlValidator that only accepts "http" and "https" as valid scheme and allows local URLs.
