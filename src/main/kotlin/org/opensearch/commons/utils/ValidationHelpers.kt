@@ -75,11 +75,19 @@ fun validateIamRoleArn(roleArn: String) {
     require(roleArnRegex.matcher(roleArn).find()) { "Invalid AWS role ARN: $roleArn " }
 }
 
-fun isValidName(name: String): Boolean {
+fun isValidQueryName(name: String): Boolean {
     // Regex to restrict string so that it cannot start with [_, -, +],
     // contain two consecutive periods or contain invalid chars
     val regex = Regex("""^(?![_\-\+])(?!.*\.\.)[^$INVALID_NAME_CHARS]+$""")
 
+    return name.matches(regex)
+}
+
+fun isValidName(name: String): Boolean {
+    // Start with letter or underscore
+    // Followed by letters, numbers, underscore or hyphen
+    // Total length between 4 and 50 characters
+    val regex = Regex("^[a-zA-Z_][a-zA-Z0-9_-]{3,49}$")
     return name.matches(regex)
 }
 
