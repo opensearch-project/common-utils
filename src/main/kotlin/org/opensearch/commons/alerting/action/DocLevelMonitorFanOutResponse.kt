@@ -8,6 +8,7 @@ package org.opensearch.commons.alerting.action
 import org.opensearch.commons.alerting.model.DocumentLevelTriggerRunResult
 import org.opensearch.commons.alerting.model.InputRunResults
 import org.opensearch.commons.alerting.util.AlertingException
+import org.opensearch.commons.alerting.util.readMapAsMutableMap
 import org.opensearch.core.action.ActionResponse
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -30,9 +31,9 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
         nodeId = sin.readString(),
         executionId = sin.readString(),
         monitorId = sin.readString(),
-        lastRunContexts = sin.readMap()!! as MutableMap<String, Any>,
+        lastRunContexts = sin.readMapAsMutableMap() as MutableMap<String, Any>,
         inputResults = InputRunResults.readFrom(sin),
-        triggerResults = suppressWarning(sin.readMap(StreamInput::readString, DocumentLevelTriggerRunResult::readFrom)),
+        triggerResults = readTriggerResults(sin),
         exception = sin.readException()
     )
 
@@ -84,9 +85,11 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
     }
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, DocumentLevelTriggerRunResult> {
-            return map as Map<String, DocumentLevelTriggerRunResult>
+        private fun readTriggerResults(sin: StreamInput): Map<String, DocumentLevelTriggerRunResult> {
+            val raw = sin.readMap(StreamInput::readString, DocumentLevelTriggerRunResult::readFrom)
+            if (raw.isEmpty()) return mutableMapOf()
+            @Suppress("UNCHECKED_CAST")
+            return HashMap(raw as Map<String, DocumentLevelTriggerRunResult>)
         }
     }
 }
