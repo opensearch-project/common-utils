@@ -5,6 +5,7 @@
 
 package org.opensearch.commons.alerting.model
 
+import org.opensearch.commons.alerting.util.readMapAsMutableMap
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
@@ -24,7 +25,7 @@ data class BucketLevelTriggerRunResult(
         sin.readString(),
         sin.readException() as Exception?, // error
         sin.readMap(StreamInput::readString, ::AggregationResultBucket),
-        sin.readMap() as MutableMap<String, MutableMap<String, ActionRunResult>>
+        sin.readMapAsMutableMap() as MutableMap<String, MutableMap<String, ActionRunResult>>
     )
 
     override fun internalXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
