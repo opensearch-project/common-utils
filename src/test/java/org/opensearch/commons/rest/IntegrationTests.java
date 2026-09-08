@@ -11,7 +11,7 @@ import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTT
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_KEYPASSWORD_SETTING;
 import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_PASSWORD_SETTING;
-import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_PEMCERT_FILEPATH;
+import static org.opensearch.commons.ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -63,7 +63,7 @@ public class IntegrationTests {
             .builder()
             .put("http.port", 9200)
             .put(OPENSEARCH_SECURITY_SSL_HTTP_ENABLED, true)
-            .put(OPENSEARCH_SECURITY_SSL_HTTP_PEMCERT_FILEPATH, "sample.pem")
+            .put(OPENSEARCH_SECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, "sample.pem")
             .put(OPENSEARCH_SECURITY_SSL_HTTP_KEYSTORE_FILEPATH, "test-kirk.jks")
             .setSecureSettings(createSecureSettings())
             .build();

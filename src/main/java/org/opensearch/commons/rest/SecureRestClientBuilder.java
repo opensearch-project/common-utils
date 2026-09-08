@@ -310,7 +310,7 @@ public class SecureRestClientBuilder {
     }
 
     private String getTrustPem() {
-        return settings.get(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_PEMCERT_FILEPATH, null);
+        return settings.get(ConfigConstants.OPENSEARCH_SECURITY_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH, null);
     }
 
     private String getKeystorePasswd() {
