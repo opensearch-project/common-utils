@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.apache.hc.core5.net.URIBuilder;
 import org.opensearch.core.common.Strings;
 import org.opensearch.core.common.io.stream.StreamInput;
 import org.opensearch.core.common.io.stream.StreamOutput;
@@ -84,17 +84,26 @@ public abstract class LegacyBaseMessage implements Writeable {
                 if (Strings.isNullOrEmpty(scheme)) {
                     scheme = "https";
                 }
-                URIBuilder uriBuilder = new URIBuilder();
-                if (queryParams != null) {
-                    for (Map.Entry<String, String> e : queryParams.entrySet())
-                        uriBuilder.addParameter(e.getKey(), e.getValue());
-                }
-                return uriBuilder.setScheme(scheme).setHost(host).setPort(port).setPath(path).build();
+                return new URI(scheme, null, host, port, path, buildQueryString(queryParams), null);
             }
-            return new URIBuilder(endpoint).build();
+            return new URI(endpoint);
         } catch (URISyntaxException exception) {
             throw new IllegalStateException("Error creating URI");
         }
+    }
+
+    private static String buildQueryString(Map<String, String> queryParams) {
+        if (queryParams == null || queryParams.isEmpty()) {
+            return null;
+        }
+        StringBuilder query = new StringBuilder();
+        for (Entry<String, String> param : queryParams.entrySet()) {
+            if (query.length() > 0) {
+                query.append('&');
+            }
+            query.append(param.getKey()).append('=').append(param.getValue());
+        }
+        return query.toString();
     }
 
     @Override

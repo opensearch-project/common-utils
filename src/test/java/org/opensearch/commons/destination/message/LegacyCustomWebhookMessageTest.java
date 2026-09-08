@@ -34,6 +34,32 @@ public class LegacyCustomWebhookMessageTest {
     }
 
     @Test
+    public void testGetUriWithFullUrl() {
+        LegacyCustomWebhookMessage message = new LegacyCustomWebhookMessage.Builder("custom_webhook")
+            .withMessage("Hello world")
+            .withUrl("https://httpbin.org/post")
+            .build();
+
+        assertEquals("https://httpbin.org/post", message.getUri().toString());
+    }
+
+    @Test
+    public void testGetUriWithHostAndQueryParams() {
+        Map<String, String> queryParams = new HashMap<String, String>();
+        queryParams.put("token", "sometoken");
+        LegacyCustomWebhookMessage message = new LegacyCustomWebhookMessage.Builder("custom_webhook")
+            .withMessage("Hello world")
+            .withHost("hooks.example.com")
+            .withPath("incoming")
+            .withQueryParams(queryParams)
+            .withPort(443)
+            .withScheme("https")
+            .build();
+
+        assertEquals("https://hooks.example.com:443/incoming?token=sometoken", message.getUri().toString());
+    }
+
+    @Test
     public void testRoundTrippingLegacyCustomWebhookMessageWithUrl() throws IOException {
         LegacyCustomWebhookMessage message = new LegacyCustomWebhookMessage.Builder("custom_webhook")
             .withMessage("Hello world")
