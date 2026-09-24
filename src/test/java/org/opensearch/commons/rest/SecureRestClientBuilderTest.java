@@ -60,7 +60,7 @@ public class SecureRestClientBuilderTest {
                 .builder()
                 .put("http.port", 9200)
                 .put("plugins.security.ssl.http.enabled", true)
-                .put("plugins.security.ssl.http.pemcert_filepath", "sample.pem")
+                .put("plugins.security.ssl.http.pemtrustedcas_filepath", "sample.pem")
                 .build();
             new SecureRestClientBuilder(settings, Paths.get("sample.pem")).build();
         });
