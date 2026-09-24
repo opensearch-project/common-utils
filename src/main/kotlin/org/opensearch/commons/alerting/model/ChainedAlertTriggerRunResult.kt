@@ -6,6 +6,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.commons.alerting.alerts.AlertError
+import org.opensearch.commons.alerting.util.readMapAsMutableMap
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.xcontent.ToXContent
@@ -28,7 +29,7 @@ data class ChainedAlertTriggerRunResult(
         triggerName = sin.readString(),
         error = sin.readException(),
         triggered = sin.readBoolean(),
-        actionResults = sin.readMap() as MutableMap<String, ActionRunResult>,
+        actionResults = sin.readMapAsMutableMap() as MutableMap<String, ActionRunResult>,
         associatedAlertIds = sin.readStringList().toSet()
     )
 

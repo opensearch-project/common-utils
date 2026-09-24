@@ -5,6 +5,7 @@
 
 package org.opensearch.commons.alerting.model
 
+import org.opensearch.commons.alerting.util.readMapAsMutableMap
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.common.io.stream.Writeable
@@ -35,7 +36,7 @@ data class WorkflowRunResult(
         executionEndTime = sin.readOptionalInstant(),
         executionId = sin.readString(),
         error = sin.readException(),
-        triggerResults = suppressWarning(sin.readMap()) as Map<String, ChainedAlertTriggerRunResult>
+        triggerResults = sin.readMapAsMutableMap() as Map<String, ChainedAlertTriggerRunResult>
     )
 
     override fun writeTo(out: StreamOutput) {
@@ -72,11 +73,6 @@ data class WorkflowRunResult(
         @Throws(IOException::class)
         fun readFrom(sin: StreamInput): WorkflowRunResult {
             return WorkflowRunResult(sin)
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): Map<String, TriggerRunResult> {
-            return map as Map<String, TriggerRunResult>
         }
     }
 }
