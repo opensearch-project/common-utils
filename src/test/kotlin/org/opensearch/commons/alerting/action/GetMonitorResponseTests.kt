@@ -19,7 +19,6 @@ import org.opensearch.commons.alerting.model.CronSchedule
 import org.opensearch.commons.alerting.model.Monitor
 import org.opensearch.commons.alerting.parser
 import org.opensearch.commons.alerting.randomUser
-import org.opensearch.commons.alerting.util.IndexUtils.Companion.INCLUDE_BACKEND_ROLES_PARAM
 import org.opensearch.commons.alerting.util.string
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.xcontent.ToXContent
@@ -29,7 +28,6 @@ import java.time.ZoneId
 class GetMonitorResponseTests {
 
     private val olderVersion = Version.V_3_9_0
-    private val includeBackendRoles = ToXContent.MapParams(mapOf(INCLUDE_BACKEND_ROLES_PARAM to "true"))
 
     @Test
     fun `test get monitor response`() {
@@ -80,7 +78,7 @@ class GetMonitorResponseTests {
         val user = monitor.user!!
         val req = GetMonitorResponse("1234", 1L, 2L, 0L, monitor, null, listOf(user.backendRoles[0]))
 
-        val xContentString = req.toXContent(builder(), includeBackendRoles).string()
+        val xContentString = req.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
         assertTrue(xContentString.contains("\"user\":{\"backend_roles\":[\"${user.backendRoles[0]}\"]}"))
         // The rest of the user object, and the backend role the requester does not belong to, stay hidden.
         assertFalse(xContentString.contains(user.name))
@@ -92,16 +90,6 @@ class GetMonitorResponseTests {
     fun `test toXContent omits the user when no visible backend roles are resolved`() {
         val req = GetMonitorResponse("1234", 1L, 2L, 0L, randomMonitor(), null)
 
-        val xContentString = req.toXContent(builder(), includeBackendRoles).string()
-        assertFalse(xContentString.contains("\"user\""))
-    }
-
-    @Test
-    fun `test toXContent omits the user unless the caller asks for backend roles`() {
-        val monitor = randomMonitor()
-        val req = GetMonitorResponse("1234", 1L, 2L, 0L, monitor, null, monitor.user!!.backendRoles)
-
-        // Default parameters: the response is exactly what it was before backend roles could be exposed.
         val xContentString = req.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
         assertFalse(xContentString.contains("\"user\""))
     }
@@ -142,7 +130,7 @@ class GetMonitorResponseTests {
     fun `test toXContent omits the user when there are no roles to show`() {
         val req = GetMonitorResponse("1234", 1L, 2L, 0L, randomMonitor(), null, emptyList())
 
-        val xContentString = req.toXContent(builder(), includeBackendRoles).string()
+        val xContentString = req.toXContent(builder(), ToXContent.EMPTY_PARAMS).string()
         assertFalse(xContentString.contains("\"user\""))
     }
 

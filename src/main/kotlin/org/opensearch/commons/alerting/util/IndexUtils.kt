@@ -42,12 +42,6 @@ class IndexUtils {
         const val _SEQ_NO = "_seq_no"
         const val _PRIMARY_TERM = "_primary_term"
 
-        /**
-         * Request parameter a caller sets to ask for the backend roles it is entitled to see on a resource.
-         * Off by default, so responses are unchanged unless the caller opts in.
-         */
-        const val INCLUDE_BACKEND_ROLES_PARAM = "include_backend_roles"
-
         var supportedClusterMetricsSettings: SupportedClusterMetricsSettings? = null
     }
 }

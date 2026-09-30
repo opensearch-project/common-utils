@@ -7,7 +7,6 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.Version
 import org.opensearch.commons.alerting.model.Monitor
-import org.opensearch.commons.alerting.util.IndexUtils.Companion.INCLUDE_BACKEND_ROLES_PARAM
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._PRIMARY_TERM
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._SEQ_NO
@@ -117,8 +116,7 @@ class GetMonitorResponse : BaseResponse {
             builder.field("monitor")
             // Nothing to show means nothing is written: no empty user block for a resource that carries no
             // roles, or whose roles the requester shares none of.
-            val visibleBackendRoles = this.visibleBackendRoles
-                ?.takeIf { it.isNotEmpty() && params.paramAsBoolean(INCLUDE_BACKEND_ROLES_PARAM, false) }
+            val visibleBackendRoles = this.visibleBackendRoles?.takeIf { it.isNotEmpty() }
             if (visibleBackendRoles != null) {
                 monitor.toXContentWithBackendRoles(builder, params, visibleBackendRoles)
             } else {

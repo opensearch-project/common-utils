@@ -2,7 +2,6 @@ package org.opensearch.commons.alerting.action
 
 import org.opensearch.Version
 import org.opensearch.commons.alerting.model.Alert
-import org.opensearch.commons.alerting.util.IndexUtils.Companion.INCLUDE_BACKEND_ROLES_PARAM
 import org.opensearch.commons.notifications.action.BaseResponse
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -71,17 +70,12 @@ class GetAlertsResponse : BaseResponse {
 
     @Throws(IOException::class)
     override fun toXContent(builder: XContentBuilder, params: ToXContent.Params): XContentBuilder {
-        val includeBackendRoles = params.paramAsBoolean(INCLUDE_BACKEND_ROLES_PARAM, false)
         builder.startObject()
             .startArray("alerts")
         alerts.forEach { alert ->
             // Nothing to show means nothing is written: no empty monitor_user block for an alert whose
             // monitor carries no roles, or whose roles the requester shares none of.
-            val visibleBackendRoles = if (includeBackendRoles) {
-                this.visibleBackendRoles?.get(alert.id)?.takeIf { it.isNotEmpty() }
-            } else {
-                null
-            }
+            val visibleBackendRoles = this.visibleBackendRoles?.get(alert.id)?.takeIf { it.isNotEmpty() }
             if (visibleBackendRoles != null) {
                 alert.toXContentWithBackendRoles(builder, visibleBackendRoles)
             } else {
