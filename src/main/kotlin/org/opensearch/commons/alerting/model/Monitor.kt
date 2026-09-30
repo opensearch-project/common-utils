@@ -8,6 +8,7 @@ import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSI
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._VERSION
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.supportedClusterMetricsSettings
+import org.opensearch.commons.alerting.util.backendRolesOnlyUserField
 import org.opensearch.commons.alerting.util.instant
 import org.opensearch.commons.alerting.util.isBucketLevelMonitor
 import org.opensearch.commons.alerting.util.isPPLMonitor
@@ -204,7 +205,24 @@ data class Monitor(
         return createXContentBuilder(builder, params, true)
     }
 
-    private fun createXContentBuilder(builder: XContentBuilder, params: ToXContent.Params, secure: Boolean): XContentBuilder {
+    /**
+     * Same as [toXContent], except that the given backend roles are written under the user field. Callers are
+     * responsible for narrowing [visibleBackendRoles] down to the roles the requester is entitled to see.
+     */
+    fun toXContentWithBackendRoles(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+        visibleBackendRoles: List<String>
+    ): XContentBuilder {
+        return createXContentBuilder(builder, params, true, visibleBackendRoles)
+    }
+
+    private fun createXContentBuilder(
+        builder: XContentBuilder,
+        params: ToXContent.Params,
+        secure: Boolean,
+        visibleBackendRoles: List<String>? = null
+    ): XContentBuilder {
         builder.startObject()
         if (params.paramAsBoolean("with_type", false)) builder.startObject(type)
         builder.field(TYPE_FIELD, type)
@@ -215,6 +233,8 @@ data class Monitor(
         if (!secure) {
             builder.optionalUserField(USER_FIELD, user)
             if (!metadata.isNullOrEmpty()) builder.field(METADATA_FIELD, metadata)
+        } else if (visibleBackendRoles != null) {
+            builder.backendRolesOnlyUserField(USER_FIELD, visibleBackendRoles)
         }
 
         builder.field(ENABLED_FIELD, enabled)
