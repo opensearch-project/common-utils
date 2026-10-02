@@ -5,7 +5,9 @@
 
 package org.opensearch.commons.alerting.action
 
+import org.opensearch.Version
 import org.opensearch.commons.alerting.model.Monitor
+import org.opensearch.commons.alerting.util.IndexUtils.Companion.INCLUDE_BACKEND_ROLES_PARAM
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._ID
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._PRIMARY_TERM
 import org.opensearch.commons.alerting.util.IndexUtils.Companion._SEQ_NO
@@ -26,6 +28,12 @@ class GetMonitorResponse : BaseResponse {
     var monitor: Monitor?
     var associatedWorkflows: List<AssociatedWorkflow>?
 
+    /**
+     * The monitor's backend roles that the requesting user is entitled to see, resolved by the transport action.
+     * When null, no backend roles are written to the response.
+     */
+    var visibleBackendRoles: List<String>?
+
     constructor(
         id: String,
         version: Long,
@@ -33,6 +41,16 @@ class GetMonitorResponse : BaseResponse {
         primaryTerm: Long,
         monitor: Monitor?,
         associatedCompositeMonitors: List<AssociatedWorkflow>?
+    ) : this(id, version, seqNo, primaryTerm, monitor, associatedCompositeMonitors, null)
+
+    constructor(
+        id: String,
+        version: Long,
+        seqNo: Long,
+        primaryTerm: Long,
+        monitor: Monitor?,
+        associatedCompositeMonitors: List<AssociatedWorkflow>?,
+        visibleBackendRoles: List<String>?
     ) : super() {
         this.id = id
         this.version = version
@@ -40,6 +58,7 @@ class GetMonitorResponse : BaseResponse {
         this.primaryTerm = primaryTerm
         this.monitor = monitor
         this.associatedWorkflows = associatedCompositeMonitors ?: emptyList()
+        this.visibleBackendRoles = visibleBackendRoles
     }
 
     @Throws(IOException::class)
@@ -50,6 +69,12 @@ class GetMonitorResponse : BaseResponse {
         primaryTerm = sin.readLong(), // primaryTerm
         monitor = if (sin.readBoolean()) {
             Monitor.readFrom(sin) // monitor
+        } else {
+            null
+        },
+        // Read before associatedWorkflows to match the order writeTo uses.
+        visibleBackendRoles = if (sin.version.onOrAfter(Version.V_3_10_0)) {
+            sin.readOptionalStringList()
         } else {
             null
         },
@@ -68,6 +93,13 @@ class GetMonitorResponse : BaseResponse {
         } else {
             out.writeBoolean(false)
         }
+        if (out.version.onOrAfter(Version.V_3_10_0)) {
+            out.writeOptionalStringCollection(visibleBackendRoles)
+            // associatedWorkflows has always been written element by element, with no count, while the
+            // constructor above reads it with readList, which expects one: any stream carrying this response
+            // was unreadable. Write the count on 3.10.0+ streams, leaving older ones exactly as they were.
+            out.writeVInt(associatedWorkflows?.size ?: 0)
+        }
         associatedWorkflows?.forEach {
             it.writeTo(out)
         }
@@ -80,8 +112,18 @@ class GetMonitorResponse : BaseResponse {
             .field(_VERSION, version)
             .field(_SEQ_NO, seqNo)
             .field(_PRIMARY_TERM, primaryTerm)
+        val monitor = this.monitor
         if (monitor != null) {
-            builder.field("monitor", monitor)
+            builder.field("monitor")
+            // Nothing to show means nothing is written: no empty user block for a resource that carries no
+            // roles, or whose roles the requester shares none of.
+            val visibleBackendRoles = this.visibleBackendRoles
+                ?.takeIf { it.isNotEmpty() && params.paramAsBoolean(INCLUDE_BACKEND_ROLES_PARAM, false) }
+            if (visibleBackendRoles != null) {
+                monitor.toXContentWithBackendRoles(builder, params, visibleBackendRoles)
+            } else {
+                monitor.toXContent(builder, params)
+            }
         }
         if (associatedWorkflows != null) {
             builder.field("associated_workflows", associatedWorkflows!!.toTypedArray())

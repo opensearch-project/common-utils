@@ -42,6 +42,12 @@ class IndexUtils {
         const val _SEQ_NO = "_seq_no"
         const val _PRIMARY_TERM = "_primary_term"
 
+        /**
+         * Request parameter a caller sets to ask for the backend roles it is entitled to see on a resource.
+         * Off by default, so responses are unchanged unless the caller opts in.
+         */
+        const val INCLUDE_BACKEND_ROLES_PARAM = "include_backend_roles"
+
         var supportedClusterMetricsSettings: SupportedClusterMetricsSettings? = null
     }
 }
@@ -59,6 +65,17 @@ fun XContentBuilder.optionalUserField(name: String, user: User?): XContentBuilde
         return nullField(name)
     }
     return this.field(name, user)
+}
+
+/**
+ * Writes only the backend roles the caller is allowed to see, under the given user field name.
+ * The user's name, security roles and custom attributes are left out, so a caller learns a
+ * resource's access scope without learning who owns it.
+ */
+fun XContentBuilder.backendRolesOnlyUserField(name: String, backendRoles: List<String>): XContentBuilder {
+    return this.startObject(name)
+        .field(User.BACKEND_ROLES_FIELD, backendRoles)
+        .endObject()
 }
 
 fun XContentBuilder.optionalUsernameField(name: String, user: User?): XContentBuilder {
