@@ -24,6 +24,7 @@ object AlertingActions {
     const val INDEX_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/write"
     const val SEARCH_COMMENTS_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/search"
     const val DELETE_COMMENT_ACTION_NAME = "cluster:admin/opensearch/alerting/comments/delete"
+    const val TOGGLE_MONITOR_ACTION_NAME = "cluster:admin/opensearch/alerting/monitor/toggle"
 
     @JvmField
     val INDEX_MONITOR_ACTION_TYPE =
@@ -88,4 +89,8 @@ object AlertingActions {
     @JvmField
     val DELETE_COMMENT_ACTION_TYPE =
         ActionType(DELETE_COMMENT_ACTION_NAME, ::DeleteCommentResponse)
+
+    @JvmField
+    val TOGGLE_MONITOR_ACTION_TYPE =
+        ActionType(TOGGLE_MONITOR_ACTION_NAME, ::ToggleMonitorResponse)
 }
