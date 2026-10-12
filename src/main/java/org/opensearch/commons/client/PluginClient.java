@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opensearch.action.ActionRequest;
 import org.opensearch.action.ActionType;
-import org.opensearch.common.util.concurrent.ThreadContext;
+import org.opensearch.action.support.ContextPreservingActionListener;
 import org.opensearch.core.action.ActionListener;
 import org.opensearch.core.action.ActionResponse;
 import org.opensearch.identity.Subject;
@@ -42,14 +42,44 @@ public class PluginClient extends FilterClient {
     // transport actions that read it.
     private volatile Subject subject;
 
+    /**
+     * Wraps a client so its actions run as the plugin subject. The subject arrives later, through
+     * {@link #setSubject(Subject)}, so actions executed before then fail fast.
+     *
+     * @param delegate the client whose actions this wraps
+     */
     public PluginClient(Client delegate) {
         super(delegate);
     }
 
+    /**
+     * Wraps a client with its subject already known, for callers that have one before they build the
+     * client. Core assigns the subject after {@code createComponents}, so most plugins cannot use this.
+     *
+     * @param delegate the client whose actions this wraps
+     * @param subject the plugin's system subject
+     */
+    public PluginClient(Client delegate, Subject subject) {
+        super(delegate);
+        this.subject = subject;
+    }
+
+    /**
+     * Assigns the subject every subsequent action runs as, normally the one handed to
+     * {@code IdentityAwarePlugin.assignSubject}.
+     *
+     * @param subject the plugin's system subject
+     */
     public void setSubject(Subject subject) {
         this.subject = subject;
     }
 
+    /**
+     * Runs the action as the assigned subject.
+     *
+     * @param listener notified with the caller's thread context in place, not the subject's
+     * @throws IllegalStateException if no subject has been assigned yet
+     */
     @Override
     protected <Request extends ActionRequest, Response extends ActionResponse> void doExecute(
         ActionType<Response> action,
@@ -61,20 +91,19 @@ public class PluginClient extends FilterClient {
             throw new IllegalStateException("PluginClient is not initialized with a subject.");
         }
 
-        // Saves the caller's context so the listener can be given it back. runAs performs the switch
-        // itself and restores on exit, so this is about the listener, which runs later and on a
-        // thread that never carried the caller's context. newStoredContext(false) over stashContext()
-        // and a local over try-with-resources are both for clarity; neither changes behavior here.
-        ThreadContext.StoredContext storedContext = threadPool().getThreadContext().newStoredContext(false);
+        // Snapshot taken before runAs, which clears the context. Core's wrapper restores the caller's
+        // context around the callback and puts the responding thread's own back afterwards, so the
+        // caller's context is not left behind on a pooled thread.
+        ActionListener<Response> callerContext = ContextPreservingActionListener
+            .wrapPreservingContext(listener, threadPool().getThreadContext());
 
         try {
             currentSubject.runAs(() -> {
                 log.debug("Running transport action as subject: {}", currentSubject.getPrincipal().getName());
-                super.doExecute(action, request, ActionListener.runBefore(listener, storedContext::restore));
+                super.doExecute(action, request, callerContext);
             });
         } catch (Exception e) {
-            // Reported through the listener rather than thrown, so an async caller is not left waiting.
-            storedContext.close();
+            // Reported through the listener so an async caller is not left waiting.
             listener.onFailure(e);
         }
     }
