@@ -58,6 +58,7 @@ public abstract class PluginClient extends FilterClient {
      *
      * @param delegate the client whose actions this wraps
      * @param subject the plugin's system subject
+     * @throws NullPointerException if the subject is null
      */
     protected PluginClient(Client delegate, PluginSubject subject) {
         super(delegate);
@@ -69,11 +70,13 @@ public abstract class PluginClient extends FilterClient {
      * again is a no-op.
      *
      * @param subject the plugin's system subject, normally the one passed to {@code assignSubject}
+     * @throws NullPointerException if the subject is null
      * @throws IllegalStateException if a different subject is already assigned
      */
     public final void setSubject(PluginSubject subject) {
         Objects.requireNonNull(subject, "subject");
-        if (!this.subject.compareAndSet(null, subject) && this.subject.get() != subject) {
+        PluginSubject existing = this.subject.compareAndExchange(null, subject);
+        if (existing != null && existing != subject) {
             throw new IllegalStateException("PluginClient already has a subject assigned.");
         }
     }

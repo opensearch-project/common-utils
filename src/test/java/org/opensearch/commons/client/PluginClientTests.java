@@ -213,7 +213,11 @@ public class PluginClientTests {
         RecordingSubject first = assignSubject();
         pluginClient.setSubject(first);
 
-        assertThrows(IllegalStateException.class, () -> pluginClient.setSubject(new RecordingSubject(threadContext)));
+        assertThrows(IllegalStateException.class, () -> pluginClient.setSubject(new RecordingSubject(threadContext, "second")));
+
+        // The rejected subject must not have replaced the first one.
+        pluginClient.execute(DUMMY_ACTION, new DummyRequest(), ActionListener.noOp());
+        assertEquals("set-by-subject", subjectSeenByDelegate);
     }
 
     @Test
@@ -224,6 +228,9 @@ public class PluginClientTests {
 
     @Test
     public void refusesARemoteClusterClient() {
+        // The delegate does hand out a remote client, so only PluginClient's own refusal can make this throw.
+        when(delegate.getRemoteClusterClient("remote")).thenReturn(mock(Client.class));
+
         assertThrows(UnsupportedOperationException.class, () -> pluginClient.getRemoteClusterClient("remote"));
     }
 
@@ -269,9 +276,15 @@ public class PluginClientTests {
     private static class RecordingSubject implements PluginSubject {
 
         private final ThreadContext threadContext;
+        private final String marker;
 
         RecordingSubject(ThreadContext threadContext) {
+            this(threadContext, "set-by-subject");
+        }
+
+        RecordingSubject(ThreadContext threadContext, String marker) {
             this.threadContext = threadContext;
+            this.marker = marker;
         }
 
         @Override
@@ -282,7 +295,7 @@ public class PluginClientTests {
         @Override
         public <E extends Exception> void runAs(CheckedRunnable<E> runnable) throws E {
             try (ThreadContext.StoredContext ignored = threadContext.stashContext()) {
-                threadContext.putTransient(SUBJECT_TRANSIENT, "set-by-subject");
+                threadContext.putTransient(SUBJECT_TRANSIENT, marker);
                 runnable.run();
             }
         }
