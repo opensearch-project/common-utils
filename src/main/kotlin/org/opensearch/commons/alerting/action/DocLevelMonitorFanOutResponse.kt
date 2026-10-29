@@ -31,7 +31,7 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
         nodeId = sin.readString(),
         executionId = sin.readString(),
         monitorId = sin.readString(),
-        lastRunContexts = sin.readMapAsMutableMap() as MutableMap<String, Any>,
+        lastRunContexts = sin.readMapAsMutableMap(),
         inputResults = InputRunResults.readFrom(sin),
         triggerResults = readTriggerResults(sin),
         exception = sin.readException()
@@ -85,11 +85,10 @@ class DocLevelMonitorFanOutResponse : ActionResponse, ToXContentObject {
     }
 
     companion object {
-        private fun readTriggerResults(sin: StreamInput): Map<String, DocumentLevelTriggerRunResult> {
-            val raw = sin.readMap(StreamInput::readString, DocumentLevelTriggerRunResult::readFrom)
-            if (raw.isEmpty()) return mutableMapOf()
-            @Suppress("UNCHECKED_CAST")
-            return HashMap(raw as Map<String, DocumentLevelTriggerRunResult>)
-        }
+        @Suppress("UNCHECKED_CAST")
+        private fun readTriggerResults(sin: StreamInput): Map<String, DocumentLevelTriggerRunResult> =
+            HashMap(sin.readMap(StreamInput::readString, DocumentLevelTriggerRunResult::readFrom)
+                as Map<String, DocumentLevelTriggerRunResult>)
     }
 }
+

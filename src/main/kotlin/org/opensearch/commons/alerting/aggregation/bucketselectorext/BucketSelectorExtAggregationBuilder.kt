@@ -42,8 +42,7 @@ class BucketSelectorExtAggregationBuilder :
     @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
     constructor(sin: StreamInput) : super(sin, NAME.preferredName) {
-        @Suppress("UNCHECKED_CAST")
-        bucketsPathsMap = (sin.readMap()?.toMutableMap() ?: mutableMapOf()) as Map<String, String>
+        bucketsPathsMap = (sin.readMap()?.let { HashMap(it) } ?: mutableMapOf()) as Map<String, String>
         script = Script(sin)
         gapPolicy = BucketHelpers.GapPolicy.readFrom(sin)
         parentBucketPath = sin.readString()

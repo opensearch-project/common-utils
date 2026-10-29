@@ -12,6 +12,9 @@ import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.common.settings.Settings
 import org.opensearch.commons.alerting.action.DocLevelMonitorFanOutResponse
 import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregationBuilder
+import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtAggregator
+import org.opensearch.commons.alerting.aggregation.bucketselectorext.BucketSelectorExtFilter
+import org.opensearch.commons.alerting.model.WorkflowRunContext
 import org.opensearch.commons.alerting.model.ActionExecutionTime
 import org.opensearch.commons.alerting.model.ActionRunResult
 import org.opensearch.commons.alerting.model.AggregationResultBucket
@@ -30,6 +33,9 @@ import org.opensearch.commons.alerting.model.TriggerRunResult
 import org.opensearch.commons.alerting.model.WorkflowRunResult
 import org.opensearch.commons.alerting.util.getBucketKeysHash
 import org.opensearch.core.common.io.stream.NamedWriteableAwareStreamInput
+import org.opensearch.search.aggregations.bucket.terms.IncludeExclude
+import org.opensearch.search.aggregations.pipeline.BucketHelpers
+import org.opensearch.script.Script
 import org.opensearch.core.common.io.stream.NamedWriteableRegistry
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.search.SearchModule
@@ -715,5 +721,90 @@ class ImmutableMapDeserializationTests {
         assertTrue(deserialized.bucketsPathsMap.isEmpty())
         // Verify mutability
         assertMutableMap(deserialized.bucketsPathsMap)
+    }
+
+    // -------------------------------------------------------------------------
+    // BucketSelectorExtAggregator.bucketsPathsMap (previously missed)
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `BucketSelectorExtAggregator with empty bucketsPathsMap survives serialization round-trip`() {
+        // BucketSelectorExtAggregator reads in this order:
+        //   super(sin.readString(), null, null)  ← aggregator name
+        //   script = Script(sin)
+        //   gapPolicy = GapPolicy.readFrom(sin)
+        //   bucketsPathsMap = sin.readMap()      ← the bug site
+        //   parentBucketPath = sin.readString()
+        //   if (sin.readBoolean()) BucketSelectorExtFilter(sin)
+        val out = BytesStreamOutput()
+        val aggName = "test-aggregator"
+        val parentBucketPath = "test-parent"
+        val script = Script("return true")
+        val filter = BucketSelectorExtFilter(IncludeExclude("foo*", "bar*"))
+
+        out.writeString(aggName)
+        script.writeTo(out)
+        BucketHelpers.GapPolicy.SKIP.writeTo(out)
+        out.writeMap(emptyMap<String, String>())   // empty bucketsPathsMap — the bug trigger
+        out.writeString(parentBucketPath)
+        out.writeBoolean(true)
+        filter.writeTo(out)
+
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = BucketSelectorExtAggregator(sin)
+
+        assertEquals(aggName, deserialized.name())
+        assertTrue(deserialized.bucketsPathsMap.isEmpty())
+        // Verify mutability — must not throw UnsupportedOperationException or ClassCastException
+        assertMutableMap(deserialized.bucketsPathsMap)
+    }
+
+    // -------------------------------------------------------------------------
+    // WorkflowRunContext.matchingDocIdsPerIndex (previously missed)
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `WorkflowRunContext with empty matchingDocIdsPerIndex survives serialization round-trip`() {
+        val original = WorkflowRunContext(
+            workflowId = "wf-id",
+            workflowMetadataId = "wf-meta-id",
+            chainedMonitorId = null,
+            matchingDocIdsPerIndex = emptyMap(),
+            auditDelegateMonitorAlerts = false,
+            findingIds = emptyList()
+        )
+
+        val out = BytesStreamOutput()
+        original.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = WorkflowRunContext(sin)
+
+        assertEquals(original.workflowId, deserialized.workflowId)
+        assertTrue(deserialized.matchingDocIdsPerIndex.isEmpty())
+        // Verify mutability — must not throw UnsupportedOperationException or ClassCastException
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.matchingDocIdsPerIndex as MutableMap<String, List<String>>)["__mutable_check__"] = listOf("x")
+        @Suppress("UNCHECKED_CAST")
+        (deserialized.matchingDocIdsPerIndex as MutableMap<String, List<String>>).remove("__mutable_check__")
+    }
+
+    @Test
+    fun `WorkflowRunContext with non-empty matchingDocIdsPerIndex survives serialization round-trip`() {
+        val original = WorkflowRunContext(
+            workflowId = "wf-id",
+            workflowMetadataId = "wf-meta-id",
+            chainedMonitorId = "chained-monitor",
+            matchingDocIdsPerIndex = mapOf("index-a" to listOf("doc1", "doc2")),
+            auditDelegateMonitorAlerts = true,
+            findingIds = listOf("finding-1")
+        )
+
+        val out = BytesStreamOutput()
+        original.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val deserialized = WorkflowRunContext(sin)
+
+        assertEquals(original.workflowId, deserialized.workflowId)
+        assertEquals(original.matchingDocIdsPerIndex, deserialized.matchingDocIdsPerIndex)
     }
 }
