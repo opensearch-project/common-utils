@@ -6,6 +6,7 @@
 package org.opensearch.commons.alerting.model
 
 import org.opensearch.Version
+import org.opensearch.commons.alerting.util.readMapAsMutableMap
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
 import org.opensearch.core.common.io.stream.Writeable
@@ -29,8 +30,8 @@ data class IndexExecutionContext(
     @Throws(IOException::class)
     constructor(sin: StreamInput) : this(
         queries = sin.readList { DocLevelQuery(sin) },
-        lastRunContext = sin.readMap() as MutableMap<String, Any>,
-        updatedLastRunContext = sin.readMap() as MutableMap<String, Any>,
+        lastRunContext = sin.readMapAsMutableMap() as MutableMap<String, Any>,
+        updatedLastRunContext = sin.readMapAsMutableMap() as MutableMap<String, Any>,
         indexName = sin.readString(),
         concreteIndexName = sin.readString(),
         updatedIndexNames = sin.readStringList(),

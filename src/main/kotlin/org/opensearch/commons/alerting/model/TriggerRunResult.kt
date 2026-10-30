@@ -45,11 +45,4 @@ abstract class TriggerRunResult(
         out.writeString(triggerName)
         out.writeException(error)
     }
-
-    companion object {
-        @Suppress("UNCHECKED_CAST")
-        fun suppressWarning(map: MutableMap<String?, Any?>?): MutableMap<String, ActionRunResult> {
-            return map as MutableMap<String, ActionRunResult>
-        }
-    }
 }
