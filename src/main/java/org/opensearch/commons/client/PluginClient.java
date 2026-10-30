@@ -26,6 +26,26 @@ import org.opensearch.transport.client.FilterClient;
  * lets a local request with no user through without evaluating privileges, whereas the plugin
  * subject is authorized only for the plugin's own system indices and the permissions it declares.
  * <p>
+ * The subject may run any index action on the plugin's own registered system indices. Every other
+ * permission must be declared in a {@code plugin-additional-permissions.yml} resource that the
+ * security plugin loads from the plugin's classpath, in the role format:
+ * <pre>
+ * cluster_permissions:
+ *   - "indices:data/read/mget"
+ * index_permissions:
+ *   - index_patterns: ["my-plugin-results-*"]
+ *     allowed_actions: ["indices:data/read/search*", "indices:data/write/bulk*"]
+ * </pre>
+ * Security treats some actions that look like index actions as cluster actions: mget, msearch,
+ * scroll and scroll clear, mtv, reindex, the template actions, and any action not starting with
+ * {@code indices:}. Declare these under {@code cluster_permissions}, even for system indices. Bulk
+ * is granted automatically. A write to an index that is not a registered system index runs as
+ * {@code indices:data/write/bulk[s]} on the shard, so its index pattern needs that action. Prefer
+ * literal action names or wildcards, since some versions do not resolve action group names here,
+ * and include the {@code cluster_permissions} key even when the list is empty, since some versions
+ * fail to start without it. Without a declaration the request is denied, but only on a cluster that
+ * runs the security plugin.
+ * <p>
  * Core assigns the subject through {@code IdentityAwarePlugin.assignSubject} after
  * {@code createComponents}, with or without the security plugin installed. Build this client in
  * {@code createComponents} and call {@link #setSubject(PluginSubject)} from {@code assignSubject}.
