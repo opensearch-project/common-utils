@@ -117,6 +117,25 @@ public class PluginClientTests {
     }
 
     @Test
+    public void listenerCompletedInsideRunAsSeesTheCallerContext() {
+        threadContext.putTransient(CALLER_TRANSIENT, "set-by-caller");
+        assignSubject();
+        // Completes on the calling thread while the subject's context is still in place, as a local
+        // action that fails validation does.
+        delegateBehaviour = listener -> listener.onResponse(new DummyResponse());
+
+        AtomicReference<String> callerSeen = new AtomicReference<>("listener did not run");
+        AtomicReference<String> subjectSeen = new AtomicReference<>("listener did not run");
+        pluginClient.execute(DUMMY_ACTION, new DummyRequest(), ActionListener.wrap(r -> {
+            callerSeen.set(threadContext.getTransient(CALLER_TRANSIENT));
+            subjectSeen.set(threadContext.getTransient(SUBJECT_TRANSIENT));
+        }, e -> {}));
+
+        assertEquals("set-by-caller", callerSeen.get());
+        assertNull(subjectSeen.get(), "the subject's context must not reach the listener");
+    }
+
+    @Test
     public void restoresTheRespondingThreadsContextAfterTheListenerReturns() throws Exception {
         threadContext.putTransient(CALLER_TRANSIENT, "set-by-caller");
         assignSubject();
@@ -251,7 +270,7 @@ public class PluginClientTests {
         completeOnAnotherThread(completion);
 
         assertEquals("set-by-caller", callerSeen.get());
-        assertNull(subjectSeen.get(), "the subject's context must not leak into the listener");
+        assertNull(subjectSeen.get(), "the subject's context must not reach the listener");
     }
 
     private RecordingSubject assignSubject() {
