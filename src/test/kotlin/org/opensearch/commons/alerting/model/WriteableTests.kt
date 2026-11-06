@@ -3,6 +3,7 @@ package org.opensearch.commons.alerting.model
 import org.junit.Assert
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.opensearch.Version
 import org.opensearch.common.UUIDs
 import org.opensearch.common.io.stream.BytesStreamOutput
 import org.opensearch.commons.alerting.model.action.Action
@@ -127,6 +128,48 @@ class WriteableTests {
         val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
         val newMonitor = Monitor(sin)
         Assertions.assertEquals(monitor, newMonitor, "Round tripping QueryLevelMonitor doesn't work")
+    }
+
+    @Test
+    fun `test monitor with createdBy as stream`() {
+        val monitor = randomQueryLevelMonitor().copy(
+            inputs = listOf(SearchInput(emptyList(), SearchSourceBuilder())),
+            createdBy = "creator"
+        )
+        val out = BytesStreamOutput()
+        monitor.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newMonitor = Monitor(sin)
+        Assertions.assertEquals(monitor, newMonitor, "Round tripping Monitor with createdBy doesn't work")
+        Assertions.assertEquals("creator", newMonitor.createdBy)
+    }
+
+    @Test
+    fun `test monitor with null createdBy as stream`() {
+        val monitor = randomQueryLevelMonitor().copy(inputs = listOf(SearchInput(emptyList(), SearchSourceBuilder())), createdBy = null)
+        val out = BytesStreamOutput()
+        monitor.writeTo(out)
+        val sin = StreamInput.wrap(out.bytes().toBytesRef().bytes)
+        val newMonitor = Monitor(sin)
+        Assertions.assertEquals(monitor, newMonitor, "Round tripping Monitor with null createdBy doesn't work")
+    }
+
+    @Test
+    fun `test monitor createdBy is not sent to pre-3_10 nodes`() {
+        val monitor = randomQueryLevelMonitor().copy(
+            inputs = listOf(SearchInput(emptyList(), SearchSourceBuilder())),
+            metadata = mapOf("appId" to "app1"),
+            createdBy = "creator"
+        )
+        val out = BytesStreamOutput()
+        out.version = Version.V_3_9_0
+        monitor.writeTo(out)
+        val sin = out.bytes().streamInput()
+        sin.version = Version.V_3_9_0
+        val newMonitor = Monitor(sin)
+        Assertions.assertNull(newMonitor.createdBy)
+        Assertions.assertEquals(monitor.copy(createdBy = null), newMonitor, "Fields must still align for a pre-3.10 stream")
+        Assertions.assertEquals(0, sin.available(), "Stream must be fully consumed")
     }
 
     @Test
