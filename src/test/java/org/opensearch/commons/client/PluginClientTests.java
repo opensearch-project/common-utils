@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -225,6 +227,30 @@ public class PluginClientTests {
             () -> pluginClient.execute(DUMMY_ACTION, new DummyRequest(), ActionListener.noOp())
         );
         assertTrue(e.getMessage().contains("subject"));
+        verify(delegate, never()).execute(any(ActionType.class), any(ActionRequest.class), any(ActionListener.class));
+    }
+
+    @Test
+    public void leavesTheCallersContextInPlaceAfterExecuteReturns() {
+        threadContext.putTransient(CALLER_TRANSIENT, "set-by-caller");
+        assignSubject();
+
+        pluginClient.execute(DUMMY_ACTION, new DummyRequest(), ActionListener.noOp());
+
+        assertEquals("set-by-caller", threadContext.getTransient(CALLER_TRANSIENT));
+        assertNull(threadContext.getTransient(SUBJECT_TRANSIENT), "the subject's context must not stay on the calling thread");
+    }
+
+    @Test
+    public void leavesTheCallersContextInPlaceAfterExecuteThrows() {
+        threadContext.putTransient(CALLER_TRANSIENT, "set-by-caller");
+        assignSubject();
+        delegateBehaviour = listener -> { throw new RuntimeException("failed to find action"); };
+
+        assertThrows(RuntimeException.class, () -> pluginClient.execute(DUMMY_ACTION, new DummyRequest(), ActionListener.noOp()));
+
+        assertEquals("set-by-caller", threadContext.getTransient(CALLER_TRANSIENT));
+        assertNull(threadContext.getTransient(SUBJECT_TRANSIENT), "the subject's context must not stay on the calling thread");
     }
 
     @Test
