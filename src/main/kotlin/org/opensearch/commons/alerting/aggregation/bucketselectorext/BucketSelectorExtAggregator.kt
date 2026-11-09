@@ -18,7 +18,7 @@ import java.io.IOException
 
 class BucketSelectorExtAggregator : SiblingPipelineAggregator {
     private var name: String? = null
-    private var bucketsPathsMap: Map<String, String>
+    internal var bucketsPathsMap: Map<String, String>
     private var parentBucketPath: String
     private var script: Script
     private var gapPolicy: BucketHelpers.GapPolicy
@@ -48,7 +48,7 @@ class BucketSelectorExtAggregator : SiblingPipelineAggregator {
     constructor(sin: StreamInput) : super(sin.readString(), null, null) {
         script = Script(sin)
         gapPolicy = BucketHelpers.GapPolicy.readFrom(sin)
-        bucketsPathsMap = sin.readMap() as Map<String, String>
+        bucketsPathsMap = (sin.readMap()?.let { HashMap(it) } ?: mutableMapOf()) as Map<String, String>
         parentBucketPath = sin.readString()
         if (sin.readBoolean()) {
             bucketSelectorExtFilter = BucketSelectorExtFilter(sin)
