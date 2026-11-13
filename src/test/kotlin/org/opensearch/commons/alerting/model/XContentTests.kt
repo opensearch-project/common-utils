@@ -1,6 +1,8 @@
 package org.opensearch.commons.alerting.model
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.opensearch.common.io.stream.BytesStreamOutput
@@ -164,6 +166,37 @@ class XContentTests {
         val monitorString = monitor.toJsonStringWithUser()
         val parsedMonitor = Monitor.parse(parser(monitorString))
         assertEquals("Round tripping Monitor with null metadata doesn't work", monitor, parsedMonitor)
+    }
+
+    @Test
+    fun `test monitor with createdBy round-trip`() {
+        val monitor = randomQueryLevelMonitor().copy(createdBy = "creator")
+        val parsedMonitor = Monitor.parse(parser(monitor.toJsonStringWithUser()))
+        assertEquals("Round tripping Monitor with createdBy doesn't work", monitor, parsedMonitor)
+        assertEquals("creator", parsedMonitor.createdBy)
+    }
+
+    @Test
+    fun `test monitor createdBy is included in API response`() {
+        val monitor = randomQueryLevelMonitor().copy(createdBy = "creator")
+        val parsedMonitor = Monitor.parse(parser(monitor.toJsonString()))
+        assertEquals("creator", parsedMonitor.createdBy)
+        assertNull("user must stay hidden from API responses", parsedMonitor.user)
+    }
+
+    @Test
+    fun `test monitor with null createdBy omits the field`() {
+        val monitor = randomQueryLevelMonitor().copy(createdBy = null)
+        val monitorString = monitor.toJsonStringWithUser()
+        assertFalse(monitorString.contains(Monitor.CREATED_BY_FIELD))
+        assertNull(Monitor.parse(parser(monitorString)).createdBy)
+    }
+
+    @Test
+    fun `test monitor parsing with explicit null createdBy`() {
+        val monitorString = randomQueryLevelMonitor().copy(createdBy = null).toJsonStringWithUser()
+            .replaceFirst("{", "{\"${Monitor.CREATED_BY_FIELD}\":null,")
+        assertNull(Monitor.parse(parser(monitorString)).createdBy)
     }
 
     @Test

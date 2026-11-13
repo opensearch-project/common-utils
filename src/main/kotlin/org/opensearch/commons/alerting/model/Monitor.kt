@@ -47,7 +47,8 @@ data class Monitor(
     val shouldCreateSingleAlertForFindings: Boolean? = false,
     val owner: String? = "alerting",
     val metadata: Map<String, String>? = null,
-    val target: Target? = null
+    val target: Target? = null,
+    val createdBy: String? = null
 ) : ScheduledJob {
 
     override val type = MONITOR_TYPE
@@ -164,7 +165,8 @@ data class Monitor(
             if (sin.readBoolean()) Target(sin) else null
         } else {
             null
-        }
+        },
+        createdBy = if (sin.version.onOrAfter(Version.V_3_10_0)) sin.readOptionalString() else null
     )
 
     // This enum classifies different Monitors
@@ -229,6 +231,7 @@ data class Monitor(
         builder.field(SHOULD_CREATE_SINGLE_ALERT_FOR_FINDINGS_FIELD, shouldCreateSingleAlertForFindings)
         builder.field(OWNER_FIELD, owner)
         if (target != null) builder.field(TARGET_FIELD, target)
+        if (createdBy != null) builder.field(CREATED_BY_FIELD, createdBy)
         if (params.paramAsBoolean("with_type", false)) builder.endObject()
         return builder.endObject()
     }
@@ -301,6 +304,9 @@ data class Monitor(
             out.writeBoolean(target != null)
             target?.writeTo(out)
         }
+        if (out.version.onOrAfter(Version.V_3_10_0)) {
+            out.writeOptionalString(createdBy)
+        }
     }
 
     companion object {
@@ -325,6 +331,7 @@ data class Monitor(
         const val OWNER_FIELD = "owner"
         const val METADATA_FIELD = "metadata"
         const val TARGET_FIELD = "target"
+        const val CREATED_BY_FIELD = "created_by"
         val MONITOR_TYPE_PATTERN = Pattern.compile("[a-zA-Z0-9_]{5,25}")
 
         // hard, nonadjustable limits for PPL Alerting
@@ -361,6 +368,7 @@ data class Monitor(
             var owner = "alerting"
             var metadata: Map<String, String>? = null
             var target: Target? = null
+            var createdBy: String? = null
 
             XContentParserUtils.ensureExpectedToken(XContentParser.Token.START_OBJECT, xcp.currentToken(), xcp)
             while (xcp.nextToken() != XContentParser.Token.END_OBJECT) {
@@ -441,6 +449,7 @@ data class Monitor(
                     } else {
                         Target.parse(xcp)
                     }
+                    CREATED_BY_FIELD -> createdBy = if (xcp.currentToken() == XContentParser.Token.VALUE_NULL) null else xcp.text()
                     else -> {
                         xcp.skipChildren()
                     }
@@ -471,7 +480,8 @@ data class Monitor(
                 delegateMonitor,
                 owner,
                 metadata,
-                target
+                target,
+                createdBy
             )
         }
 
