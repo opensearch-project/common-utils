@@ -19,7 +19,6 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Sai Vikhyath          | [vikhy-aws](https://github.com/vikhy-aws)         | Amazon      |
 | Manaswini Ragamouni   | [manaswini1920](https://github.com/manaswini1920) | Amazon      |
 | Nishtha Mehrotra            | [nishtham-amazon](https://github.com/nishtham-amazon) | Amazon   |
-| Kash Kondaka         | [KashKondaka](https://github.com/KashKondaka)     | Amazon      |
 
 
 ## Emeritus
@@ -31,3 +30,4 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Mohammad Qureshi      | [qreshi](https://github.com/qreshi)       | Amazon      |
 | Subhobrata Dey        | [sbcd90](https://github.com/sbcd90)               | Amazon      |
 | Joanne Wang           | [jowg-amazon](https://github.com/jowg-amazon)     | Amazon      |
+| Kash Kondaka  | [KashKondaka](https://github.com/KashKondaka)     | Amazon      |
