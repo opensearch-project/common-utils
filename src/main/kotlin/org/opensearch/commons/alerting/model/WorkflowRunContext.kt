@@ -28,11 +28,12 @@ data class WorkflowRunContext(
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     constructor(sin: StreamInput) : this(
         workflowId = sin.readString(),
         workflowMetadataId = sin.readString(),
         chainedMonitorId = sin.readOptionalString(),
-        matchingDocIdsPerIndex = sin.readMap() as Map<String, List<String>>,
+        matchingDocIdsPerIndex = (sin.readMap()?.let { HashMap(it) } ?: mutableMapOf()) as Map<String, List<String>>,
         auditDelegateMonitorAlerts = sin.readBoolean(),
         findingIds = if (sin.version.onOrAfter(Version.V_2_15_0)) sin.readOptionalStringList() else emptyList()
     )
