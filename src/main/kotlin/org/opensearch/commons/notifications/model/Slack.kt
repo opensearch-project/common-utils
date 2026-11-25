@@ -5,8 +5,8 @@
 package org.opensearch.commons.notifications.model
 
 import org.opensearch.commons.notifications.NotificationConstants.URL_TAG
+import org.opensearch.commons.notifications.validateUrlOrKeystoreReference
 import org.opensearch.commons.utils.logger
-import org.opensearch.commons.utils.validateUrl
 import org.opensearch.core.common.Strings
 import org.opensearch.core.common.io.stream.StreamInput
 import org.opensearch.core.common.io.stream.StreamOutput
@@ -26,7 +26,7 @@ data class Slack(
 
     init {
         require(!Strings.isNullOrEmpty(url)) { "URL is null or empty" }
-        validateUrl(url)
+        validateUrlOrKeystoreReference(url)
     }
 
     companion object {
