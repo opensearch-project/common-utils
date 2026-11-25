@@ -5,6 +5,7 @@ import org.opensearch.common.lucene.uid.Versions
 import org.opensearch.commons.alerting.alerts.AlertError
 import org.opensearch.commons.alerting.model.Monitor.Companion.suppressWarning
 import org.opensearch.commons.alerting.util.IndexUtils.Companion.NO_SCHEMA_VERSION
+import org.opensearch.commons.alerting.util.backendRolesOnlyUserField
 import org.opensearch.commons.alerting.util.instant
 import org.opensearch.commons.alerting.util.optionalTimeField
 import org.opensearch.commons.alerting.util.optionalUserField
@@ -692,7 +693,19 @@ data class Alert(
         return createXContentBuilder(builder, false)
     }
 
-    private fun createXContentBuilder(builder: XContentBuilder, secure: Boolean): XContentBuilder {
+    /**
+     * Same as [toXContent], except that the given backend roles are written under the monitor user field. Callers
+     * are responsible for narrowing [visibleBackendRoles] down to the roles the requester is entitled to see.
+     */
+    fun toXContentWithBackendRoles(builder: XContentBuilder, visibleBackendRoles: List<String>): XContentBuilder {
+        return createXContentBuilder(builder, true, visibleBackendRoles)
+    }
+
+    private fun createXContentBuilder(
+        builder: XContentBuilder,
+        secure: Boolean,
+        visibleBackendRoles: List<String>? = null
+    ): XContentBuilder {
         builder.startObject()
             .field(ALERT_ID_FIELD, id)
             .field(ALERT_VERSION_FIELD, version)
@@ -707,6 +720,8 @@ data class Alert(
 
         if (!secure) {
             builder.optionalUserField(MONITOR_USER_FIELD, monitorUser)
+        } else if (visibleBackendRoles != null) {
+            builder.backendRolesOnlyUserField(MONITOR_USER_FIELD, visibleBackendRoles)
         }
 
         builder.field(TRIGGER_ID_FIELD, triggerId)
